@@ -10,9 +10,12 @@ from fastapi.staticfiles import StaticFiles
 
 from vocation.config import Settings, get_settings
 from vocation.api.criteria_routes import router as criteria_router
+from vocation.api.import_routes import router as import_router
 from vocation.api.prompt_routes import router as prompt_router
 from vocation.application.criteria import CriteriaService
+from vocation.application.imports import ImportService
 from vocation.application.prompts import PromptService
+from vocation.infrastructure.bundle_repository import SqlAlchemyImportRepository
 from vocation.infrastructure.database import Database
 from vocation.infrastructure.repositories import SqlAlchemyCriteriaRepository, SqlAlchemyPromptRunRepository
 
@@ -39,6 +42,11 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         settings.initial_prompt_path,
         settings.output_contract_path,
     )
+    app.state.import_service = ImportService(
+        SqlAlchemyImportRepository(database.session_factory),
+        app.state.criteria_service,
+        settings.schema_path,
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -53,6 +61,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
 
     app.include_router(criteria_router)
     app.include_router(prompt_router)
+    app.include_router(import_router)
 
     frontend_dist: Path = settings.frontend_dist
     if frontend_dist.exists():

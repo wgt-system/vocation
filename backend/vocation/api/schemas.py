@@ -59,3 +59,26 @@ class GeneratedPromptResponse(BaseModel):
     prompt_text: str
     bundle_version: str
     criteria_count: int
+
+
+class ImportTextPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    content: str
+
+
+class ImportIssueResponse(BaseModel):
+    severity: str
+    code: str
+    path: str
+    message: str
+
+
+class ImportReportResponse(BaseModel):
+    import_id: str
+    status: str
+    bundle_id: str | None
+    fingerprint: str | None
+    counts: dict[str, int]
+    warnings: list[str]
+    issues: list[ImportIssueResponse]
+    duplicate_of_import_id: str | None = None
