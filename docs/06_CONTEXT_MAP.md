@@ -1,0 +1,86 @@
+# Vocation – Context Map
+
+**Status:** Draft 0.2
+
+## Kontexte
+
+### External Research Context
+
+Verantwortlich für Recherche, Quellenvergleich, Analyse und Erzeugung eines Research Bundle.
+
+### Vocation Context
+
+Besitzt Opportunities, Postings, Companies, Observations, Assessments, Decisions, Groups, Prompt Runs, Imports und Vocation Read Models.
+
+### Wiiii Got This Context
+
+Besitzt Geräte-, Plattform-, Service- und Integrationslogik.
+
+### Illumination Context
+
+Besitzt Fragen, Lösungen, Übungen und Lernfortschritt.
+
+### möglicher Shared Map Context
+
+Kann später serviceübergreifende Map Contributions rendern und kombinieren.
+
+## Research → Vocation
+
+Muster:
+
+- Upstream/Downstream
+- Published Language: Research Bundle
+- Anticorruption Layer
+- Customer/Supplier
+
+Vocation definiert die für einen belastbaren Import benötigten Felder. Research kann zusätzliche Informationen liefern, aber nicht Vocation-interne Decisions verändern.
+
+## Vocation → Research
+
+Vocation veröffentlicht keinen Domain-Schreibzugriff. Es erzeugt stattdessen Research Prompts und Prompt Context Snapshots. Diese sind eine kontrollierte, read-only Übergabe an den Research Context.
+
+Muster:
+
+- Published Language: Research Prompt Package
+- Customer/Supplier
+- keine gemeinsame Domain Entity
+
+## Vocation → Wiiii Got This
+
+Muster:
+
+- Open Host Service
+- Published Read Contracts
+- Customer/Supplier
+
+Vocation entscheidet fachliche Inhalte; WGT entscheidet Geräte- und Plattformdarstellung.
+
+## Vocation ↔ Illumination
+
+Version 1: `Separate Ways`.
+
+Später optional: Published Language für Learning References.
+
+## Vocation → Shared Map Context
+
+Später optional:
+
+- Published Language: Map Contribution
+- Customer/Supplier
+
+Vocation besitzt Work Location und Map Projection. Ein Map Context besitzt Rendering und serviceübergreifende Komposition.
+
+## Externe Provider
+
+- Geocoder: Anticorruption Layer
+- Map Tiles: technische Infrastruktur
+- Browser/Operating System: technischer Adapter
+
+## Verbotene Kopplungen
+
+- direkter Datenbankzugriff zwischen Kontexten,
+- gemeinsame Domain Entities,
+- gemeinsame Fachlogikbibliotheken,
+- WGT modelliert JobOpportunity intern,
+- Map Context liest Vocation-Tabellen,
+- Research Bundle wird direkt persistiert als Domain Model.

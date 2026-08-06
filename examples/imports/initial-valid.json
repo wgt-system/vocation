@@ -1,0 +1,79 @@
+{
+  "bundle_version": "1.0",
+  "bundle_id": "example-initial-001",
+  "generated_at": "2026-08-06T17:00:00Z",
+  "research_scope": {
+    "type": "initial_market_research",
+    "as_of_date": "2026-08-06",
+    "requested_vocation_ids": [],
+    "requested_fields": []
+  },
+  "sources": [
+    {
+      "id": "src-company",
+      "name": "Example Careers",
+      "type": "company_careers",
+      "base_url": "https://example.com/careers"
+    }
+  ],
+  "companies": [
+    {
+      "id": "cmp-example",
+      "canonical_name": "Example GmbH",
+      "official_website": "https://example.com"
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "opp-example",
+      "company_id": "cmp-example",
+      "canonical_title": "Junior Softwareentwickler",
+      "work_locations": [
+        {
+          "city": "Hamburg",
+          "precision": "city"
+        }
+      ]
+    }
+  ],
+  "postings": [
+    {
+      "id": "post-example",
+      "source_id": "src-company",
+      "opportunity_id": "opp-example",
+      "title": "Junior Softwareentwickler",
+      "url": "https://example.com/careers/junior-dev",
+      "published_at": "2026-08-01",
+      "observed_at": "2026-08-06T16:00:00Z",
+      "availability": "explicitly_available"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs-tech",
+      "subject_type": "posting",
+      "subject_id": "post-example",
+      "type": "technology_requirement",
+      "value": [
+        "Java",
+        "Maven"
+      ],
+      "observed_at": "2026-08-06T16:00:00Z",
+      "source_id": "src-company",
+      "confidence": 0.95,
+      "evidence_summary": "Technologies listed in requirements"
+    }
+  ],
+  "assessments": [
+    {
+      "id": "ass-fit",
+      "subject_type": "opportunity",
+      "subject_id": "opp-example",
+      "assessment_type": "fit",
+      "origin": "external_research",
+      "created_at": "2026-08-06T16:30:00Z",
+      "reasoning": "Junior role with relevant Java/Maven stack"
+    }
+  ],
+  "warnings": []
+}

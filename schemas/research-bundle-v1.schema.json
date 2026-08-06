@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/vocation/research-bundle-v1.schema.json",
+  "title": "Vocation Research Bundle 1.0",
+  "type": "object",
+  "required": [
+    "bundle_version",
+    "bundle_id",
+    "generated_at",
+    "research_scope",
+    "sources",
+    "companies",
+    "opportunities",
+    "postings",
+    "observations",
+    "assessments"
+  ],
+  "properties": {
+    "bundle_version": {
+      "const": "1.0"
+    },
+    "bundle_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "research_scope": {
+      "type": "object",
+      "required": [
+        "type",
+        "as_of_date"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "initial_market_research",
+            "full_update",
+            "company_update",
+            "opportunity_update",
+            "gap_filling",
+            "availability_check",
+            "custom_subset"
+          ]
+        },
+        "as_of_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "requested_vocation_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requested_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "base_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "companies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "canonical_name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "canonical_name": {
+            "type": "string"
+          },
+          "alternative_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "official_website": {
+            "type": "string",
+            "format": "uri"
+          },
+          "vocation_company_id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "opportunities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "canonical_title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "company_id": {
+            "type": "string"
+          },
+          "canonical_title": {
+            "type": "string"
+          },
+          "vocation_opportunity_id": {
+            "type": "string"
+          },
+          "work_locations": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "postings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "title",
+          "observed_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "opportunity_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https?://"
+          },
+          "external_posting_id": {
+            "type": "string"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "availability": {
+            "enum": [
+              "reachable",
+              "explicitly_available",
+              "explicitly_unavailable",
+              "not_found",
+              "temporarily_unreachable",
+              "unknown"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "subject_type",
+          "subject_id",
+          "type",
+          "value",
+          "observed_at",
+          "source_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "company",
+              "opportunity",
+              "posting"
+            ]
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "value": {},
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "evidence_summary": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "assessments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "subject_type",
+          "subject_id",
+          "assessment_type",
+          "origin",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "company",
+              "opportunity",
+              "posting"
+            ]
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "assessment_type": {
+            "type": "string"
+          },
+          "origin": {
+            "const": "external_research"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reasoning": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}
