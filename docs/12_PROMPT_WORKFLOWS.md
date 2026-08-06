@@ -78,6 +78,8 @@ Ein generiertes Prompt-Paket enthält:
 9. Regel „nur JSON“,
 10. Bundle Version.
 
+Der Output Contract wird vollständig in den gerenderten Prompt eingebettet. Ein Prompt darf nicht auf lokale Repository-Pfade verweisen. Initial Research enthält außerdem den Snapshot aller zu diesem Zeitpunkt aktiven Vocation Assessment Criteria einschließlich Value Type, erlaubter Skala/Werte und Applicable Subject Type.
+
 ## 4. Prompt-Kontext minimieren
 
 Nur für den Scope benötigte Daten werden eingebettet.
@@ -110,7 +112,9 @@ Jeder Prompt verlangt:
 - `bundle_version: "1.0"`,
 - expliziten Research Scope,
 - Quellen und Zeitpunkte,
-- keine erfundenen Vocation-IDs.
+- keine erfundenen Vocation-IDs,
+- keine unbekannten Properties oder Assessment Criteria,
+- vollständige Source References und Provenienz.
 
 ## 7. Update-Prompt-Regeln
 

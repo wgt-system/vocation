@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.local/vocation/research-bundle-v1.schema.json",
+  "$id": "https://vocation.local/contracts/research-bundle-v1.schema.json",
   "title": "Vocation Research Bundle 1.0",
   "type": "object",
   "required": [
@@ -9,303 +9,170 @@
     "generated_at",
     "research_scope",
     "sources",
+    "source_references",
     "companies",
     "opportunities",
     "postings",
     "observations",
-    "assessments"
+    "assessments",
+    "warnings"
   ],
   "properties": {
-    "bundle_version": {
-      "const": "1.0"
-    },
-    "bundle_id": {
+    "bundle_version": {"const": "1.0"},
+    "bundle_id": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "research_scope": {"$ref": "#/$defs/research_scope"},
+    "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+    "source_references": {"type": "array", "items": {"$ref": "#/$defs/source_reference"}},
+    "companies": {"type": "array", "items": {"$ref": "#/$defs/company"}},
+    "opportunities": {"type": "array", "items": {"$ref": "#/$defs/opportunity"}},
+    "postings": {"type": "array", "items": {"$ref": "#/$defs/posting"}},
+    "observations": {"type": "array", "items": {"$ref": "#/$defs/observation"}},
+    "assessments": {"type": "array", "items": {"$ref": "#/$defs/assessment"}},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {"type": "string", "minLength": 1, "maxLength": 200},
+    "https_url": {
       "type": "string",
-      "minLength": 1
+      "format": "uri",
+      "pattern": "^https://[^\\s]+$"
     },
-    "generated_at": {
-      "type": "string",
-      "format": "date-time"
-    },
+    "subject_type": {"enum": ["company", "opportunity", "posting"]},
     "research_scope": {
       "type": "object",
-      "required": [
-        "type",
-        "as_of_date"
-      ],
+      "required": ["type", "as_of_date", "search_profile", "constraints"],
       "properties": {
-        "type": {
-          "enum": [
-            "initial_market_research",
-            "full_update",
-            "company_update",
-            "opportunity_update",
-            "gap_filling",
-            "availability_check",
-            "custom_subset"
-          ]
-        },
-        "as_of_date": {
-          "type": "string",
-          "format": "date"
-        },
-        "requested_vocation_ids": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "requested_fields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
+        "type": {"const": "initial_market_research"},
+        "as_of_date": {"type": "string", "format": "date"},
+        "search_profile": {"type": "string", "minLength": 1},
+        "constraints": {"type": "array", "items": {"type": "string", "minLength": 1}}
       },
       "additionalProperties": false
     },
-    "sources": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "type"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "base_url": {
-            "type": "string",
-            "format": "uri"
-          }
-        },
-        "additionalProperties": true
-      }
+    "source": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "name": {"type": "string", "minLength": 1},
+        "type": {"enum": ["company_careers", "job_board", "professional_network", "other"]},
+        "base_url": {"$ref": "#/$defs/https_url"},
+        "notes": {"type": "string"}
+      },
+      "additionalProperties": false
     },
-    "companies": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "canonical_name"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "canonical_name": {
-            "type": "string"
-          },
-          "alternative_names": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "official_website": {
-            "type": "string",
-            "format": "uri"
-          },
-          "vocation_company_id": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
-      }
+    "source_reference": {
+      "type": "object",
+      "required": ["id", "source_id", "url", "observed_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "url": {"$ref": "#/$defs/https_url"},
+        "external_reference_id": {"type": "string", "minLength": 1},
+        "display_label": {"type": "string", "minLength": 1},
+        "observed_at": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
     },
-    "opportunities": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "company_id",
-          "canonical_title"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "company_id": {
-            "type": "string"
-          },
-          "canonical_title": {
-            "type": "string"
-          },
-          "vocation_opportunity_id": {
-            "type": "string"
-          },
-          "work_locations": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "additionalProperties": true
-      }
+    "company": {
+      "type": "object",
+      "required": ["id", "canonical_name", "source_reference_id", "observed_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "canonical_name": {"type": "string", "minLength": 1},
+        "alternative_names": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "source_reference_id": {"$ref": "#/$defs/identifier"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "evidence_summary": {"type": "string"}
+      },
+      "additionalProperties": false
     },
-    "postings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "source_id",
-          "title",
-          "observed_at"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "source_id": {
-            "type": "string"
-          },
-          "opportunity_id": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "url": {
-            "type": "string",
-            "pattern": "^https?://"
-          },
-          "external_posting_id": {
-            "type": "string"
-          },
-          "published_at": {
-            "type": "string",
-            "format": "date"
-          },
-          "observed_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "availability": {
-            "enum": [
-              "reachable",
-              "explicitly_available",
-              "explicitly_unavailable",
-              "not_found",
-              "temporarily_unreachable",
-              "unknown"
-            ]
-          }
-        },
-        "additionalProperties": true
-      }
+    "work_location": {
+      "type": "object",
+      "required": ["label", "precision", "source_reference_id", "observed_at"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "city": {"type": "string", "minLength": 1},
+        "region": {"type": "string", "minLength": 1},
+        "country_code": {"type": "string", "pattern": "^[A-Z]{2}$"},
+        "precision": {"enum": ["exact_address", "site", "city", "region", "approximate", "unknown"]},
+        "source_reference_id": {"$ref": "#/$defs/identifier"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "evidence_summary": {"type": "string"}
+      },
+      "additionalProperties": false
     },
-    "observations": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "subject_type",
-          "subject_id",
-          "type",
-          "value",
-          "observed_at",
-          "source_id"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "subject_type": {
-            "enum": [
-              "company",
-              "opportunity",
-              "posting"
-            ]
-          },
-          "subject_id": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "value": {},
-          "observed_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "source_id": {
-            "type": "string"
-          },
-          "confidence": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "evidence_summary": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
-      }
+    "opportunity": {
+      "type": "object",
+      "required": ["id", "company_id", "canonical_title", "source_reference_id", "observed_at", "work_locations"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "company_id": {"$ref": "#/$defs/identifier"},
+        "canonical_title": {"type": "string", "minLength": 1},
+        "source_reference_id": {"$ref": "#/$defs/identifier"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "evidence_summary": {"type": "string"},
+        "work_locations": {"type": "array", "items": {"$ref": "#/$defs/work_location"}}
+      },
+      "additionalProperties": false
     },
-    "assessments": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "subject_type",
-          "subject_id",
-          "assessment_type",
-          "origin",
-          "created_at"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "subject_type": {
-            "enum": [
-              "company",
-              "opportunity",
-              "posting"
-            ]
-          },
-          "subject_id": {
-            "type": "string"
-          },
-          "assessment_type": {
-            "type": "string"
-          },
-          "origin": {
-            "const": "external_research"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "reasoning": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
-      }
+    "posting": {
+      "type": "object",
+      "required": ["id", "company_id", "opportunity_id", "source_reference_id", "title", "observed_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "company_id": {"$ref": "#/$defs/identifier"},
+        "opportunity_id": {"$ref": "#/$defs/identifier"},
+        "source_reference_id": {"$ref": "#/$defs/identifier"},
+        "title": {"type": "string", "minLength": 1},
+        "external_posting_id": {"type": "string", "minLength": 1},
+        "published_at": {"type": "string", "format": "date"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "content_fingerprint": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
     },
-    "warnings": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+    "claim_value": {
+      "oneOf": [
+        {"type": "string"},
+        {"type": "number"},
+        {"type": "boolean"},
+        {"type": "array", "items": {"type": "string"}}
+      ]
+    },
+    "observation": {
+      "type": "object",
+      "required": ["id", "subject_type", "subject_id", "type", "value", "source_reference_id", "observed_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "subject_type": {"$ref": "#/$defs/subject_type"},
+        "subject_id": {"$ref": "#/$defs/identifier"},
+        "type": {"enum": ["technology_requirement", "task", "seniority", "experience_requirement", "work_model", "salary"]},
+        "value": {"$ref": "#/$defs/claim_value"},
+        "source_reference_id": {"$ref": "#/$defs/identifier"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence_summary": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "assessment": {
+      "type": "object",
+      "required": ["id", "subject_type", "subject_id", "criterion_id", "value", "origin", "source_reference_ids", "created_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "subject_type": {"$ref": "#/$defs/subject_type"},
+        "subject_id": {"$ref": "#/$defs/identifier"},
+        "criterion_id": {"$ref": "#/$defs/identifier"},
+        "value": {"$ref": "#/$defs/claim_value"},
+        "origin": {"const": "external_research"},
+        "source_reference_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "created_at": {"type": "string", "format": "date-time"},
+        "reasoning": {"type": "string"}
+      },
+      "additionalProperties": false
     }
-  },
-  "additionalProperties": false
+  }
 }

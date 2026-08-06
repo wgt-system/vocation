@@ -92,6 +92,14 @@ Regeln:
 
 Historische Bewertung mit Origin, Type, Dimensions, Result und Reasoning.
 
+Im ersten Meilenstein referenziert jedes externe Assessment genau ein Vocation-eigenes `AssessmentCriterion`. Externe Bundles dürfen keine Kriterien definieren.
+
+### AssessmentCriterion
+
+Vocation-eigener Kriterienkatalog mit stabiler Criterion ID, Display Name, Beschreibung, Value Type (`numeric`, `boolean`, `categorical`, `text`), optionalem Zahlenbereich oder erlaubten Kategorien, Applicable Subject Type, Aktivierungszustand und Display Order.
+
+Nach dem ersten referenzierenden Assessment dürfen Value Type, Skala/Kategorien und Applicable Subject Type nicht inkompatibel geändert werden. Dafür muss eine neue Criterion ID angelegt werden. Name, Beschreibung, Aktivierung und Reihenfolge bleiben editierbar.
+
 ### OpportunityDecision
 
 Bewusste persönliche Entscheidung mit Reason und möglicher Reversal-Beziehung.
@@ -191,6 +199,8 @@ Leitet Availability aus Observations ab.
 ### ImportTranslator
 
 Anticorruption Layer für Research Bundles.
+
+Der erste Meilenstein verwendet ausschließlich deterministische Posting-Identität aus Source plus External Posting ID oder ersatzweise normalisierter HTTPS-URL. Fuzzy Matching ist nicht enthalten.
 
 ### PromptContextBuilder
 

@@ -4,6 +4,14 @@
 
 Vocation ist eine eigenständig ausführbare, überwiegend lesende Desktop-Anwendung für einen persönlichen Stellenmarkt.
 
+## Verbindlicher Technologie-Stack für Version 1
+
+- Python 3.13, FastAPI, Pydantic, SQLAlchemy 2, Alembic, SQLite, jsonschema und pytest
+- React, TypeScript, Vite, Vitest und React Testing Library
+- FastAPI stellt im Produktionsmodus das gebaute Frontend bereit.
+- Vocation startet als eigener lokaler Dienst und benötigt weder Wiiii Got This noch einen anderen fachlichen Kontext.
+- Die Entscheidung ist in `docs/adr/0007-version-1-technology-stack.md` dokumentiert.
+
 ## Maßgebliche Quellen
 
 - Produktvision: `docs/01_DOMAIN_VISION.md`

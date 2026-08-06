@@ -1,6 +1,6 @@
 # Vocation – Architecture
 
-**Status:** Draft 0.1
+**Status:** Version 1 beschlossen
 
 ## 1. Architekturziele
 
@@ -37,19 +37,21 @@ Zusätzliche Adapter:
 
 Vocation kann intern einen lokalen HTTP-Server verwenden, muss aber als ein eigenständig startbares Produkt erscheinen.
 
-## 3. Empfohlene Technologieentscheidung
+## 3. Technologieentscheidung Version 1
 
-Die endgültige Entscheidung bleibt ADR-pflichtig. Eine plausible Version-1-Kombination:
+ADR-0007 legt verbindlich fest:
 
-- Backend/Application: Python
-- lokale API: FastAPI oder Flask
-- Frontend: React/Vite
-- Datenbank: SQLite
-- Karte: Leaflet/OpenStreetMap
-- Schema: JSON Schema
-- Tests: pytest plus Frontend-Testframework
+- Backend/Application: Python 3.13, FastAPI und Pydantic
+- Persistenz: SQLAlchemy 2, Alembic und SQLite
+- Vertragsvalidierung: JSON Schema Draft 2020-12 mit `jsonschema`
+- Backend-Tests: pytest
+- Frontend: React, TypeScript und Vite
+- Frontend-Tests: Vitest und React Testing Library
+- spätere Karte: Leaflet und OpenStreetMap
 
-Diese Auswahl ist keine Domänenentscheidung.
+FastAPI stellt im Produktionsmodus die gebauten Frontend-Dateien bereit. Ein Python-Startvorgang startet den lokalen HTTP-Dienst und darf anschließend die lokale Vocation-URL über den Standardbrowser öffnen. Frontend und Backend müssen in der Produktion nicht separat gestartet werden.
+
+Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit PyInstaller möglich bleibt. Docker, Cloud-Infrastruktur und externe fachliche Laufzeitabhängigkeiten sind nicht Teil von Version 1.
 
 ## 4. Schichten
 
@@ -98,6 +100,8 @@ Empfohlene Eigenschaften:
 - keine direkte Persistenz von UI-Read-Models als Wahrheit
 - Rohbundle optional als Audit-Artefakt
 
+Die initiale SQLite-Struktur wird ausschließlich durch Alembic-Migrationen erzeugt.
+
 ## 6. Prompt-Dateien
 
 Prompt Templates liegen versioniert unter `prompts/`.
@@ -120,6 +124,8 @@ File/Clipboard
 → Transaction
 → Import Report
 ```
+
+Version-1-Imports sind vollständig atomar. Strukturelle oder semantische Blocker verhindern jede fachliche Änderung. Der Importversuch und seine Issues dürfen in einer getrennten Transaktion protokolliert werden. Partielle Imports sind nicht erlaubt.
 
 ## 8. Map Architecture
 
@@ -164,6 +170,8 @@ Version 1 legt keine Cloud fest.
 ## 11. Packaging
 
 Desktop-Version soll mit einem einfachen Startvorgang ausgeliefert werden. Separate manuelle Starts von Frontend und Backend sind für den Nutzer nicht das Ziel.
+
+Für die Entwicklung existiert ein Windows-Startskript. Im Produktionsmodus wird das mit Vite gebaute Frontend durch FastAPI ausgeliefert. Die Browseröffnung beim Anwendungsstart betrifft ausschließlich die lokale Vocation-URL; Import oder Darstellung fachlicher Daten öffnen niemals externe Links.
 
 ## 12. Observability
 

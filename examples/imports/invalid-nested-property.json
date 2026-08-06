@@ -1,0 +1,26 @@
+{
+  "bundle_version": "1.0",
+  "bundle_id": "invalid-nested-property",
+  "generated_at": "2026-08-06T17:00:00Z",
+  "research_scope": {
+    "type": "initial_market_research",
+    "as_of_date": "2026-08-06",
+    "search_profile": "Junior software development roles",
+    "constraints": []
+  },
+  "sources": [
+    {
+      "id": "src-invalid",
+      "name": "Invalid Source",
+      "type": "company_careers",
+      "invented_domain_field": "must not be accepted"
+    }
+  ],
+  "source_references": [],
+  "companies": [],
+  "opportunities": [],
+  "postings": [],
+  "observations": [],
+  "assessments": [],
+  "warnings": []
+}

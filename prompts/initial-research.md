@@ -1,32 +1,29 @@
 # Initial Market Research Prompt
 
-Führe eine aktuelle Stellenrecherche für den unten angegebenen Scope durch.
+Conduct current job-market research for the following profile and return a Vocation Research Bundle.
 
-## Suchprofil
+## Search profile
 
 {{SEARCH_PROFILE}}
 
-## Region und Einschränkungen
+## Constraints
 
-{{REGION_AND_CONSTRAINTS}}
+{{CONSTRAINTS}}
 
-## Gewünschter Umfang
-
-{{RESEARCH_TARGET}}
-
-## Stichtag
+## As-of date
 
 {{AS_OF_DATE}}
 
-Recherchiere konkrete aktive Stellenanzeigen und liefere belastbare Quellen. Trenne Company, Opportunity und Posting. Markiere Unsicherheiten.
+Find concrete job postings with reliable evidence. Keep Company, Opportunity, Posting, Source, Source Reference, Observation, and External Assessment distinct. Mark uncertainty instead of inventing facts.
 
+## Active Vocation assessment criteria
 
-Ausgabeanforderungen:
-- Antworte ausschließlich mit einem validen JSON-Objekt.
-- Keine Markdown-Codeblöcke, keine Einleitung, keine Nachbemerkung.
-- Verwende exakt `bundle_version: "1.0"`.
-- Erfinde keine Vocation-IDs.
-- Jede externe Information benötigt Source und Beobachtungszeitpunkt.
-- Persönliche Assessments, Decisions, Tracking Status und Groups dürfen nicht verändert werden.
-- Unsicherheit muss ausdrücklich markiert werden.
-- Eine nicht erreichbare URL ist nicht automatisch eine endgültig geschlossene Opportunity.
+Use only these criterion IDs, subject types, value types, and scales or allowed values. Do not create criteria.
+
+{{ACTIVE_ASSESSMENT_CRITERIA}}
+
+## Complete output contract
+
+{{OUTPUT_CONTRACT}}
+
+Return JSON only. Do not refer to local files or add unsupported fields.

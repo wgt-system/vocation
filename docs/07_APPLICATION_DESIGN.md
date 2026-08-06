@@ -12,6 +12,10 @@ Version 1 kennt einen lokalen Nutzer. Es gibt kein allgemeines Benutzer- oder Ro
 
 ## 3. Commands
 
+### List/Create/Edit/Activate/Deactivate/ReorderAssessmentCriteria
+
+Vocation verwaltet seinen eigenen Criteria Catalog. Inkompatible semantische Änderungen an bereits verwendeten Kriterien werden abgelehnt und verlangen eine neue Criterion ID.
+
 ### GenerateResearchPrompt
 
 Input:
@@ -20,16 +24,19 @@ Input:
 - Prompt Scope
 - optionale Auswahl von Companies, Opportunities oder Feldern
 - gewünschte Bundle Version
+- Search Profile und Constraints für Initial Research
 
 Ablauf:
 
 1. Scope validieren.
 2. Prompt Template laden.
 3. minimalen Context Snapshot erzeugen.
-4. geschützte Personal Decisions kennzeichnen.
-5. Prompt rendern.
-6. Prompt Run speichern.
-7. Prompt in UI anzeigen und Copy-to-Clipboard anbieten.
+4. alle aktiven Assessment Criteria mit Version/Snapshot einbetten.
+5. den vollständigen Bundle-Output-Contract einbetten.
+6. geschützte Personal Decisions kennzeichnen.
+7. Prompt rendern.
+8. Prompt Run samt Criteria Snapshot speichern.
+9. Prompt in UI anzeigen und Copy-to-Clipboard anbieten.
 
 Output:
 
@@ -63,6 +70,8 @@ Ablauf:
 8. Identität und Dubletten prüfen.
 9. Domänenänderungen anwenden.
 10. Import Report erzeugen.
+
+Im ersten Meilenstein ist der Import pro Bundle vollständig atomar und akzeptiert ausschließlich Initial Research Bundles. Blockierende Fehler führen zu keinen fachlichen Änderungen. Identische kanonische Bundles werden nicht erneut angewendet.
 
 Output:
 

@@ -143,3 +143,38 @@ Dann bleibt die frühere Decision in der Historie sichtbar.
 
 Vocation erzeugt Prompts und importiert JSON  
 Aber ruft keine kostenpflichtige LLM-API auf.
+
+## AT-26 Assessment Criteria gehören Vocation
+
+Gegeben ein aktiver Vocation Criteria Catalog
+Wenn ein Initial Research Prompt erzeugt wird
+Dann enthält er jedes aktive und kein inaktives Criterion mit Value Type und erlaubter Skala oder Werten.
+
+## AT-27 Unbekanntes Criterion
+
+Wenn ein Bundle ein Vocation unbekanntes Criterion referenziert
+Dann wird der gesamte Import ohne fachliche Änderungen abgelehnt.
+
+## AT-28 Geschlossene Bundle-Objekte
+
+Wenn ein verschachteltes Bundle-Objekt eine unbekannte oder geschützte Property enthält
+Dann wird der gesamte Import ohne fachliche Änderungen abgelehnt.
+
+## AT-29 Atomarer Initial Import
+
+Gegeben ein Bundle mit mindestens einem blockierenden Fehler
+Wenn der Nutzer es importiert
+Dann werden keine Companies, Opportunities, Postings, Observations oder Assessments daraus gespeichert
+Und der Import Report enthält alle erkannten Blocker.
+
+## AT-30 Kanonischer Fingerprint
+
+Gegeben zwei semantisch identische Bundles mit unterschiedlicher Object-Key-Reihenfolge und unterschiedlichem Whitespace
+Wenn beide importiert werden
+Dann wird nur der erste Import angewendet und der zweite als identisch erkannt.
+
+## AT-31 Self-contained Initial Prompt
+
+Wenn ein Initial Research Prompt erzeugt wird
+Dann enthält er Search Profile, Constraints, Stichtag, aktive Criteria, vollständige Output-Struktur, kontrollierte Vokabulare und Provenienzregeln
+Und verweist nicht auf lokale Repository-Pfade.

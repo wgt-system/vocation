@@ -1,30 +1,31 @@
 # Vocation – Research Bundle Import Contract
 
-**Status:** Draft 0.1  
+**Status:** Version 1.0 für den ersten Meilenstein
 **Current Bundle Version:** `1.0`
 
-## 1. Zweck
+## 1. Zweck und Geltungsbereich
 
-Das Research Bundle ist die versionierte Published Language zwischen External Research Context und Vocation.
+Das Research Bundle ist die versionierte Published Language zwischen External Research Context und Vocation. Der erste Meilenstein importiert ausschließlich `initial_market_research`. Update-Bundles bleiben ein späterer Slice.
 
-Es ist:
+Das Bundle ist vollständig schema- und fachlich validierbar, unabhängig vom internen Datenbankmodell, quellen- und zeitbezogen und frei von persönlichen Vocation-Zuständen.
 
-- JSON,
-- vollständig schema-validierbar,
-- unabhängig vom internen Datenbankmodell,
-- für Initial- und Update-Recherche geeignet,
-- quellen- und zeitbezogen,
-- frei von Vocation-internen Personal Decisions.
+Das verbindliche Schema ist `schemas/research-bundle-v1.schema.json`. Alle definierten Vertragsobjekte sind geschlossen. Unbekannte Properties sind Blocker und werden niemals automatisch zu Domänenfeldern oder Assessment-Kriterien.
 
 ## 2. Top-Level-Struktur
 
 ```json
 {
   "bundle_version": "1.0",
-  "bundle_id": "uuid-or-stable-id",
+  "bundle_id": "research-run-001",
   "generated_at": "2026-08-06T17:00:00Z",
-  "research_scope": {},
+  "research_scope": {
+    "type": "initial_market_research",
+    "as_of_date": "2026-08-06",
+    "search_profile": "Junior software roles",
+    "constraints": ["Hamburg or remote"]
+  },
   "sources": [],
+  "source_references": [],
   "companies": [],
   "opportunities": [],
   "postings": [],
@@ -34,202 +35,102 @@ Es ist:
 }
 ```
 
-## 3. Research Scope
+## 3. IDs und Referenzen
 
-```json
-{
-  "type": "initial_market_research",
-  "requested_vocation_ids": [],
-  "requested_fields": [],
-  "as_of_date": "2026-08-06"
-}
-```
+- `id`-Felder sind nichtleere bundle-lokale IDs und innerhalb ihrer Collection eindeutig.
+- Referenzen innerhalb des Bundles müssen auf ein Objekt der erwarteten Collection zeigen.
+- Interne Vocation-IDs werden ausschließlich von Vocation erzeugt und erscheinen nicht im Research Bundle.
+- Ein Bundle darf keine persönlichen Assessments, Decisions, Tracking Status, Groups oder andere geschützte Properties enthalten.
 
-Erlaubte Types:
+## 4. Sources und Source References
 
-- `initial_market_research`
-- `full_update`
-- `company_update`
-- `opportunity_update`
-- `gap_filling`
-- `availability_check`
-- `custom_subset`
+Eine Source beschreibt den fachlichen Ursprung, etwa eine Company-Careers-Seite. Eine Source Reference ist der konkrete wiederauffindbare Beleg.
 
-## 4. IDs
+Jede Source Reference enthält eine bundle-lokale ID, Source ID, absolute `https`-URL und einen Beobachtungszeitpunkt. Eine externe Referenz-ID und ein Display Label sind optional.
 
-Externe Bundle-IDs sind nur innerhalb des Bundles oder Research Context stabil. Sie werden nicht als interne Vocation IDs übernommen.
+Nur Source-Reference-URLs können später als Originalanzeige geöffnet werden. Relative, nicht-HTTPS oder syntaktisch ungültige URLs sind Blocker. Import und Darstellung öffnen keine URL.
 
-Update-Bundles dürfen bekannte Vocation IDs als Referenz enthalten:
+## 5. Companies und Opportunities
 
-```json
-{
-  "vocation_opportunity_id": "optional-known-id"
-}
-```
+Companies und Opportunities enthalten bundle-lokale Identitätsvorschläge und Provenienz:
 
-Diese Referenz ist ein Hinweis und wird validiert.
+- Company: Canonical Name, Source Reference, observed at, optional Evidence Summary.
+- Opportunity: Company Reference, Canonical Title, Source Reference, observed at, optionale strukturierte Work Locations.
 
-## 5. Sources
+Work Locations besitzen eine definierte Precision und eigene Provenienz. Sie enthalten im ersten Meilenstein Ortsbeschreibung, jedoch noch keine Kartenkoordinaten.
 
-Pflicht:
+## 6. Postings und Identität
 
-- external source ID
-- name
-- source type
+Ein Posting referenziert genau eine Company, eine Opportunity und eine Source Reference. Company und Posting müssen zur Company der Opportunity passen.
 
-Optional:
+1. Vocation erzeugt interne IDs.
+2. Bundle-IDs gelten nur innerhalb des Bundles.
+3. `Source + external_posting_id` ist der bevorzugte stabile Posting Key.
+4. Ohne externe Posting-ID dient die normalisierte kanonische HTTPS-URL als stabiler Key.
+5. Widersprechen externe Posting-ID und URL einer bekannten Zuordnung, wird das gesamte Bundle abgelehnt.
+6. Es gibt kein fuzzy Matching und keinen automatischen Merge unsicherer Treffer.
 
-- base URL
-- notes
+## 7. Observations
 
-## 6. Companies
+Eine Observation enthält Subject Type und bundle-lokale Subject ID, kontrollierten Observation Type, typisierten Wert, Source Reference, Beobachtungszeitpunkt sowie optional Confidence und Evidence Summary.
 
-Pflicht:
+Im ersten Meilenstein sind `technology_requirement`, `task`, `seniority`, `experience_requirement`, `work_model` und `salary` erlaubt.
 
-- external company ID
-- canonical name
+## 8. External Assessments
 
-Optional:
+Assessments stammen ausschließlich aus `external_research`. Jedes Assessment referenziert ein Company-, Opportunity- oder Posting-Subject, eine Vocation-eigene Criterion ID, einen passenden Wert, mindestens eine Source Reference, einen Erstellungszeitpunkt und optional Reasoning.
 
-- alternative names
-- official website
-- locations
-- known Vocation Company ID
+Nur aktive, bekannte Kriterien mit passendem Subject Type dürfen importiert werden. Ein unbekanntes Kriterium ist ein Blocker. Externe Assessments verändern keine persönlichen Daten.
 
-## 7. Opportunities
+## 9. Strukturelle und semantische Validierung
 
-Beschreiben recherchierte berufliche Möglichkeiten.
+Vor einer Anwendung werden mindestens geprüft:
 
-Pflicht:
+- JSON-Syntax, Bundle Version und JSON Schema einschließlich Formats,
+- eindeutige bundle-lokale IDs,
+- vollständige und typkorrekte Referenzen,
+- bekannte aktive Assessment-Kriterien und passende Werte,
+- erlaubte Subject Types und Observation Types,
+- absolute HTTPS Source References,
+- gültige Datums- und Zeitwerte,
+- Company-/Opportunity-/Posting-Konsistenz,
+- deterministische Posting-Identität,
+- Abwesenheit unbekannter und geschützter Felder.
 
-- external opportunity ID
-- company reference
-- canonical title proposal
+## 10. Atomarer Import
 
-Optional:
+Version 1 importiert ein Bundle vollständig atomar:
 
-- known Vocation Opportunity ID
-- organization unit
-- work locations
-- suggested relationships
-- scope notes
+- Jeder Blocker verhindert alle fachlichen Änderungen.
+- Alle Blocker werden im Import Report ausgegeben.
+- Warnungen verhindern den Import nicht.
+- Partielle Imports sind nicht erlaubt.
+- Ein abgelehnter Importversuch kann mit seinen Issues in einer getrennten Protokolltransaktion gespeichert werden.
 
-## 8. Postings
+## 11. Fingerprint und Idempotenz
 
-Pflicht:
+Der Fingerprint ist SHA-256 über eine kanonische UTF-8-JSON-Darstellung mit rekursiv sortierten Object Keys, kompakten Separatoren und unveränderter Array-Reihenfolge. Whitespace und Object-Key-Reihenfolge beeinflussen den Fingerprint nicht.
 
-- external posting ID
-- source reference
-- title
-- observed at
+Ein bereits erfolgreich angewendeter Fingerprint wird nicht erneut geschrieben und verweist auf den bestehenden Import Record.
 
-Optional:
+## 12. Fehlercodes
 
-- URL
-- external platform ID
-- published at
-- opportunity reference
-- availability observation
-- content fingerprint
-
-URL-Regeln:
-
-- nur `https` oder `http`,
-- keine ausführbaren oder lokalen Schemes,
-- URL darf fehlen, wenn eine andere Source Reference existiert.
-
-## 9. Observations
-
-Pflicht:
-
-- external observation ID
-- subject reference
-- observation type
-- observed value
-- observed at
-- source reference
-
-Optional:
-
-- confidence
-- evidence excerpt
-- research method
-
-## 10. Assessments
-
-Nur externe Assessments.
-
-Pflicht:
-
-- external assessment ID
-- subject reference
-- assessment type
-- origin = `external_research`
-- created at
-
-Optional:
-
-- dimensions
-- score and scale
-- reasoning
-- risks
-
-Verboten:
-
-- Personal Assessment
-- Exclusion Decision
-- Tracking Status Change
-- Application Wave Membership
-
-## 11. Update-Regeln
-
-Ein Update Bundle:
-
-- muss seinen Scope benennen,
-- soll bekannte Vocation IDs referenzieren, wenn vorhanden,
-- muss nur neue oder geänderte Observations liefern,
-- darf geschützte Personal Decisions nicht verändern,
-- darf außerhalb des Scopes liegende Informationen höchstens als Warning liefern.
-
-## 12. Importstrategie Version 1
-
-Version 1 verwendet bevorzugt einen atomaren Bundle-Import:
-
-- alle blockierenden Fehler verhindern die Anwendung,
-- Warnungen verhindern den Import nicht,
-- Entry-Fehler sind blockierend, solange partieller Import nicht ausdrücklich eingeführt wird.
-
-## 13. Fingerprint und Idempotenz
-
-Der Fingerprint wird aus normalisiertem Bundle-Inhalt berechnet.
-
-Ein identischer Fingerprint:
-
-- wird nicht erneut angewendet,
-- verweist auf den bestehenden Import Record,
-- kann erneut validiert, aber nicht doppelt geschrieben werden.
-
-## 14. Fehlerklassen
-
-- `UNSUPPORTED_BUNDLE_VERSION`
 - `INVALID_JSON`
+- `UNSUPPORTED_BUNDLE_VERSION`
 - `SCHEMA_VALIDATION_FAILED`
+- `DUPLICATE_BUNDLE_ID`
 - `UNKNOWN_REFERENCE`
 - `INVALID_DATE`
 - `INVALID_URL`
-- `SCOPE_VIOLATION`
+- `UNKNOWN_ASSESSMENT_CRITERION`
+- `INVALID_ASSESSMENT_VALUE`
+- `SUBJECT_TYPE_MISMATCH`
 - `PROTECTED_FIELD_ATTEMPT`
-- `DUPLICATE_EXTERNAL_ID`
+- `IDENTITY_CONFLICT`
 - `IMPORT_ALREADY_APPLIED`
 
-## 15. Schema
-
-Das verbindliche technische Schema liegt unter:
-
-`schemas/research-bundle-v1.schema.json`
-
-## 16. Beispiele
+## 13. Beispiele
 
 - `examples/imports/initial-valid.json`
-- `examples/imports/update-valid.json`
+- `examples/imports/invalid-nested-property.json`
 - `examples/imports/invalid-protected-decision.json`

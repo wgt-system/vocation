@@ -5,8 +5,8 @@
   "research_scope": {
     "type": "initial_market_research",
     "as_of_date": "2026-08-06",
-    "requested_vocation_ids": [],
-    "requested_fields": []
+    "search_profile": "Junior software development roles using Java",
+    "constraints": ["Hamburg or remote", "No mandatory senior-level experience"]
   },
   "sources": [
     {
@@ -16,11 +16,23 @@
       "base_url": "https://example.com/careers"
     }
   ],
+  "source_references": [
+    {
+      "id": "ref-posting",
+      "source_id": "src-company",
+      "url": "https://example.com/careers/junior-dev",
+      "external_reference_id": "EX-123",
+      "display_label": "Original posting",
+      "observed_at": "2026-08-06T16:00:00Z"
+    }
+  ],
   "companies": [
     {
       "id": "cmp-example",
       "canonical_name": "Example GmbH",
-      "official_website": "https://example.com"
+      "source_reference_id": "ref-posting",
+      "observed_at": "2026-08-06T16:00:00Z",
+      "evidence_summary": "Company named in the posting"
     }
   ],
   "opportunities": [
@@ -28,10 +40,18 @@
       "id": "opp-example",
       "company_id": "cmp-example",
       "canonical_title": "Junior Softwareentwickler",
+      "source_reference_id": "ref-posting",
+      "observed_at": "2026-08-06T16:00:00Z",
+      "evidence_summary": "Role title in the original posting",
       "work_locations": [
         {
+          "label": "Hamburg",
           "city": "Hamburg",
-          "precision": "city"
+          "country_code": "DE",
+          "precision": "city",
+          "source_reference_id": "ref-posting",
+          "observed_at": "2026-08-06T16:00:00Z",
+          "evidence_summary": "Posting lists Hamburg"
         }
       ]
     }
@@ -39,13 +59,13 @@
   "postings": [
     {
       "id": "post-example",
-      "source_id": "src-company",
+      "company_id": "cmp-example",
       "opportunity_id": "opp-example",
+      "source_reference_id": "ref-posting",
       "title": "Junior Softwareentwickler",
-      "url": "https://example.com/careers/junior-dev",
+      "external_posting_id": "EX-123",
       "published_at": "2026-08-01",
-      "observed_at": "2026-08-06T16:00:00Z",
-      "availability": "explicitly_available"
+      "observed_at": "2026-08-06T16:00:00Z"
     }
   ],
   "observations": [
@@ -54,25 +74,24 @@
       "subject_type": "posting",
       "subject_id": "post-example",
       "type": "technology_requirement",
-      "value": [
-        "Java",
-        "Maven"
-      ],
+      "value": ["Java", "Maven"],
+      "source_reference_id": "ref-posting",
       "observed_at": "2026-08-06T16:00:00Z",
-      "source_id": "src-company",
       "confidence": 0.95,
       "evidence_summary": "Technologies listed in requirements"
     }
   ],
   "assessments": [
     {
-      "id": "ass-fit",
+      "id": "ass-junior",
       "subject_type": "opportunity",
       "subject_id": "opp-example",
-      "assessment_type": "fit",
+      "criterion_id": "junior_suitability",
+      "value": 5,
       "origin": "external_research",
+      "source_reference_ids": ["ref-posting"],
       "created_at": "2026-08-06T16:30:00Z",
-      "reasoning": "Junior role with relevant Java/Maven stack"
+      "reasoning": "The role is explicitly junior and asks for no prior professional experience."
     }
   ],
   "warnings": []
