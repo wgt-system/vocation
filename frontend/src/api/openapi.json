@@ -274,6 +274,101 @@
         "title": "CriterionResponse",
         "type": "object"
       },
+      "DecisionResponse": {
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "decision_type": {
+            "title": "Decision Type",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "previous_status": {
+            "enum": [
+              "new",
+              "to_review",
+              "interesting",
+              "shortlisted",
+              "deferred",
+              "excluded",
+              "archived"
+            ],
+            "title": "Previous Status",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "resulting_status": {
+            "enum": [
+              "new",
+              "to_review",
+              "interesting",
+              "shortlisted",
+              "deferred",
+              "excluded",
+              "archived"
+            ],
+            "title": "Resulting Status",
+            "type": "string"
+          },
+          "reverses_decision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reverses Decision Id"
+          }
+        },
+        "required": [
+          "id",
+          "opportunity_id",
+          "decision_type",
+          "previous_status",
+          "resulting_status",
+          "reason",
+          "created_at",
+          "reverses_decision_id"
+        ],
+        "title": "DecisionResponse",
+        "type": "object"
+      },
+      "ExclusionPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ExclusionPayload",
+        "type": "object"
+      },
       "GeneratedPromptResponse": {
         "properties": {
           "bundle_version": {
@@ -588,6 +683,20 @@
           "company": {
             "$ref": "#/components/schemas/CompanyResponse"
           },
+          "decision_history": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionResponse"
+            },
+            "title": "Decision History",
+            "type": "array"
+          },
+          "external_assessments": {
+            "items": {
+              "$ref": "#/components/schemas/AssessmentResponse"
+            },
+            "title": "External Assessments",
+            "type": "array"
+          },
           "id": {
             "title": "Id",
             "type": "string"
@@ -609,6 +718,20 @@
             "title": "Observations",
             "type": "array"
           },
+          "personal_assessment_history": {
+            "items": {
+              "$ref": "#/components/schemas/PersonalAssessmentResponse"
+            },
+            "title": "Personal Assessment History",
+            "type": "array"
+          },
+          "personal_assessments": {
+            "items": {
+              "$ref": "#/components/schemas/PersonalAssessmentResponse"
+            },
+            "title": "Personal Assessments",
+            "type": "array"
+          },
           "postings": {
             "items": {
               "$ref": "#/components/schemas/PostingResponse"
@@ -626,6 +749,19 @@
           "title": {
             "title": "Title",
             "type": "string"
+          },
+          "tracking_status": {
+            "enum": [
+              "new",
+              "to_review",
+              "interesting",
+              "shortlisted",
+              "deferred",
+              "excluded",
+              "archived"
+            ],
+            "title": "Tracking Status",
+            "type": "string"
           }
         },
         "required": [
@@ -636,7 +772,12 @@
           "postings",
           "sources",
           "observations",
+          "tracking_status",
+          "external_assessments",
           "assessments",
+          "personal_assessments",
+          "personal_assessment_history",
+          "decision_history",
           "import_provenance"
         ],
         "title": "OpportunityDetailResponse",
@@ -678,6 +819,19 @@
           "title": {
             "title": "Title",
             "type": "string"
+          },
+          "tracking_status": {
+            "enum": [
+              "new",
+              "to_review",
+              "interesting",
+              "shortlisted",
+              "deferred",
+              "excluded",
+              "archived"
+            ],
+            "title": "Tracking Status",
+            "type": "string"
           }
         },
         "required": [
@@ -688,9 +842,135 @@
           "posting_count",
           "assessment_count",
           "import_id",
-          "imported_at"
+          "imported_at",
+          "tracking_status"
         ],
         "title": "OpportunityListItemResponse",
+        "type": "object"
+      },
+      "PersonalAssessmentPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "criterion_id": {
+            "minLength": 1,
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "value"
+        ],
+        "title": "PersonalAssessmentPayload",
+        "type": "object"
+      },
+      "PersonalAssessmentResponse": {
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "criterion_name": {
+            "title": "Criterion Name",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
+          },
+          "revision_number": {
+            "title": "Revision Number",
+            "type": "integer"
+          },
+          "supersedes_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supersedes Id"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "opportunity_id",
+          "criterion_id",
+          "criterion_name",
+          "value",
+          "reasoning",
+          "created_at",
+          "supersedes_id",
+          "revision_number",
+          "origin"
+        ],
+        "title": "PersonalAssessmentResponse",
+        "type": "object"
+      },
+      "PersonalAssessmentRevisionPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "PersonalAssessmentRevisionPayload",
         "type": "object"
       },
       "PostingResponse": {
@@ -751,6 +1031,44 @@
           "criterion_ids"
         ],
         "title": "ReorderPayload",
+        "type": "object"
+      },
+      "RestorePayload": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "target_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "new",
+                  "to_review",
+                  "interesting",
+                  "shortlisted",
+                  "deferred",
+                  "excluded",
+                  "archived"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Status"
+          }
+        },
+        "title": "RestorePayload",
         "type": "object"
       },
       "SourceReferenceResponse": {
@@ -820,6 +1138,40 @@
           "type"
         ],
         "title": "SourceResponse",
+        "type": "object"
+      },
+      "StatusPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "enum": [
+              "new",
+              "to_review",
+              "interesting",
+              "shortlisted",
+              "deferred",
+              "excluded",
+              "archived"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "StatusPayload",
         "type": "object"
       },
       "ValidationError": {
@@ -1291,6 +1643,411 @@
           }
         },
         "summary": "Opportunity Detail",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/assessments/personal": {
+      "get": {
+        "operationId": "personal_assessments_api_opportunities__opportunity_id__assessments_personal_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PersonalAssessmentResponse"
+                  },
+                  "title": "Response Personal Assessments Api Opportunities  Opportunity Id  Assessments Personal Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Personal Assessments",
+        "tags": [
+          "opportunities"
+        ]
+      },
+      "post": {
+        "operationId": "create_personal_assessment_api_opportunities__opportunity_id__assessments_personal_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonalAssessmentPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonalAssessmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Personal Assessment",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/assessments/personal/history": {
+      "get": {
+        "operationId": "personal_assessment_history_api_opportunities__opportunity_id__assessments_personal_history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PersonalAssessmentResponse"
+                  },
+                  "title": "Response Personal Assessment History Api Opportunities  Opportunity Id  Assessments Personal History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Personal Assessment History",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/assessments/personal/{assessment_id}/revisions": {
+      "post": {
+        "operationId": "revise_personal_assessment_api_opportunities__opportunity_id__assessments_personal__assessment_id__revisions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "assessment_id",
+            "required": true,
+            "schema": {
+              "title": "Assessment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonalAssessmentRevisionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonalAssessmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revise Personal Assessment",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/decisions": {
+      "get": {
+        "operationId": "decision_history_api_opportunities__opportunity_id__decisions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DecisionResponse"
+                  },
+                  "title": "Response Decision History Api Opportunities  Opportunity Id  Decisions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Decision History",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/exclude": {
+      "post": {
+        "operationId": "exclude_api_opportunities__opportunity_id__exclude_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExclusionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Exclude",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/restore": {
+      "post": {
+        "operationId": "restore_api_opportunities__opportunity_id__restore_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestorePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Restore",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/status": {
+      "post": {
+        "operationId": "change_status_api_opportunities__opportunity_id__status_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Change Status",
         "tags": [
           "opportunities"
         ]

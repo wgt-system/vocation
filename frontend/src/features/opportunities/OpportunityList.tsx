@@ -13,6 +13,7 @@ export function OpportunityList({
   const [items, setItems] = useState<OpportunityListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   useEffect(() => {
     setLoading(true);
     api
@@ -35,7 +36,30 @@ export function OpportunityList({
           <p className="eyebrow">Persönlicher Stellenmarkt</p>
           <h1>Opportunities</h1>
         </div>
-        <span className="count-badge">{items.length}</span>
+        <label>
+          Filter{" "}
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+          >
+            <option value="all">Alle</option>
+            <option value="new">Neu</option>
+            <option value="to_review">Zu prüfen</option>
+            <option value="interesting">Interessant</option>
+            <option value="shortlisted">Shortlist</option>
+            <option value="deferred">Später</option>
+            <option value="excluded">Ausgeschlossen</option>
+            <option value="archived">Archiviert</option>
+          </select>
+        </label>
+        <span className="count-badge">
+          {
+            items.filter(
+              (item) =>
+                statusFilter === "all" || item.tracking_status === statusFilter,
+            ).length
+          }
+        </span>
       </header>
       {loading && <Loading />}
       {error && <ErrorState message={error} />}
@@ -49,20 +73,28 @@ export function OpportunityList({
         </EmptyState>
       )}
       <div className="opportunity-grid">
-        {items.map((item) => (
-          <button
-            className="opportunity-card"
-            key={item.id}
-            onClick={() => onSelect(item.id)}
-          >
-            <span className="eyebrow">{item.company_name}</span>
-            <strong>{item.title}</strong>
-            <span>{item.locations.join(" · ") || "Arbeitsort unbekannt"}</span>
-            <small>
-              {item.posting_count} Posting · {item.assessment_count} Assessment
-            </small>
-          </button>
-        ))}
+        {items
+          .filter(
+            (item) =>
+              statusFilter === "all" || item.tracking_status === statusFilter,
+          )
+          .map((item) => (
+            <button
+              className="opportunity-card"
+              key={item.id}
+              onClick={() => onSelect(item.id)}
+            >
+              <span className="eyebrow">{item.company_name}</span>
+              <strong>{item.title}</strong>
+              <span>
+                {item.locations.join(" · ") || "Arbeitsort unbekannt"}
+              </span>
+              <small>
+                {item.posting_count} Posting · {item.assessment_count}{" "}
+                Assessment · Status: {item.tracking_status}
+              </small>
+            </button>
+          ))}
       </div>
     </section>
   );

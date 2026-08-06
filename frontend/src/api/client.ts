@@ -3,10 +3,32 @@ import type { components } from "./generated";
 export type Criterion = components["schemas"]["CriterionResponse"];
 export type ImportIssue = components["schemas"]["ImportIssueResponse"];
 export type ImportReport = components["schemas"]["ImportReportResponse"];
-export type OpportunityListItem =
-  components["schemas"]["OpportunityListItemResponse"];
-export type OpportunityDetail =
-  components["schemas"]["OpportunityDetailResponse"];
+export type TrackingStatus =
+  | "new"
+  | "to_review"
+  | "interesting"
+  | "shortlisted"
+  | "deferred"
+  | "excluded"
+  | "archived";
+export type OpportunityListItem = Omit<
+  components["schemas"]["OpportunityListItemResponse"],
+  "tracking_status"
+> & { tracking_status?: TrackingStatus };
+export type OpportunityDetail = Omit<
+  components["schemas"]["OpportunityDetailResponse"],
+  | "tracking_status"
+  | "external_assessments"
+  | "personal_assessments"
+  | "personal_assessment_history"
+  | "decision_history"
+> & {
+  tracking_status?: TrackingStatus;
+  external_assessments?: components["schemas"]["AssessmentResponse"][];
+  personal_assessments?: components["schemas"]["PersonalAssessmentResponse"][];
+  personal_assessment_history?: components["schemas"]["PersonalAssessmentResponse"][];
+  decision_history?: components["schemas"]["DecisionResponse"][];
+};
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -69,4 +91,36 @@ export const api = {
   listOpportunities: () => request<OpportunityListItem[]>("/api/opportunities"),
   getOpportunity: (id: string) =>
     request<OpportunityDetail>(`/api/opportunities/${id}`),
+  createPersonalAssessment: (
+    id: string,
+    payload: components["schemas"]["PersonalAssessmentPayload"],
+  ) =>
+    request<components["schemas"]["PersonalAssessmentResponse"]>(
+      `/api/opportunities/${id}/assessments/personal`,
+      { method: "POST", body: JSON.stringify(payload) },
+    ),
+  revisePersonalAssessment: (
+    id: string,
+    assessmentId: string,
+    payload: components["schemas"]["PersonalAssessmentRevisionPayload"],
+  ) =>
+    request<components["schemas"]["PersonalAssessmentResponse"]>(
+      `/api/opportunities/${id}/assessments/personal/${assessmentId}/revisions`,
+      { method: "POST", body: JSON.stringify(payload) },
+    ),
+  changeStatus: (id: string, status: TrackingStatus, reason?: string) =>
+    request<components["schemas"]["DecisionResponse"]>(
+      `/api/opportunities/${id}/status`,
+      { method: "POST", body: JSON.stringify({ status, reason }) },
+    ),
+  exclude: (id: string, reason: string) =>
+    request<components["schemas"]["DecisionResponse"]>(
+      `/api/opportunities/${id}/exclude`,
+      { method: "POST", body: JSON.stringify({ reason }) },
+    ),
+  restore: (id: string, target_status?: TrackingStatus, reason?: string) =>
+    request<components["schemas"]["DecisionResponse"]>(
+      `/api/opportunities/${id}/restore`,
+      { method: "POST", body: JSON.stringify({ target_status, reason }) },
+    ),
 };
