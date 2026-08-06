@@ -1,28 +1,27 @@
 # Vocation
 
-Vocation ist eine eigenständig ausführbare Anwendung zur strukturierten Sichtung, Verwaltung, Bewertung und räumlichen Darstellung eines persönlichen Stellenmarkts.
+Vocation is a standalone, local-first application for a personal job market. Research happens externally (initially through ChatGPT): Vocation generates criteria-driven prompts, imports versioned JSON Research Bundles, validates them, and provides a traceable read model.
 
-Die eigentliche Recherche findet zunächst außerhalb von Vocation statt, insbesondere in ChatGPT. Vocation stellt dafür standardisierte Prompt-Vorlagen bereit, importiert die daraus erzeugten versionierten JSON-Bundles, validiert sie und überführt sie in einen dauerhaften, nachvollziehbaren Datenbestand.
+## Current status: v0.1.0 first milestone
 
-## Kernziele
+The first usable Research Bundle workflow is implemented:
 
-- Stellenwissen dauerhaft und quellenbezogen erhalten
-- Job Opportunity, Job Posting, Source und Observation sauber trennen
-- externe Bewertungen und persönliche Entscheidungen auseinanderhalten
-- historische Änderungen und Verfügbarkeit nachvollziehbar machen
-- Stellen filtern, vergleichen und auf Karten darstellen
-- Originalanzeigen aus Listen, Details und Karten-Pins im Browser öffnen
-- wiederholbare Recherche durch vorbereitete Initial-, Update- und Teilbereichs-Prompts
-- eigenständige Desktop-Nutzung ohne Wiiii Got This
-- spätere read-only Integration in Wiiii Got This und iOS
+- Vocation-owned assessment criteria and active-criteria prompt snapshots
+- file and paste import for the closed Research Bundle 1.0 contract
+- structural and semantic validation with atomic persistence and import reports
+- provenance, canonical idempotency, and duplicate-import detection
+- opportunity list and detail views with postings, sources, observations, and external assessments
+- local SQLite migrations and a FastAPI/React desktop-oriented application
 
-## Projektstatus
+Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service.
 
-Der erste nutzbare Meilenstein wird als lokaler FastAPI-Dienst mit React-Oberfläche umgesetzt. Vocation besitzt eine eigene SQLite-Datenbank und bleibt ohne andere Projekte startbar.
+## Technology stack
 
-## Entwicklung starten
+Python 3.13, FastAPI, Pydantic, SQLAlchemy, Alembic, SQLite, JSON Schema, pytest, Ruff, and mypy; React, TypeScript, Vite, Vitest, Testing Library, Biome, and pnpm. API types are generated from the FastAPI OpenAPI contract.
 
-Voraussetzungen: Python 3.13, uv und pnpm. Abhängigkeiten werden aus `uv.lock` bzw. `frontend/pnpm-lock.yaml` installiert.
+## Local development
+
+Prerequisites: Python 3.13, [uv](https://docs.astral.sh/uv/), Node.js 22, and pnpm.
 
 ```powershell
 uv sync --locked --extra dev
@@ -30,95 +29,41 @@ pnpm --dir frontend install --frozen-lockfile
 .\scripts\dev.ps1
 ```
 
-Für einen produktionsnahen lokalen Start wird zuerst das Frontend gebaut und anschließend nur der Python-Dienst gestartet:
+Run the complete repository check (the same checks used by CI):
+
+```powershell
+.\scripts\check.ps1
+```
+
+For a production-style local start:
 
 ```powershell
 pnpm --dir frontend build
 .\.venv\Scripts\python -m vocation
 ```
 
-Die Produktionsvariante öffnet nach dem Start ausschließlich die lokale Vocation-URL. Import und Darstellung öffnen niemals externe Posting-URLs.
+The application uses local SQLite data. Local databases, imported job data, generated personal prompts, logs, credentials, and other private data must remain untracked.
 
-## Erster nutzbarer Meilenstein
+## Boundaries and limitations
 
-Implementiert sind:
+Research is external and import is initially a desktop capability. Mobile/iOS usage is read-only. Update bundles, fuzzy identity resolution, personal assessments and decisions, groups/waves, availability/freshness, comparison, maps, crawling, authentication, cloud hosting, and external read contracts are explicitly outside v0.1.0.
 
-- editierbarer, Vocation-eigener Assessment-Criteria-Catalog,
-- self-contained Initial-Research-Prompts mit Snapshot aller aktiven Kriterien,
-- Datei- und Paste-Import des geschlossenen Research-Bundle-1.0-Vertrags,
-- strukturelle und semantische Validierung mit vollständigem Import Report,
-- atomare Persistenz mit Provenienz und kanonischer Idempotenz,
-- Opportunity-Liste und Detailansicht mit Postings, Sources, Observations und External Assessments,
-- SQLite-Migrationen und lokale FastAPI-/React-Auslieferung.
-
-Bewusst nicht enthalten sind Update-Bundles, fuzzy Matching, Personal Decisions, Groups, Availability/Freshness-Ableitung, Karte, mobile Verträge, Crawling, LLM-APIs, Authentifizierung, Cloud und Integrationen mit anderen Projekten.
-
-## Tests
-
-```powershell
-.\.venv\Scripts\python -m pytest backend/tests
-pnpm --dir frontend test
-pnpm --dir frontend build
-```
-
-Der vollständige lokale Check entspricht der CI:
-
-```powershell
-.\scripts\check.ps1
-```
-
-Die Frontend-API-Typen werden aus dem FastAPI-OpenAPI-Vertrag erzeugt und geprüft:
-
-```powershell
-pnpm --dir frontend api:generate
-pnpm --dir frontend api:check
-```
-
-## Dokumentationsreihenfolge
-
-1. `docs/01_DOMAIN_VISION.md`
-2. `docs/02_SCENARIOS.md`
-3. `docs/03_UBIQUITOUS_LANGUAGE.md`
-4. `docs/04_SUBDOMAINS.md`
-5. `docs/05_DOMAIN_MODEL.md`
-6. `docs/06_CONTEXT_MAP.md`
-7. `docs/07_APPLICATION_DESIGN.md`
-8. `docs/08_IMPORT_CONTRACT.md`
-9. `docs/09_READ_MODELS.md`
-10. `docs/10_ARCHITECTURE.md`
-11. `docs/11_ACCEPTANCE_TESTS.md`
-12. `docs/12_PROMPT_WORKFLOWS.md`
-13. `docs/13_IMPLEMENTATION_PLAN.md`
-14. `docs/14_REVIEW_CHECKLIST.md`
-
-## Verzeichnisübersicht
+## Repository structure
 
 ```text
-vocation/
-├── README.md
-├── AGENTS.md
-├── docs/
-│   ├── 01_DOMAIN_VISION.md
-│   ├── 02_SCENARIOS.md
-│   ├── 03_UBIQUITOUS_LANGUAGE.md
-│   ├── 04_SUBDOMAINS.md
-│   ├── 05_DOMAIN_MODEL.md
-│   ├── 06_CONTEXT_MAP.md
-│   ├── 07_APPLICATION_DESIGN.md
-│   ├── 08_IMPORT_CONTRACT.md
-│   ├── 09_READ_MODELS.md
-│   ├── 10_ARCHITECTURE.md
-│   ├── 11_ACCEPTANCE_TESTS.md
-│   ├── 12_PROMPT_WORKFLOWS.md
-│   ├── 13_IMPLEMENTATION_PLAN.md
-│   └── adr/
-├── schemas/
-│   └── research-bundle-v1.schema.json
-├── examples/
-│   └── imports/
-└── prompts/
+backend/       FastAPI application, domain, migrations, and tests
+frontend/      React/TypeScript UI and Vitest tests
+docs/          Product specification and ADRs
+schemas/       Versioned import contracts
+examples/      Synthetic import fixtures
+prompts/       Prompt templates and output contract
+scripts/       Development and complete-check scripts
 ```
 
-## Implementierungsregel
+## Branch and release model
 
-Codex oder andere Agenten dürfen keine fachlichen Entscheidungen erfinden, die in den Spezifikationen offen oder ausgeschlossen sind. Unklare Punkte sind als Blocker zu melden oder in einem ADR zu dokumentieren.
+`dev` is the long-lived development branch. Normal work happens there; feature branches are optional for parallel or risky experiments. `main` contains stable, presentable, versioned milestone releases only. Completed milestones are merged from `dev` into `main` and tagged (for example `v0.1.0`).
+
+## License
+
+MIT; see [LICENSE](LICENSE).
