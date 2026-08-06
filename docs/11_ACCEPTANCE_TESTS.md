@@ -178,3 +178,10 @@ Dann wird nur der erste Import angewendet und der zweite als identisch erkannt.
 Wenn ein Initial Research Prompt erzeugt wird
 Dann enthält er Search Profile, Constraints, Stichtag, aktive Criteria, vollständige Output-Struktur, kontrollierte Vokabulare und Provenienzregeln
 Und verweist nicht auf lokale Repository-Pfade.
+## AT-32 bis AT-36: Persönliche Triage
+
+- AT-32: Ein gültiger persönlicher Wert wird gespeichert und ist im Detail getrennt vom externen Assessment sichtbar.
+- AT-33: Eine Revision erzeugt einen neuen Datensatz mit Vorgängerreferenz; die alte Revision bleibt abrufbar.
+- AT-34: Ungültige Werte und leere Exclusion-Gründe werden abgelehnt, ohne Daten zu schreiben.
+- AT-35: Exclusion, Statusänderung und Restore erzeugen chronologische Decision History; Restore erfordert eine aktive Exclusion.
+- AT-36: Ein erneuter Research-Import verändert persönliche Assessments, Decisions und Tracking Status nicht.

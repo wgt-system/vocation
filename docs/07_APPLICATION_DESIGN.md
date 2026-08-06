@@ -264,3 +264,6 @@ Application Errors enthalten:
 - kein Bewerbungsversand,
 - keine automatische externe Navigation,
 - keine Plattformlogik von Wiiii Got This.
+## Persönliche Triage-Commands (v0.2.0)
+
+Die Anwendung bietet `CreatePersonalAssessment`, `RevisePersonalAssessment`, `ChangeTrackingStatus`, `ExcludeOpportunity` und `RestoreOpportunity`. Die zugehörigen Queries liefern aktuelle und historische Personal Assessments sowie chronologische Decision History. Die Commands sind atomar; eine ungültige Eingabe erzeugt keinen Teilzustand.

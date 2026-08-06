@@ -173,3 +173,10 @@ Reduziertes Read Model für mobile Nutzung.
 - Ein Posting-Link ist nicht die Opportunity.
 - Ein Karten-Pin ist eine Projektion, kein Domänenobjekt.
 - Das Öffnen eines Links ist eine Nutzeraktion, keine automatische Navigation.
+## Persönliche Triage (v0.2.0)
+
+Eine **Personal Assessment** ist eine Vocation-eigene Einschätzung zu einer Opportunity und einem von Vocation verwalteten, aktiven Opportunity-Kriterium. Sie wird als unveränderliche Revision gespeichert. Eine neue Revision verweist auf die vorherige Revision; ältere Revisionen bleiben sichtbar und werden niemals durch Research-Importe überschrieben.
+
+Der **Tracking Status** einer Opportunity ist genau einer von `new`, `to_review`, `interesting`, `shortlisted`, `deferred`, `excluded` oder `archived`. Jede Änderung erzeugt einen unveränderlichen **Decision**-Eintrag.
+
+Eine **Exclusion** setzt den Status auf `excluded` und erfordert einen nichtleeren Grund. **Restore** ist die explizite Aufhebung einer aktiven Exclusion, erzeugt einen eigenen Decision-Eintrag und setzt einen nicht ausgeschlossenen Zielstatus.
