@@ -5,7 +5,6 @@ from fastapi import APIRouter, HTTPException, Request
 from vocation.api.schemas import GeneratedPromptResponse, InitialPromptPayload
 from vocation.application.prompts import PromptService
 
-
 router = APIRouter(prefix="/api/prompts", tags=["research prompts"])
 
 

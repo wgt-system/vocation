@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -35,7 +35,7 @@ def _uuid() -> str:
 
 def _datetime(value: str) -> datetime:
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
 class SqlAlchemyImportRepository:
@@ -72,13 +72,15 @@ class SqlAlchemyImportRepository:
                 canonical_url = normalize_https_url(reference["url"])
                 existing = session.scalar(
                     select(PostingModel).where(
-                        or_(PostingModel.stable_key == stable_key, PostingModel.canonical_url == canonical_url)
+                        or_(
+                            PostingModel.stable_key == stable_key,
+                            PostingModel.canonical_url == canonical_url,
+                        )
                     )
                 )
                 if existing:
                     message = (
-                        "Posting identity conflicts with an existing posting. "
-                        "The initial-only importer does not merge across bundles."
+                        "Posting identity conflicts with an existing posting. The initial-only importer does not merge across bundles."
                     )
                     issues.append(ImportIssue("IDENTITY_CONFLICT", message, f"$.postings[{index}]"))
         return issues
@@ -122,7 +124,11 @@ class SqlAlchemyImportRepository:
         company_ids = {item["id"]: _uuid() for item in bundle["companies"]}
         opportunity_ids = {item["id"]: _uuid() for item in bundle["opportunities"]}
         posting_ids = {item["id"]: _uuid() for item in bundle["postings"]}
-        subject_ids = {"company": company_ids, "opportunity": opportunity_ids, "posting": posting_ids}
+        subject_ids = {
+            "company": company_ids,
+            "opportunity": opportunity_ids,
+            "posting": posting_ids,
+        }
         sources = {item["id"]: item for item in bundle["sources"]}
         references = {item["id"]: item for item in bundle["source_references"]}
         counts = {
@@ -143,7 +149,7 @@ class SqlAlchemyImportRepository:
                     bundle_id=bundle["bundle_id"],
                     fingerprint=fingerprint,
                     status="applied",
-                    applied_at=datetime.now(timezone.utc),
+                    applied_at=datetime.now(UTC),
                     counts_json=json.dumps(counts),
                     warnings_json=json.dumps(warnings, ensure_ascii=False),
                 )
@@ -289,8 +295,5 @@ class SqlAlchemyImportRepository:
             fingerprint=model.fingerprint,
             counts=json.loads(model.counts_json),
             warnings=json.loads(model.warnings_json),
-            issues=[
-                ImportIssue(issue.code, issue.message, issue.path, issue.severity)
-                for issue in model.issues
-            ],
+            issues=[ImportIssue(issue.code, issue.message, issue.path, issue.severity) for issue in model.issues],
         )

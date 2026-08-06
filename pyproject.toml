@@ -23,6 +23,14 @@ test = [
   "pytest>=8.4,<9",
   "pytest-cov>=6.2,<7"
 ]
+dev = [
+  "httpx>=0.28,<1",
+  "mypy>=1.15,<2",
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.11,<1",
+  "types-jsonschema>=4.25,<5"
+]
 
 [project.scripts]
 vocation = "vocation.__main__:main"
@@ -34,3 +42,19 @@ packages = ["backend/vocation"]
 testpaths = ["backend/tests"]
 pythonpath = ["backend"]
 addopts = "-ra"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 140
+extend-exclude = ["backend/alembic"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.13"
+files = ["backend/vocation"]
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true
+disable_error_code = ["operator", "valid-type", "attr-defined", "var-annotated", "union-attr"]

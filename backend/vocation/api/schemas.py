@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
-
 
 ValueType = Literal["numeric", "boolean", "categorical", "text"]
 SubjectType = Literal["company", "opportunity", "posting"]
@@ -82,3 +81,86 @@ class ImportReportResponse(BaseModel):
     warnings: list[str]
     issues: list[ImportIssueResponse]
     duplicate_of_import_id: str | None = None
+
+
+class OpportunityListItemResponse(BaseModel):
+    id: str
+    title: str
+    company_name: str
+    locations: list[str]
+    posting_count: int
+    assessment_count: int
+    import_id: str
+    imported_at: str
+
+
+class CompanyResponse(BaseModel):
+    id: str
+    name: str
+
+
+class LocationResponse(BaseModel):
+    label: str
+    precision: str
+    evidence_summary: str | None
+
+
+class SourceResponse(BaseModel):
+    id: str
+    name: str
+    type: str
+    base_url: str | None = None
+
+
+class SourceReferenceResponse(BaseModel):
+    id: str
+    url: str
+    display_label: str | None
+    observed_at: str
+
+
+class PostingResponse(BaseModel):
+    id: str
+    title: str
+    published_at: str | None
+    observed_at: str
+    source: SourceResponse
+    source_reference: SourceReferenceResponse
+
+
+class ObservationResponse(BaseModel):
+    id: str
+    subject_type: str
+    type: str
+    value: Any
+    observed_at: str
+    confidence: float | None
+    evidence_summary: str | None
+
+
+class AssessmentResponse(BaseModel):
+    id: str
+    criterion_id: str
+    criterion_name: str
+    value: Any
+    origin: str
+    reasoning: str | None
+
+
+class ImportProvenanceResponse(BaseModel):
+    import_id: str
+    bundle_id: str
+    fingerprint: str
+    applied_at: str
+
+
+class OpportunityDetailResponse(BaseModel):
+    id: str
+    title: str
+    company: CompanyResponse
+    locations: list[LocationResponse]
+    postings: list[PostingResponse]
+    sources: list[SourceResponse]
+    observations: list[ObservationResponse]
+    assessments: list[AssessmentResponse]
+    import_provenance: ImportProvenanceResponse

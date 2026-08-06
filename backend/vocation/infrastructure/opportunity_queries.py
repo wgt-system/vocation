@@ -35,9 +35,7 @@ class SqlAlchemyOpportunityReadRepository:
             result: list[dict[str, Any]] = []
             for opportunity in opportunities:
                 company = session.get(CompanyModel, opportunity.company_id)
-                locations = session.scalars(
-                    select(WorkLocationModel).where(WorkLocationModel.opportunity_id == opportunity.id)
-                ).all()
+                locations = session.scalars(select(WorkLocationModel).where(WorkLocationModel.opportunity_id == opportunity.id)).all()
                 postings = session.scalars(select(PostingModel).where(PostingModel.opportunity_id == opportunity.id)).all()
                 assessments = session.scalars(
                     select(ExternalAssessmentModel).where(
@@ -66,9 +64,7 @@ class SqlAlchemyOpportunityReadRepository:
             if opportunity is None:
                 return None
             company = session.get(CompanyModel, opportunity.company_id)
-            locations = session.scalars(
-                select(WorkLocationModel).where(WorkLocationModel.opportunity_id == opportunity.id)
-            ).all()
+            locations = session.scalars(select(WorkLocationModel).where(WorkLocationModel.opportunity_id == opportunity.id)).all()
             postings = session.scalars(
                 select(PostingModel).where(PostingModel.opportunity_id == opportunity.id).order_by(PostingModel.observed_at.desc())
             ).all()
@@ -90,7 +86,11 @@ class SqlAlchemyOpportunityReadRepository:
                         "external_posting_id": posting.external_posting_id,
                         "published_at": posting.published_at,
                         "observed_at": _iso(posting.observed_at),
-                        "source": {"id": source.id, "name": source.name, "type": source.source_type},
+                        "source": {
+                            "id": source.id,
+                            "name": source.name,
+                            "type": source.source_type,
+                        },
                         "source_reference": {
                             "id": reference.id,
                             "url": reference.url,
@@ -101,9 +101,7 @@ class SqlAlchemyOpportunityReadRepository:
                 )
             subject_ids = [company.id, opportunity.id, *[posting.id for posting in postings]]
             observations = session.scalars(
-                select(ObservationModel)
-                .where(ObservationModel.subject_id.in_(subject_ids))
-                .order_by(ObservationModel.observed_at.desc())
+                select(ObservationModel).where(ObservationModel.subject_id.in_(subject_ids)).order_by(ObservationModel.observed_at.desc())
             ).all()
             assessments = session.scalars(
                 select(ExternalAssessmentModel)

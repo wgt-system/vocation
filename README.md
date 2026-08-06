@@ -22,12 +22,11 @@ Der erste nutzbare Meilenstein wird als lokaler FastAPI-Dienst mit React-Oberfl�
 
 ## Entwicklung starten
 
-Voraussetzungen: Python 3.13 und pnpm.
+Voraussetzungen: Python 3.13, uv und pnpm. Abhängigkeiten werden aus `uv.lock` bzw. `frontend/pnpm-lock.yaml` installiert.
 
 ```powershell
-py -3.13 -m venv .venv
-.\.venv\Scripts\python -m pip install -e ".[test]"
-pnpm --dir frontend install
+uv sync --locked --extra dev
+pnpm --dir frontend install --frozen-lockfile
 .\scripts\dev.ps1
 ```
 
@@ -60,6 +59,19 @@ Bewusst nicht enthalten sind Update-Bundles, fuzzy Matching, Personal Decisions,
 .\.venv\Scripts\python -m pytest backend/tests
 pnpm --dir frontend test
 pnpm --dir frontend build
+```
+
+Der vollständige lokale Check entspricht der CI:
+
+```powershell
+.\scripts\check.ps1
+```
+
+Die Frontend-API-Typen werden aus dem FastAPI-OpenAPI-Vertrag erzeugt und geprüft:
+
+```powershell
+pnpm --dir frontend api:generate
+pnpm --dir frontend api:check
 ```
 
 ## Dokumentationsreihenfolge

@@ -7,12 +7,17 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "biome lint src",
+    "format:check": "biome format src",
+    "typecheck": "tsc -b --pretty false",
+    "api:generate": "uv run python ../scripts/generate_openapi_types.py",
+    "api:check": "uv run python ../scripts/check_openapi_types.py"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
-    "typescript": "latest",
+    "typescript": "^5.8.3",
     "react": "latest",
     "react-dom": "latest"
   },
@@ -24,5 +29,7 @@
     "@types/react-dom": "latest",
     "jsdom": "latest",
     "vitest": "latest"
+    ,"@biomejs/biome": "^2.2.0"
+    ,"openapi-typescript": "^7.9.1"
   }
 }

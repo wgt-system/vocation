@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 from sqlalchemy import func, select
-
 from vocation.infrastructure.models import (
     CompanyModel,
     ExternalAssessmentModel,
@@ -15,7 +14,6 @@ from vocation.infrastructure.models import (
     ResearchImportModel,
     SourceReferenceModel,
 )
-
 
 ROOT = Path(__file__).resolve().parents[2]
 

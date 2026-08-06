@@ -17,9 +17,16 @@ from vocation.domain.research_bundle import (
     posting_identity,
 )
 
-
 MAX_IMPORT_BYTES = 2 * 1024 * 1024
-COLLECTIONS = ("sources", "source_references", "companies", "opportunities", "postings", "observations", "assessments")
+COLLECTIONS = (
+    "sources",
+    "source_references",
+    "companies",
+    "opportunities",
+    "postings",
+    "observations",
+    "assessments",
+)
 
 
 class ImportRepository(Protocol):
@@ -120,9 +127,11 @@ class ImportService:
                 code = "UNSUPPORTED_BUNDLE_VERSION"
             elif absolute_path and absolute_path[-1] in {"url", "base_url"}:
                 code = "INVALID_URL"
-            elif error.validator == "format" and absolute_path and absolute_path[-1] in {
-                "generated_at", "as_of_date", "observed_at", "published_at", "created_at"
-            }:
+            elif (
+                error.validator == "format"
+                and absolute_path
+                and absolute_path[-1] in {"generated_at", "as_of_date", "observed_at", "published_at", "created_at"}
+            ):
                 code = "INVALID_DATE"
             else:
                 code = "SCHEMA_VALIDATION_FAILED"
@@ -138,7 +147,11 @@ class ImportService:
                 item_id = item["id"]
                 if item_id in items:
                     issues.append(
-                        ImportIssue("DUPLICATE_BUNDLE_ID", f"Duplicate ID '{item_id}' in {collection}.", f"$.{collection}[{index}].id")
+                        ImportIssue(
+                            "DUPLICATE_BUNDLE_ID",
+                            f"Duplicate ID '{item_id}' in {collection}.",
+                            f"$.{collection}[{index}].id",
+                        )
                     )
                 items[item_id] = item
             indexed[collection] = items
@@ -156,10 +169,18 @@ class ImportService:
             except ValueError as error:
                 issues.append(ImportIssue("INVALID_URL", str(error), f"$.source_references[{index}].url"))
         for index, company in enumerate(bundle["companies"]):
-            require("source_references", company["source_reference_id"], f"$.companies[{index}].source_reference_id")
+            require(
+                "source_references",
+                company["source_reference_id"],
+                f"$.companies[{index}].source_reference_id",
+            )
         for index, opportunity in enumerate(bundle["opportunities"]):
             require("companies", opportunity["company_id"], f"$.opportunities[{index}].company_id")
-            require("source_references", opportunity["source_reference_id"], f"$.opportunities[{index}].source_reference_id")
+            require(
+                "source_references",
+                opportunity["source_reference_id"],
+                f"$.opportunities[{index}].source_reference_id",
+            )
             for location_index, location in enumerate(opportunity["work_locations"]):
                 require(
                     "source_references",
@@ -169,7 +190,11 @@ class ImportService:
         for index, posting in enumerate(bundle["postings"]):
             company = require("companies", posting["company_id"], f"$.postings[{index}].company_id")
             opportunity = require("opportunities", posting["opportunity_id"], f"$.postings[{index}].opportunity_id")
-            require("source_references", posting["source_reference_id"], f"$.postings[{index}].source_reference_id")
+            require(
+                "source_references",
+                posting["source_reference_id"],
+                f"$.postings[{index}].source_reference_id",
+            )
             if company and opportunity and opportunity["company_id"] != posting["company_id"]:
                 issues.append(
                     ImportIssue(
@@ -178,7 +203,11 @@ class ImportService:
                         f"$.postings[{index}].company_id",
                     )
                 )
-        subject_collections = {"company": "companies", "opportunity": "opportunities", "posting": "postings"}
+        subject_collections = {
+            "company": "companies",
+            "opportunity": "opportunities",
+            "posting": "postings",
+        }
         for collection_name in ("observations", "assessments"):
             for index, item in enumerate(bundle[collection_name]):
                 require(
@@ -236,7 +265,11 @@ class ImportService:
                 identity = posting_identity(source, source_reference, posting)
                 if identity in seen_identities:
                     issues.append(
-                        ImportIssue("IDENTITY_CONFLICT", "Two postings resolve to the same stable identity.", f"$.postings[{index}]")
+                        ImportIssue(
+                            "IDENTITY_CONFLICT",
+                            "Two postings resolve to the same stable identity.",
+                            f"$.postings[{index}]",
+                        )
                     )
                 seen_identities.add(identity)
         return issues

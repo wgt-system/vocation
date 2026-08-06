@@ -8,7 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from vocation.config import Settings, get_settings
 from vocation.api.criteria_routes import router as criteria_router
 from vocation.api.import_routes import router as import_router
 from vocation.api.opportunity_routes import router as opportunity_router
@@ -17,10 +16,14 @@ from vocation.application.criteria import CriteriaService
 from vocation.application.imports import ImportService
 from vocation.application.opportunities import OpportunityQueryService
 from vocation.application.prompts import PromptService
+from vocation.config import Settings, get_settings
 from vocation.infrastructure.bundle_repository import SqlAlchemyImportRepository
-from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
 from vocation.infrastructure.database import Database
-from vocation.infrastructure.repositories import SqlAlchemyCriteriaRepository, SqlAlchemyPromptRunRepository
+from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
+from vocation.infrastructure.repositories import (
+    SqlAlchemyCriteriaRepository,
+    SqlAlchemyPromptRunRepository,
+)
 
 
 def create_app(settings: Settings | None = None, *, run_migrations: bool = True) -> FastAPI:
@@ -50,9 +53,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         app.state.criteria_service,
         settings.schema_path,
     )
-    app.state.opportunity_service = OpportunityQueryService(
-        SqlAlchemyOpportunityReadRepository(database.session_factory)
-    )
+    app.state.opportunity_service = OpportunityQueryService(SqlAlchemyOpportunityReadRepository(database.session_factory))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],

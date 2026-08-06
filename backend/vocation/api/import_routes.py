@@ -3,9 +3,8 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request, UploadFile
 
 from vocation.api.schemas import ImportIssueResponse, ImportReportResponse, ImportTextPayload
-from vocation.application.imports import ImportService, MAX_IMPORT_BYTES
+from vocation.application.imports import MAX_IMPORT_BYTES, ImportService
 from vocation.domain.research_bundle import ImportReport
-
 
 router = APIRouter(prefix="/api/imports", tags=["research imports"])
 

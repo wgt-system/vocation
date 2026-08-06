@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-
 VALUE_TYPES = {"numeric", "boolean", "categorical", "text"}
 SUBJECT_TYPES = {"company", "opportunity", "posting"}
 
@@ -81,11 +80,7 @@ def validate_criterion(criterion: AssessmentCriterion) -> None:
 
 def validate_assessment_value(criterion: AssessmentCriterion, value: Any) -> bool:
     if criterion.value_type == "numeric":
-        return (
-            isinstance(value, (int, float))
-            and not isinstance(value, bool)
-            and criterion.numeric_min <= value <= criterion.numeric_max
-        )
+        return isinstance(value, (int, float)) and not isinstance(value, bool) and criterion.numeric_min <= value <= criterion.numeric_max
     if criterion.value_type == "boolean":
         return isinstance(value, bool)
     if criterion.value_type == "categorical":

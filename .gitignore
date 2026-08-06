@@ -1,6 +1,7 @@
 # Python
 .venv/
 .runtime/
+.uv-cache/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -16,6 +17,8 @@ data/
 
 # Frontend
 frontend/node_modules/
+frontend/.pnpm-store/
+.pnpm-store/
 frontend/dist/
 frontend/coverage/
 *.tsbuildinfo

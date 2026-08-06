@@ -1,0 +1,17 @@
+name: Architecture decision
+description: Record a decision that should become an ADR
+title: "adr: "
+labels: [architecture]
+body:
+  - type: textarea
+    id: context
+    attributes: { label: Context and forces }
+    validations: { required: true }
+  - type: textarea
+    id: decision
+    attributes: { label: Proposed decision }
+    validations: { required: true }
+  - type: textarea
+    id: consequences
+    attributes: { label: Consequences }
+    validations: { required: true }

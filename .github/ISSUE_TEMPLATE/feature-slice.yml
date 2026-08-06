@@ -1,0 +1,25 @@
+name: Feature slice
+description: Propose a bounded implementation slice
+title: "feat: "
+labels: [feature]
+body:
+  - type: textarea
+    id: goal
+    attributes: { label: Goal, description: What user outcome should this slice deliver? }
+    validations: { required: true }
+  - type: textarea
+    id: specs
+    attributes: { label: Specification files, description: List the authoritative documents and sections. }
+    validations: { required: true }
+  - type: textarea
+    id: acceptance
+    attributes: { label: Acceptance criteria, description: State observable, testable outcomes. }
+    validations: { required: true }
+  - type: textarea
+    id: non_goals
+    attributes: { label: Non-goals, description: Explicitly excluded behavior. }
+    validations: { required: true }
+  - type: input
+    id: area
+    attributes: { label: Affected area, placeholder: domain / application / import / read model / UI }
+    validations: { required: true }

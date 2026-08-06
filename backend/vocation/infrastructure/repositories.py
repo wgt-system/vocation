@@ -84,9 +84,7 @@ class SqlAlchemyCriteriaRepository:
     def is_referenced(self, criterion_id: str) -> bool:
         with self.session_factory() as session:
             count = session.scalar(
-                select(func.count()).select_from(ExternalAssessmentModel).where(
-                    ExternalAssessmentModel.criterion_id == criterion_id
-                )
+                select(func.count()).select_from(ExternalAssessmentModel).where(ExternalAssessmentModel.criterion_id == criterion_id)
             )
             return bool(count)
 

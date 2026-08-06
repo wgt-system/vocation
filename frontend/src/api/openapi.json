@@ -1,0 +1,1341 @@
+{
+  "components": {
+    "schemas": {
+      "ActivationPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "active"
+        ],
+        "title": "ActivationPayload",
+        "type": "object"
+      },
+      "AssessmentResponse": {
+        "properties": {
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "criterion_name": {
+            "title": "Criterion Name",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "criterion_id",
+          "criterion_name",
+          "value",
+          "origin",
+          "reasoning"
+        ],
+        "title": "AssessmentResponse",
+        "type": "object"
+      },
+      "Body_import_file_api_imports_file_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_file_api_imports_file_post",
+        "type": "object"
+      },
+      "CompanyResponse": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "CompanyResponse",
+        "type": "object"
+      },
+      "CriterionPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "default": true,
+            "title": "Active",
+            "type": "boolean"
+          },
+          "allowed_values": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Values",
+            "type": "array"
+          },
+          "applicable_subject_type": {
+            "enum": [
+              "company",
+              "opportunity",
+              "posting"
+            ],
+            "title": "Applicable Subject Type",
+            "type": "string"
+          },
+          "criterion_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "display_order": {
+            "default": 10,
+            "minimum": 0.0,
+            "title": "Display Order",
+            "type": "integer"
+          },
+          "numeric_max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeric Max"
+          },
+          "numeric_min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeric Min"
+          },
+          "value_type": {
+            "enum": [
+              "numeric",
+              "boolean",
+              "categorical",
+              "text"
+            ],
+            "title": "Value Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "display_name",
+          "value_type",
+          "applicable_subject_type"
+        ],
+        "title": "CriterionPayload",
+        "type": "object"
+      },
+      "CriterionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "default": true,
+            "title": "Active",
+            "type": "boolean"
+          },
+          "allowed_values": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Values",
+            "type": "array"
+          },
+          "applicable_subject_type": {
+            "enum": [
+              "company",
+              "opportunity",
+              "posting"
+            ],
+            "title": "Applicable Subject Type",
+            "type": "string"
+          },
+          "criterion_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "display_order": {
+            "default": 10,
+            "minimum": 0.0,
+            "title": "Display Order",
+            "type": "integer"
+          },
+          "numeric_max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeric Max"
+          },
+          "numeric_min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeric Min"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "value_type": {
+            "enum": [
+              "numeric",
+              "boolean",
+              "categorical",
+              "text"
+            ],
+            "title": "Value Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "display_name",
+          "value_type",
+          "applicable_subject_type",
+          "revision"
+        ],
+        "title": "CriterionResponse",
+        "type": "object"
+      },
+      "GeneratedPromptResponse": {
+        "properties": {
+          "bundle_version": {
+            "title": "Bundle Version",
+            "type": "string"
+          },
+          "criteria_count": {
+            "title": "Criteria Count",
+            "type": "integer"
+          },
+          "prompt_run_id": {
+            "title": "Prompt Run Id",
+            "type": "string"
+          },
+          "prompt_text": {
+            "title": "Prompt Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prompt_run_id",
+          "prompt_text",
+          "bundle_version",
+          "criteria_count"
+        ],
+        "title": "GeneratedPromptResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ImportIssueResponse": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity",
+          "code",
+          "path",
+          "message"
+        ],
+        "title": "ImportIssueResponse",
+        "type": "object"
+      },
+      "ImportProvenanceResponse": {
+        "properties": {
+          "applied_at": {
+            "title": "Applied At",
+            "type": "string"
+          },
+          "bundle_id": {
+            "title": "Bundle Id",
+            "type": "string"
+          },
+          "fingerprint": {
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "import_id": {
+            "title": "Import Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "import_id",
+          "bundle_id",
+          "fingerprint",
+          "applied_at"
+        ],
+        "title": "ImportProvenanceResponse",
+        "type": "object"
+      },
+      "ImportReportResponse": {
+        "properties": {
+          "bundle_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bundle Id"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "duplicate_of_import_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Of Import Id"
+          },
+          "fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fingerprint"
+          },
+          "import_id": {
+            "title": "Import Id",
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ImportIssueResponse"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "import_id",
+          "status",
+          "bundle_id",
+          "fingerprint",
+          "counts",
+          "warnings",
+          "issues"
+        ],
+        "title": "ImportReportResponse",
+        "type": "object"
+      },
+      "ImportTextPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "title": "Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "ImportTextPayload",
+        "type": "object"
+      },
+      "InitialPromptPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of_date": {
+            "format": "date",
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Constraints",
+            "type": "array"
+          },
+          "search_profile": {
+            "minLength": 1,
+            "title": "Search Profile",
+            "type": "string"
+          }
+        },
+        "required": [
+          "search_profile",
+          "as_of_date"
+        ],
+        "title": "InitialPromptPayload",
+        "type": "object"
+      },
+      "LocationResponse": {
+        "properties": {
+          "evidence_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Summary"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "precision": {
+            "title": "Precision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "precision",
+          "evidence_summary"
+        ],
+        "title": "LocationResponse",
+        "type": "object"
+      },
+      "ObservationResponse": {
+        "properties": {
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "evidence_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Summary"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "observed_at": {
+            "title": "Observed At",
+            "type": "string"
+          },
+          "subject_type": {
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "subject_type",
+          "type",
+          "value",
+          "observed_at",
+          "confidence",
+          "evidence_summary"
+        ],
+        "title": "ObservationResponse",
+        "type": "object"
+      },
+      "OpportunityDetailResponse": {
+        "properties": {
+          "assessments": {
+            "items": {
+              "$ref": "#/components/schemas/AssessmentResponse"
+            },
+            "title": "Assessments",
+            "type": "array"
+          },
+          "company": {
+            "$ref": "#/components/schemas/CompanyResponse"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "import_provenance": {
+            "$ref": "#/components/schemas/ImportProvenanceResponse"
+          },
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/LocationResponse"
+            },
+            "title": "Locations",
+            "type": "array"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/ObservationResponse"
+            },
+            "title": "Observations",
+            "type": "array"
+          },
+          "postings": {
+            "items": {
+              "$ref": "#/components/schemas/PostingResponse"
+            },
+            "title": "Postings",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceResponse"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "company",
+          "locations",
+          "postings",
+          "sources",
+          "observations",
+          "assessments",
+          "import_provenance"
+        ],
+        "title": "OpportunityDetailResponse",
+        "type": "object"
+      },
+      "OpportunityListItemResponse": {
+        "properties": {
+          "assessment_count": {
+            "title": "Assessment Count",
+            "type": "integer"
+          },
+          "company_name": {
+            "title": "Company Name",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "import_id": {
+            "title": "Import Id",
+            "type": "string"
+          },
+          "imported_at": {
+            "title": "Imported At",
+            "type": "string"
+          },
+          "locations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Locations",
+            "type": "array"
+          },
+          "posting_count": {
+            "title": "Posting Count",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "company_name",
+          "locations",
+          "posting_count",
+          "assessment_count",
+          "import_id",
+          "imported_at"
+        ],
+        "title": "OpportunityListItemResponse",
+        "type": "object"
+      },
+      "PostingResponse": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "observed_at": {
+            "title": "Observed At",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SourceResponse"
+          },
+          "source_reference": {
+            "$ref": "#/components/schemas/SourceReferenceResponse"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "published_at",
+          "observed_at",
+          "source",
+          "source_reference"
+        ],
+        "title": "PostingResponse",
+        "type": "object"
+      },
+      "ReorderPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "criterion_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Criterion Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "criterion_ids"
+        ],
+        "title": "ReorderPayload",
+        "type": "object"
+      },
+      "SourceReferenceResponse": {
+        "properties": {
+          "display_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Label"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "observed_at": {
+            "title": "Observed At",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "display_label",
+          "observed_at"
+        ],
+        "title": "SourceReferenceResponse",
+        "type": "object"
+      },
+      "SourceResponse": {
+        "properties": {
+          "base_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Url"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type"
+        ],
+        "title": "SourceResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Vocation",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/criteria": {
+      "get": {
+        "operationId": "list_criteria_api_criteria_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CriterionResponse"
+                  },
+                  "title": "Response List Criteria Api Criteria Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Criteria",
+        "tags": [
+          "assessment criteria"
+        ]
+      },
+      "post": {
+        "operationId": "create_criterion_api_criteria_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CriterionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CriterionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Criterion",
+        "tags": [
+          "assessment criteria"
+        ]
+      }
+    },
+    "/api/criteria/reorder": {
+      "post": {
+        "operationId": "reorder_criteria_api_criteria_reorder_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CriterionResponse"
+                  },
+                  "title": "Response Reorder Criteria Api Criteria Reorder Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reorder Criteria",
+        "tags": [
+          "assessment criteria"
+        ]
+      }
+    },
+    "/api/criteria/{criterion_id}": {
+      "put": {
+        "operationId": "edit_criterion_api_criteria__criterion_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "criterion_id",
+            "required": true,
+            "schema": {
+              "title": "Criterion Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CriterionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CriterionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Edit Criterion",
+        "tags": [
+          "assessment criteria"
+        ]
+      }
+    },
+    "/api/criteria/{criterion_id}/activation": {
+      "post": {
+        "operationId": "activate_criterion_api_criteria__criterion_id__activation_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "criterion_id",
+            "required": true,
+            "schema": {
+              "title": "Criterion Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CriterionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Activate Criterion",
+        "tags": [
+          "assessment criteria"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Api Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/api/imports/file": {
+      "post": {
+        "operationId": "import_file_api_imports_file_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_file_api_imports_file_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import File",
+        "tags": [
+          "research imports"
+        ]
+      }
+    },
+    "/api/imports/text": {
+      "post": {
+        "operationId": "import_text_api_imports_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportTextPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import Text",
+        "tags": [
+          "research imports"
+        ]
+      }
+    },
+    "/api/imports/{import_id}": {
+      "get": {
+        "operationId": "get_import_report_api_imports__import_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "import_id",
+            "required": true,
+            "schema": {
+              "title": "Import Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Import Report",
+        "tags": [
+          "research imports"
+        ]
+      }
+    },
+    "/api/opportunities": {
+      "get": {
+        "operationId": "list_opportunities_api_opportunities_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OpportunityListItemResponse"
+                  },
+                  "title": "Response List Opportunities Api Opportunities Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Opportunities",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}": {
+      "get": {
+        "operationId": "opportunity_detail_api_opportunities__opportunity_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Opportunity Detail",
+        "tags": [
+          "opportunities"
+        ]
+      }
+    },
+    "/api/prompts/initial": {
+      "post": {
+        "operationId": "generate_initial_prompt_api_prompts_initial_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitialPromptPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratedPromptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate Initial Prompt",
+        "tags": [
+          "research prompts"
+        ]
+      }
+    }
+  }
+}

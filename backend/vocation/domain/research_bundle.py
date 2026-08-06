@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import SplitResult, urlsplit, urlunsplit
 
-
 PROTECTED_FIELDS = {
     "tracking_status",
     "personal_assessment",

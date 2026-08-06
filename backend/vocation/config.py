@@ -5,7 +5,6 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 RESOURCE_ROOT = Path(getattr(sys, "_MEIPASS", REPOSITORY_ROOT))
 

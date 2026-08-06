@@ -8,9 +8,8 @@ from vocation.api.schemas import (
     CriterionResponse,
     ReorderPayload,
 )
-from vocation.application.criteria import CriterionNotFoundError, CriteriaService
+from vocation.application.criteria import CriteriaService, CriterionNotFoundError
 from vocation.domain.criteria import AssessmentCriterion, CriterionValidationError
-
 
 router = APIRouter(prefix="/api/criteria", tags=["assessment criteria"])
 
