@@ -6,6 +6,8 @@ import webbrowser
 
 import uvicorn
 
+from vocation.api.app import app
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Start the standalone Vocation application")
@@ -16,7 +18,7 @@ def main() -> None:
 
     if not args.no_browser:
         threading.Timer(1.0, lambda: webbrowser.open(f"http://{args.host}:{args.port}")).start()
-    uvicorn.run("vocation.api.app:app", host=args.host, port=args.port)
+    uvicorn.run(app, host=args.host, port=args.port)
 
 
 if __name__ == "__main__":

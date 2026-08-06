@@ -38,6 +38,30 @@ pnpm --dir frontend build
 .\.venv\Scripts\python -m vocation
 ```
 
+Die Produktionsvariante öffnet nach dem Start ausschließlich die lokale Vocation-URL. Import und Darstellung öffnen niemals externe Posting-URLs.
+
+## Erster nutzbarer Meilenstein
+
+Implementiert sind:
+
+- editierbarer, Vocation-eigener Assessment-Criteria-Catalog,
+- self-contained Initial-Research-Prompts mit Snapshot aller aktiven Kriterien,
+- Datei- und Paste-Import des geschlossenen Research-Bundle-1.0-Vertrags,
+- strukturelle und semantische Validierung mit vollständigem Import Report,
+- atomare Persistenz mit Provenienz und kanonischer Idempotenz,
+- Opportunity-Liste und Detailansicht mit Postings, Sources, Observations und External Assessments,
+- SQLite-Migrationen und lokale FastAPI-/React-Auslieferung.
+
+Bewusst nicht enthalten sind Update-Bundles, fuzzy Matching, Personal Decisions, Groups, Availability/Freshness-Ableitung, Karte, mobile Verträge, Crawling, LLM-APIs, Authentifizierung, Cloud und Integrationen mit anderen Projekten.
+
+## Tests
+
+```powershell
+.\.venv\Scripts\python -m pytest backend/tests
+pnpm --dir frontend test
+pnpm --dir frontend build
+```
+
 ## Dokumentationsreihenfolge
 
 1. `docs/01_DOMAIN_VISION.md`

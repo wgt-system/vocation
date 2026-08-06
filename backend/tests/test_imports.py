@@ -151,3 +151,26 @@ def test_opportunity_list_and_detail_contain_imported_data(client) -> None:
     assert value["assessments"][0]["criterion_id"] == "junior_suitability"
     assert value["observations"][0]["evidence_summary"]
     assert value["import_provenance"]["import_id"] == imported["import_id"]
+
+
+def test_existing_posting_identity_is_not_merged_by_initial_import(client) -> None:
+    assert import_bundle(client, valid_bundle()).json()["status"] == "applied"
+    second = valid_bundle()
+    second["bundle_id"] = "different-research-run"
+    second["generated_at"] = "2026-08-07T17:00:00Z"
+    response = import_bundle(client, second)
+    assert response.json()["status"] == "rejected"
+    assert "IDENTITY_CONFLICT" in issue_codes(response)
+    assert count_rows(client, OpportunityModel) == 1
+
+
+def test_import_and_read_never_open_a_browser(client, monkeypatch) -> None:
+    import webbrowser
+
+    opened: list[str] = []
+    monkeypatch.setattr(webbrowser, "open", lambda url: opened.append(url))
+    imported = import_bundle(client, valid_bundle()).json()
+    opportunity_id = client.get("/api/opportunities").json()[0]["id"]
+    assert client.get(f"/api/opportunities/{opportunity_id}").status_code == 200
+    assert client.get(f"/api/imports/{imported['import_id']}").status_code == 200
+    assert opened == []
