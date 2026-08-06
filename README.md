@@ -18,7 +18,25 @@ Die eigentliche Recherche findet zunächst außerhalb von Vocation statt, insbes
 
 ## Projektstatus
 
-Dieses Repository enthält derzeit die vollständige Spezifikation für Version 1. Die Implementierung soll erst nach einer Konsistenzprüfung der Dokumente beginnen.
+Der erste nutzbare Meilenstein wird als lokaler FastAPI-Dienst mit React-Oberfläche umgesetzt. Vocation besitzt eine eigene SQLite-Datenbank und bleibt ohne andere Projekte startbar.
+
+## Entwicklung starten
+
+Voraussetzungen: Python 3.13 und pnpm.
+
+```powershell
+py -3.13 -m venv .venv
+.\.venv\Scripts\python -m pip install -e ".[test]"
+pnpm --dir frontend install
+.\scripts\dev.ps1
+```
+
+Für einen produktionsnahen lokalen Start wird zuerst das Frontend gebaut und anschließend nur der Python-Dienst gestartet:
+
+```powershell
+pnpm --dir frontend build
+.\.venv\Scripts\python -m vocation
+```
 
 ## Dokumentationsreihenfolge
 

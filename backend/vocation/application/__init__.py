@@ -1,0 +1,1 @@
+"""Vocation application use cases."""

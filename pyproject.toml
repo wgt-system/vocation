@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vocation"
+version = "0.1.0"
+description = "Standalone personal job-market application"
+requires-python = ">=3.13"
+dependencies = [
+  "alembic>=1.16,<2",
+  "fastapi>=0.116,<1",
+  "jsonschema[format]>=4.25,<5",
+  "pydantic>=2.11,<3",
+  "python-multipart>=0.0.20,<1",
+  "sqlalchemy>=2.0.43,<3",
+  "uvicorn[standard]>=0.35,<1"
+]
+
+[project.optional-dependencies]
+test = [
+  "httpx>=0.28,<1",
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7"
+]
+
+[project.scripts]
+vocation = "vocation.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend/vocation"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["backend"]
+addopts = "-ra"

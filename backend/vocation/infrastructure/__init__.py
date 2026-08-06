@@ -1,0 +1,1 @@
+"""Vocation infrastructure adapters."""
