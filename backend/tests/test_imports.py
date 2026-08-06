@@ -130,3 +130,24 @@ def test_file_import_and_report_lookup(client) -> None:
     report = client.get(f"/api/imports/{report_id}")
     assert report.status_code == 200
     assert report.json()["status"] == "applied"
+
+
+def test_opportunity_list_and_detail_contain_imported_data(client) -> None:
+    imported = import_bundle(client, valid_bundle()).json()
+    response = client.get("/api/opportunities")
+    assert response.status_code == 200
+    opportunities = response.json()
+    assert len(opportunities) == 1
+    assert opportunities[0]["title"] == "Junior Softwareentwickler"
+    assert opportunities[0]["company_name"] == "Example GmbH"
+    assert opportunities[0]["locations"] == ["Hamburg"]
+
+    detail = client.get(f"/api/opportunities/{opportunities[0]['id']}")
+    assert detail.status_code == 200
+    value = detail.json()
+    assert value["company"]["name"] == "Example GmbH"
+    assert value["postings"][0]["source"]["name"] == "Example Careers"
+    assert value["postings"][0]["source_reference"]["url"].startswith("https://")
+    assert value["assessments"][0]["criterion_id"] == "junior_suitability"
+    assert value["observations"][0]["evidence_summary"]
+    assert value["import_provenance"]["import_id"] == imported["import_id"]
