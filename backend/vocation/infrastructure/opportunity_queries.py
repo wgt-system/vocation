@@ -19,6 +19,7 @@ from vocation.infrastructure.models import (
     SourceReferenceModel,
     WorkLocationModel,
 )
+from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersonalTriageRepository
 
 
 def _iso(value: datetime | None) -> str | None:
@@ -28,6 +29,7 @@ def _iso(value: datetime | None) -> str | None:
 class SqlAlchemyOpportunityReadRepository:
     def __init__(self, session_factory: Callable[[], Session]):
         self.session_factory = session_factory
+        self.triage = SqlAlchemyPersonalTriageRepository(session_factory)
 
     def list(self) -> list[dict[str, Any]]:
         with self.session_factory() as session:
@@ -52,6 +54,7 @@ class SqlAlchemyOpportunityReadRepository:
                         "locations": [location.label for location in locations],
                         "posting_count": len(postings),
                         "assessment_count": len(assessments),
+                        "tracking_status": opportunity.tracking_status,
                         "import_id": opportunity.import_id,
                         "imported_at": _iso(imported.applied_at),
                     }
@@ -139,6 +142,19 @@ class SqlAlchemyOpportunityReadRepository:
                     }
                     for item in observations
                 ],
+                "external_assessments": [
+                    {
+                        "id": item.id,
+                        "subject_type": item.subject_type,
+                        "criterion_id": item.criterion_id,
+                        "criterion_name": item.criterion.display_name,
+                        "value": json.loads(item.value_json),
+                        "origin": item.origin,
+                        "created_at": _iso(item.created_at),
+                        "reasoning": item.reasoning,
+                    }
+                    for item in assessments
+                ],
                 "assessments": [
                     {
                         "id": item.id,
@@ -152,6 +168,10 @@ class SqlAlchemyOpportunityReadRepository:
                     }
                     for item in assessments
                 ],
+                "tracking_status": opportunity.tracking_status,
+                "personal_assessments": self.triage.current_assessments(opportunity.id),
+                "personal_assessment_history": self.triage.assessment_history(opportunity.id),
+                "decision_history": self.triage.decisions(opportunity.id),
                 "import_provenance": {
                     "import_id": imported.id,
                     "bundle_id": imported.bundle_id,

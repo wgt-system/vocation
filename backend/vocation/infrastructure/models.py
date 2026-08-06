@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -134,11 +134,15 @@ class OpportunityModel(Base):
     source_reference_id: Mapped[str] = mapped_column(ForeignKey("source_references.id"))
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     evidence_summary: Mapped[str | None] = mapped_column(Text)
+    tracking_status: Mapped[str] = mapped_column(String(30), nullable=False, default="new", server_default="new", index=True)
 
     company: Mapped[CompanyModel] = relationship(back_populates="opportunities")
     locations: Mapped[list[WorkLocationModel]] = relationship(back_populates="opportunity", cascade="all, delete-orphan")
     postings: Mapped[list[PostingModel]] = relationship(back_populates="opportunity")
-    __table_args__ = (UniqueConstraint("import_id", "bundle_local_id"),)
+    __table_args__ = (
+        UniqueConstraint("import_id", "bundle_local_id"),
+        CheckConstraint("tracking_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
+    )
 
 
 class WorkLocationModel(Base):
@@ -214,3 +218,38 @@ class ExternalAssessmentModel(Base):
 
     criterion: Mapped[AssessmentCriterionModel] = relationship()
     __table_args__ = (UniqueConstraint("import_id", "bundle_local_id"),)
+
+
+class PersonalAssessmentModel(Base):
+    __tablename__ = "personal_assessments"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id", ondelete="CASCADE"), index=True)
+    criterion_id: Mapped[str] = mapped_column(ForeignKey("assessment_criteria.criterion_id"), index=True)
+    value_json: Mapped[str] = mapped_column(Text)
+    reasoning: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+    supersedes_id: Mapped[str | None] = mapped_column(ForeignKey("personal_assessments.id"), index=True)
+    revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    origin: Mapped[str] = mapped_column(String(30), default="personal", nullable=False)
+
+    criterion: Mapped[AssessmentCriterionModel] = relationship()
+
+
+class OpportunityDecisionModel(Base):
+    __tablename__ = "opportunity_decisions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id", ondelete="CASCADE"), index=True)
+    decision_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    previous_status: Mapped[str] = mapped_column(String(30), nullable=False)
+    resulting_status: Mapped[str] = mapped_column(String(30), nullable=False)
+    reason: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+    reverses_decision_id: Mapped[str | None] = mapped_column(ForeignKey("opportunity_decisions.id"), index=True)
+
+    __table_args__ = (
+        CheckConstraint("decision_type IN ('status_change','exclusion','restore')"),
+        CheckConstraint("previous_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
+        CheckConstraint("resulting_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
+    )

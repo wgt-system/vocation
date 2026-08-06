@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 ValueType = Literal["numeric", "boolean", "categorical", "text"]
 SubjectType = Literal["company", "opportunity", "posting"]
+TrackingStatus = Literal["new", "to_review", "interesting", "shortlisted", "deferred", "excluded", "archived"]
 
 
 class CriterionPayload(BaseModel):
@@ -92,6 +93,7 @@ class OpportunityListItemResponse(BaseModel):
     assessment_count: int
     import_id: str
     imported_at: str
+    tracking_status: TrackingStatus
 
 
 class CompanyResponse(BaseModel):
@@ -147,6 +149,60 @@ class AssessmentResponse(BaseModel):
     reasoning: str | None
 
 
+class PersonalAssessmentResponse(BaseModel):
+    id: str
+    opportunity_id: str
+    criterion_id: str
+    criterion_name: str
+    value: Any
+    reasoning: str | None
+    created_at: str
+    supersedes_id: str | None
+    revision_number: int
+    origin: str
+
+
+class DecisionResponse(BaseModel):
+    id: str
+    opportunity_id: str
+    decision_type: str
+    previous_status: TrackingStatus
+    resulting_status: TrackingStatus
+    reason: str | None
+    created_at: str
+    reverses_decision_id: str | None
+
+
+class PersonalAssessmentPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    criterion_id: str = Field(min_length=1)
+    value: Any
+    reasoning: str | None = None
+
+
+class PersonalAssessmentRevisionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    value: Any
+    reasoning: str | None = None
+
+
+class StatusPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: TrackingStatus
+    reason: str | None = None
+
+
+class ExclusionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    reason: str = Field(min_length=1)
+
+
+class RestorePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    target_status: TrackingStatus | None = None
+    reason: str | None = None
+
+
 class ImportProvenanceResponse(BaseModel):
     import_id: str
     bundle_id: str
@@ -162,5 +218,10 @@ class OpportunityDetailResponse(BaseModel):
     postings: list[PostingResponse]
     sources: list[SourceResponse]
     observations: list[ObservationResponse]
+    tracking_status: TrackingStatus
+    external_assessments: list[AssessmentResponse]
     assessments: list[AssessmentResponse]
+    personal_assessments: list[PersonalAssessmentResponse]
+    personal_assessment_history: list[PersonalAssessmentResponse]
+    decision_history: list[DecisionResponse]
     import_provenance: ImportProvenanceResponse
