@@ -88,6 +88,7 @@ class UpdateImportPlanner:
                 if key in resolved:
                     issues.append(ImportIssue("IDENTITY_CONFLICT", "Multiple bundle subjects resolve to one existing subject."))
                 resolved[key] = mapping
+        self._validate_duplicate_resolution_collisions(bundle, resolved, issues)
         if issues:
             return UpdateImportPlanningResult(None, tuple(issues))
 
@@ -194,6 +195,35 @@ class UpdateImportPlanner:
             for reference_id in item.get("source_reference_ids", []):
                 require("source_references", reference_id, f"$.possible_duplicates[{index}].source_reference_ids")
         return indexes
+
+    @staticmethod
+    def _validate_duplicate_resolution_collisions(bundle: dict, resolved: dict, issues: list[ImportIssue]) -> None:
+        by_correlation = {mapping.correlation_ref: mapping for mapping in resolved.values()}
+        for item in bundle.get("possible_duplicates", []):
+            left = next(
+                (
+                    entry
+                    for collection in ("companies", "opportunities", "postings")
+                    for entry in bundle.get(collection, [])
+                    if entry.get("id") == item.get("left_subject_id")
+                ),
+                None,
+            )
+            right = next(
+                (
+                    entry
+                    for collection in ("companies", "opportunities", "postings")
+                    for entry in bundle.get(collection, [])
+                    if entry.get("id") == item.get("right_subject_id")
+                ),
+                None,
+            )
+            if left is None or right is None:
+                continue
+            left_mapping = by_correlation.get(left.get("correlation_ref"))
+            right_mapping = by_correlation.get(right.get("correlation_ref"))
+            if left_mapping and right_mapping and left_mapping.subject_id == right_mapping.subject_id:
+                issues.append(ImportIssue("INVALID_DUPLICATE_EVIDENCE", "Duplicate evidence resolves to the same subject."))
 
     def _subject_exists(self, mapping: PromptContextSubject) -> bool:
         return self.subjects.get(mapping.subject_type, mapping.subject_id) is not None
