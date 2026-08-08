@@ -264,3 +264,6 @@ Application Errors enthalten:
 - kein Bewerbungsversand,
 - keine automatische externe Navigation,
 - keine Plattformlogik von Wiiii Got This.
+## Persönliche Triage-Commands (v0.2.0)
+
+Die Anwendung bietet `CreatePersonalAssessment`, `RevisePersonalAssessment`, `ChangeTrackingStatus`, `ExcludeOpportunity` und `RestoreOpportunity`. Create und Revise sind getrennt; Create liefert einen Konflikt, wenn bereits ein aktuelles Assessment für Opportunity/Criterion existiert. Revise akzeptiert ausschließlich die aktuelle Revision. Restore verwendet ohne Zielstatus `active_exclusion.previous_status`; ein expliziter nicht ausgeschlossener Zielstatus ist optional. Die zugehörigen Queries liefern aktuelle und historische Personal Assessments sowie chronologische Decision History. Die Commands sind atomar; eine ungültige Eingabe erzeugt keinen Teilzustand. Die Services kennen nur `PersonalTriageRepository`- und `CriteriaRepository`-Ports.

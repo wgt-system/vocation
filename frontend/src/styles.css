@@ -109,6 +109,34 @@ nav button.active {
   padding: 0.5rem 0.8rem;
   border-radius: 999px;
 }
+.status-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.8rem;
+  border: 0;
+  padding: 0;
+}
+.status-filters legend {
+  font-weight: 700;
+  margin-right: 0.25rem;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.checkbox-label input {
+  width: auto;
+}
+.status-filters button {
+  border: 1px solid #cfc7b8;
+  border-radius: 8px;
+  padding: 0.35rem 0.55rem;
+  background: #fffdf8;
+}
 .panel,
 .report,
 .criterion,
@@ -208,6 +236,12 @@ textarea {
 .opportunity-card:hover {
   transform: translateY(-2px);
   border-color: #8ca99b;
+}
+.opportunity-card.status-excluded,
+.opportunity-card.status-archived {
+  background: #eeeae1;
+  border-color: #aaa294;
+  opacity: 0.78;
 }
 .empty-state {
   padding: 3rem;

@@ -11,6 +11,7 @@ from vocation.domain.criteria import AssessmentCriterion
 from vocation.infrastructure.models import (
     AssessmentCriterionModel,
     ExternalAssessmentModel,
+    PersonalAssessmentModel,
     PromptRunModel,
 )
 
@@ -86,7 +87,10 @@ class SqlAlchemyCriteriaRepository:
             count = session.scalar(
                 select(func.count()).select_from(ExternalAssessmentModel).where(ExternalAssessmentModel.criterion_id == criterion_id)
             )
-            return bool(count)
+            personal_count = session.scalar(
+                select(func.count()).select_from(PersonalAssessmentModel).where(PersonalAssessmentModel.criterion_id == criterion_id)
+            )
+            return bool(count or personal_count)
 
     @staticmethod
     def _model(criterion: AssessmentCriterion) -> AssessmentCriterionModel:

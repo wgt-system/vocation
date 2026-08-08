@@ -175,6 +175,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/opportunities/{opportunity_id}/assessments/personal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Personal Assessments */
+        get: operations["personal_assessments_api_opportunities__opportunity_id__assessments_personal_get"];
+        put?: never;
+        /** Create Personal Assessment */
+        post: operations["create_personal_assessment_api_opportunities__opportunity_id__assessments_personal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/opportunities/{opportunity_id}/assessments/personal/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Personal Assessment History */
+        get: operations["personal_assessment_history_api_opportunities__opportunity_id__assessments_personal_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/opportunities/{opportunity_id}/assessments/personal/{assessment_id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revise Personal Assessment */
+        post: operations["revise_personal_assessment_api_opportunities__opportunity_id__assessments_personal__assessment_id__revisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/opportunities/{opportunity_id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Decision History */
+        get: operations["decision_history_api_opportunities__opportunity_id__decisions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/opportunities/{opportunity_id}/exclude": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exclude */
+        post: operations["exclude_api_opportunities__opportunity_id__exclude_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/opportunities/{opportunity_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore */
+        post: operations["restore_api_opportunities__opportunity_id__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/opportunities/{opportunity_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change Status */
+        post: operations["change_status_api_opportunities__opportunity_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/prompts/initial": {
         parameters: {
             query?: never;
@@ -306,6 +426,36 @@ export interface components {
              */
             value_type: "numeric" | "boolean" | "categorical" | "text";
         };
+        /** DecisionResponse */
+        DecisionResponse: {
+            /** Created At */
+            created_at: string;
+            /** Decision Type */
+            decision_type: string;
+            /** Id */
+            id: string;
+            /** Opportunity Id */
+            opportunity_id: string;
+            /**
+             * Previous Status
+             * @enum {string}
+             */
+            previous_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
+            /** Reason */
+            reason: string | null;
+            /**
+             * Resulting Status
+             * @enum {string}
+             */
+            resulting_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
+            /** Reverses Decision Id */
+            reverses_decision_id: string | null;
+        };
+        /** ExclusionPayload */
+        ExclusionPayload: {
+            /** Reason */
+            reason: string;
+        };
         /** GeneratedPromptResponse */
         GeneratedPromptResponse: {
             /** Bundle Version */
@@ -413,6 +563,10 @@ export interface components {
             /** Assessments */
             assessments: components["schemas"]["AssessmentResponse"][];
             company: components["schemas"]["CompanyResponse"];
+            /** Decision History */
+            decision_history: components["schemas"]["DecisionResponse"][];
+            /** External Assessments */
+            external_assessments: components["schemas"]["AssessmentResponse"][];
             /** Id */
             id: string;
             import_provenance: components["schemas"]["ImportProvenanceResponse"];
@@ -420,12 +574,21 @@ export interface components {
             locations: components["schemas"]["LocationResponse"][];
             /** Observations */
             observations: components["schemas"]["ObservationResponse"][];
+            /** Personal Assessment History */
+            personal_assessment_history: components["schemas"]["PersonalAssessmentResponse"][];
+            /** Personal Assessments */
+            personal_assessments: components["schemas"]["PersonalAssessmentResponse"][];
             /** Postings */
             postings: components["schemas"]["PostingResponse"][];
             /** Sources */
             sources: components["schemas"]["SourceResponse"][];
             /** Title */
             title: string;
+            /**
+             * Tracking Status
+             * @enum {string}
+             */
+            tracking_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
         };
         /** OpportunityListItemResponse */
         OpportunityListItemResponse: {
@@ -445,6 +608,50 @@ export interface components {
             posting_count: number;
             /** Title */
             title: string;
+            /**
+             * Tracking Status
+             * @enum {string}
+             */
+            tracking_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
+        };
+        /** PersonalAssessmentPayload */
+        PersonalAssessmentPayload: {
+            /** Criterion Id */
+            criterion_id: string;
+            /** Reasoning */
+            reasoning?: string | null;
+            /** Value */
+            value: unknown;
+        };
+        /** PersonalAssessmentResponse */
+        PersonalAssessmentResponse: {
+            /** Created At */
+            created_at: string;
+            /** Criterion Id */
+            criterion_id: string;
+            /** Criterion Name */
+            criterion_name: string;
+            /** Id */
+            id: string;
+            /** Opportunity Id */
+            opportunity_id: string;
+            /** Origin */
+            origin: string;
+            /** Reasoning */
+            reasoning: string | null;
+            /** Revision Number */
+            revision_number: number;
+            /** Supersedes Id */
+            supersedes_id: string | null;
+            /** Value */
+            value: unknown;
+        };
+        /** PersonalAssessmentRevisionPayload */
+        PersonalAssessmentRevisionPayload: {
+            /** Reasoning */
+            reasoning?: string | null;
+            /** Value */
+            value: unknown;
         };
         /** PostingResponse */
         PostingResponse: {
@@ -463,6 +670,13 @@ export interface components {
         ReorderPayload: {
             /** Criterion Ids */
             criterion_ids: string[];
+        };
+        /** RestorePayload */
+        RestorePayload: {
+            /** Reason */
+            reason?: string | null;
+            /** Target Status */
+            target_status?: ("new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived") | null;
         };
         /** SourceReferenceResponse */
         SourceReferenceResponse: {
@@ -485,6 +699,16 @@ export interface components {
             name: string;
             /** Type */
             type: string;
+        };
+        /** StatusPayload */
+        StatusPayload: {
+            /** Reason */
+            reason?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
         };
         /** ValidationError */
         ValidationError: {
@@ -821,6 +1045,275 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OpportunityDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    personal_assessments_api_opportunities__opportunity_id__assessments_personal_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalAssessmentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_personal_assessment_api_opportunities__opportunity_id__assessments_personal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalAssessmentPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalAssessmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    personal_assessment_history_api_opportunities__opportunity_id__assessments_personal_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalAssessmentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revise_personal_assessment_api_opportunities__opportunity_id__assessments_personal__assessment_id__revisions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+                assessment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalAssessmentRevisionPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalAssessmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decision_history_api_opportunities__opportunity_id__decisions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exclude_api_opportunities__opportunity_id__exclude_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExclusionPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_api_opportunities__opportunity_id__restore_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestorePayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_status_api_opportunities__opportunity_id__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionResponse"];
                 };
             };
             /** @description Validation Error */

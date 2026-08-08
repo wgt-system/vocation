@@ -139,3 +139,6 @@ Nicht parallelisieren, solange instabil:
 - ADRs aktualisiert,
 - Acceptance Tests nachvollziehbar erfüllt,
 - eigenständiger Start bleibt möglich.
+## v0.2.0 – Persönliche Triage
+
+Der v0.2.0-Scope umfasst versionierte Personal Assessments, Tracking Status, Decision History, Exclusion/Restore sowie Desktop-API- und React-Steuerung. Nicht enthalten bleiben Update-Bundles, fuzzy matching, Rankings, Gruppen/Waves, Maps, mobile Verträge, Crawling, kostenpflichtige LLM-APIs und Authentifizierung.

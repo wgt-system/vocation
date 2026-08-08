@@ -15,11 +15,13 @@ from vocation.api.prompt_routes import router as prompt_router
 from vocation.application.criteria import CriteriaService
 from vocation.application.imports import ImportService
 from vocation.application.opportunities import OpportunityQueryService
+from vocation.application.personal_triage import PersonalTriageService
 from vocation.application.prompts import PromptService
 from vocation.config import Settings, get_settings
 from vocation.infrastructure.bundle_repository import SqlAlchemyImportRepository
 from vocation.infrastructure.database import Database
 from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
+from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersonalTriageRepository
 from vocation.infrastructure.repositories import (
     SqlAlchemyCriteriaRepository,
     SqlAlchemyPromptRunRepository,
@@ -37,7 +39,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         yield
         database.dispose()
 
-    app = FastAPI(title="Vocation", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="Vocation", version="0.2.0", lifespan=lifespan)
     app.state.database = database
     app.state.settings = settings
     criteria_repository = SqlAlchemyCriteriaRepository(database.session_factory)
@@ -52,6 +54,9 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         SqlAlchemyImportRepository(database.session_factory),
         app.state.criteria_service,
         settings.schema_path,
+    )
+    app.state.personal_triage_service = PersonalTriageService(
+        SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
     app.state.opportunity_service = OpportunityQueryService(SqlAlchemyOpportunityReadRepository(database.session_factory))
     app.add_middleware(

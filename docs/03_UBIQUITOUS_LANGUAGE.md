@@ -173,3 +173,12 @@ Reduziertes Read Model für mobile Nutzung.
 - Ein Posting-Link ist nicht die Opportunity.
 - Ein Karten-Pin ist eine Projektion, kein Domänenobjekt.
 - Das Öffnen eines Links ist eine Nutzeraktion, keine automatische Navigation.
+## Persönliche Triage (v0.2.0)
+
+Eine **Personal Assessment** gehört Vocation und ist von einem **External Assessment** getrennt. Pro Opportunity und Criterion existiert genau ein aktuelles Personal Assessment. `CreatePersonalAssessment` legt die erste unveränderliche Revision an; `RevisePersonalAssessment` legt eine neue Revision mit Vorgängerreferenz an. Nur die aktuelle Revision darf revidiert werden, ältere Revisionen bleiben sichtbar. Numeric-, Categorical-, Boolean- und Text-Werte werden gegen das Vocation-Kriterium validiert. Create und Revise benötigen ein aktives Opportunity-Kriterium. Sobald ein Criterion durch ein External oder Personal Assessment referenziert wird, sind semantische Änderungen geschützt; Name und Beschreibung dürfen weiter gepflegt werden.
+
+Der **Tracking Status** ist genau einer von `new`, `to_review`, `interesting`, `shortlisted`, `deferred`, `excluded` oder `archived`. Normale nicht ausgeschlossene Status dürfen direkt wechseln; `excluded` ist kein normaler Statuswechsel.
+
+Eine **Exclusion** ist eine eigene, begründete Operation mit nichtleerem Grund und unveränderlichem Decision-Eintrag, der den vorherigen Status speichert. **Restore** ist nur bei aktueller Exclusion zulässig, verweist auf genau diese aktive Exclusion und setzt standardmäßig deren gespeicherten vorherigen Status. Ein expliziter alternativer nicht ausgeschlossener Status ist erlaubt. Exclusion und Restore bleiben historisch erhalten; wiederholte Zyklen referenzieren jeweils die richtige aktive Exclusion.
+
+Research Bundle Imports verändern Tracking Status, Personal Assessments, deren Revisionen und Opportunity Decisions nicht.

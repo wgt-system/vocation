@@ -1,10 +1,31 @@
 import { useEffect, useState } from "react";
 
-import { api, type OpportunityDetail } from "../../api/client";
+import {
+  api,
+  type Criterion,
+  type OpportunityDetail,
+  type TrackingStatus,
+} from "../../api/client";
 import { ErrorState, Loading } from "../../components/AsyncState";
+
+const transitionStatuses: {
+  value: Exclude<TrackingStatus, "excluded">;
+  label: string;
+}[] = [
+  { value: "new", label: "Neu" },
+  { value: "to_review", label: "Zu prüfen" },
+  { value: "interesting", label: "Interessant" },
+  { value: "shortlisted", label: "Shortlist" },
+  { value: "deferred", label: "Später" },
+  { value: "archived", label: "Archiviert" },
+];
 
 function displayValue(value: unknown) {
   return Array.isArray(value) ? value.join(", ") : String(value);
+}
+
+function errorMessage(reason: unknown, fallback: string) {
+  return reason instanceof Error ? reason.message : fallback;
 }
 
 export function OpportunityDetailView({
@@ -15,27 +36,172 @@ export function OpportunityDetailView({
   onBack: () => void;
 }) {
   const [detail, setDetail] = useState<OpportunityDetail | null>(null);
-  const [error, setError] = useState("");
+  const [criteria, setCriteria] = useState<Criterion[]>([]);
+  const [loadError, setLoadError] = useState("");
+  const [mutationError, setMutationError] = useState("");
+  const [criterionId, setCriterionId] = useState("");
+  const [value, setValue] = useState<unknown>("");
+  const [reasoning, setReasoning] = useState("");
+  const [statusReason, setStatusReason] = useState("");
+  const [exclusionReason, setExclusionReason] = useState("");
+  const [message, setMessage] = useState("");
+
+  async function reload() {
+    const next = await api.getOpportunity(opportunityId);
+    setDetail(next);
+  }
+
   useEffect(() => {
-    api
-      .getOpportunity(opportunityId)
-      .then(setDetail)
+    setLoadError("");
+    Promise.all([api.getOpportunity(opportunityId), api.listCriteria()])
+      .then(([nextDetail, nextCriteria]) => {
+        setDetail(nextDetail);
+        setCriteria(nextCriteria);
+        const first = nextCriteria.find(
+          (criterion) =>
+            criterion.active &&
+            criterion.applicable_subject_type === "opportunity",
+        );
+        setCriterionId(first?.criterion_id ?? "");
+      })
       .catch((reason) =>
-        setError(
-          reason instanceof Error
-            ? reason.message
-            : "Detail konnte nicht geladen werden.",
+        setLoadError(
+          errorMessage(reason, "Detail konnte nicht geladen werden."),
         ),
       );
   }, [opportunityId]);
-  if (error)
+
+  useEffect(() => {
+    const criterion = criteria.find(
+      (item) => item.criterion_id === criterionId,
+    );
+    const currentAssessment = detail?.personal_assessments.find(
+      (assessment) => assessment.criterion_id === criterionId,
+    );
+    if (criterion) {
+      setValue(
+        currentAssessment?.value ??
+          (criterion.value_type === "boolean"
+            ? false
+            : criterion.value_type === "numeric"
+              ? (criterion.numeric_min ?? "")
+              : criterion.value_type === "categorical"
+                ? (criterion.allowed_values?.[0] ?? "")
+                : ""),
+      );
+    }
+  }, [criterionId, criteria, detail]);
+
+  if (loadError) {
     return (
       <>
         <button onClick={onBack}>← Zurück</button>
-        <ErrorState message={error} />
+        <ErrorState message={loadError} />
       </>
     );
+  }
   if (!detail) return <Loading />;
+
+  const applicableCriteria = criteria.filter(
+    (criterion) =>
+      criterion.active && criterion.applicable_subject_type === "opportunity",
+  );
+  const selectedCriterion = criteria.find(
+    (criterion) => criterion.criterion_id === criterionId,
+  );
+  const currentAssessment = detail.personal_assessments.find(
+    (assessment) => assessment.criterion_id === criterionId,
+  );
+  const currentAssessmentIds = new Set(
+    detail.personal_assessments.map((assessment) => assessment.id),
+  );
+
+  function assessmentValue(raw: string): unknown {
+    if (!selectedCriterion) return raw;
+    if (selectedCriterion.value_type === "numeric") return Number(raw);
+    if (selectedCriterion.value_type === "boolean") return raw === "true";
+    return raw;
+  }
+
+  async function saveAssessment() {
+    if (!selectedCriterion) return;
+    setMessage("");
+    setMutationError("");
+    try {
+      const payload = {
+        value,
+        reasoning: reasoning || null,
+      };
+      if (currentAssessment) {
+        await api.revisePersonalAssessment(
+          opportunityId,
+          currentAssessment.id,
+          payload,
+        );
+        setMessage("Neue persönliche Assessment-Revision gespeichert.");
+      } else {
+        await api.createPersonalAssessment(opportunityId, {
+          criterion_id: selectedCriterion.criterion_id,
+          ...payload,
+        });
+        setMessage("Persönliches Assessment erstellt.");
+      }
+      setReasoning("");
+      await reload();
+    } catch (reason) {
+      setMutationError(
+        errorMessage(reason, "Assessment konnte nicht gespeichert werden."),
+      );
+    }
+  }
+
+  async function setStatus(status: Exclude<TrackingStatus, "excluded">) {
+    setMessage("");
+    setMutationError("");
+    try {
+      await api.changeStatus(opportunityId, status, statusReason || undefined);
+      setMessage("Status gespeichert.");
+      await reload();
+    } catch (reason) {
+      setMutationError(
+        errorMessage(reason, "Status konnte nicht gespeichert werden."),
+      );
+    }
+  }
+
+  async function exclude() {
+    setMessage("");
+    setMutationError("");
+    if (!exclusionReason.trim()) {
+      setMutationError("Für den Ausschluss ist ein Grund erforderlich.");
+      return;
+    }
+    try {
+      await api.exclude(opportunityId, exclusionReason.trim());
+      setExclusionReason("");
+      setMessage("Opportunity ausgeschlossen.");
+      await reload();
+    } catch (reason) {
+      setMutationError(
+        errorMessage(reason, "Ausschluss konnte nicht gespeichert werden."),
+      );
+    }
+  }
+
+  async function restore() {
+    setMessage("");
+    setMutationError("");
+    try {
+      await api.restore(opportunityId);
+      setMessage("Opportunity wiederhergestellt.");
+      await reload();
+    } catch (reason) {
+      setMutationError(
+        errorMessage(reason, "Restore konnte nicht gespeichert werden."),
+      );
+    }
+  }
+
   return (
     <section>
       <button className="back" onClick={onBack}>
@@ -49,6 +215,13 @@ export function OpportunityDetailView({
             .map((item) => `${item.label} (${item.precision})`)
             .join(" · ") || "Arbeitsort unbekannt"}
         </p>
+        <strong>Status: {detail.tracking_status}</strong>
+        {message && <p role="status">{message}</p>}
+        {mutationError && (
+          <p className="state state-error" role="alert">
+            {mutationError}
+          </p>
+        )}
       </header>
       <div className="detail-grid">
         <section className="panel">
@@ -69,10 +242,10 @@ export function OpportunityDetailView({
         </section>
         <section className="panel">
           <h2>External Assessments</h2>
-          {detail.assessments.length === 0 ? (
+          {detail.external_assessments.length === 0 ? (
             <p>Keine Assessments vorhanden.</p>
           ) : (
-            detail.assessments.map((item) => (
+            detail.external_assessments.map((item) => (
               <article className="record" key={item.id}>
                 <h3>{item.criterion_name}</h3>
                 <strong>{displayValue(item.value)}</strong>
@@ -80,6 +253,180 @@ export function OpportunityDetailView({
                 <small>{item.origin}</small>
               </article>
             ))
+          )}
+        </section>
+        <section className="panel">
+          <h2>Persönliche Assessments</h2>
+          <div className="record">
+            <label>
+              Kriterium
+              <select
+                value={criterionId}
+                onChange={(event) => setCriterionId(event.target.value)}
+              >
+                {applicableCriteria.map((criterion) => (
+                  <option
+                    key={criterion.criterion_id}
+                    value={criterion.criterion_id}
+                  >
+                    {criterion.display_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {selectedCriterion?.value_type === "numeric" && (
+              <label>
+                Wert
+                <input
+                  type="number"
+                  min={selectedCriterion.numeric_min ?? undefined}
+                  max={selectedCriterion.numeric_max ?? undefined}
+                  value={String(value)}
+                  onChange={(event) =>
+                    setValue(assessmentValue(event.target.value))
+                  }
+                />
+              </label>
+            )}
+            {selectedCriterion?.value_type === "categorical" && (
+              <label>
+                Wert
+                <select
+                  value={String(value)}
+                  onChange={(event) =>
+                    setValue(assessmentValue(event.target.value))
+                  }
+                >
+                  {selectedCriterion.allowed_values?.map((allowed) => (
+                    <option key={allowed} value={allowed}>
+                      {allowed}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {selectedCriterion?.value_type === "boolean" && (
+              <label>
+                Wert
+                <select
+                  value={String(value)}
+                  onChange={(event) =>
+                    setValue(assessmentValue(event.target.value))
+                  }
+                >
+                  <option value="true">Ja</option>
+                  <option value="false">Nein</option>
+                </select>
+              </label>
+            )}
+            {selectedCriterion?.value_type === "text" && (
+              <label>
+                Wert
+                <textarea
+                  value={String(value)}
+                  onChange={(event) =>
+                    setValue(assessmentValue(event.target.value))
+                  }
+                />
+              </label>
+            )}
+            <label>
+              Begründung
+              <input
+                value={reasoning}
+                onChange={(event) => setReasoning(event.target.value)}
+              />
+            </label>
+            <button
+              className="primary"
+              disabled={!selectedCriterion}
+              onClick={saveAssessment}
+            >
+              {currentAssessment
+                ? "Revision erstellen"
+                : "Assessment erstellen"}
+            </button>
+          </div>
+          <h3>Revisionen</h3>
+          {detail.personal_assessment_history.length === 0 ? (
+            <p>Keine persönlichen Assessment-Revisionen vorhanden.</p>
+          ) : (
+            detail.personal_assessment_history.map((item) => (
+              <article className="record" key={item.id}>
+                <h3>
+                  {item.criterion_name} · Revision {item.revision_number}
+                  {currentAssessmentIds.has(item.id)
+                    ? " (aktuell)"
+                    : " (historisch)"}
+                </h3>
+                <strong>{displayValue(item.value)}</strong>
+                {item.reasoning && <p>{item.reasoning}</p>}
+                <small>
+                  Erstellt: {new Date(item.created_at).toLocaleString("de-DE")}
+                </small>
+              </article>
+            ))
+          )}
+        </section>
+        <section className="panel">
+          <h2>Tracking und Entscheidungen</h2>
+          <p>
+            Aktueller Status: <strong>{detail.tracking_status}</strong>
+          </p>
+          {detail.tracking_status !== "excluded" && (
+            <label>
+              Statusgrund (optional)
+              <input
+                value={statusReason}
+                onChange={(event) => setStatusReason(event.target.value)}
+              />
+            </label>
+          )}
+          <div className="actions">
+            {detail.tracking_status === "excluded" ? (
+              <button onClick={restore}>Restore</button>
+            ) : (
+              <>
+                {transitionStatuses.map((status) => (
+                  <button
+                    key={status.value}
+                    onClick={() => setStatus(status.value)}
+                  >
+                    {status.label}
+                  </button>
+                ))}
+                <label>
+                  Ausschlussgrund (erforderlich)
+                  <input
+                    value={exclusionReason}
+                    onChange={(event) => setExclusionReason(event.target.value)}
+                  />
+                </label>
+                <button onClick={exclude}>Ausschließen</button>
+              </>
+            )}
+          </div>
+          <h3>Decision History</h3>
+          {detail.decision_history.length === 0 ? (
+            <p>Keine Entscheidungen vorhanden.</p>
+          ) : (
+            [...detail.decision_history]
+              .sort((a, b) => a.created_at.localeCompare(b.created_at))
+              .map((item) => (
+                <article className="record" key={item.id}>
+                  <strong>
+                    {item.decision_type}: {item.previous_status} →{" "}
+                    {item.resulting_status}
+                  </strong>
+                  {item.reason && <p>{item.reason}</p>}
+                  <small>
+                    {new Date(item.created_at).toLocaleString("de-DE")}
+                    {item.reverses_decision_id
+                      ? " · macht eine frühere Entscheidung rückgängig"
+                      : ""}
+                  </small>
+                </article>
+              ))
           )}
         </section>
         <section className="panel">

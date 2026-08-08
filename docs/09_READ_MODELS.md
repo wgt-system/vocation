@@ -172,3 +172,6 @@ Wie MapProjection, aber mit reduziertem Preview und ohne administrative Felder.
 - latest import time
 - stale indicator
 - supported contracts
+## Opportunity-Triage-Read-Model (v0.2.0)
+
+Opportunity-Liste und Detail enthalten den Tracking Status und unterstützen Statusfilter. Die Detailansicht trennt `external_assessments`, aktuelle `personal_assessments`, `personal_assessment_history` und chronologische `decision_history`. Die historische Darstellung ist append-only und stammt aus Vocation-eigenen Tabellen; Research-Bundle-Daten bleiben externe Beobachtungen. Mutation-Fehler dürfen bereits geladene Read Models nicht leeren.

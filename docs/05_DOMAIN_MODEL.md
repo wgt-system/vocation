@@ -259,3 +259,8 @@ Validiert Schemes und entscheidet, ob ein Link geöffnet werden darf.
 - `PromptContextQuery`
 - `ImportReportQuery`
 - `MobileOpportunityQuery`
+## Persönliche Triage
+
+`Opportunity.tracking_status` gehört zur Vocation-Opportunity und wird ausschließlich durch persönliche Commands geändert. `PersonalAssessment` enthält Opportunity, Criterion, Wert, Begründung, Erstellzeitpunkt, Revisionsnummer und `supersedes_id`; Datensätze sind append-only, pro Opportunity/Criterion gibt es genau eine aktuelle Revision. `OpportunityDecision` enthält vorherigen und resultierenden Status, Typ, optionalen Grund und bei Restore die Referenz auf die aktive Exclusion.
+
+Invarianten: neue und revidierte Assessments verwenden nur aktive Opportunity-Kriterien und gültige Numeric-, Categorical-, Boolean- oder Text-Werte; nur die aktuelle Revision darf revidiert werden; Create ist für ein bereits vorhandenes Opportunity/Criterion unzulässig; Exclusion benötigt einen Grund; Restore ist nur für ausgeschlossene Opportunities zulässig und löst den Default aus dem gespeicherten vorherigen Status auf; Import verändert weder PersonalAssessment noch Decision oder Tracking Status. Application Services hängen ausschließlich von Repository-Ports ab.
