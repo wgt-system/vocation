@@ -27,6 +27,11 @@ vi.mock("../api/client", () => ({
     getImportReport: vi.fn(),
     listOpportunities: vi.fn(),
     getOpportunity: vi.fn(),
+    createPersonalAssessment: vi.fn(),
+    revisePersonalAssessment: vi.fn(),
+    changeStatus: vi.fn(),
+    exclude: vi.fn(),
+    restore: vi.fn(),
   },
 }));
 
@@ -151,12 +156,60 @@ describe("first milestone UI", () => {
         assessment_count: 1,
         import_id: "imp-1",
         imported_at: "2026-08-06T17:00:00Z",
+        tracking_status: "new",
       },
     ]);
     render(<OpportunityList refreshToken={0} onSelect={vi.fn()} />);
     expect(await screen.findByText("Junior Developer")).toBeInTheDocument();
     expect(screen.getByText("Example GmbH")).toBeInTheDocument();
     expect(screen.getByText("Hamburg")).toBeInTheDocument();
+  });
+
+  it("filters the opportunity list by one or more tracking statuses", async () => {
+    vi.mocked(api.listOpportunities).mockResolvedValue([
+      {
+        id: "opp-new",
+        title: "New role",
+        company_name: "One GmbH",
+        locations: [],
+        posting_count: 0,
+        assessment_count: 0,
+        import_id: "imp-1",
+        imported_at: "2026-08-06T17:00:00Z",
+        tracking_status: "new",
+      },
+      {
+        id: "opp-review",
+        title: "Review role",
+        company_name: "Two GmbH",
+        locations: [],
+        posting_count: 0,
+        assessment_count: 0,
+        import_id: "imp-1",
+        imported_at: "2026-08-06T17:00:00Z",
+        tracking_status: "to_review",
+      },
+      {
+        id: "opp-archived",
+        title: "Archived role",
+        company_name: "Three GmbH",
+        locations: [],
+        posting_count: 0,
+        assessment_count: 0,
+        import_id: "imp-1",
+        imported_at: "2026-08-06T17:00:00Z",
+        tracking_status: "archived",
+      },
+    ]);
+    render(<OpportunityList refreshToken={0} onSelect={vi.fn()} />);
+    expect(await screen.findByText("New role")).toBeInTheDocument();
+    expect(screen.getByText("Review role")).toBeInTheDocument();
+    await userEvent.click(screen.getByLabelText("Zu prüfen"));
+    expect(screen.queryByText("New role")).not.toBeInTheDocument();
+    expect(screen.getByText("Review role")).toBeInTheDocument();
+    await userEvent.click(screen.getByLabelText("Archiviert"));
+    expect(screen.getByText("Review role")).toBeInTheDocument();
+    expect(screen.getByText("Archived role")).toBeInTheDocument();
   });
 
   it("renders opportunity sources and assessments", async () => {
@@ -195,6 +248,7 @@ describe("first milestone UI", () => {
         },
       ],
       observations: [],
+      tracking_status: "new",
       assessments: [
         {
           id: "ass-1",
@@ -205,6 +259,19 @@ describe("first milestone UI", () => {
           reasoning: "Explicitly junior",
         },
       ],
+      external_assessments: [
+        {
+          id: "ass-1",
+          criterion_id: "junior_suitability",
+          criterion_name: "Junior-Eignung",
+          value: 5,
+          origin: "external_research",
+          reasoning: "Explicitly junior",
+        },
+      ],
+      personal_assessments: [],
+      personal_assessment_history: [],
+      decision_history: [],
       import_provenance: {
         import_id: "imp-1",
         bundle_id: "bundle-1",
@@ -214,7 +281,7 @@ describe("first milestone UI", () => {
     });
     render(<OpportunityDetailView opportunityId="opp-1" onBack={vi.fn()} />);
     expect(await screen.findByText(/Example Careers/)).toBeInTheDocument();
-    expect(screen.getByText("Junior-Eignung")).toBeInTheDocument();
+    expect(screen.getAllByText("Junior-Eignung").length).toBeGreaterThan(0);
     expect(screen.getByText("https://example.com/job")).toBeInTheDocument();
   });
 });

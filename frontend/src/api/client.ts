@@ -4,31 +4,11 @@ export type Criterion = components["schemas"]["CriterionResponse"];
 export type ImportIssue = components["schemas"]["ImportIssueResponse"];
 export type ImportReport = components["schemas"]["ImportReportResponse"];
 export type TrackingStatus =
-  | "new"
-  | "to_review"
-  | "interesting"
-  | "shortlisted"
-  | "deferred"
-  | "excluded"
-  | "archived";
-export type OpportunityListItem = Omit<
-  components["schemas"]["OpportunityListItemResponse"],
-  "tracking_status"
-> & { tracking_status?: TrackingStatus };
-export type OpportunityDetail = Omit<
-  components["schemas"]["OpportunityDetailResponse"],
-  | "tracking_status"
-  | "external_assessments"
-  | "personal_assessments"
-  | "personal_assessment_history"
-  | "decision_history"
-> & {
-  tracking_status?: TrackingStatus;
-  external_assessments?: components["schemas"]["AssessmentResponse"][];
-  personal_assessments?: components["schemas"]["PersonalAssessmentResponse"][];
-  personal_assessment_history?: components["schemas"]["PersonalAssessmentResponse"][];
-  decision_history?: components["schemas"]["DecisionResponse"][];
-};
+  components["schemas"]["OpportunityListItemResponse"]["tracking_status"];
+export type OpportunityListItem =
+  components["schemas"]["OpportunityListItemResponse"];
+export type OpportunityDetail =
+  components["schemas"]["OpportunityDetailResponse"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -121,6 +101,12 @@ export const api = {
   restore: (id: string, target_status?: TrackingStatus, reason?: string) =>
     request<components["schemas"]["DecisionResponse"]>(
       `/api/opportunities/${id}/restore`,
-      { method: "POST", body: JSON.stringify({ target_status, reason }) },
+      {
+        method: "POST",
+        body: JSON.stringify({
+          ...(target_status === undefined ? {} : { target_status }),
+          ...(reason === undefined ? {} : { reason }),
+        }),
+      },
     ),
 };
