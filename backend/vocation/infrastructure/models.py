@@ -27,6 +27,7 @@ class ResearchImportModel(Base):
     warnings_json: Mapped[str] = mapped_column(Text, default="[]")
 
     issues: Mapped[list[ImportIssueModel]] = relationship(back_populates="research_import", cascade="all, delete-orphan")
+    duplicate_cases: Mapped[list[DuplicateCaseModel]] = relationship(back_populates="research_import")
 
 
 class ImportIssueModel(Base):
@@ -104,6 +105,7 @@ class SourceReferenceModel(Base):
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     source: Mapped[SourceModel] = relationship(back_populates="references")
+    duplicate_case_links: Mapped[list[DuplicateCaseSourceReferenceModel]] = relationship(back_populates="source_reference")
     __table_args__ = (UniqueConstraint("import_id", "bundle_local_id"),)
 
 
@@ -260,3 +262,40 @@ class OpportunityDecisionModel(Base):
         CheckConstraint("resulting_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
         UniqueConstraint("reverses_decision_id"),
     )
+
+
+class DuplicateCaseModel(Base):
+    __tablename__ = "duplicate_cases"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    research_import_id: Mapped[str] = mapped_column(ForeignKey("research_imports.id"), index=True)
+    subject_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    left_subject_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    right_subject_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    evidence_summary: Mapped[str] = mapped_column(Text, nullable=False)
+    confidence: Mapped[float | None] = mapped_column(Float)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    research_import: Mapped[ResearchImportModel] = relationship(back_populates="duplicate_cases")
+    source_reference_links: Mapped[list[DuplicateCaseSourceReferenceModel]] = relationship(
+        back_populates="duplicate_case", cascade="all, delete-orphan"
+    )
+    __table_args__ = (
+        UniqueConstraint("subject_type", "left_subject_id", "right_subject_id", name="uq_duplicate_case_subject_pair"),
+        CheckConstraint("subject_type IN ('opportunity','posting')", name="ck_duplicate_case_subject_type"),
+        CheckConstraint("left_subject_id <> right_subject_id", name="ck_duplicate_case_distinct_subjects"),
+        CheckConstraint("length(trim(evidence_summary)) > 0", name="ck_duplicate_case_evidence_nonempty"),
+        CheckConstraint("confidence IS NULL OR (confidence >= 0 AND confidence <= 1)", name="ck_duplicate_case_confidence_range"),
+    )
+
+
+class DuplicateCaseSourceReferenceModel(Base):
+    __tablename__ = "duplicate_case_source_references"
+
+    duplicate_case_id: Mapped[str] = mapped_column(
+        ForeignKey("duplicate_cases.id", ondelete="CASCADE"), primary_key=True
+    )
+    source_reference_id: Mapped[str] = mapped_column(ForeignKey("source_references.id"), primary_key=True)
+
+    duplicate_case: Mapped[DuplicateCaseModel] = relationship(back_populates="source_reference_links")
+    source_reference: Mapped[SourceReferenceModel] = relationship(back_populates="duplicate_case_links")
