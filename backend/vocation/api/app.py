@@ -13,15 +13,19 @@ from vocation.api.import_routes import router as import_router
 from vocation.api.opportunity_routes import router as opportunity_router
 from vocation.api.prompt_routes import router as prompt_router
 from vocation.application.criteria import CriteriaService
+from vocation.application.duplicate_cases import DuplicateCaseService
 from vocation.application.imports import ImportService
 from vocation.application.opportunities import OpportunityQueryService
 from vocation.application.personal_triage import PersonalTriageService
+from vocation.application.posting_identity import PostingIdentityResolver
 from vocation.application.prompts import PromptService
 from vocation.config import Settings, get_settings
 from vocation.infrastructure.bundle_repository import SqlAlchemyImportRepository
 from vocation.infrastructure.database import Database
+from vocation.infrastructure.duplicate_case_repository import SqlAlchemyDuplicateCaseRepository
 from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
 from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersonalTriageRepository
+from vocation.infrastructure.posting_identity_repository import SqlAlchemyPostingIdentityRepository
 from vocation.infrastructure.repositories import (
     SqlAlchemyCriteriaRepository,
     SqlAlchemyPromptRunRepository,
@@ -57,6 +61,12 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     )
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
+    )
+    app.state.posting_identity_resolver = PostingIdentityResolver(
+        SqlAlchemyPostingIdentityRepository(database.session_factory)
+    )
+    app.state.duplicate_case_service = DuplicateCaseService(
+        SqlAlchemyDuplicateCaseRepository(database.session_factory)
     )
     app.state.opportunity_service = OpportunityQueryService(SqlAlchemyOpportunityReadRepository(database.session_factory))
     app.add_middleware(
