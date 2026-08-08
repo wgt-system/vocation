@@ -4,6 +4,7 @@ from typing import Protocol
 
 from vocation.domain.criteria import AssessmentCriterion
 from vocation.domain.research_bundle import DuplicateCase, PostingIdentity
+from vocation.domain.update_import import ExistingSubject, PromptContextSnapshot, SubjectType
 
 
 class CriteriaRepository(Protocol):
@@ -27,6 +28,14 @@ class DuplicateCaseRepository(Protocol):
     def find_by_pair(self, subject_type: str, left_subject_id: str, right_subject_id: str) -> DuplicateCase | None: ...
     def create(self, case: DuplicateCase) -> DuplicateCase: ...
     def list(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCase]: ...
+
+
+class PromptContextSnapshotRepository(Protocol):
+    def get(self, prompt_context_ref: str) -> PromptContextSnapshot | None: ...
+
+
+class UpdateSubjectRepository(Protocol):
+    def get(self, subject_type: SubjectType, subject_id: str) -> ExistingSubject | None: ...
 
 
 class PersonalTriageRepository(Protocol):

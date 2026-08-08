@@ -19,6 +19,7 @@ from vocation.application.opportunities import OpportunityQueryService
 from vocation.application.personal_triage import PersonalTriageService
 from vocation.application.posting_identity import PostingIdentityResolver
 from vocation.application.prompts import PromptService
+from vocation.application.update_planning import UpdateImportPlanner
 from vocation.config import Settings, get_settings
 from vocation.infrastructure.bundle_repository import SqlAlchemyImportRepository
 from vocation.infrastructure.database import Database
@@ -26,10 +27,12 @@ from vocation.infrastructure.duplicate_case_repository import SqlAlchemyDuplicat
 from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
 from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersonalTriageRepository
 from vocation.infrastructure.posting_identity_repository import SqlAlchemyPostingIdentityRepository
+from vocation.infrastructure.prompt_context_repository import SqlAlchemyPromptContextSnapshotRepository
 from vocation.infrastructure.repositories import (
     SqlAlchemyCriteriaRepository,
     SqlAlchemyPromptRunRepository,
 )
+from vocation.infrastructure.update_subject_repository import SqlAlchemyUpdateSubjectRepository
 
 
 def create_app(settings: Settings | None = None, *, run_migrations: bool = True) -> FastAPI:
@@ -62,11 +65,14 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
-    app.state.posting_identity_resolver = PostingIdentityResolver(
-        SqlAlchemyPostingIdentityRepository(database.session_factory)
-    )
-    app.state.duplicate_case_service = DuplicateCaseService(
-        SqlAlchemyDuplicateCaseRepository(database.session_factory)
+    app.state.posting_identity_resolver = PostingIdentityResolver(SqlAlchemyPostingIdentityRepository(database.session_factory))
+    app.state.duplicate_case_service = DuplicateCaseService(SqlAlchemyDuplicateCaseRepository(database.session_factory))
+    app.state.update_import_planner = UpdateImportPlanner(
+        SqlAlchemyPromptContextSnapshotRepository(database.session_factory),
+        SqlAlchemyUpdateSubjectRepository(database.session_factory),
+        app.state.criteria_service,
+        app.state.posting_identity_resolver,
+        SqlAlchemyDuplicateCaseRepository(database.session_factory),
     )
     app.state.opportunity_service = OpportunityQueryService(SqlAlchemyOpportunityReadRepository(database.session_factory))
     app.add_middleware(
