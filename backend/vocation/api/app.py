@@ -57,11 +57,6 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         settings.initial_prompt_path,
         settings.output_contract_path,
     )
-    app.state.import_service = ImportService(
-        SqlAlchemyImportRepository(database.session_factory),
-        app.state.criteria_service,
-        settings.schema_path,
-    )
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
@@ -73,6 +68,13 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         app.state.criteria_service,
         app.state.posting_identity_resolver,
         SqlAlchemyDuplicateCaseRepository(database.session_factory),
+    )
+    app.state.import_service = ImportService(
+        SqlAlchemyImportRepository(database.session_factory),
+        app.state.criteria_service,
+        settings.schema_path,
+        settings.update_schema_path,
+        app.state.update_import_planner,
     )
     app.state.opportunity_service = OpportunityQueryService(SqlAlchemyOpportunityReadRepository(database.session_factory))
     app.add_middleware(

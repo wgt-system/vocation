@@ -14,6 +14,7 @@ class Settings:
     database_url: str
     frontend_dist: Path
     schema_path: Path
+    update_schema_path: Path
     initial_prompt_path: Path
     output_contract_path: Path
 
@@ -28,6 +29,7 @@ def get_settings() -> Settings:
         database_url=os.getenv("VOCATION_DATABASE_URL", default_database),
         frontend_dist=RESOURCE_ROOT / "frontend" / "dist",
         schema_path=RESOURCE_ROOT / "schemas" / "research-bundle-v1.schema.json",
+        update_schema_path=RESOURCE_ROOT / "schemas" / "research-update-bundle-v2.schema.json",
         initial_prompt_path=RESOURCE_ROOT / "prompts" / "initial-research.md",
         output_contract_path=RESOURCE_ROOT / "prompts" / "output-contract.md",
     )
