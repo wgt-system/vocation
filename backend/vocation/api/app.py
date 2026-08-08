@@ -39,7 +39,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         yield
         database.dispose()
 
-    app = FastAPI(title="Vocation", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="Vocation", version="0.2.0", lifespan=lifespan)
     app.state.database = database
     app.state.settings = settings
     criteria_repository = SqlAlchemyCriteriaRepository(database.session_factory)

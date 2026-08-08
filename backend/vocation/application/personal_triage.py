@@ -46,7 +46,7 @@ class PersonalTriageService:
     def revise_assessment(self, opportunity_id: str, assessment_id: str, value: object, reasoning: str | None) -> dict:
         assessment = self.repository.get_assessment(assessment_id)
         if assessment is None or assessment["opportunity_id"] != opportunity_id:
-                raise LookupError(assessment_id)
+            raise LookupError(assessment_id)
         self._validate(assessment["criterion_id"], value)
         return self.repository.revise_assessment(opportunity_id, assessment_id, value, reasoning)
 

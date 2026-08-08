@@ -36,6 +36,29 @@ def test_decision_exclusion_restore_and_import_do_not_overwrite_personal_state(c
     decisions = client.get(f"/api/opportunities/{oid}/decisions").json()
     assert [item["decision_type"] for item in decisions] == ["exclusion", "restore"]
     assert client.get("/api/opportunities").json()[0]["tracking_status"] == "shortlisted"
+
+
+def test_repeated_import_preserves_personal_revisions_and_decision_history(client) -> None:
+    assert import_bundle(client, valid_bundle()).status_code == 200
+    oid = opportunity_id(client)
+    first = client.post(
+        f"/api/opportunities/{oid}/assessments/personal",
+        json={"criterion_id": "junior_suitability", "value": 4, "reasoning": "first"},
+    )
+    assert first.status_code == 201
+    second = client.post(
+        f"/api/opportunities/{oid}/assessments/personal/{first.json()['id']}/revisions",
+        json={"value": 5, "reasoning": "revised"},
+    )
+    assert second.status_code == 201
+    assert client.post(f"/api/opportunities/{oid}/status", json={"status": "shortlisted"}).status_code == 200
+    before_assessments = client.get(f"/api/opportunities/{oid}/assessments/personal/history").json()
+    before_decisions = client.get(f"/api/opportunities/{oid}/decisions").json()
+    assert import_bundle(client, valid_bundle()).status_code == 200
+    assert client.get(f"/api/opportunities/{oid}/assessments/personal/history").json() == before_assessments
+    assert client.get(f"/api/opportunities/{oid}/decisions").json() == before_decisions
+    assert client.get(f"/api/opportunities/{oid}/assessments/personal").json()[0]["value"] == 5
+    assert client.get(f"/api/opportunities/{oid}").json()["tracking_status"] == "shortlisted"
     assert import_bundle(client, valid_bundle()).status_code == 200
     assert client.get("/api/opportunities").json()[0]["tracking_status"] == "shortlisted"
 
@@ -56,17 +79,11 @@ def test_create_duplicate_and_revision_conflicts_are_explicit(client) -> None:
     oid = opportunity_id(client)
     first = client.post(f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "junior_suitability", "value": 4})
     assert first.status_code == 201
-    duplicate = client.post(
-        f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "junior_suitability", "value": 5}
-    )
+    duplicate = client.post(f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "junior_suitability", "value": 5})
     assert duplicate.status_code == 409
-    second = client.post(
-        f"/api/opportunities/{oid}/assessments/personal/{first.json()['id']}/revisions", json={"value": 5}
-    )
+    second = client.post(f"/api/opportunities/{oid}/assessments/personal/{first.json()['id']}/revisions", json={"value": 5})
     assert second.status_code == 201
-    old_revision = client.post(
-        f"/api/opportunities/{oid}/assessments/personal/{first.json()['id']}/revisions", json={"value": 3}
-    )
+    old_revision = client.post(f"/api/opportunities/{oid}/assessments/personal/{first.json()['id']}/revisions", json={"value": 3})
     assert old_revision.status_code == 409
     history = client.get(f"/api/opportunities/{oid}/assessments/personal/history").json()
     assert [item["revision_number"] for item in history] == [1, 2]
@@ -103,18 +120,22 @@ def test_personal_assessment_validates_categorical_boolean_and_inactive_criteria
     assert inactive.status_code == 201
     assert import_bundle(client, valid_bundle()).status_code == 200
     oid = opportunity_id(client)
-    assert client.post(
-        f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "category_test", "value": "yes"}
-    ).status_code == 201
-    assert client.post(
-        f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "category_test", "value": "other"}
-    ).status_code == 422
-    assert client.post(
-        f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "boolean_test", "value": True}
-    ).status_code == 201
-    assert client.post(
-        f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "inactive_test", "value": "kept"}
-    ).status_code == 422
+    assert (
+        client.post(f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "category_test", "value": "yes"}).status_code
+        == 201
+    )
+    assert (
+        client.post(f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "category_test", "value": "other"}).status_code
+        == 422
+    )
+    assert (
+        client.post(f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "boolean_test", "value": True}).status_code
+        == 201
+    )
+    assert (
+        client.post(f"/api/opportunities/{oid}/assessments/personal", json={"criterion_id": "inactive_test", "value": "kept"}).status_code
+        == 422
+    )
 
 
 def test_personal_reference_protects_criterion_semantics_and_name_is_read(client) -> None:
@@ -174,5 +195,10 @@ def test_restore_cycles_reverse_the_current_exclusion_only(client) -> None:
     assert second_restore.json()["reverses_decision_id"] == second_exclusion["id"]
     assert second_restore.json()["reverses_decision_id"] != first_exclusion["id"]
     assert [item["decision_type"] for item in client.get(f"/api/opportunities/{oid}/decisions").json()] == [
-        "status_change", "exclusion", "restore", "status_change", "exclusion", "restore"
+        "status_change",
+        "exclusion",
+        "restore",
+        "status_change",
+        "exclusion",
+        "restore",
     ]

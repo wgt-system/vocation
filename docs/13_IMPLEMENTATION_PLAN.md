@@ -139,6 +139,6 @@ Nicht parallelisieren, solange instabil:
 - ADRs aktualisiert,
 - Acceptance Tests nachvollziehbar erfüllt,
 - eigenständiger Start bleibt möglich.
-## v0.2.0 abgeschlossen
+## v0.2.0 Implementierungs- und Review-Stand
 
-Der persönliche Triage-Schnitt umfasst versionierte Personal Assessments, Tracking Status, Decision History, Exclusion/Restore sowie Desktop-API- und React-Steuerung. Nicht enthalten bleiben Update-Bundles, fuzzy matching, Rankings, Gruppen/Waves, Maps, mobile Verträge, Crawling, kostenpflichtige LLM-APIs und Authentifizierung.
+Auf `dev` implementiert und für die abschließende Integrationsprüfung vorbereitet sind versionierte Personal Assessments, Tracking Status, Decision History, Exclusion/Restore sowie Desktop-API- und React-Steuerung. Die Milestone-Review ist noch nicht als Release abgeschlossen; es gibt keinen v0.2.0-Tag und keine Veröffentlichung. Nicht enthalten bleiben Update-Bundles, fuzzy matching, Rankings, Gruppen/Waves, Maps, mobile Verträge, Crawling, kostenpflichtige LLM-APIs und Authentifizierung.

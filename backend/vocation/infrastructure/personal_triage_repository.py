@@ -40,10 +40,12 @@ class SqlAlchemyPersonalTriageRepository:
         with self.session_factory.begin() as session:
             if session.get(OpportunityModel, opportunity_id) is None:
                 raise LookupError(opportunity_id)
-            previous = session.scalars(select(PersonalAssessmentModel).where(
-                PersonalAssessmentModel.opportunity_id == opportunity_id,
-                PersonalAssessmentModel.criterion_id == criterion_id,
-            )).first()
+            previous = session.scalars(
+                select(PersonalAssessmentModel).where(
+                    PersonalAssessmentModel.opportunity_id == opportunity_id,
+                    PersonalAssessmentModel.criterion_id == criterion_id,
+                )
+            ).first()
             if previous is not None:
                 raise PersonalTriageConflictError("A personal assessment already exists for this opportunity and criterion.")
             row = PersonalAssessmentModel(

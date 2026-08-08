@@ -37,8 +37,8 @@ def validate_exclusion_reason(reason: str) -> str:
     return normalized
 
 
-def validate_restore_target(status: str | None) -> str:
-    target = status or "to_review"
+def validate_restore_target(status: str) -> str:
+    target = status
     validate_tracking_status(target)
     if target == "excluded":
         raise PersonalTriageError("Restore target cannot be excluded.")

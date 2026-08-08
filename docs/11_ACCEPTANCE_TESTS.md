@@ -178,10 +178,58 @@ Dann wird nur der erste Import angewendet und der zweite als identisch erkannt.
 Wenn ein Initial Research Prompt erzeugt wird
 Dann enthält er Search Profile, Constraints, Stichtag, aktive Criteria, vollständige Output-Struktur, kontrollierte Vokabulare und Provenienzregeln
 Und verweist nicht auf lokale Repository-Pfade.
-## AT-32 bis AT-36: Persönliche Triage
+## AT-32 Personal Assessment Create
 
-- AT-32: Ein gültiger persönlicher Wert wird gespeichert und ist im Detail getrennt vom externen Assessment sichtbar.
-- AT-33: Eine Revision erzeugt einen neuen Datensatz mit Vorgängerreferenz; die alte Revision bleibt abrufbar.
-- AT-34: Ungültige Werte und leere Exclusion-Gründe werden abgelehnt, ohne Daten zu schreiben.
-- AT-35: Exclusion, Statusänderung und Restore erzeugen chronologische Decision History; Restore erfordert eine aktive Exclusion.
-- AT-36: Ein erneuter Research-Import verändert persönliche Assessments, Decisions und Tracking Status nicht.
+Wenn für eine Opportunity und ein aktives Opportunity-Criterion ein Wert angelegt wird, entsteht genau eine aktuelle unveränderliche Revision.
+
+## AT-33 Duplicate Create und immutable Revision
+
+Ein zweites Create für dasselbe Opportunity/Criterion wird als Konflikt abgelehnt. Eine Revision erzeugt einen neuen Datensatz, verlinkt den Vorgänger und lässt die alte Revision sichtbar; eine alte Revision kann nicht erneut revidiert werden.
+
+## AT-34 Criterion- und Value-Validation
+
+Numeric-, Categorical-, Boolean- und Text-Werte werden jeweils typ- und skalenkonform validiert. Unbekannte oder inaktive Criteria sowie ungültige Werte werden atomar abgelehnt. Semantische Änderungen eines referenzierten Criteria werden abgelehnt.
+
+## AT-35 Personal/External Separation
+
+Ein Personal Assessment ist im Detail getrennt vom External Assessment sichtbar und wird nicht durch Importdaten ersetzt.
+
+## AT-36 Tracking transitions
+
+Die Statuswerte sind exakt `new`, `to_review`, `interesting`, `shortlisted`, `deferred`, `excluded`, `archived`. Normale nicht ausgeschlossene Übergänge sind direkt möglich; ein No-op und ein generischer Übergang zu `excluded` werden abgelehnt.
+
+## AT-37 Exclusion
+
+Exclusion ist eine eigene Operation, verlangt einen nichtleeren Grund, speichert den vorherigen Status und erzeugt einen unveränderlichen Decision-Eintrag.
+
+## AT-38 Restore
+
+Restore ist nur bei aktueller Exclusion erlaubt, referenziert die aktive Exclusion und verwendet ohne Zielstatus deren gespeicherten vorherigen Status. Ein expliziter gültiger nicht ausgeschlossener Zielstatus ist möglich; historische Exclusions bleiben unverändert. Wiederholte Exclusion/Restore-Zyklen referenzieren jeweils die korrekte aktive Exclusion.
+
+## AT-39 Import Preservation
+
+Ein wiederholter Research-Bundle-Import lässt aktuellen persönlichen Wert, alle Revisionen, Tracking Status und Decision History unverändert.
+
+## AT-40 Status Filtering and Decision History
+
+Die Stellenliste filtert nach Tracking Status; die Detailansicht zeigt die chronologische Decision History.
+
+## AT-41 Triage UI
+
+Die UI trennt Create und Revise, zeigt typisierte Assessment Controls, bietet Status-/Exclusion-/Restore-Aktionen und zeigt bei einem Mutationsfehler das bereits geladene Read Model weiter an.
+
+## AT-42 Migration fresh install
+
+Eine leere Datenbank migriert bis `head` und enthält die v0.2-Triage-Struktur.
+
+## AT-43 Migration from v0.1.0
+
+Eine auf `0002` migrierte v0.1.0-Datenbank migriert bis `head` und liefert dasselbe Schema wie die Fresh-Installation.
+
+## AT-44 Migration integrity constraints
+
+Das Schema schützt `UNIQUE(opportunity_id, criterion_id, revision_number)`, `UNIQUE(supersedes_id)`, `UNIQUE(reverses_decision_id)`, `revision_number >= 1` und `origin = 'personal'`.
+
+## AT-45 Persistent restart
+
+Nach Dispose und Neustart mit derselben SQLite-Datei bleiben Opportunity, Status, aktuelles Personal Assessment, beide Revisionen, vollständige Decision History und die Restore-Referenz erhalten.

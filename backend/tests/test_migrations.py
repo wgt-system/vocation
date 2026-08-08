@@ -34,6 +34,9 @@ def schema(database: Path) -> dict:
                 for foreign_key in inspector.get_foreign_keys(table)
             ),
             "indexes": sorted((index["name"], tuple(index["column_names"]), index["unique"]) for index in inspector.get_indexes(table)),
+            "uniques": sorted(
+                (constraint["name"], tuple(constraint["column_names"])) for constraint in inspector.get_unique_constraints(table)
+            ),
             "checks": sorted((check["name"], check["sqltext"]) for check in inspector.get_check_constraints(table)),
         }
     return result
@@ -99,3 +102,41 @@ def test_triage_head_downgrades_to_0002(tmp_path: Path) -> None:
     assert "personal_assessments" not in inspector.get_table_names()
     assert "opportunity_decisions" not in inspector.get_table_names()
     assert "tracking_status" not in {column["name"] for column in inspector.get_columns("opportunities")}
+
+
+def test_v020_integrity_constraints_are_present_and_enforced(tmp_path: Path) -> None:
+    database = tmp_path / "integrity.db"
+    migrate(database, "head")
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+    assert ("uq_personal_assessment_revision", ("opportunity_id", "criterion_id", "revision_number")) in schema(database)[
+        "personal_assessments"
+    ]["uniques"]
+    assert ("uq_personal_assessment_predecessor", ("supersedes_id",)) in schema(database)["personal_assessments"]["uniques"]
+    assert ("uq_opportunity_decision_reversal", ("reverses_decision_id",)) in schema(database)["opportunity_decisions"]["uniques"]
+    checks = {
+        item["sqltext"] for table in ("personal_assessments", "opportunity_decisions") for item in inspector.get_check_constraints(table)
+    }
+    assert any("revision_number >= 1" in check for check in checks)
+    assert any("origin = 'personal'" in check for check in checks)
+
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO personal_assessments "
+                "(id, opportunity_id, criterion_id, value_json, created_at, revision_number, origin) "
+                "VALUES ('a1','o1','c1','4','2025-01-01',1,'personal')"
+            )
+        )
+        try:
+            connection.execute(
+                text(
+                    "INSERT INTO personal_assessments "
+                    "(id, opportunity_id, criterion_id, value_json, created_at, revision_number, origin) "
+                    "VALUES ('a2','o1','c1','5','2025-01-01',0,'personal')"
+                )
+            )
+        except Exception:
+            pass
+        else:
+            raise AssertionError("revision_number check must reject zero")
