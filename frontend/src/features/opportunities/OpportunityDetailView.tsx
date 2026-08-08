@@ -42,7 +42,8 @@ export function OpportunityDetailView({
   const [criterionId, setCriterionId] = useState("");
   const [value, setValue] = useState<unknown>("");
   const [reasoning, setReasoning] = useState("");
-  const [decisionReason, setDecisionReason] = useState("");
+  const [statusReason, setStatusReason] = useState("");
+  const [exclusionReason, setExclusionReason] = useState("");
   const [message, setMessage] = useState("");
 
   async function reload() {
@@ -74,18 +75,22 @@ export function OpportunityDetailView({
     const criterion = criteria.find(
       (item) => item.criterion_id === criterionId,
     );
+    const currentAssessment = detail?.personal_assessments.find(
+      (assessment) => assessment.criterion_id === criterionId,
+    );
     if (criterion) {
       setValue(
-        criterion.value_type === "boolean"
-          ? false
-          : criterion.value_type === "numeric"
-            ? (criterion.numeric_min ?? "")
-            : criterion.value_type === "categorical"
-              ? (criterion.allowed_values?.[0] ?? "")
-              : "",
+        currentAssessment?.value ??
+          (criterion.value_type === "boolean"
+            ? false
+            : criterion.value_type === "numeric"
+              ? (criterion.numeric_min ?? "")
+              : criterion.value_type === "categorical"
+                ? (criterion.allowed_values?.[0] ?? "")
+                : ""),
       );
     }
-  }, [criterionId, criteria]);
+  }, [criterionId, criteria, detail]);
 
   if (loadError) {
     return (
@@ -107,6 +112,9 @@ export function OpportunityDetailView({
   const currentAssessment = detail.personal_assessments.find(
     (assessment) => assessment.criterion_id === criterionId,
   );
+  const currentAssessmentIds = new Set(
+    detail.personal_assessments.map((assessment) => assessment.id),
+  );
 
   function assessmentValue(raw: string): unknown {
     if (!selectedCriterion) return raw;
@@ -117,6 +125,7 @@ export function OpportunityDetailView({
 
   async function saveAssessment() {
     if (!selectedCriterion) return;
+    setMessage("");
     setMutationError("");
     try {
       const payload = {
@@ -147,13 +156,10 @@ export function OpportunityDetailView({
   }
 
   async function setStatus(status: Exclude<TrackingStatus, "excluded">) {
+    setMessage("");
     setMutationError("");
     try {
-      await api.changeStatus(
-        opportunityId,
-        status,
-        decisionReason || undefined,
-      );
+      await api.changeStatus(opportunityId, status, statusReason || undefined);
       setMessage("Status gespeichert.");
       await reload();
     } catch (reason) {
@@ -164,14 +170,15 @@ export function OpportunityDetailView({
   }
 
   async function exclude() {
-    if (!decisionReason.trim()) {
+    setMessage("");
+    setMutationError("");
+    if (!exclusionReason.trim()) {
       setMutationError("Für den Ausschluss ist ein Grund erforderlich.");
       return;
     }
-    setMutationError("");
     try {
-      await api.exclude(opportunityId, decisionReason.trim());
-      setDecisionReason("");
+      await api.exclude(opportunityId, exclusionReason.trim());
+      setExclusionReason("");
       setMessage("Opportunity ausgeschlossen.");
       await reload();
     } catch (reason) {
@@ -182,6 +189,7 @@ export function OpportunityDetailView({
   }
 
   async function restore() {
+    setMessage("");
     setMutationError("");
     try {
       await api.restore(opportunityId);
@@ -347,7 +355,7 @@ export function OpportunityDetailView({
               <article className="record" key={item.id}>
                 <h3>
                   {item.criterion_name} · Revision {item.revision_number}
-                  {item.id === currentAssessment?.id
+                  {currentAssessmentIds.has(item.id)
                     ? " (aktuell)"
                     : " (historisch)"}
                 </h3>
@@ -365,26 +373,37 @@ export function OpportunityDetailView({
           <p>
             Aktueller Status: <strong>{detail.tracking_status}</strong>
           </p>
-          <label>
-            Status-/Ausschlussgrund
-            <input
-              value={decisionReason}
-              onChange={(event) => setDecisionReason(event.target.value)}
-            />
-          </label>
+          {detail.tracking_status !== "excluded" && (
+            <label>
+              Statusgrund (optional)
+              <input
+                value={statusReason}
+                onChange={(event) => setStatusReason(event.target.value)}
+              />
+            </label>
+          )}
           <div className="actions">
-            {transitionStatuses.map((status) => (
-              <button
-                key={status.value}
-                onClick={() => setStatus(status.value)}
-              >
-                {status.label}
-              </button>
-            ))}
             {detail.tracking_status === "excluded" ? (
               <button onClick={restore}>Restore</button>
             ) : (
-              <button onClick={exclude}>Ausschließen</button>
+              <>
+                {transitionStatuses.map((status) => (
+                  <button
+                    key={status.value}
+                    onClick={() => setStatus(status.value)}
+                  >
+                    {status.label}
+                  </button>
+                ))}
+                <label>
+                  Ausschlussgrund (erforderlich)
+                  <input
+                    value={exclusionReason}
+                    onChange={(event) => setExclusionReason(event.target.value)}
+                  />
+                </label>
+                <button onClick={exclude}>Ausschließen</button>
+              </>
             )}
           </div>
           <h3>Decision History</h3>
