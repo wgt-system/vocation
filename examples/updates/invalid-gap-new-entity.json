@@ -1,5 +1,5 @@
 {
-  "bundle_version": "2.0", "bundle_id": "invalid-gap-new", "generated_at": "2026-08-08T10:00:00Z", "prompt_context_ref": "ctx_gap_20260808_bad",
-  "research_scope": {"type": "gap_filling", "as_of_date": "2026-08-08", "selected_correlation_refs": ["ctx_opp_ref_4"], "requests": [{"subject_type": "opportunity", "correlation_ref": "ctx_opp_ref_4", "observation_type": "salary"}]}, "sources": [], "source_references": [], "companies": [],
+  "bundle_version": "2.0", "bundle_id": "invalid-gap-new", "generated_at": "2026-08-08T10:00:00Z", "prompt_context_ref": "invalid-gap-snapshot",
+  "research_scope": {"type": "gap_filling", "as_of_date": "2026-08-08", "selected_correlation_refs": ["opportunity-reference-4"], "requests": [{"subject_type": "opportunity", "correlation_ref": "opportunity-reference-4", "observation_type": "salary"}]}, "sources": [], "source_references": [], "companies": [],
   "opportunities": [{"id": "new-opportunity", "company_id": "new-company", "canonical_title": "Forbidden", "source_reference_id": "ref", "observed_at": "2026-08-08T09:00:00Z", "work_locations": []}], "postings": [], "observations": [], "assessments": [], "possible_duplicates": [], "warnings": []
 }

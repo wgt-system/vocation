@@ -64,3 +64,45 @@ def test_possible_duplicate_is_evidence_only_and_gap_filling_has_none(update_val
     assert gap["possible_duplicates"] == []
     assert not list(update_validator.iter_errors(full))
     assert not list(update_validator.iter_errors(gap))
+
+
+@pytest.mark.parametrize(
+    ("scope_type", "property_name"),
+    [
+        ("full_update", "selected_correlation_refs"),
+        ("full_update", "requests"),
+        ("company_update", "requests"),
+        ("opportunity_update", "requests"),
+    ],
+)
+def test_scope_forbids_out_of_mode_properties(update_validator: Draft202012Validator, scope_type: str, property_name: str) -> None:
+    source_name = {
+        "full_update": "full-update-valid.json",
+        "company_update": "company-update-valid.json",
+        "opportunity_update": "opportunity-update-valid.json",
+    }[scope_type]
+    bundle = load(UPDATE_EXAMPLES / source_name)
+    bundle["research_scope"][property_name] = []
+    assert list(update_validator.iter_errors(bundle))
+
+
+def test_gap_filling_requires_selection_and_requests(update_validator: Draft202012Validator) -> None:
+    bundle = load(UPDATE_EXAMPLES / "gap-filling-valid.json")
+    bundle["research_scope"].pop("selected_correlation_refs")
+    assert list(update_validator.iter_errors(bundle))
+    bundle = load(UPDATE_EXAMPLES / "gap-filling-valid.json")
+    bundle["research_scope"].pop("requests")
+    assert list(update_validator.iter_errors(bundle))
+
+
+def test_posting_identity_evidence_is_known_only_and_canonical_url_is_rejected(
+    update_validator: Draft202012Validator,
+) -> None:
+    opportunity = load(UPDATE_EXAMPLES / "opportunity-update-valid.json")
+    assert not list(update_validator.iter_errors(opportunity))
+    gap = load(UPDATE_EXAMPLES / "gap-filling-valid.json")
+    gap["postings"][0]["identity_evidence"] = {"source_reference_id": "ref-gap"}
+    assert list(update_validator.iter_errors(gap))
+    full = load(UPDATE_EXAMPLES / "full-update-valid.json")
+    full["postings"][0]["canonical_url"] = "https://example.com/jobs/dev"
+    assert list(update_validator.iter_errors(full))
