@@ -1,0 +1,5 @@
+{
+  "bundle_version": "2.0", "bundle_id": "invalid-protected", "generated_at": "2026-08-08T10:00:00Z", "prompt_context_ref": "ctx_invalid_20260808_a1",
+  "research_scope": {"type": "full_update", "as_of_date": "2026-08-08"}, "sources": [], "source_references": [], "companies": [], "opportunities": [], "postings": [], "observations": [], "assessments": [], "possible_duplicates": [], "warnings": [],
+  "personal_assessments": []
+}

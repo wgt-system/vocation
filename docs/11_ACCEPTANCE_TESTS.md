@@ -233,3 +233,19 @@ Das Schema schützt `UNIQUE(opportunity_id, criterion_id, revision_number)`, `UN
 ## AT-45 Persistent restart
 
 Nach Dispose und Neustart mit derselben SQLite-Datei bleiben Opportunity, Status, aktuelles Personal Assessment, beide Revisionen, vollständige Decision History und die Restore-Referenz erhalten.
+
+## AT-46 Update contract compatibility
+
+Research Bundle `1.0` validiert das unveränderte Initial-Beispiel und lehnt Update Scopes ab. Research Update Bundle `2.0` ist ein separater Contract.
+
+## AT-47 Update scope modes
+
+Full, Company, Opportunity und Gap Filling validieren jeweils mit `prompt_context_ref`; bekannte Subjects verwenden opaque Correlation References, neue Subjects Creation-/Evidence-Felder.
+
+## AT-48 Closed and protected update objects
+
+Unbekannte Properties und Personal-State-Properties werden abgelehnt. Gap Filling mit neuen Companies, Opportunities, Postings oder Possible Duplicates wird strukturell abgelehnt.
+
+## AT-49 Update identity and duplicate evidence
+
+Possible-Duplicate-Einträge sind nur Evidenz für Opportunity-/Posting-Paare mit Quellenbeleg; Company-Duplicates, Self-References und automatische Merge-Bedeutung sind unzulässig. Posting-Identität bleibt Source plus External ID oder HTTPS-URL; Correlation-/Identity-Konflikte sind Blocker.

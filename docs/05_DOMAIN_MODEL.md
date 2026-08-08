@@ -145,7 +145,7 @@ Mögliche oder bestätigte Identitätsbeziehung.
 Enthält:
 
 - Scope Type
-- referenzierte Vocation IDs
+- referenzierte, für den Prompt Run erzeugte opaque Correlation References
 - gewünschte Felder oder Fragen
 - erlaubten Änderungsbereich
 - Stichtag
@@ -153,11 +153,13 @@ Enthält:
 
 ### Invarianten
 
-1. Ein Update-Prompt muss bekannte IDs und den Scope enthalten.
+1. Ein Update-Prompt muss den Scope und einen Prompt Context Snapshot mit opaque Correlation References enthalten; interne Vocation IDs werden nicht veröffentlicht.
 2. Ein Prompt darf nicht behaupten, selbst recherchiert zu haben.
 3. Ein Prompt muss die gewünschte Ausgabe als reines JSON verlangen.
 4. Ein Teilupdate darf keine außerhalb des Scopes liegenden Änderungen als verbindlich ausgeben.
 5. Persönliche Decisions und Assessments werden als geschützt markiert.
+
+Für v0.3 sind Update Bundles ein eigener Published Contract `2.0`. Eine Correlation Reference gilt nur für den ausstellenden Prompt Context Snapshot und kann zwischen Prompt Runs wechseln. Sie löst genau ein bestehendes Company-, Opportunity- oder Posting-Objekt auf, erlaubt aber keine Änderung bestehender Ownership-Beziehungen.
 
 ## ExternalLink
 

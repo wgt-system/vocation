@@ -142,3 +142,7 @@ Nicht parallelisieren, solange instabil:
 ## v0.2.0 – Persönliche Triage
 
 Der v0.2.0-Scope umfasst versionierte Personal Assessments, Tracking Status, Decision History, Exclusion/Restore sowie Desktop-API- und React-Steuerung. Nicht enthalten bleiben Update-Bundles, fuzzy matching, Rankings, Gruppen/Waves, Maps, mobile Verträge, Crawling, kostenpflichtige LLM-APIs und Authentifizierung.
+
+## v0.3.0 – Update Contract (Issue #7)
+
+Dieser Slice definiert und testet ausschließlich den veröffentlichten Research Update Bundle Contract `2.0`: opaque Prompt-Context-Korrelation, Full/Company/Opportunity/Gap-Filling-Scope, neue versus bekannte Subjects, deterministische Posting-Identität, Possible-Duplicate-Evidenz und Update-Fehlercodes. Research Bundle `1.0` bleibt unverändert und initial-only. Es gibt in diesem Slice keinen Update-Importer, keinen Identity Resolver, keine DuplicateCase-Persistenz, keine Migration und keine API/UI-Erweiterung.

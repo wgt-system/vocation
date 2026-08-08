@@ -1,0 +1,13 @@
+{
+  "bundle_version": "2.0",
+  "bundle_id": "update-company-001",
+  "generated_at": "2026-08-08T10:00:00Z",
+  "prompt_context_ref": "ctx_company_20260808_b1",
+  "research_scope": {"type": "company_update", "as_of_date": "2026-08-08", "selected_correlation_refs": ["ctx_company_ref_1"]},
+  "sources": [{"id": "src-company", "name": "Example Careers", "type": "company_careers"}],
+  "source_references": [{"id": "ref-company", "source_id": "src-company", "url": "https://example.com/jobs/new", "observed_at": "2026-08-08T09:00:00Z"}],
+  "companies": [{"id": "company-known", "correlation_ref": "ctx_company_ref_1"}],
+  "opportunities": [{"id": "opportunity-new", "company_id": "company-known", "canonical_title": "Backend Engineer", "source_reference_id": "ref-company", "observed_at": "2026-08-08T09:00:00Z", "work_locations": []}],
+  "postings": [{"id": "posting-new", "company_id": "company-known", "opportunity_id": "opportunity-new", "source_reference_id": "ref-company", "title": "Backend Engineer", "observed_at": "2026-08-08T09:00:00Z"}],
+  "observations": [], "assessments": [], "possible_duplicates": [], "warnings": []
+}

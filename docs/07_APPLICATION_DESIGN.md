@@ -73,6 +73,8 @@ Ablauf:
 
 Im ersten Meilenstein ist der Import pro Bundle vollständig atomar und akzeptiert ausschließlich Initial Research Bundles. Blockierende Fehler führen zu keinen fachlichen Änderungen. Identische kanonische Bundles werden nicht erneut angewendet.
 
+Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. Dieser Vertrag wird in Issue #7 nur spezifiziert und getestet; Update-Import, Dispatch und Identity Resolver sind nicht Teil dieses Slices.
+
 Output:
 
 - Import ID
@@ -87,6 +89,8 @@ Nur persönliche Aktion. External Imports dürfen diesen Command nicht auslösen
 ### AddPersonalAssessment
 
 Erzeugt ein Personal Assessment und überschreibt kein External Assessment.
+
+Research Update Bundle `2.0` darf Personal Assessments, Tracking Status, Opportunity Decisions, Exclusion/Restore und Groups/Waves weder enthalten noch mutieren.
 
 ### ExcludeOpportunity
 

@@ -33,19 +33,14 @@ Für den gesamten bekannten Bestand.
 
 Input:
 
-- bestehende Opportunity- und Posting-IDs
+- ein Vocation-erzeugter Prompt Context Snapshot mit opaque Correlation References
 - letzte Observations
 - Freshness
 - bekannte Sources
 - offene Duplicate Cases
 - geschützte Personal Decisions
 
-Output:
-
-- nur neue oder geänderte Observations
-- neue Opportunities
-- Availability Updates
-- keine Änderung persönlicher Decisions
+Output: Research Update Bundle `2.0`; neue Subjects und Scope-Regeln hängen vom gewählten Update-Typ ab. Availability/Freshness ist nicht Teil dieses Vertrags.
 
 ### Company Update
 
@@ -109,10 +104,10 @@ Jeder Prompt verlangt:
 - valides JSON,
 - keine Markdown-Fences,
 - keine Einleitung,
-- `bundle_version: "1.0"`,
+- `bundle_version: "1.0"` nur für `initial_market_research`; Update-Prompts verlangen `bundle_version: "2.0"` und `prompt_context_ref`,
 - expliziten Research Scope,
 - Quellen und Zeitpunkte,
-- keine erfundenen Vocation-IDs,
+- keine internen Vocation-IDs und keine erfundenen Correlation References,
 - keine unbekannten Properties oder Assessment Criteria,
 - vollständige Source References und Provenienz.
 
@@ -123,6 +118,9 @@ Jeder Prompt verlangt:
 - Unsicherheit ausdrücklich markieren,
 - nicht erreichbare Quellen nicht automatisch als endgültig geschlossen interpretieren,
 - Scope nicht überschreiten.
+- Correlation References nur aus dem aktuellen Prompt Context Snapshot echoen.
+- Personal Assessments, Tracking Status, Decisions, Exclusions/Restore und Groups/Waves niemals ausgeben.
+- Gap Filling darf nur angeforderte Observations oder aktive Criteria liefern und keine neuen Subjects oder Possible Duplicates.
 
 ## 8. UI-Anforderungen
 

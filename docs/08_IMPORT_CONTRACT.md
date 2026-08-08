@@ -134,3 +134,19 @@ Ein bereits erfolgreich angewendeter Fingerprint wird nicht erneut geschrieben u
 - `examples/imports/initial-valid.json`
 - `examples/imports/invalid-nested-property.json`
 - `examples/imports/invalid-protected-decision.json`
+
+## 14. Research Update Bundle 2.0 (v0.3 contract-only)
+
+Research Bundle `1.0` bleibt unverändert, gültig ausschließlich für `initial_market_research`. Updates verwenden `schemas/research-update-bundle-v2.schema.json` und enthalten zusätzlich den verpflichtenden `prompt_context_ref`. Die Top-Level-Struktur enthält `bundle_version`, `bundle_id`, `generated_at`, `prompt_context_ref`, `research_scope`, `sources`, `source_references`, `companies`, `opportunities`, `postings`, `observations`, `assessments`, `possible_duplicates` und `warnings`; alle Objekte sind geschlossen.
+
+Correlation References werden ausschließlich von Vocation im Prompt Context Snapshot erzeugt. Sie sind opaque, nur für diesen Snapshot gültig, enthalten keine internen ID-Semantiken und dürfen von Research nur echoed werden. Bundle-lokale IDs bleiben die einzigen Referenzen innerhalb des Bundles. Bekannte Subjects enthalten Correlation Reference und nötige bundle-lokale Beziehungs-IDs; neue Subjects haben keine Correlation Reference und müssen die normalen Creation-/Evidence-Felder liefern.
+
+`research_scope.type` ist genau einer von `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. Full Update erlaubt neue Companies, Opportunities und Postings. Company Update erlaubt neue Opportunities/Postings unter ausgewählten Companies, aber keine neuen Companies. Opportunity Update erlaubt neue Postings unter ausgewählten Opportunities; Companies sind nur Kontext, neue Companies und Opportunities sind verboten. Gap Filling erlaubt ausschließlich ausdrücklich angeforderte Subject-/Feld-Ergebnisse, keine neuen Subjects und keine `possible_duplicates`. Scope-Prüfung erfolgt vor jeder Domain-Mutation.
+
+Gap Filling beschränkt sich auf `technology_requirement`, `task`, `seniority`, `experience_requirement`, `work_model`, `salary` und ausdrücklich angeforderte aktive Assessment Criteria. Es verändert nie Identität, Ownership, Work Locations, Availability/Freshness, Personal Assessments, Decisions oder Tracking Status.
+
+Posting-Identität bleibt deterministisch: Source plus `external_posting_id`, sonst normalisierte kanonische HTTPS-URL. Eine gültige Correlation Reference ersetzt keine stabile Identität. Widerspruch ist `IDENTITY_CONFLICT`; ein Treffer außerhalb des Scopes ist `SCOPE_VIOLATION`. Fuzzy Matching und Merge sind ausgeschlossen.
+
+`possible_duplicates` ist ausschließlich Evidenz für Opportunity- oder Posting-Paare mit unterschiedlichen bundle-lokalen IDs, mindestens einer Source Reference, Evidence Summary und optionaler Confidence. Es bestätigt keine Dublette und löst keinen Merge aus; Company-Duplicates sind nicht enthalten. Update-Blocker sind `UNKNOWN_PROMPT_CONTEXT`, `SCOPE_MISMATCH`, `UNKNOWN_CORRELATION_REFERENCE`, `SCOPE_VIOLATION`, `IDENTITY_CONFLICT` und `INVALID_DUPLICATE_EVIDENCE` neben den bestehenden Schema-/Protected-Field-Fehlern. Jeder Blocker lehnt das vollständige Update vor Domain-Mutation ab.
+
+Beispiele: `examples/updates/`; Contract Tests: `backend/tests/test_update_bundle_contract.py`.
