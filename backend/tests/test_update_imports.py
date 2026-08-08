@@ -34,6 +34,13 @@ def persisted_subjects(client) -> tuple[CompanyModel, OpportunityModel, PostingM
     return company, opportunity, posting
 
 
+def import_two_initial_bundles(client) -> None:
+    first = valid_bundle()
+    second = json.loads(json.dumps(first).replace("example", "second"))
+    assert import_bundle(client, first).json()["status"] == "applied"
+    assert import_bundle(client, second).json()["status"] == "applied"
+
+
 def test_version_dispatch_and_initial_regression(client) -> None:
     initial = import_bundle(client, valid_bundle()).json()
     assert initial["status"] == "applied"
@@ -90,6 +97,13 @@ def test_full_update_materializes_plan_and_counts(client) -> None:
                 DuplicateCaseSourceReferenceModel.duplicate_case_id == duplicate.id
             )
         ) == 1
+        link = session.scalar(
+            select(DuplicateCaseSourceReferenceModel).where(
+                DuplicateCaseSourceReferenceModel.duplicate_case_id == duplicate.id
+            )
+        )
+        source_reference = session.get(SourceReferenceModel, link.source_reference_id)
+        assert source_reference.import_id == report["import_id"]
 
 
 def test_full_update_file_entry_point(client) -> None:
@@ -116,22 +130,31 @@ def test_update_reuses_posting_and_preserves_original_provenance(client) -> None
             ("posting-reference-1", "posting", posting.id, True),
         ],
     )
-    original_reference_id = posting.source_reference_id
+    original_posting = {
+        "source_reference_id": posting.source_reference_id,
+        "stable_key": posting.stable_key,
+        "canonical_url": posting.canonical_url,
+        "external_posting_id": posting.external_posting_id,
+        "title": posting.title,
+        "company_id": posting.company_id,
+        "opportunity_id": posting.opportunity_id,
+        "import_id": posting.import_id,
+    }
     before = row_counts(client)
     report = post_update(client, bundle)
-    assert report["status"] == "applied"
+    assert report["status"] == "applied", report["issues"]
     assert report["counts"]["postings_reused"] == 1
     assert report["counts"]["postings_created"] == 0
     assert row_counts(client)["postings"] == before["postings"]
     assert row_counts(client)["observations"] == before["observations"] + 1
     with client.app.state.database.session_factory() as session:
         unchanged = session.get(PostingModel, posting.id)
-        assert unchanged.source_reference_id == original_reference_id
+        assert {field: getattr(unchanged, field) for field in original_posting} == original_posting
         assert session.scalar(select(func.count()).select_from(SourceModel)) == before["sources"] + 1
         assert session.scalar(select(func.count()).select_from(SourceReferenceModel)) == before["source_references"] + 1
         observation = session.scalar(select(ObservationModel).where(ObservationModel.import_id == report["import_id"]))
         assert observation.subject_id == opportunity.id
-        assert observation.source_reference_id != original_reference_id
+        assert observation.source_reference_id != original_posting["source_reference_id"]
 
 
 def test_company_update_creates_scoped_children(client) -> None:
@@ -204,14 +227,104 @@ def test_update_preserves_personal_assessments_and_decisions(client) -> None:
     assert client.get("/api/opportunities").json()[0]["tracking_status"] == before_status
 
 
+def test_update_reuses_existing_duplicate_case_without_modification(client) -> None:
+    import_two_initial_bundles(client)
+    with client.app.state.database.session_factory() as session:
+        company_a = session.scalar(select(CompanyModel).where(CompanyModel.bundle_local_id == "cmp-example"))
+        company_b = session.scalar(select(CompanyModel).where(CompanyModel.bundle_local_id == "cmp-second"))
+        opportunity_a = session.scalar(select(OpportunityModel).where(OpportunityModel.bundle_local_id == "opp-example"))
+        opportunity_b = session.scalar(select(OpportunityModel).where(OpportunityModel.bundle_local_id == "opp-second"))
+        reference = session.scalar(select(SourceReferenceModel).where(SourceReferenceModel.bundle_local_id == "ref-posting"))
+        research_import = session.scalar(select(ResearchImportModel))
+    assert company_a and company_b and opportunity_a and opportunity_b and reference and research_import
+    with client.app.state.database.session_factory.begin() as session:
+        session.get(OpportunityModel, opportunity_b.id).company_id = company_a.id
+        left_id, right_id = sorted((opportunity_a.id, opportunity_b.id))
+        existing_case = DuplicateCaseModel(
+            id="existing-duplicate-case",
+            research_import_id=research_import.id,
+            subject_type="opportunity",
+            left_subject_id=left_id,
+            right_subject_id=right_id,
+            evidence_summary="Persisted duplicate evidence",
+            confidence=0.75,
+            created_at=research_import.created_at,
+        )
+        session.add(existing_case)
+        session.flush()
+        session.add(
+            DuplicateCaseSourceReferenceModel(
+                duplicate_case_id=existing_case.id,
+                source_reference_id=reference.id,
+            )
+        )
+
+    bundle = load_update("full-update-valid.json")
+    bundle["postings"] = []
+    bundle["observations"] = []
+    bundle["assessments"] = []
+    bundle["companies"][0]["correlation_ref"] = "company-reference-a"
+    for field in ("canonical_name", "source_reference_id", "observed_at", "evidence_summary"):
+        bundle["companies"][0].pop(field, None)
+    bundle["opportunities"][0]["correlation_ref"] = "opportunity-reference-a"
+    bundle["opportunities"][1]["correlation_ref"] = "opportunity-reference-b"
+    for opportunity_item in bundle["opportunities"]:
+        for field in ("canonical_title", "source_reference_id", "observed_at", "evidence_summary", "work_locations"):
+            opportunity_item.pop(field, None)
+    bundle["possible_duplicates"][0]["left_subject_id"] = "opportunity-other"
+    bundle["possible_duplicates"][0]["right_subject_id"] = "opportunity-new"
+    snapshot(
+        client,
+        bundle,
+        [
+            ("company-reference-a", "company", company_a.id, True),
+            ("opportunity-reference-a", "opportunity", opportunity_a.id, True),
+            ("opportunity-reference-b", "opportunity", opportunity_b.id, True),
+        ],
+    )
+    with client.app.state.database.session_factory() as session:
+        before_case = session.get(DuplicateCaseModel, "existing-duplicate-case")
+        before_links = [
+            link.source_reference_id
+            for link in session.scalars(
+                select(DuplicateCaseSourceReferenceModel).where(
+                    DuplicateCaseSourceReferenceModel.duplicate_case_id == before_case.id
+                )
+            )
+        ]
+    before_count = row_counts(client)["duplicate_cases"]
+    report = post_update(client, bundle)
+    assert report["status"] == "applied", report["issues"]
+    assert report["counts"]["duplicate_cases_reused"] == 1
+    assert report["counts"]["duplicate_cases_created"] == 0
+    assert row_counts(client)["duplicate_cases"] == before_count
+    with client.app.state.database.session_factory() as session:
+        after_case = session.get(DuplicateCaseModel, "existing-duplicate-case")
+        after_links = [
+            link.source_reference_id
+            for link in session.scalars(
+                select(DuplicateCaseSourceReferenceModel).where(
+                    DuplicateCaseSourceReferenceModel.duplicate_case_id == after_case.id
+                )
+            )
+        ]
+        assert after_case.research_import_id == before_case.research_import_id
+        assert after_case.evidence_summary == before_case.evidence_summary
+        assert after_case.confidence == before_case.confidence
+        assert after_case.created_at == before_case.created_at
+        assert after_links == before_links
+
+
 def test_update_idempotency_and_rejected_planner_blocker(client) -> None:
     bundle = load_update("full-update-valid.json")
     snapshot(client, bundle)
     first = post_update(client, bundle)
+    after_first = row_counts(client)
     second = post_update(client, copy.deepcopy(bundle))
     assert first["status"] == "applied"
     assert second["status"] == "duplicate"
     assert second["duplicate_of_import_id"] == first["import_id"]
+    assert row_counts(client) == after_first
 
     rejected = load_update("full-update-valid.json")
     rejected["prompt_context_ref"] = "prompt-snapshot-rejected"
