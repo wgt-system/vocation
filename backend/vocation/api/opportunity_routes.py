@@ -15,6 +15,7 @@ from vocation.api.schemas import (
 )
 from vocation.application.opportunities import OpportunityQueryService
 from vocation.application.personal_triage import PersonalTriageService
+from vocation.domain.personal_triage import PersonalTriageConflictError, PersonalTriageError
 
 router = APIRouter(prefix="/api/opportunities", tags=["opportunities"])
 
@@ -41,24 +42,26 @@ def _service(request: Request) -> PersonalTriageService:
 def _error(error: Exception) -> HTTPException:
     if isinstance(error, LookupError):
         return HTTPException(status_code=404, detail="Opportunity or assessment not found.")
-    return HTTPException(status_code=422, detail=str(error))
+    if isinstance(error, PersonalTriageConflictError):
+        return HTTPException(status_code=409, detail=str(error))
+    if isinstance(error, PersonalTriageError):
+        return HTTPException(status_code=422, detail=str(error))
+    raise error
 
 
 @router.get("/{opportunity_id}/assessments/personal", response_model=list[PersonalAssessmentResponse])
 def personal_assessments(opportunity_id: str, request: Request) -> list[PersonalAssessmentResponse]:
     try:
-        return [
-            PersonalAssessmentResponse.model_validate(item) for item in _service(request).repository.current_assessments(opportunity_id)
-        ]
-    except Exception as error:
+        return [PersonalAssessmentResponse.model_validate(item) for item in _service(request).current_assessments(opportunity_id)]
+    except (LookupError, PersonalTriageError) as error:
         raise _error(error) from error
 
 
 @router.get("/{opportunity_id}/assessments/personal/history", response_model=list[PersonalAssessmentResponse])
 def personal_assessment_history(opportunity_id: str, request: Request) -> list[PersonalAssessmentResponse]:
     try:
-        return [PersonalAssessmentResponse.model_validate(item) for item in _service(request).repository.assessment_history(opportunity_id)]
-    except Exception as error:
+        return [PersonalAssessmentResponse.model_validate(item) for item in _service(request).assessment_history(opportunity_id)]
+    except (LookupError, PersonalTriageError) as error:
         raise _error(error) from error
 
 
@@ -68,7 +71,7 @@ def create_personal_assessment(opportunity_id: str, payload: PersonalAssessmentP
         return PersonalAssessmentResponse.model_validate(
             _service(request).create_assessment(opportunity_id, payload.criterion_id, payload.value, payload.reasoning)
         )
-    except Exception as error:
+    except (LookupError, PersonalTriageError) as error:
         raise _error(error) from error
 
 
@@ -80,16 +83,15 @@ def revise_personal_assessment(
         return PersonalAssessmentResponse.model_validate(
             _service(request).revise_assessment(opportunity_id, assessment_id, payload.value, payload.reasoning)
         )
-    except Exception as error:
+    except (LookupError, PersonalTriageError) as error:
         raise _error(error) from error
 
 
 @router.get("/{opportunity_id}/decisions", response_model=list[DecisionResponse])
 def decision_history(opportunity_id: str, request: Request) -> list[DecisionResponse]:
     try:
-        _service(request).repository.status(opportunity_id)
-        return [DecisionResponse.model_validate(item) for item in _service(request).repository.decisions(opportunity_id)]
-    except Exception as error:
+        return [DecisionResponse.model_validate(item) for item in _service(request).decisions(opportunity_id)]
+    except (LookupError, PersonalTriageError) as error:
         raise _error(error) from error
 
 
@@ -97,7 +99,7 @@ def decision_history(opportunity_id: str, request: Request) -> list[DecisionResp
 def change_status(opportunity_id: str, payload: StatusPayload, request: Request) -> DecisionResponse:
     try:
         return DecisionResponse.model_validate(_service(request).change_status(opportunity_id, payload.status, payload.reason))
-    except Exception as error:
+    except (LookupError, PersonalTriageError) as error:
         raise _error(error) from error
 
 
@@ -105,7 +107,7 @@ def change_status(opportunity_id: str, payload: StatusPayload, request: Request)
 def exclude(opportunity_id: str, payload: ExclusionPayload, request: Request) -> DecisionResponse:
     try:
         return DecisionResponse.model_validate(_service(request).exclude(opportunity_id, payload.reason))
-    except Exception as error:
+    except (LookupError, PersonalTriageError) as error:
         raise _error(error) from error
 
 
@@ -113,5 +115,5 @@ def exclude(opportunity_id: str, payload: ExclusionPayload, request: Request) ->
 def restore(opportunity_id: str, payload: RestorePayload, request: Request) -> DecisionResponse:
     try:
         return DecisionResponse.model_validate(_service(request).restore(opportunity_id, payload.target_status, payload.reason))
-    except Exception as error:
+    except (LookupError, PersonalTriageError) as error:
         raise _error(error) from error

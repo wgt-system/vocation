@@ -234,6 +234,12 @@ class PersonalAssessmentModel(Base):
     origin: Mapped[str] = mapped_column(String(30), default="personal", nullable=False)
 
     criterion: Mapped[AssessmentCriterionModel] = relationship()
+    __table_args__ = (
+        UniqueConstraint("opportunity_id", "criterion_id", "revision_number"),
+        UniqueConstraint("supersedes_id"),
+        CheckConstraint("revision_number >= 1"),
+        CheckConstraint("origin = 'personal'"),
+    )
 
 
 class OpportunityDecisionModel(Base):
@@ -252,4 +258,5 @@ class OpportunityDecisionModel(Base):
         CheckConstraint("decision_type IN ('status_change','exclusion','restore')"),
         CheckConstraint("previous_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
         CheckConstraint("resulting_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
+        UniqueConstraint("reverses_decision_id"),
     )

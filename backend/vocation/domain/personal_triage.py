@@ -12,6 +12,10 @@ class PersonalTriageError(ValueError):
     pass
 
 
+class PersonalTriageConflictError(PersonalTriageError):
+    pass
+
+
 def validate_tracking_status(status: str) -> None:
     if status not in TRACKING_STATUSES:
         raise PersonalTriageError(f"Unsupported tracking status: {status}.")
