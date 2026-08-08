@@ -76,6 +76,53 @@ class PromptRunModel(Base):
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
 
+class PromptContextSnapshotModel(Base):
+    __tablename__ = "prompt_context_snapshots"
+
+    prompt_context_ref: Mapped[str] = mapped_column(String(200), primary_key=True)
+    scope_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    as_of_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    scope_json: Mapped[str] = mapped_column(Text, nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    subjects: Mapped[list[PromptContextSubjectModel]] = relationship(
+        back_populates="prompt_context_snapshot", cascade="all, delete-orphan"
+    )
+    __table_args__ = (
+        CheckConstraint(
+            "scope_type IN ('full_update','company_update','opportunity_update','gap_filling')",
+            name="ck_prompt_context_snapshot_scope_type",
+        ),
+        CheckConstraint("length(prompt_context_ref) > 0 AND length(prompt_context_ref) <= 200", name="ck_prompt_context_ref_length"),
+        CheckConstraint("length(fingerprint) = 64", name="ck_prompt_context_fingerprint_length"),
+    )
+
+
+class PromptContextSubjectModel(Base):
+    __tablename__ = "prompt_context_subjects"
+
+    prompt_context_ref: Mapped[str] = mapped_column(
+        ForeignKey("prompt_context_snapshots.prompt_context_ref", ondelete="CASCADE"), primary_key=True
+    )
+    correlation_ref: Mapped[str] = mapped_column(String(200), primary_key=True)
+    subject_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    subject_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    is_target: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    prompt_context_snapshot: Mapped[PromptContextSnapshotModel] = relationship(back_populates="subjects")
+    __table_args__ = (
+        UniqueConstraint(
+            "prompt_context_ref",
+            "subject_type",
+            "subject_id",
+            name="uq_prompt_context_subject_subject",
+        ),
+        CheckConstraint("subject_type IN ('company','opportunity','posting')", name="ck_prompt_context_subject_type"),
+        CheckConstraint("length(correlation_ref) > 0 AND length(correlation_ref) <= 200", name="ck_prompt_context_correlation_ref_length"),
+    )
+
+
 class SourceModel(Base):
     __tablename__ = "sources"
 

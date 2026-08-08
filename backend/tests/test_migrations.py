@@ -138,6 +138,41 @@ def insert_duplicate_case(database: Path, case_id: str = "case-1") -> None:
         )
 
 
+def insert_prompt_context_snapshot(
+    database: Path,
+    prompt_context_ref: str = "context-1",
+    fingerprint: str = "a" * 64,
+    correlation_ref: str = "correlation-1",
+    subject_type: str = "opportunity",
+    subject_id: str = "opportunity-1",
+) -> None:
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        connection.execute(
+            text(
+                "INSERT INTO prompt_context_snapshots "
+                "(prompt_context_ref, scope_type, as_of_date, scope_json, fingerprint, created_at) "
+                "VALUES (:prompt_context_ref, 'opportunity_update', '2026-08-08', "
+                "'{\"type\":\"opportunity_update\",\"as_of_date\":\"2026-08-08\"}', :fingerprint, '2026-08-08')"
+            ),
+            {"prompt_context_ref": prompt_context_ref, "fingerprint": fingerprint},
+        )
+        connection.execute(
+            text(
+                "INSERT INTO prompt_context_subjects "
+                "(prompt_context_ref, correlation_ref, subject_type, subject_id, is_target) "
+                "VALUES (:prompt_context_ref, :correlation_ref, :subject_type, :subject_id, 1)"
+            ),
+            {
+                "prompt_context_ref": prompt_context_ref,
+                "correlation_ref": correlation_ref,
+                "subject_type": subject_type,
+                "subject_id": subject_id,
+            },
+        )
+
+
 def test_empty_and_v010_upgrade_produce_equivalent_triage_schema(tmp_path: Path) -> None:
     fresh = tmp_path / "fresh.db"
     released = tmp_path / "released.db"
@@ -323,5 +358,119 @@ def test_duplicate_case_migration_downgrades_without_touching_v020_data(tmp_path
     engine = create_engine(f"sqlite:///{database.as_posix()}")
     with engine.connect() as connection:
         assert connection.scalar(text("SELECT tracking_status FROM opportunities WHERE id = 'opportunity-1'")) == "shortlisted"
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+
+def test_prompt_context_fresh_and_v03_upgrade_preserve_data_and_restart(tmp_path: Path) -> None:
+    fresh = tmp_path / "fresh-context.db"
+    v03 = tmp_path / "v03-context.db"
+    migrate(fresh, "head")
+    fresh_inspector = inspect(create_engine(f"sqlite:///{fresh.as_posix()}"))
+    assert {"prompt_context_snapshots", "prompt_context_subjects"}.issubset(fresh_inspector.get_table_names())
+
+    migrate(v03, "0005")
+    seed_v020_data(v03)
+    insert_duplicate_case(v03)
+    migrate(v03, "head")
+    insert_prompt_context_snapshot(v03)
+
+    engine = create_engine(f"sqlite:///{v03.as_posix()}")
+    engine.dispose()
+    restarted = create_engine(f"sqlite:///{v03.as_posix()}")
+    with restarted.connect() as connection:
+        assert connection.scalar(text("SELECT COUNT(*) FROM duplicate_cases")) == 1
+        assert connection.scalar(text("SELECT tracking_status FROM opportunities WHERE id = 'opportunity-1'")) == "shortlisted"
+        assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_snapshots")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_subjects")) == 1
+        assert connection.scalar(text("SELECT scope_json FROM prompt_context_snapshots WHERE prompt_context_ref = 'context-1'")) == (
+            '{"type":"opportunity_update","as_of_date":"2026-08-08"}'
+        )
+
+
+def test_prompt_context_constraints_and_snapshot_cascade_are_enforced(tmp_path: Path) -> None:
+    database = tmp_path / "context-constraints.db"
+    migrate(database, "0005")
+    seed_v020_data(database)
+    insert_duplicate_case(database)
+    migrate(database, "head")
+    insert_prompt_context_snapshot(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    invalid_snapshots = [
+        ("context-invalid-scope", "not_a_scope", "b" * 64),
+        ("context-1", "opportunity_update", "c" * 64),
+        ("context-duplicate-fingerprint", "opportunity_update", "a" * 64),
+    ]
+    for prompt_context_ref, scope_type, fingerprint in invalid_snapshots:
+        with pytest.raises(IntegrityError):
+            with engine.begin() as connection:
+                connection.execute(
+                    text(
+                        "INSERT INTO prompt_context_snapshots "
+                        "(prompt_context_ref, scope_type, as_of_date, scope_json, fingerprint, created_at) "
+                        "VALUES (:prompt_context_ref, :scope_type, '2026-08-08', '{}', :fingerprint, '2026-08-08')"
+                    ),
+                    {"prompt_context_ref": prompt_context_ref, "scope_type": scope_type, "fingerprint": fingerprint},
+                )
+
+    insert_prompt_context_snapshot(database, prompt_context_ref="context-2", fingerprint="d" * 64)
+    with engine.connect() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        connection.commit()
+    with engine.begin() as connection:
+        with pytest.raises(IntegrityError):
+            connection.execute(
+                text(
+                    "INSERT INTO prompt_context_subjects "
+                    "(prompt_context_ref, correlation_ref, subject_type, subject_id, is_target) "
+                    "VALUES ('context-1', 'correlation-1', 'opportunity', 'opportunity-1', 1)"
+                )
+            )
+        with pytest.raises(IntegrityError):
+            connection.execute(
+                text(
+                    "INSERT INTO prompt_context_subjects "
+                    "(prompt_context_ref, correlation_ref, subject_type, subject_id, is_target) "
+                    "VALUES ('context-1', 'correlation-2', 'opportunity', 'opportunity-1', 1)"
+                )
+            )
+        with pytest.raises(IntegrityError):
+            connection.execute(
+                text(
+                    "INSERT INTO prompt_context_subjects "
+                    "(prompt_context_ref, correlation_ref, subject_type, subject_id, is_target) "
+                    "VALUES ('context-1', 'correlation-invalid', 'company_group', 'company-1', 0)"
+                )
+            )
+
+        connection.execute(text("DELETE FROM prompt_context_snapshots WHERE prompt_context_ref = 'context-1'"))
+        assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_subjects WHERE prompt_context_ref = 'context-1'")) == 0
+        assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_snapshots WHERE prompt_context_ref = 'context-2'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_subjects WHERE prompt_context_ref = 'context-2'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM duplicate_cases")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM source_references")) == 2
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunities")) == 2
+
+
+def test_prompt_context_downgrade_to_0005_preserves_vocation_data(tmp_path: Path) -> None:
+    database = tmp_path / "context-downgrade.db"
+    migrate(database, "0005")
+    seed_v020_data(database)
+    insert_duplicate_case(database)
+    migrate(database, "head")
+    insert_prompt_context_snapshot(database)
+
+    config = Config(str(Path(__file__).parents[2] / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
+    config.set_main_option("script_location", str(Path(__file__).parents[1] / "alembic"))
+    command.downgrade(config, "0005")
+
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+    assert "prompt_context_snapshots" not in inspector.get_table_names()
+    assert "prompt_context_subjects" not in inspector.get_table_names()
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.connect() as connection:
+        assert connection.scalar(text("SELECT COUNT(*) FROM duplicate_cases")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
