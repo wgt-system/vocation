@@ -145,7 +145,7 @@ Regeln:
 
 ## 10. PublishedOpportunityOverview (implemented, client-neutral)
 
-Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. Contract 1.0 is frozen by `schemas/published-opportunity-overview-v1.schema.json`; the projection and local adapter are not implemented in this slice.
+Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. Contract 1.0 is frozen by `schemas/published-opportunity-overview-v1.schema.json`; the projection and local adapter are implemented and remain outside the internal React OpenAPI.
 
 Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`, `publication` und `opportunities`. Die geschlossenen Opportunity-Objekte enthalten ausschließlich opaque Opportunity-/Company-Referenzen, Titel, Company, Work Locations und Posting Count. Es gibt keine URLs, Navigation, Personal-/Import-/Provenance-Daten, Availability/Freshness oder Schreibinformationen. Der lokale Adapter ist unter `/published/v1/opportunity-overview` implementiert und bleibt außerhalb der internen React OpenAPI.
 
@@ -159,7 +159,7 @@ Future client-neutral projection for map-capable consumers. It is not a mobile-s
 
 ## 12. Availability/Freshness Integration (planned)
 
-Spätere Read Models werden abgeleitete Availability und die Freshness der Availability-Evidenz aus den append-only Availability Observations exponieren. Dieser Read-Model-Integrationsschritt ist noch nicht implementiert.
+Interne Read Models exponieren abgeleitete Availability und die Freshness der Availability-Evidenz aus append-only Availability Observations. Diese Felder gehören nicht zum Published Opportunity Overview 1.0 Contract.
 
 ## 13. Publication Metadata
 
@@ -170,4 +170,4 @@ data freshness, import time, or a stale indicator.
 
 Opportunity-Liste und Detail enthalten den Tracking Status und unterstützen Statusfilter. Die Detailansicht trennt `external_assessments`, aktuelle `personal_assessments`, `personal_assessment_history` und chronologische `decision_history`. Die historische Darstellung ist append-only und stammt aus Vocation-eigenen Tabellen; Research-Bundle-Daten bleiben externe Beobachtungen. Mutation-Fehler dürfen bereits geladene Read Models nicht leeren.
 
-Für Slice 9 werden spätere Read Models abgeleitete Posting-/Opportunity-Availability sowie availability-evidence Freshness (`last_checked_at`, `age_days`) zeigen. Freshness hat keine Schwellenkategorie und ändert Availability nicht automatisch.
+Für Slice 9 zeigen interne Read Models Posting-/Opportunity-Availability sowie availability-evidence Freshness (`last_checked_at`, `age_days`). Freshness hat keine Schwellenkategorie und ändert Availability nicht automatisch.

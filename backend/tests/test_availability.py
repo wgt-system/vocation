@@ -331,7 +331,11 @@ def test_availability_preserves_subject_counts_and_personal_state(client) -> Non
     with client.app.state.database.session_factory() as session:
         counts_after = [session.scalar(select(func.count()).select_from(model)) for model in (CompanyModel, OpportunityModel, PostingModel)]
     assert counts_after == counts_before
-    assert client.get("/api/opportunities").json() == before["companies"]
+    after_company = client.get("/api/opportunities").json()[0]
+    before_company = before["companies"][0]
+    assert {key: before_company[key] for key in before_company if not key.startswith("availability")} == {
+        key: after_company[key] for key in after_company if not key.startswith("availability")
+    }
     assert client.get(f"/api/opportunities/{opportunity_id}/assessments/personal/history").json() == before["assessments"]
     assert client.get(f"/api/opportunities/{opportunity_id}/decisions").json() == before["decisions"]
 

@@ -52,6 +52,8 @@ class AvailabilityImportRepository(Protocol):
 
     def apply_availability(self, bundle: dict[str, Any], plan: AvailabilityImportPlan, fingerprint: str) -> ImportReport: ...
 
+    def get_availability_report(self, import_id: str) -> ImportReport | None: ...
+
 
 def _datetime(value: str) -> datetime:
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -232,6 +234,9 @@ class AvailabilityImportService:
         if planning.plan is None:
             raise RuntimeError("Availability planning returned no plan without issues.")
         return self.repository.apply_availability(bundle, planning.plan, fingerprint)
+
+    def get_report(self, import_id: str) -> ImportReport | None:
+        return self.repository.get_availability_report(import_id)
 
     @staticmethod
     def _path(error: Any) -> str:

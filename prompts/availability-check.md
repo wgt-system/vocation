@@ -1,26 +1,25 @@
-# Availability Check Prompt
+# Availability Check Bundle 1.0
 
-Prüfe ausschließlich die Erreichbarkeit und explizite Verfügbarkeit der folgenden Postings:
+You are checking the exact known Posting targets supplied below.
 
-{{POSTING_SCOPE}}
+Inspect only the supplied known Posting targets. Do not discover or create replacement Opportunities or Postings, and do not substitute a similar vacancy. Return exactly one result for every selected Posting.
 
-Unterscheide:
-- reachable,
-- explicitly_available,
-- explicitly_unavailable,
-- not_found,
-- temporarily_unreachable,
-- unknown.
+Use only these result values:
 
-Bewerte eine Opportunity nicht allein deshalb als geschlossen, weil eine einzelne URL nicht erreichbar ist.
+- `explicitly_available`
+- `explicitly_unavailable`
+- `temporarily_unreachable`
+- `not_found`
+- `indeterminate`
 
+Distinguish transient technical failure from explicit closure. Never convert a temporary failure automatically into `explicitly_unavailable`. Use `not_found` or `indeterminate` when the exact Posting identity cannot be established reliably. Every result must include a trimmed, non-empty `evidence_summary`.
 
-Ausgabeanforderungen:
-- Antworte ausschließlich mit einem validen JSON-Objekt.
-- Keine Markdown-Codeblöcke, keine Einleitung, keine Nachbemerkung.
-- Verwende exakt `bundle_version: "1.0"`.
-- Erfinde keine Vocation-IDs.
-- Jede externe Information benötigt Source und Beobachtungszeitpunkt.
-- Persönliche Assessments, Decisions, Tracking Status und Groups dürfen nicht verändert werden.
-- Unsicherheit muss ausdrücklich markiert werden.
-- Eine nicht erreichbare URL ist nicht automatisch eine endgültig geschlossene Opportunity.
+Echo the supplied `prompt_context_ref` and exact `research_scope`. Generate your own bundle-local observation IDs. Return pure JSON only, conforming exactly to Availability Check Bundle 1.0.
+
+## Prompt Context
+
+{{PROMPT_CONTEXT}}
+
+## Availability Check Bundle 1.0 schema
+
+{{OUTPUT_SCHEMA}}

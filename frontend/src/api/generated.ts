@@ -4,6 +4,57 @@
  */
 
 export interface paths {
+    "/api/availability/imports/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import File */
+        post: operations["import_file_api_availability_imports_file_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/availability/imports/text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import Text */
+        post: operations["import_text_api_availability_imports_text_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/availability/imports/{import_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Import Report */
+        get: operations["get_import_report_api_availability_imports__import_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/criteria": {
         parameters: {
             query?: never;
@@ -295,6 +346,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/prompts/availability-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Availability Prompt */
+        post: operations["generate_availability_prompt_api_prompts_availability_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/prompts/initial": {
         parameters: {
             query?: never;
@@ -369,6 +437,71 @@ export interface components {
             reasoning: string | null;
             /** Value */
             value: unknown;
+        };
+        /** AvailabilityHistoryResponse */
+        AvailabilityHistoryResponse: {
+            /** Evidence Summary */
+            evidence_summary: string;
+            /** Id */
+            id: string;
+            /** Import Id */
+            import_id: string;
+            /** Observed At */
+            observed_at: string;
+            /** Recorded At */
+            recorded_at: string;
+            /** Result */
+            result: string;
+        };
+        /** AvailabilityImportReportResponse */
+        AvailabilityImportReportResponse: {
+            /** Bundle Id */
+            bundle_id: string | null;
+            /** Bundle Version */
+            bundle_version?: string | null;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Duplicate Of Import Id */
+            duplicate_of_import_id?: string | null;
+            /** Fingerprint */
+            fingerprint: string | null;
+            /** Import Id */
+            import_id: string;
+            /**
+             * Import Kind
+             * @constant
+             */
+            import_kind: "availability_check";
+            /** Issues */
+            issues: components["schemas"]["ImportIssueResponse"][];
+            /** Prompt Context Ref */
+            prompt_context_ref?: string | null;
+            /** Status */
+            status: string;
+            /** Warnings */
+            warnings: string[];
+        };
+        /** AvailabilityImportTextPayload */
+        AvailabilityImportTextPayload: {
+            /** Content */
+            content: string;
+        };
+        /** AvailabilityPromptPayload */
+        AvailabilityPromptPayload: {
+            /**
+             * As Of Date
+             * Format: date
+             */
+            as_of_date: string;
+            /** Posting Ids */
+            posting_ids: string[];
+        };
+        /** Body_import_file_api_availability_imports_file_post */
+        Body_import_file_api_availability_imports_file_post: {
+            /** File */
+            file: string;
         };
         /** Body_import_file_api_imports_file_post */
         Body_import_file_api_imports_file_post: {
@@ -566,6 +699,39 @@ export interface components {
              */
             type: "gap_filling";
         };
+        /** GeneratedAvailabilityPromptResponse */
+        GeneratedAvailabilityPromptResponse: {
+            /**
+             * Bundle Kind
+             * @constant
+             */
+            bundle_kind: "availability_check";
+            /**
+             * Bundle Version
+             * @constant
+             */
+            bundle_version: "1.0";
+            /** Prompt Context Ref */
+            prompt_context_ref: string;
+            /** Prompt Run Id */
+            prompt_run_id: string;
+            /** Prompt Text */
+            prompt_text: string;
+            /**
+             * Prompt Type
+             * @constant
+             */
+            prompt_type: "availability_check";
+            /**
+             * Prompt Version
+             * @constant
+             */
+            prompt_version: "1.0";
+            /** Research Scope */
+            research_scope: {
+                [key: string]: unknown;
+            };
+        };
         /** GeneratedPromptResponse */
         GeneratedPromptResponse: {
             /**
@@ -704,6 +870,12 @@ export interface components {
         OpportunityDetailResponse: {
             /** Assessments */
             assessments: components["schemas"]["AssessmentResponse"][];
+            /** Availability */
+            availability?: ("available" | "unavailable" | "uncertain" | "unknown") | null;
+            /** Availability Age Days */
+            availability_age_days?: number | null;
+            /** Availability Last Checked At */
+            availability_last_checked_at?: string | null;
             company: components["schemas"]["CompanyResponse"];
             /** Decision History */
             decision_history: components["schemas"]["DecisionResponse"][];
@@ -736,6 +908,12 @@ export interface components {
         OpportunityListItemResponse: {
             /** Assessment Count */
             assessment_count: number;
+            /** Availability */
+            availability?: ("available" | "unavailable" | "uncertain" | "unknown") | null;
+            /** Availability Age Days */
+            availability_age_days?: number | null;
+            /** Availability Last Checked At */
+            availability_last_checked_at?: string | null;
             /** Company Name */
             company_name: string;
             /** Id */
@@ -817,6 +995,14 @@ export interface components {
         };
         /** PostingResponse */
         PostingResponse: {
+            /** Availability */
+            availability?: ("available" | "unavailable" | "uncertain" | "unknown") | null;
+            /** Availability Age Days */
+            availability_age_days?: number | null;
+            /** Availability History */
+            availability_history?: components["schemas"]["AvailabilityHistoryResponse"][];
+            /** Availability Last Checked At */
+            availability_last_checked_at?: string | null;
             /** Id */
             id: string;
             /** Observed At */
@@ -934,6 +1120,103 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    import_file_api_availability_imports_file_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_file_api_availability_imports_file_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityImportReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_text_api_availability_imports_text_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvailabilityImportTextPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityImportReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_import_report_api_availability_imports__import_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityImportReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_criteria_api_criteria_get: {
         parameters: {
             query?: never;
@@ -1516,6 +1799,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DecisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_availability_prompt_api_prompts_availability_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvailabilityPromptPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneratedAvailabilityPromptResponse"];
                 };
             };
             /** @description Validation Error */

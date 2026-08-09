@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
-from datetime import datetime
-from typing import Any
+from datetime import UTC, datetime
+from typing import Any, cast
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from vocation.domain.availability import AvailabilityEvaluator, AvailabilityObservation
 from vocation.infrastructure.models import (
+    AvailabilityObservationModel,
     CompanyModel,
     ExternalAssessmentModel,
     ObservationModel,
@@ -23,16 +25,66 @@ from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersona
 
 
 def _iso(value: datetime | None) -> str | None:
-    return value.isoformat().replace("+00:00", "Z") if value else None
+    if value is None:
+        return None
+    normalized = value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+    return normalized.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
 class SqlAlchemyOpportunityReadRepository:
-    def __init__(self, session_factory: Callable[[], Session]):
+    def __init__(self, session_factory: Callable[[], Session], clock: Callable[[], datetime] | None = None):
         self.session_factory = session_factory
         self.triage = SqlAlchemyPersonalTriageRepository(session_factory)
+        self.clock = clock or (lambda: datetime.now(UTC))
+
+    @staticmethod
+    def _availability_observation(model: AvailabilityObservationModel) -> AvailabilityObservation:
+        return AvailabilityObservation(
+            model.id,
+            model.posting_id,
+            cast(Any, model.result),
+            model.observed_at,
+            model.recorded_at,
+            model.evidence_summary,
+        )
+
+    def _availability(self, session: Session, posting_ids: list[str], now: datetime) -> dict[str, dict[str, Any]]:
+        rows = session.scalars(
+            select(AvailabilityObservationModel)
+            .where(AvailabilityObservationModel.posting_id.in_(posting_ids))
+            .order_by(
+                AvailabilityObservationModel.observed_at.desc(),
+                AvailabilityObservationModel.recorded_at.desc(),
+                AvailabilityObservationModel.id.desc(),
+            )
+        ).all()
+        grouped: dict[str, list[AvailabilityObservation]] = {}
+        for row in rows:
+            grouped.setdefault(row.posting_id, []).append(self._availability_observation(row))
+        evaluator = AvailabilityEvaluator()
+        return {
+            posting_id: {
+                "assessment": evaluator.posting(tuple(grouped.get(posting_id, [])), now),
+                "history": [
+                    {
+                        "id": row.id,
+                        "import_id": row.import_id,
+                        "result": row.result,
+                        "observed_at": _iso(row.observed_at),
+                        "recorded_at": _iso(row.recorded_at),
+                        "evidence_summary": row.evidence_summary,
+                    }
+                    for row in rows_for_posting
+                ],
+            }
+            for posting_id, rows_for_posting in (
+                (posting_id, [row for row in rows if row.posting_id == posting_id]) for posting_id in posting_ids
+            )
+        }
 
     def list(self) -> list[dict[str, Any]]:
         with self.session_factory() as session:
+            now = self.clock()
             opportunities = session.scalars(select(OpportunityModel).order_by(OpportunityModel.canonical_title)).all()
             result: list[dict[str, Any]] = []
             for opportunity in opportunities:
@@ -45,6 +97,18 @@ class SqlAlchemyOpportunityReadRepository:
                         ExternalAssessmentModel.subject_id == opportunity.id,
                     )
                 ).all()
+                aggregate = AvailabilityEvaluator().opportunity(
+                    tuple(
+                        tuple(
+                            self._availability_observation(row)
+                            for row in session.scalars(
+                                select(AvailabilityObservationModel).where(AvailabilityObservationModel.posting_id == posting.id)
+                            ).all()
+                        )
+                        for posting in postings
+                    ),
+                    now,
+                )
                 imported = session.get(ResearchImportModel, opportunity.import_id)
                 result.append(
                     {
@@ -57,12 +121,16 @@ class SqlAlchemyOpportunityReadRepository:
                         "tracking_status": opportunity.tracking_status,
                         "import_id": opportunity.import_id,
                         "imported_at": _iso(imported.applied_at),
+                        "availability": aggregate.availability,
+                        "availability_last_checked_at": _iso(aggregate.last_checked_at),
+                        "availability_age_days": aggregate.age_days,
                     }
                 )
             return result
 
     def detail(self, opportunity_id: str) -> dict[str, Any] | None:
         with self.session_factory() as session:
+            now = self.clock()
             opportunity = session.get(OpportunityModel, opportunity_id)
             if opportunity is None:
                 return None
@@ -72,6 +140,7 @@ class SqlAlchemyOpportunityReadRepository:
                 select(PostingModel).where(PostingModel.opportunity_id == opportunity.id).order_by(PostingModel.observed_at.desc())
             ).all()
             posting_details: list[dict[str, Any]] = []
+            availability_by_posting = self._availability(session, [posting.id for posting in postings], now)
             source_details: dict[str, dict[str, Any]] = {}
             for posting in postings:
                 reference = session.get(SourceReferenceModel, posting.source_reference_id)
@@ -100,6 +169,10 @@ class SqlAlchemyOpportunityReadRepository:
                             "display_label": reference.display_label,
                             "observed_at": _iso(reference.observed_at),
                         },
+                        "availability": availability_by_posting[posting.id]["assessment"].availability,
+                        "availability_last_checked_at": _iso(availability_by_posting[posting.id]["assessment"].last_checked_at),
+                        "availability_age_days": availability_by_posting[posting.id]["assessment"].age_days,
+                        "availability_history": availability_by_posting[posting.id]["history"],
                     }
                 )
             subject_ids = [company.id, opportunity.id, *[posting.id for posting in postings]]
@@ -112,6 +185,18 @@ class SqlAlchemyOpportunityReadRepository:
                 .order_by(ExternalAssessmentModel.created_at.desc())
             ).all()
             imported = session.get(ResearchImportModel, opportunity.import_id)
+            aggregate = AvailabilityEvaluator().opportunity(
+                tuple(
+                    tuple(
+                        self._availability_observation(row)
+                        for row in session.scalars(
+                            select(AvailabilityObservationModel).where(AvailabilityObservationModel.posting_id == posting.id)
+                        ).all()
+                    )
+                    for posting in postings
+                ),
+                now,
+            )
             return {
                 "id": opportunity.id,
                 "title": opportunity.canonical_title,
@@ -178,4 +263,7 @@ class SqlAlchemyOpportunityReadRepository:
                     "fingerprint": imported.fingerprint,
                     "applied_at": _iso(imported.applied_at),
                 },
+                "availability": aggregate.availability,
+                "availability_last_checked_at": _iso(aggregate.last_checked_at),
+                "availability_age_days": aggregate.age_days,
             }

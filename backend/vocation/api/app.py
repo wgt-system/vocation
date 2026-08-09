@@ -9,12 +9,14 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from vocation import __version__
+from vocation.api.availability_routes import router as availability_router
 from vocation.api.criteria_routes import router as criteria_router
 from vocation.api.import_routes import router as import_router
 from vocation.api.opportunity_routes import router as opportunity_router
 from vocation.api.prompt_routes import router as prompt_router
 from vocation.api.published_routes import router as published_router
 from vocation.application.availability_imports import AvailabilityImportPlanner, AvailabilityImportService
+from vocation.application.availability_prompts import AvailabilityPromptService
 from vocation.application.criteria import CriteriaService
 from vocation.application.duplicate_cases import DuplicateCaseService
 from vocation.application.imports import ImportService
@@ -67,6 +69,13 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         settings.update_prompt_dir,
         settings.update_schema_path,
     )
+    prompt_market_repository = SqlAlchemyPromptMarketRepository(database.session_factory)
+    app.state.availability_prompt_service = AvailabilityPromptService(
+        prompt_market_repository,
+        SqlAlchemyPromptRunRepository(database.session_factory),
+        settings.update_prompt_dir / "availability-check.md",
+        settings.schema_path.parent / "availability-check-bundle-v1.schema.json",
+    )
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
@@ -111,6 +120,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         return {"status": "ok", "service": "vocation"}
 
     app.include_router(criteria_router)
+    app.include_router(availability_router)
     app.include_router(prompt_router)
     app.include_router(import_router)
     app.include_router(opportunity_router)

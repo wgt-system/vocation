@@ -178,6 +178,36 @@ class GeneratedUpdatePromptResponse(BaseModel):
     criteria_count: int
 
 
+class AvailabilityPromptPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    as_of_date: date
+    posting_ids: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def unique_postings(self):
+        if len(self.posting_ids) != len(set(self.posting_ids)):
+            raise ValueError("Posting IDs must be unique.")
+        return self
+
+
+class GeneratedAvailabilityPromptResponse(BaseModel):
+    prompt_run_id: str
+    prompt_context_ref: str
+    prompt_type: Literal["availability_check"]
+    prompt_version: Literal["1.0"]
+    bundle_kind: Literal["availability_check"]
+    bundle_version: Literal["1.0"]
+    research_scope: dict[str, Any]
+    prompt_text: str
+
+
+class AvailabilityImportTextPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    content: str
+
+
 class FullResearchScope(BaseModel):
     type: Literal["full_update"]
     as_of_date: str
@@ -232,6 +262,20 @@ class ImportIssueResponse(BaseModel):
     message: str
 
 
+class AvailabilityImportReportResponse(BaseModel):
+    import_id: str
+    import_kind: Literal["availability_check"]
+    status: str
+    bundle_id: str | None
+    fingerprint: str | None
+    counts: dict[str, int]
+    warnings: list[str]
+    issues: list[ImportIssueResponse]
+    duplicate_of_import_id: str | None = None
+    bundle_version: str | None = None
+    prompt_context_ref: str | None = None
+
+
 class ImportReportResponse(BaseModel):
     import_id: str
     status: str
@@ -255,6 +299,9 @@ class OpportunityListItemResponse(BaseModel):
     import_id: str
     imported_at: str
     tracking_status: TrackingStatus
+    availability: Literal["available", "unavailable", "uncertain", "unknown"] | None = None
+    availability_last_checked_at: str | None = None
+    availability_age_days: int | None = None
 
 
 class CompanyResponse(BaseModel):
@@ -289,6 +336,19 @@ class PostingResponse(BaseModel):
     observed_at: str
     source: SourceResponse
     source_reference: SourceReferenceResponse
+    availability: Literal["available", "unavailable", "uncertain", "unknown"] | None = None
+    availability_last_checked_at: str | None = None
+    availability_age_days: int | None = None
+    availability_history: list[AvailabilityHistoryResponse] = Field(default_factory=list)
+
+
+class AvailabilityHistoryResponse(BaseModel):
+    id: str
+    import_id: str
+    result: str
+    observed_at: str
+    recorded_at: str
+    evidence_summary: str
 
 
 class ObservationResponse(BaseModel):
@@ -386,3 +446,6 @@ class OpportunityDetailResponse(BaseModel):
     personal_assessment_history: list[PersonalAssessmentResponse]
     decision_history: list[DecisionResponse]
     import_provenance: ImportProvenanceResponse
+    availability: Literal["available", "unavailable", "uncertain", "unknown"] | None = None
+    availability_last_checked_at: str | None = None
+    availability_age_days: int | None = None

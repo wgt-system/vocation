@@ -79,3 +79,13 @@ class PromptRunRepository(Protocol):
         criteria_snapshot: list[dict],
         prompt_text: str,
     ) -> tuple[str, str]: ...
+
+    def save_availability(
+        self,
+        *,
+        as_of_date: str,
+        research_scope: dict,
+        prompt_context_ref: str,
+        subject_mappings: list[dict],
+        prompt_text: str,
+    ) -> tuple[str, str]: ...

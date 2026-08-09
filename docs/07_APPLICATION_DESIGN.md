@@ -76,7 +76,7 @@ Ablauf:
 
 Research Bundle `1.0` bleibt initial-only und wird ausdrücklich getrennt von Research Update Bundle `2.0` behandelt. Beim Update werden bestehende Company-, Opportunity- und Posting-Zeilen sicher wiederverwendet, ohne kanonische Zustände umzuschreiben; externe Evidence ist append-only. Blocker werden vor Domain-Mutation erkannt, danach wird das akzeptierte Update atomar angewendet. Identische Bundles werden nicht erneut angewendet.
 
-Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. GenerateResearchPrompt ist für Initial Research und alle vier Update-Modi implementiert. Updates persistieren Prompt Run, Prompt Context Ref, expliziten Scope, Prompt Version und Bundle Version `2.0`.
+Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. GenerateResearchPrompt ist für Initial Research und alle vier Update-Modi implementiert. Availability Check Prompt-Erzeugung und der dedizierte Availability-Import sind ebenfalls implementiert; Availability/Freshness ist in den internen Opportunity-Read-Models und der API abgeleitet sichtbar. Updates persistieren Prompt Run, Prompt Context Ref, expliziten Scope, Prompt Version und Bundle Version `2.0`.
 
 Output:
 

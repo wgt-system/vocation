@@ -111,6 +111,16 @@ class SqlAlchemyAvailabilityImportRepository(AvailabilityImportRepository):
             import_kind="availability_check",
         )
 
+    def get_availability_report(self, import_id: str) -> ImportReport | None:
+        with self.session_factory() as session:
+            model = session.scalar(
+                select(ResearchImportModel).where(
+                    ResearchImportModel.id == import_id,
+                    ResearchImportModel.import_kind == "availability_check",
+                )
+            )
+            return self._report(model) if model else None
+
     @staticmethod
     def _report(model: ResearchImportModel) -> ImportReport:
         return ImportReport(

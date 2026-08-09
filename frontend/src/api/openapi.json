@@ -59,6 +59,201 @@
         "title": "AssessmentResponse",
         "type": "object"
       },
+      "AvailabilityHistoryResponse": {
+        "properties": {
+          "evidence_summary": {
+            "title": "Evidence Summary",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "import_id": {
+            "title": "Import Id",
+            "type": "string"
+          },
+          "observed_at": {
+            "title": "Observed At",
+            "type": "string"
+          },
+          "recorded_at": {
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "import_id",
+          "result",
+          "observed_at",
+          "recorded_at",
+          "evidence_summary"
+        ],
+        "title": "AvailabilityHistoryResponse",
+        "type": "object"
+      },
+      "AvailabilityImportReportResponse": {
+        "properties": {
+          "bundle_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bundle Id"
+          },
+          "bundle_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bundle Version"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "duplicate_of_import_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Of Import Id"
+          },
+          "fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fingerprint"
+          },
+          "import_id": {
+            "title": "Import Id",
+            "type": "string"
+          },
+          "import_kind": {
+            "const": "availability_check",
+            "title": "Import Kind",
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ImportIssueResponse"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "prompt_context_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Context Ref"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "import_id",
+          "import_kind",
+          "status",
+          "bundle_id",
+          "fingerprint",
+          "counts",
+          "warnings",
+          "issues"
+        ],
+        "title": "AvailabilityImportReportResponse",
+        "type": "object"
+      },
+      "AvailabilityImportTextPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "title": "Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "AvailabilityImportTextPayload",
+        "type": "object"
+      },
+      "AvailabilityPromptPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of_date": {
+            "format": "date",
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "posting_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Posting Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "as_of_date",
+          "posting_ids"
+        ],
+        "title": "AvailabilityPromptPayload",
+        "type": "object"
+      },
+      "Body_import_file_api_availability_imports_file_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_file_api_availability_imports_file_post",
+        "type": "object"
+      },
       "Body_import_file_api_imports_file_post": {
         "properties": {
           "file": {
@@ -577,6 +772,59 @@
         "title": "GapResearchScope",
         "type": "object"
       },
+      "GeneratedAvailabilityPromptResponse": {
+        "properties": {
+          "bundle_kind": {
+            "const": "availability_check",
+            "title": "Bundle Kind",
+            "type": "string"
+          },
+          "bundle_version": {
+            "const": "1.0",
+            "title": "Bundle Version",
+            "type": "string"
+          },
+          "prompt_context_ref": {
+            "title": "Prompt Context Ref",
+            "type": "string"
+          },
+          "prompt_run_id": {
+            "title": "Prompt Run Id",
+            "type": "string"
+          },
+          "prompt_text": {
+            "title": "Prompt Text",
+            "type": "string"
+          },
+          "prompt_type": {
+            "const": "availability_check",
+            "title": "Prompt Type",
+            "type": "string"
+          },
+          "prompt_version": {
+            "const": "1.0",
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "research_scope": {
+            "additionalProperties": true,
+            "title": "Research Scope",
+            "type": "object"
+          }
+        },
+        "required": [
+          "prompt_run_id",
+          "prompt_context_ref",
+          "prompt_type",
+          "prompt_version",
+          "bundle_kind",
+          "bundle_version",
+          "research_scope",
+          "prompt_text"
+        ],
+        "title": "GeneratedAvailabilityPromptResponse",
+        "type": "object"
+      },
       "GeneratedPromptResponse": {
         "properties": {
           "bundle_version": {
@@ -988,6 +1236,45 @@
             "title": "Assessments",
             "type": "array"
           },
+          "availability": {
+            "anyOf": [
+              {
+                "enum": [
+                  "available",
+                  "unavailable",
+                  "uncertain",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability"
+          },
+          "availability_age_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Age Days"
+          },
+          "availability_last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Last Checked At"
+          },
           "company": {
             "$ref": "#/components/schemas/CompanyResponse"
           },
@@ -1096,6 +1383,45 @@
           "assessment_count": {
             "title": "Assessment Count",
             "type": "integer"
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "enum": [
+                  "available",
+                  "unavailable",
+                  "uncertain",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability"
+          },
+          "availability_age_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Age Days"
+          },
+          "availability_last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Last Checked At"
           },
           "company_name": {
             "title": "Company Name",
@@ -1334,6 +1660,52 @@
       },
       "PostingResponse": {
         "properties": {
+          "availability": {
+            "anyOf": [
+              {
+                "enum": [
+                  "available",
+                  "unavailable",
+                  "uncertain",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability"
+          },
+          "availability_age_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Age Days"
+          },
+          "availability_history": {
+            "items": {
+              "$ref": "#/components/schemas/AvailabilityHistoryResponse"
+            },
+            "title": "Availability History",
+            "type": "array"
+          },
+          "availability_last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Last Checked At"
+          },
           "id": {
             "title": "Id",
             "type": "string"
@@ -1699,6 +2071,130 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/availability/imports/file": {
+      "post": {
+        "operationId": "import_file_api_availability_imports_file_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_file_api_availability_imports_file_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityImportReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import File",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/api/availability/imports/text": {
+      "post": {
+        "operationId": "import_text_api_availability_imports_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilityImportTextPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityImportReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import Text",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/api/availability/imports/{import_id}": {
+      "get": {
+        "operationId": "get_import_report_api_availability_imports__import_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "import_id",
+            "required": true,
+            "schema": {
+              "title": "Import Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityImportReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Import Report",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
     "/api/criteria": {
       "get": {
         "operationId": "list_criteria_api_criteria_get",
@@ -2527,6 +3023,47 @@
         "summary": "Change Status",
         "tags": [
           "opportunities"
+        ]
+      }
+    },
+    "/api/prompts/availability-check": {
+      "post": {
+        "operationId": "generate_availability_prompt_api_prompts_availability_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilityPromptPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratedAvailabilityPromptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate Availability Prompt",
+        "tags": [
+          "research prompts"
         ]
       }
     },
