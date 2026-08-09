@@ -357,12 +357,12 @@ Posting- und Opportunity-Read-Models leiten `last_checked_at` und nichtnegative 
 
 ## AT-75 Availability Prompt und interne API
 
-Availability Check Prompt-Erzeugung, dedizierte Availability-Import-Routen sowie Availability/Freshness-Felder in den internen Opportunity- und Posting-Read-Models sind implementiert. Die React/Desktop-UI bleibt ausstehend; der Published Opportunity Overview 1.0 Contract bleibt unverändert.
+Availability Check Prompt-Erzeugung, dedizierte Availability-Import-Routen, Availability/Freshness-Felder in den internen Opportunity- und Posting-Read-Models sowie die React/Desktop-Integration sind implementiert. Die Liste bietet Filter und Badges; die Detailansicht zeigt Status und Historie. Der Published Opportunity Overview 1.0 Contract bleibt unverändert.
 
-## AT-75 No Automatic Stale Threshold
+## AT-76 No Automatic Stale Threshold
 
 Es gibt keine Fresh-/Stale-Kategorie und keinen automatischen Ablauf. Alte explizit verfügbare Evidenz bleibt `available`, während ihr Alter separat angezeigt wird.
 
-## AT-76 Research Update Compatibility
+## AT-77 Research Update Compatibility
 
 Research Update Bundle 2.0 bleibt unverändert; Availability-Felder, Availability-Scope und Availability-Observation-Typen werden nicht in diesen Vertrag aufgenommen.

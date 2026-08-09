@@ -143,7 +143,7 @@ Im v0.3 ausschließlich eine ungelöste mögliche Identitätsbeziehung mit Evide
 - `availability_check`
 - `custom_subset`
 
-`availability_check` und andere nicht in v0.3 implementierte Prompt-Typen sind spätere Slices.
+Weitere nicht implementierte Prompt-Typen sind spätere Slices. `availability_check` ist auf `dev` implementiert und bleibt als post-v0.3 Workflow fachlich getrennt.
 
 ### Prompt Scope
 

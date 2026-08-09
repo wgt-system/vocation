@@ -96,7 +96,7 @@ Contract 1.0 is frozen in `schemas/published-opportunity-overview-v1.schema.json
 - Freshness
 - UI Indicators
 
-Slice 9 freezes Availability Check Bundle 1.0 and its evidence-derived semantics. Availability Prompt generation, the dedicated Availability Import HTTP boundary, and internal Availability/Freshness read-model/API integration are implemented; React/Desktop UI integration remains pending.
+Slice 9 freezes Availability Check Bundle 1.0 and its evidence-derived semantics. Availability Prompt generation, the dedicated Availability Import HTTP boundary, internal Availability/Freshness read-model/API integration, list filters/badges, and detail/history UI are implemented on `dev`. This remains post-v0.3 development and does not change Published Opportunity Overview 1.0.
 
 ## Slice 10 – Groups und Waves
 
@@ -168,4 +168,4 @@ Issue #8 – deterministische Identität und ungelöste Duplicate Cases: abgesch
 
 Issue #9 – Prompt Context Persistence, read-only Planning und atomarer Update Import: abgeschlossen.
 
-Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Vocation v0.3.0 enthält Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots und opaque Correlation References, deterministische Posting-Identität, ungelöste Duplicate Cases ohne automatischen Merge, read-only Planning und atomaren Update Apply, PromptRun/ResearchImport-Traceability, den vollständigen Desktop Research Prompt preview/copy/save/import workflow sowie die implementierte Published Opportunity Overview 1.0 Publication auf `dev`. Issue #13 Backend-Fundament ist implementiert: Availability Prompt generation, dedizierter Availability Import HTTP boundary und interne Availability/Freshness Read Models/API. Die React/Desktop-UI folgt später. Groups/Waves, Maps, External Navigation und Comparison folgen danach.
+Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Vocation v0.3.0 enthält Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots und opaque Correlation References, deterministische Posting-Identität, ungelöste Duplicate Cases ohne automatischen Merge, read-only Planning und atomaren Update Apply, PromptRun/ResearchImport-Traceability, den vollständigen Desktop Research Prompt preview/copy/save/import workflow sowie die implementierte Published Opportunity Overview 1.0 Publication auf `dev`. Issue #13 ist end-to-end implementiert: Availability Prompt generation, dedizierter Availability Import, Availability/Freshness Read Models/API sowie React/Desktop-Workflow mit Listenfiltern, Badges und Detail-/Historienansicht. Availability/Freshness bleibt post-v0.3 und außerhalb des Published Opportunity Overview 1.0 Contracts. Groups/Waves, Maps, External Navigation und Comparison folgen danach.

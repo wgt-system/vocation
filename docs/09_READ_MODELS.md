@@ -157,7 +157,7 @@ Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`,
 
 Future client-neutral projection for map-capable consumers. It is not a mobile-specific contract and does not change Vocation ownership of Work Locations.
 
-## 12. Availability/Freshness Integration (planned)
+## 12. Availability/Freshness Integration (implemented on `dev`)
 
 Interne Read Models exponieren abgeleitete Availability und die Freshness der Availability-Evidenz aus append-only Availability Observations. Diese Felder gehören nicht zum Published Opportunity Overview 1.0 Contract.
 
@@ -171,3 +171,5 @@ data freshness, import time, or a stale indicator.
 Opportunity-Liste und Detail enthalten den Tracking Status und unterstützen Statusfilter. Die Detailansicht trennt `external_assessments`, aktuelle `personal_assessments`, `personal_assessment_history` und chronologische `decision_history`. Die historische Darstellung ist append-only und stammt aus Vocation-eigenen Tabellen; Research-Bundle-Daten bleiben externe Beobachtungen. Mutation-Fehler dürfen bereits geladene Read Models nicht leeren.
 
 Für Slice 9 zeigen interne Read Models Posting-/Opportunity-Availability sowie availability-evidence Freshness (`last_checked_at`, `age_days`). Freshness hat keine Schwellenkategorie und ändert Availability nicht automatisch.
+
+Die Desktop-Read-Workflow-Integration ist implementiert: Listenfilter und Availability-Badges sowie Detailansicht und append-only Availability-Historie sind verfügbar. Diese post-v0.3-Funktion bleibt außerhalb des Published Opportunity Overview 1.0 Contracts.
