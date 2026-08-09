@@ -74,20 +74,33 @@ Noch kein Produktcode.
 - ungelöste Duplicate Cases als Evidenz
 - kein automatischer Merge
 
-## Slice 8 – Availability und Freshness
+## Post-v0.3 Priorität: Data Publication
+
+### Slice 8 – Published Opportunity Overview 1.0
+
+- Vocation-owned projection
+- versioned client-neutral Published Contract
+- contract tests
+- local publication endpoint/artifact boundary
+- transport-independent
+- no iOS implementation in Vocation
+- no remote relay implementation yet
+- no personal-state write commands
+
+### Slice 9 – Availability und Freshness
 
 - Availability Observations
 - Evaluator
 - Freshness
 - UI Indicators
 
-## Slice 9 – Groups und Waves
+## Slice 10 – Groups und Waves
 
 - Opportunity Groups
 - Application Waves
 - Filter und Übersicht
 
-## Slice 10 – Karte
+## Slice 11 – Karte
 
 - Work Locations
 - MapProjection
@@ -95,23 +108,23 @@ Noch kein Produktcode.
 - Filterkonsistenz
 - Pin Preview
 
-## Slice 11 – External Links
+## Slice 12 – External Links
 
 - PreferredPostingSelector
 - ExternalLinkPolicy
 - Browser Adapter
 - Quellenwahl im Pin und Detail
 
-## Slice 12 – Vergleich
+## Slice 13 – Vergleich
 
 - Comparison Read Model
 - UI
 
-## Slice 13 – Mobile Read Contract
+## Slice 14 – Client-neutral Published Capability expansion
 
-- versionierte Read API oder Snapshot
+- weitere client-neutrale Published Vocation Capabilities
 - read-only Contract Tests
-- keine iOS-App in diesem Slice
+- keine iOS-App in Vocation
 
 ## Luna-Parallelisierung
 
@@ -141,7 +154,7 @@ Nicht parallelisieren, solange instabil:
 - eigenständiger Start bleibt möglich.
 ## v0.2.0 – Persönliche Triage
 
-Der v0.2.0-Scope umfasst versionierte Personal Assessments, Tracking Status, Decision History, Exclusion/Restore sowie Desktop-API- und React-Steuerung. Nicht enthalten bleiben Update-Bundles, fuzzy matching, Rankings, Gruppen/Waves, Maps, mobile Verträge, Crawling, kostenpflichtige LLM-APIs und Authentifizierung.
+Der v0.2.0-Scope umfasst versionierte Personal Assessments, Tracking Status, Decision History, Exclusion/Restore sowie Desktop-API- und React-Steuerung. Nicht enthalten bleiben Update-Bundles, fuzzy matching, Rankings, Gruppen/Waves, Maps, Published Vocation Capabilities, Crawling, kostenpflichtige LLM-APIs und Authentifizierung.
 
 ## v0.3.0 – Implementierungsstand
 
@@ -151,4 +164,4 @@ Issue #8 – deterministische Identität und ungelöste Duplicate Cases: abgesch
 
 Issue #9 – Prompt Context Persistence, read-only Planning und atomarer Update Import: abgeschlossen.
 
-Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Availability/Freshness, Groups/Waves, Maps, External Navigation und Comparison bleiben spätere Slices. v0.3 wird erst nach finaler Control-Plane-Prüfung und Merge als Milestone veröffentlicht.
+Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Data Publication und Published Opportunity Overview 1.0 sind die erste Post-v0.3-Priorität. Availability/Freshness, Groups/Waves, Maps, External Navigation und Comparison folgen danach. v0.3 wird erst nach finaler Control-Plane-Prüfung und Merge als Milestone veröffentlicht.

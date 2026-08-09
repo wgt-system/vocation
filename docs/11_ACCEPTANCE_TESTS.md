@@ -124,17 +124,27 @@ Dann zeigt die Karte dieselbe Opportunity-Menge.
 Wenn ein neuer Import einen Wert verändert  
 Dann bleibt die ältere Observation erhalten.
 
-## AT-21 Read-only Mobile
+## AT-21 Published Cross-device Read
 
-Wenn ein mobiler Client den Read Contract verwendet  
-Dann kann er keine Import- oder Decision-Commands ausführen.
+Wenn Wiiii Got This eine Published Vocation Capability verwendet
+Dann ist sie read-only und enthält keine Import- oder Decision-Commands.
 
-## AT-22 Snapshot Freshness
+## AT-22 Publication Snapshot Age
 
 **Späteres Slice-Verhalten, nicht v0.3.**
 
-Wenn ein mobiler Snapshot veraltet ist  
-Dann zeigt das Read Model den Snapshot-Zeitpunkt und Stale Status.
+Wenn eine Publication Snapshot älter ist
+Dann zeigt der Client Publication Age, ohne daraus stale oder unavailable Job Postings abzuleiten.
+
+## AT-61 WGT iPhone ohne Windows-PC
+
+Wenn der Windows-PC ausgeschaltet ist
+Dann kann Wiiii Got This die letzte veröffentlichte Read Projection auf dem iPhone anzeigen.
+
+## AT-62 Local-only Operation
+
+Wenn keine Remote-Publikation konfiguriert ist
+Dann bleiben lokale Prompting-, Import-, Pflege- und Read-Workflows nutzbar.
 
 ## AT-23 Exclusion mit Grund
 

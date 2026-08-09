@@ -15,7 +15,7 @@ The first usable Research Bundle workflow is implemented:
 
 The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. The `dev` branch now implements the complete v0.3 scope through Issue #10: Research Update Bundle 2.0, deterministic identity and unresolved Duplicate Cases, Prompt Context persistence, scoped planning and atomic update import, all four update prompt modes, and the desktop preview/copy/save/import workflow. v0.3 is not released yet.
 
-Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service.
+Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service. Wiiii Got This is the primary cross-device presentation for suitable published Vocation capabilities on Windows and iPhone; Vocation remains the local authority.
 
 ## Technology stack
 
@@ -48,7 +48,7 @@ The application uses local SQLite data. Local databases, imported job data, gene
 
 ## Boundaries and limitations
 
-Research is external and import is initially a desktop capability. Mobile/iOS usage is read-only. Update prompting/UI, fuzzy identity resolution, groups/waves, availability/freshness, comparison, maps, crawling, authentication, cloud hosting, and external read contracts remain outside the released v0.2.0 baseline; the implemented v0.3 update importer is available on `dev` but not yet released.
+Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Update prompting/UI, fuzzy identity resolution, groups/waves, availability/freshness, comparison, maps, crawling, authentication, and cloud hosting remain outside the released v0.2.0 baseline; the implemented v0.3 scope is available on `dev` but not yet released.
 
 ## Repository structure
 

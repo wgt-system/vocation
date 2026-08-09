@@ -10,7 +10,7 @@
 - versionierte Import- und Read Contracts,
 - read-heavy Nutzung,
 - lokale Datenhoheit,
-- spätere mobile Read Integration,
+- client-neutrale Published Read Projections für Wiiii Got This auf Windows und iPhone,
 - geringe Betriebs- und Wartungskosten.
 
 ## 2. Laufzeitbild Version 1
@@ -82,8 +82,8 @@ Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit P
 ### Presentation
 
 - Desktop UI
-- später HTTP Read API
-- später mobile Contracts
+- internes HTTP API bleibt eine Presentation API und ist kein automatischer Published WGT Contract
+- Vocation-owned Publication Adapter für client-neutrale Published Capabilities
 
 ## 5. Datenhaltung
 
@@ -157,17 +157,17 @@ Sicherheitsregeln:
 - Fehler sichtbar,
 - kein automatisches Öffnen während Import oder Kartenrendering.
 
-## 10. Mobile Integration
+## 10. Cross-device Publication
 
-Vocation veröffentlicht später read-only Verträge oder Snapshots.
+Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabilities. Die erste geplante Capability ist `Opportunity Overview` 1.0; die finale Feldstruktur wird in einem späteren Contract-Slice festgelegt.
 
-Mögliche Varianten:
+Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
 
-- lokaler LAN-Service,
-- manueller Snapshot,
-- später Synchronisationsdienst.
+Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.
 
-Version 1 legt keine Cloud fest.
+Cross-device Reads müssen mit der letzten Published Projection funktionieren, wenn der Windows-PC ausgeschaltet ist. Lokale-only Nutzung ohne konfigurierte Remote-Publikation bleibt vollständig unterstützt. Ein Sync Bounded Context wird nicht eingeführt; Cross-device Writes bleiben unentschieden.
+
+WGT liest nie die Vocation-Datenbank, importiert keine Vocation-Domainklassen und führt keine Vocation-Fachlogik aus. Python/FastAPI läuft nicht im iPhone-WGT-Client.
 
 ## 11. Packaging
 
@@ -190,6 +190,7 @@ Für die Entwicklung existiert ein Windows-Startskript. Im Produktionsmodus wird
 - Read Contract Snapshot Tests
 - MapProjection Contract Tests
 - Prompt Output Contract Tests
+- Published Opportunity Overview 1.0 Contract Tests
 
 ## 14. Architekturgrenzen
 

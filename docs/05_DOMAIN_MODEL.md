@@ -267,7 +267,11 @@ Validiert Schemes und entscheidet, ob ein Link geöffnet werden darf.
 - `MapProjectionQuery`
 - `PromptContextQuery`
 - `ImportReportQuery`
-- `MobileOpportunityQuery`
+- `PublishedOpportunityOverviewQuery`
+
+### Data Publication
+
+Data Publication ist eine Vocation-owned Supporting Subdomain/Application Responsibility. Ein Publication Adapter erzeugt client-neutrale, versionierte Published Read Projections und Publication Snapshots. Die lokale Datenbank bleibt autoritativ; Publication Metadata und Snapshot Age sind abgeleitete Informationen und nicht Domain Freshness.
 ## Persönliche Triage
 
 `Opportunity.tracking_status` gehört zur Vocation-Opportunity und wird ausschließlich durch persönliche Commands geändert. `PersonalAssessment` enthält Opportunity, Criterion, Wert, Begründung, Erstellzeitpunkt, Revisionsnummer und `supersedes_id`; Datensätze sind append-only, pro Opportunity/Criterion gibt es genau eine aktuelle Revision. `OpportunityDecision` enthält vorherigen und resultierenden Status, Typ, optionalen Grund und bei Restore die Referenz auf die aktive Exclusion.

@@ -33,7 +33,7 @@ Ablauf:
 3. minimalen Context Snapshot erzeugen.
 4. alle aktiven Assessment Criteria mit Version/Snapshot einbetten.
 5. den vollständigen Bundle-Output-Contract einbetten.
-6. geschützte Personal Decisions kennzeichnen.
+6. generische Schutzregeln gegen die Ausgabe oder Mutation persönlichen Zustands einbetten.
 7. Prompt rendern.
 8. Prompt Run samt Criteria Snapshot speichern.
 9. Prompt in UI anzeigen und Copy-to-Clipboard anbieten.
@@ -202,6 +202,10 @@ Zeigt Template, Scope und eingebetteten Kontext vor dem Kopieren.
 
 Zeigt pro Entry Ergebnis, Warnungen, Fehler und betroffene Objekte.
 
+### Publish/Get Opportunity Overview
+
+Read-only capability boundary owned by Vocation Data Publication. The Publication Adapter builds a versioned, client-neutral `Opportunity Overview` projection and its Publication Metadata. The final JSON field schema is intentionally deferred to the first contract-test slice. Publication never becomes a second domain authority.
+
 ## 5. Desktop UI-Flows
 
 ### Prompt Flow (implementiert)
@@ -230,14 +234,11 @@ Zeigt pro Entry Ergebnis, Warnungen, Fehler und betroffene Objekte.
 4. Bericht prüfen.
 5. problematische Einträge filtern.
 
-## 6. Mobile Read-only Use Cases
+## 6. Cross-device Published Read Use Cases
 
-- Job List lesen
-- Details lesen
-- Map Projection lesen
-- Gruppen lesen
-- Freshness/Data Snapshot anzeigen
-- Originalanzeige nach Tap im Browser öffnen
+- Wiiii Got This kann geeignete Published Vocation Capabilities auf Windows und iPhone darstellen.
+- Die letzte Published Projection bleibt nutzbar, wenn der Windows-PC ausgeschaltet ist.
+- Publication Snapshot Age wird getrennt von Domain Freshness angezeigt.
 
 Nicht erforderlich:
 
@@ -245,6 +246,8 @@ Nicht erforderlich:
 - Import
 - Duplicate Resolution
 - komplexe Pflege
+
+Vocation bleibt Eigentümer von Data Publication; ein Relay/Storage ist optional und domänenblind.
 
 ## 7. Transaktionsgrenzen
 

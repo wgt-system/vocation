@@ -10,7 +10,7 @@ Verantwortlich für Recherche, Quellenvergleich, Analyse und Erzeugung eines Res
 
 ### Vocation Context
 
-Besitzt Opportunities, Postings, Companies, Observations, Assessments, Decisions, Groups, Prompt Runs, Imports und Vocation Read Models.
+Besitzt Opportunities, Postings, Companies, Observations, Assessments, Decisions, Groups, Prompt Runs, Imports und Vocation Read Models. Vocation bleibt lokale Autorität und besitzt die Publication-Adapter-Verantwortung.
 
 ### Wiiii Got This Context
 
@@ -47,13 +47,21 @@ Muster:
 
 ## Vocation → Wiiii Got This
 
+```text
+Vocation
+  → Vocation Publication Adapter
+  → optional generic Relay/Storage
+  → Wiiii Got This
+  → Windows / iPhone
+```
+
 Muster:
 
 - Open Host Service
 - Published Read Contracts
 - Customer/Supplier
 
-Vocation entscheidet fachliche Inhalte; WGT entscheidet Geräte- und Plattformdarstellung.
+Vocation entscheidet fachliche Inhalte und erzeugt die versionierte client-neutrale Published Read Projection. WGT entscheidet Geräte- und Plattformdarstellung. Relay/Storage ist Infrastruktur und kein neuer Bounded Context.
 
 ## Vocation ↔ Illumination
 
@@ -81,6 +89,7 @@ Vocation besitzt Work Location und Map Projection. Ein Map Context besitzt Rende
 - direkter Datenbankzugriff zwischen Kontexten,
 - gemeinsame Domain Entities,
 - gemeinsame Fachlogikbibliotheken,
-- WGT modelliert JobOpportunity intern,
+- WGT liest nie die Vocation-Datenbank und importiert keine Vocation-Domainklassen,
+- WGT modelliert keine Vocation-Business-Semantik,
 - Map Context liest Vocation-Tabellen,
 - Research Bundle wird direkt persistiert als Domain Model.

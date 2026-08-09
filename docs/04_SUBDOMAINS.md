@@ -44,7 +44,7 @@ Wählt geeignete Posting-Links aus, validiert sie und ermöglicht das explizite 
 
 ### Data Publication
 
-Stellt versionierte Read Models für externe Clients bereit.
+Vocation-owned Supporting Subdomain/Application Responsibility. Erzeugt versionierte, client-neutrale Published Read Projections und Publication Snapshots für externe Clients.
 
 ## Generic Subdomains
 
@@ -76,14 +76,14 @@ Muss enthalten sein:
 2. Research Prompting
 3. Research Intake
 4. einfache Assessments und Selection
-5. Availability/Freshness
-6. Groups
-7. Liste, Detail, Vergleich und Map Projection
-8. External Navigation
+5. Data Publication / Opportunity Overview 1.0
+6. Availability/Freshness
+7. Groups
+8. Liste, Detail, Vergleich und Map Projection
+9. External Navigation
 
 Später:
 
-- mobile Data Publication
 - zentraler Map Context
 - automatische Verfügbarkeitsprüfung
 - weitergehende Bewerbungstracking-Domäne
