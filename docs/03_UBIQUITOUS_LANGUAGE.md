@@ -152,9 +152,17 @@ Validierte Source Reference, die nach expliziter Nutzeraktion im Standardbrowser
 
 Für eine konkrete Ansicht bevorzugte, aktuell nutzbare Source Reference. Sie bleibt eine Auswahlregel und keine neue fachliche Wahrheit.
 
-### Mobile Projection
+### Published Read Projection
 
-Reduziertes Read Model für mobile Nutzung.
+Aktueller client-neutraler Begriff für eine veröffentlichte Read Projection. `Mobile Projection` ist der veraltete client-spezifische Begriff.
+
+### Published Vocation Capability
+
+Versionierte Capability-/Vertragsgrenze für geeignete Vocation-Daten. Die erste geplante Capability ist `Opportunity Overview` 1.0.
+
+### Publication Snapshot
+
+Eine veröffentlichte, abgeleitete Momentaufnahme einer Read Projection mit Publication Metadata. Ihr Alter beschreibt Publication Age, nicht die Freshness oder Availability eines Job Postings.
 
 ## Verbotene oder unpräzise Begriffe
 

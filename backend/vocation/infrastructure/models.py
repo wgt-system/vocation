@@ -19,7 +19,11 @@ class ResearchImportModel(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     bundle_id: Mapped[str | None] = mapped_column(String(200))
+    bundle_version: Mapped[str | None] = mapped_column(String(20))
     fingerprint: Mapped[str | None] = mapped_column(String(64), index=True)
+    prompt_context_ref: Mapped[str | None] = mapped_column(
+        ForeignKey("prompt_context_snapshots.prompt_context_ref", name="fk_research_imports_prompt_context_ref"), index=True
+    )
     status: Mapped[str] = mapped_column(String(20), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -27,6 +31,8 @@ class ResearchImportModel(Base):
     warnings_json: Mapped[str] = mapped_column(Text, default="[]")
 
     issues: Mapped[list[ImportIssueModel]] = relationship(back_populates="research_import", cascade="all, delete-orphan")
+    duplicate_cases: Mapped[list[DuplicateCaseModel]] = relationship(back_populates="research_import")
+    prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(back_populates="research_imports")
 
 
 class ImportIssueModel(Base):
@@ -67,12 +73,64 @@ class PromptRunModel(Base):
     prompt_type: Mapped[str] = mapped_column(String(50), default="initial_market_research")
     prompt_version: Mapped[str] = mapped_column(String(20), default="1.0")
     bundle_version: Mapped[str] = mapped_column(String(20), default="1.0")
-    search_profile: Mapped[str] = mapped_column(Text)
+    search_profile: Mapped[str | None] = mapped_column(Text)
+    prompt_context_ref: Mapped[str | None] = mapped_column(
+        ForeignKey("prompt_context_snapshots.prompt_context_ref", name="fk_prompt_runs_prompt_context_ref")
+    )
     constraints_json: Mapped[str] = mapped_column(Text)
     as_of_date: Mapped[str] = mapped_column(String(10))
     criteria_snapshot_json: Mapped[str] = mapped_column(Text)
     prompt_text: Mapped[str] = mapped_column(Text)
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(back_populates="prompt_run")
+    __table_args__ = (UniqueConstraint("prompt_context_ref", name="uq_prompt_runs_prompt_context_ref"),)
+
+
+class PromptContextSnapshotModel(Base):
+    __tablename__ = "prompt_context_snapshots"
+
+    prompt_context_ref: Mapped[str] = mapped_column(String(200), primary_key=True)
+    scope_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    as_of_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    scope_json: Mapped[str] = mapped_column(Text, nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    subjects: Mapped[list[PromptContextSubjectModel]] = relationship(back_populates="prompt_context_snapshot", cascade="all, delete-orphan")
+    prompt_run: Mapped[PromptRunModel | None] = relationship(back_populates="prompt_context_snapshot")
+    research_imports: Mapped[list[ResearchImportModel]] = relationship(back_populates="prompt_context_snapshot")
+    __table_args__ = (
+        CheckConstraint(
+            "scope_type IN ('full_update','company_update','opportunity_update','gap_filling')",
+            name="ck_prompt_context_snapshot_scope_type",
+        ),
+        CheckConstraint("length(prompt_context_ref) > 0 AND length(prompt_context_ref) <= 200", name="ck_prompt_context_ref_length"),
+        CheckConstraint("length(fingerprint) = 64", name="ck_prompt_context_fingerprint_length"),
+    )
+
+
+class PromptContextSubjectModel(Base):
+    __tablename__ = "prompt_context_subjects"
+
+    prompt_context_ref: Mapped[str] = mapped_column(
+        ForeignKey("prompt_context_snapshots.prompt_context_ref", ondelete="CASCADE"), primary_key=True
+    )
+    correlation_ref: Mapped[str] = mapped_column(String(200), primary_key=True)
+    subject_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    subject_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    is_target: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    prompt_context_snapshot: Mapped[PromptContextSnapshotModel] = relationship(back_populates="subjects")
+    __table_args__ = (
+        UniqueConstraint(
+            "prompt_context_ref",
+            "subject_type",
+            "subject_id",
+            name="uq_prompt_context_subject_subject",
+        ),
+        CheckConstraint("subject_type IN ('company','opportunity','posting')", name="ck_prompt_context_subject_type"),
+        CheckConstraint("length(correlation_ref) > 0 AND length(correlation_ref) <= 200", name="ck_prompt_context_correlation_ref_length"),
+    )
 
 
 class SourceModel(Base):
@@ -104,6 +162,7 @@ class SourceReferenceModel(Base):
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     source: Mapped[SourceModel] = relationship(back_populates="references")
+    duplicate_case_links: Mapped[list[DuplicateCaseSourceReferenceModel]] = relationship(back_populates="source_reference")
     __table_args__ = (UniqueConstraint("import_id", "bundle_local_id"),)
 
 
@@ -260,3 +319,38 @@ class OpportunityDecisionModel(Base):
         CheckConstraint("resulting_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
         UniqueConstraint("reverses_decision_id"),
     )
+
+
+class DuplicateCaseModel(Base):
+    __tablename__ = "duplicate_cases"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    research_import_id: Mapped[str] = mapped_column(ForeignKey("research_imports.id"), index=True)
+    subject_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    left_subject_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    right_subject_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    evidence_summary: Mapped[str] = mapped_column(Text, nullable=False)
+    confidence: Mapped[float | None] = mapped_column(Float)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    research_import: Mapped[ResearchImportModel] = relationship(back_populates="duplicate_cases")
+    source_reference_links: Mapped[list[DuplicateCaseSourceReferenceModel]] = relationship(
+        back_populates="duplicate_case", cascade="all, delete-orphan"
+    )
+    __table_args__ = (
+        UniqueConstraint("subject_type", "left_subject_id", "right_subject_id", name="uq_duplicate_case_subject_pair"),
+        CheckConstraint("subject_type IN ('opportunity','posting')", name="ck_duplicate_case_subject_type"),
+        CheckConstraint("left_subject_id <> right_subject_id", name="ck_duplicate_case_distinct_subjects"),
+        CheckConstraint("length(trim(evidence_summary)) > 0", name="ck_duplicate_case_evidence_nonempty"),
+        CheckConstraint("confidence IS NULL OR (confidence >= 0 AND confidence <= 1)", name="ck_duplicate_case_confidence_range"),
+    )
+
+
+class DuplicateCaseSourceReferenceModel(Base):
+    __tablename__ = "duplicate_case_source_references"
+
+    duplicate_case_id: Mapped[str] = mapped_column(ForeignKey("duplicate_cases.id", ondelete="CASCADE"), primary_key=True)
+    source_reference_id: Mapped[str] = mapped_column(ForeignKey("source_references.id"), primary_key=True)
+
+    duplicate_case: Mapped[DuplicateCaseModel] = relationship(back_populates="source_reference_links")
+    source_reference: Mapped[SourceReferenceModel] = relationship(back_populates="duplicate_case_links")

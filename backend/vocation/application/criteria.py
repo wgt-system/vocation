@@ -21,6 +21,9 @@ class CriteriaService:
     def list(self, *, active_only: bool = False) -> list[AssessmentCriterion]:
         return self.repository.list(active_only=active_only)
 
+    def get(self, criterion_id: str) -> AssessmentCriterion | None:
+        return self.repository.get(criterion_id)
+
     def create(self, criterion: AssessmentCriterion) -> AssessmentCriterion:
         validate_criterion(criterion)
         if self.repository.get(criterion.criterion_id):

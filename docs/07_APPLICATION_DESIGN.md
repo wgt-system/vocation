@@ -16,7 +16,7 @@ Version 1 kennt einen lokalen Nutzer. Es gibt kein allgemeines Benutzer- oder Ro
 
 Vocation verwaltet seinen eigenen Criteria Catalog. Inkompatible semantische Änderungen an bereits verwendeten Kriterien werden abgelehnt und verlangen eine neue Criterion ID.
 
-### GenerateResearchPrompt
+### GenerateResearchPrompt (implementiert)
 
 Input:
 
@@ -33,7 +33,7 @@ Ablauf:
 3. minimalen Context Snapshot erzeugen.
 4. alle aktiven Assessment Criteria mit Version/Snapshot einbetten.
 5. den vollständigen Bundle-Output-Contract einbetten.
-6. geschützte Personal Decisions kennzeichnen.
+6. generische Schutzregeln gegen die Ausgabe oder Mutation persönlichen Zustands einbetten.
 7. Prompt rendern.
 8. Prompt Run samt Criteria Snapshot speichern.
 9. Prompt in UI anzeigen und Copy-to-Clipboard anbieten.
@@ -42,7 +42,9 @@ Output:
 
 - Prompt Text
 - Prompt Run ID
+- Prompt Context Ref bei Updates
 - Scope Summary
+- Prompt Version
 - erwartete Bundle Version
 
 Fehler:
@@ -66,18 +68,21 @@ Ablauf:
 4. Schema validieren.
 5. Fingerprint berechnen.
 6. frühere Importe prüfen.
-7. über ImportTranslator übersetzen.
-8. Identität und Dubletten prüfen.
-9. Domänenänderungen anwenden.
-10. Import Report erzeugen.
+7. die Bundle-Version explizit dispatchen: Research Bundle `1.0` oder Research Update Bundle `2.0`.
+8. beim Update den gespeicherten Prompt Context laden und Scope/Correlation validieren.
+9. Identität prüfen und einen deterministischen Plan mit Blockern erzeugen.
+10. bei fehlerfreiem Plan genau eine atomare Apply-Transaktion ausführen.
+11. Import Report erzeugen.
 
-Im ersten Meilenstein ist der Import pro Bundle vollständig atomar und akzeptiert ausschließlich Initial Research Bundles. Blockierende Fehler führen zu keinen fachlichen Änderungen. Identische kanonische Bundles werden nicht erneut angewendet.
+Research Bundle `1.0` bleibt initial-only und wird ausdrücklich getrennt von Research Update Bundle `2.0` behandelt. Beim Update werden bestehende Company-, Opportunity- und Posting-Zeilen sicher wiederverwendet, ohne kanonische Zustände umzuschreiben; externe Evidence ist append-only. Blocker werden vor Domain-Mutation erkannt, danach wird das akzeptierte Update atomar angewendet. Identische Bundles werden nicht erneut angewendet.
+
+Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. GenerateResearchPrompt ist für Initial Research und alle vier Update-Modi implementiert. Updates persistieren Prompt Run, Prompt Context Ref, expliziten Scope, Prompt Version und Bundle Version `2.0`.
 
 Output:
 
 - Import ID
 - Result
-- created/updated/unchanged counts
+- created/reused/unchanged counts
 - Warnings und Errors
 
 ### ChangeTrackingStatus
@@ -87,6 +92,8 @@ Nur persönliche Aktion. External Imports dürfen diesen Command nicht auslösen
 ### AddPersonalAssessment
 
 Erzeugt ein Personal Assessment und überschreibt kein External Assessment.
+
+Research Update Bundle `2.0` darf Personal Assessments, Tracking Status, Opportunity Decisions, Exclusion/Restore und Groups/Waves weder enthalten noch mutieren.
 
 ### ExcludeOpportunity
 
@@ -106,7 +113,7 @@ Verändert keine Opportunity-Identität.
 
 ### ResolveDuplicateCase
 
-Mögliche Ergebnisse:
+Im v0.3 erzeugt oder verwendet der Update-Plan ausschließlich ungelöste Duplicate Cases aus möglicher Duplicate-Evidence. Es gibt noch keine bestätigte Auflösung und keinen Merge. Spätere Entscheidungen können folgende Ergebnisse liefern:
 
 - confirmed duplicate,
 - confirmed distinct,
@@ -195,16 +202,20 @@ Zeigt Template, Scope und eingebetteten Kontext vor dem Kopieren.
 
 Zeigt pro Entry Ergebnis, Warnungen, Fehler und betroffene Objekte.
 
+### Publish/Get Opportunity Overview
+
+Read-only capability boundary owned by Vocation Data Publication. The Publication Adapter builds a versioned, client-neutral `Opportunity Overview` projection and its Publication Metadata. The final JSON field schema is intentionally deferred to the first contract-test slice. Publication never becomes a second domain authority.
+
 ## 5. Desktop UI-Flows
 
-### Prompt Flow
+### Prompt Flow (implementiert)
 
-1. Recherchemodus wählen.
-2. Scope wählen.
+1. Recherchemodus und Scope wählen.
+2. Prompt generieren.
 3. Vorschau prüfen.
-4. Prompt kopieren.
-5. extern recherchieren.
-6. JSON importieren.
+4. Prompt kopieren, speichern oder extern verwenden.
+5. zurückgegebenes JSON inline importieren.
+6. Import Report prüfen.
 
 ### Map Flow
 
@@ -223,14 +234,11 @@ Zeigt pro Entry Ergebnis, Warnungen, Fehler und betroffene Objekte.
 4. Bericht prüfen.
 5. problematische Einträge filtern.
 
-## 6. Mobile Read-only Use Cases
+## 6. Cross-device Published Read Use Cases
 
-- Job List lesen
-- Details lesen
-- Map Projection lesen
-- Gruppen lesen
-- Freshness/Data Snapshot anzeigen
-- Originalanzeige nach Tap im Browser öffnen
+- Wiiii Got This kann geeignete Published Vocation Capabilities auf Windows und iPhone darstellen.
+- Die letzte Published Projection bleibt nutzbar, wenn der Windows-PC ausgeschaltet ist.
+- Publication Snapshot Age wird getrennt von Domain Freshness angezeigt.
 
 Nicht erforderlich:
 
@@ -238,6 +246,8 @@ Nicht erforderlich:
 - Import
 - Duplicate Resolution
 - komplexe Pflege
+
+Vocation bleibt Eigentümer von Data Publication; ein Relay/Storage ist optional und domänenblind.
 
 ## 7. Transaktionsgrenzen
 

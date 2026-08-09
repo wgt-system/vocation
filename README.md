@@ -2,7 +2,7 @@
 
 Vocation is a standalone, local-first application for a personal job market. Research happens externally (initially through ChatGPT): Vocation generates criteria-driven prompts, imports versioned JSON Research Bundles, validates them, and provides a traceable read model.
 
-## Current status: v0.1.0 first milestone
+## Current status: v0.3.0 released baseline
 
 The first usable Research Bundle workflow is implemented:
 
@@ -13,7 +13,9 @@ The first usable Research Bundle workflow is implemented:
 - opportunity list and detail views with postings, sources, observations, and external assessments
 - local SQLite migrations and a FastAPI/React desktop-oriented application
 
-Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service.
+The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. Vocation v0.3.0 is the controlled research-update release: Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots and opaque Correlation References, deterministic Posting identity, unresolved Duplicate Cases without automatic merge, read-only planning and atomic Update apply, PromptRun/ResearchImport traceability, and the complete desktop Research Prompt preview/copy/save/import workflow. Initial Research Bundle 1.0 compatibility is retained.
+
+Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service. Wiiii Got This is the primary cross-device presentation for suitable published Vocation capabilities on Windows and iPhone; Vocation remains the local authority.
 
 ## Technology stack
 
@@ -46,7 +48,7 @@ The application uses local SQLite data. Local databases, imported job data, gene
 
 ## Boundaries and limitations
 
-Research is external and import is initially a desktop capability. Mobile/iOS usage is read-only. Update bundles, fuzzy identity resolution, personal assessments and decisions, groups/waves, availability/freshness, comparison, maps, crawling, authentication, cloud hosting, and external read contracts are explicitly outside v0.1.0.
+Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Fuzzy identity resolution, groups/waves, availability/freshness, comparison, maps, crawling, authentication, and cloud hosting remain outside v0.3. Published Opportunity Overview 1.0 remains the first planned post-v0.3 slice and is not implemented by this release.
 
 ## Repository structure
 

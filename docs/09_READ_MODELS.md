@@ -126,6 +126,7 @@ Regeln:
 
 - Import Metadata
 - Bundle Version
+- Prompt Context Ref, sofern vorhanden
 - Scope
 - Result
 - Counts
@@ -133,36 +134,27 @@ Regeln:
 - Errors
 - Warnings
 - affected Domain IDs
-- Link zum zugehörigen Prompt Run, sofern vorhanden
 
 ## 9. PromptPreviewView
 
-- Prompt Type
-- Prompt Version
-- Scope Summary
-- included Context Items
-- protected fields note
-- expected Bundle Version
+- mode/type
+- Bundle Version
+- Prompt Version bei Updates
+- Prompt Context Ref bei Updates
 - rendered Prompt
-- estimated size
 
-## 10. MobileOpportunitySummary
+## 10. PublishedOpportunityOverview (planned, client-neutral)
 
-Reduzierte Felder:
+Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. The first contract slice defines the boundary and tests without freezing the final JSON field schema.
 
-- Opportunity ID
-- Title
-- Company
-- Primary Location
-- Status
-- Assessment Summary
-- Availability
-- Freshness
-- preferred external link indicator
+- Publication Snapshot Metadata
+- projection version
+- client-neutral opportunity overview data
+- explicit publication age
 
-## 11. MobileMapProjection
+## 11. Published Map Projection (future, client-neutral)
 
-Wie MapProjection, aber mit reduziertem Preview und ohne administrative Felder.
+Future client-neutral projection for map-capable consumers. It is not a mobile-specific contract and does not change Vocation ownership of Work Locations.
 
 ## 12. DataSnapshotMetadata
 

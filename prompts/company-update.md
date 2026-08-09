@@ -1,24 +1,24 @@
-# Company Update Prompt
+# Vocation Research Update Bundle 2.0 — Company Update
 
-Aktualisiere ausschließlich die folgenden Companies und zugehörigen Opportunities:
+Return JSON only. Generate a Bundle with bundle_version exactly "2.0".
+Echo prompt_context_ref and research_scope exactly as supplied below.
+Use only the supplied opaque correlation refs. Generate your own unique bundle-local IDs.
+Never emit internal Vocation IDs. Do not emit or change personal state, Tracking Status,
+Personal Assessments, Decisions, Exclusions, Restore history, Groups, or Waves.
+Do not derive Availability or Freshness. Do not automatically merge or resolve duplicates.
 
-{{COMPANY_SCOPE}}
+## Prompt Context
+{{PROMPT_CONTEXT}}
 
-Prüfe:
-- neue oder entfernte Postings,
-- Änderungen an Aufgaben, Technologien, Standort und Seniority,
-- neue relevante Opportunities,
-- Availability und Veröffentlichungsdaten.
+## Active Assessment Criteria
+{{ACTIVE_ASSESSMENT_CRITERIA}}
 
-Außerhalb dieses Scopes liegende Funde dürfen nur als Warning erwähnt werden.
+## Scope restrictions
+This is a Company Update. Selected Companies and their supplied Opportunities and Postings
+are target subjects. Do not create Companies. New Opportunities may be created only under
+an in-scope target Company. New Postings may be created under an existing in-scope target
+Opportunity or under a new Opportunity created in this update under an in-scope target
+Company. Do not rewrite existing canonical fields or ownership.
 
-
-Ausgabeanforderungen:
-- Antworte ausschließlich mit einem validen JSON-Objekt.
-- Keine Markdown-Codeblöcke, keine Einleitung, keine Nachbemerkung.
-- Verwende exakt `bundle_version: "1.0"`.
-- Erfinde keine Vocation-IDs.
-- Jede externe Information benötigt Source und Beobachtungszeitpunkt.
-- Persönliche Assessments, Decisions, Tracking Status und Groups dürfen nicht verändert werden.
-- Unsicherheit muss ausdrücklich markiert werden.
-- Eine nicht erreichbare URL ist nicht automatisch eine endgültig geschlossene Opportunity.
+## Output Schema
+{{OUTPUT_SCHEMA}}

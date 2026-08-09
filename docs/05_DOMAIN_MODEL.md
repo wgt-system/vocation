@@ -74,18 +74,21 @@ Dokumentiert die Erzeugung eines konkreten Prompts.
 Felder:
 
 - `PromptRunId`
-- `PromptTemplateId`
+- `PromptType`
 - `PromptVersion`
-- `PromptScope`
-- `GeneratedAt`
-- `ContextSnapshotFingerprint`
-- optionale Referenz auf späteren Import
+- `BundleVersion`
+- as-of date
+- criteria snapshot
+- rendered prompt
+- Initial: Search Profile / Constraints
+- Update: Prompt Context Ref
 
 Regeln:
 
 - PromptRun verändert keine Domänendaten,
 - Scope ist explizit,
-- eingebetteter Kontext ist read-only,
+- ein Update PromptRun hat genau eine nicht-null `Prompt Context Ref`; ein Initial PromptRun hat keine Prompt Context Ref,
+- der PromptContextSnapshot ist der Traceability-Pivot und enthält read-only Kontext,
 - Ausgabeanforderung verweist auf eine Bundle Version.
 
 ### OpportunityAssessment
@@ -110,7 +113,7 @@ Gruppe mit Type und Memberships.
 
 ### DuplicateCase
 
-Mögliche oder bestätigte Identitätsbeziehung.
+Im v0.3 ausschließlich eine ungelöste mögliche Identitätsbeziehung mit Evidenz. Es gibt noch keinen bestätigten, gelösten oder Merge-Zustand. Zukünftige Duplicate Decisions (`confirmed duplicate`, `confirmed distinct`, `related but distinct`, `keep unresolved`) bleiben spätere Domänenentscheidungen.
 
 ## Entities und Value Objects
 
@@ -140,12 +143,14 @@ Mögliche oder bestätigte Identitätsbeziehung.
 - `availability_check`
 - `custom_subset`
 
+`availability_check` und andere nicht in v0.3 implementierte Prompt-Typen sind spätere Slices.
+
 ### Prompt Scope
 
 Enthält:
 
 - Scope Type
-- referenzierte Vocation IDs
+- referenzierte, für den Prompt Run erzeugte opaque Correlation References
 - gewünschte Felder oder Fragen
 - erlaubten Änderungsbereich
 - Stichtag
@@ -153,11 +158,15 @@ Enthält:
 
 ### Invarianten
 
-1. Ein Update-Prompt muss bekannte IDs und den Scope enthalten.
+1. Ein Update-Prompt muss den Scope und einen Prompt Context Snapshot mit opaque Correlation References enthalten; interne Vocation IDs werden nicht veröffentlicht.
 2. Ein Prompt darf nicht behaupten, selbst recherchiert zu haben.
 3. Ein Prompt muss die gewünschte Ausgabe als reines JSON verlangen.
 4. Ein Teilupdate darf keine außerhalb des Scopes liegenden Änderungen als verbindlich ausgeben.
-5. Persönliche Decisions und Assessments werden als geschützt markiert.
+5. Templates enthalten generische Schutzregeln; persönliche Assessments, Decisions und Tracking Status sowie deren Werte werden nicht in den öffentlichen Prompt Context eingebettet.
+
+Für v0.3 sind Update Bundles ein eigener Published Contract `2.0`. Eine Correlation Reference gilt nur für den ausstellenden Prompt Context Snapshot und kann zwischen Prompt Runs wechseln. Sie löst genau ein bestehendes Company-, Opportunity- oder Posting-Objekt auf, erlaubt aber keine Änderung bestehender Ownership-Beziehungen.
+
+`PromptContextSnapshot` ist der Traceability-Pivot und besitzt seinen eigenen Fingerprint. Ein Update PromptRun gehört genau zu einem Snapshot; ein Initial PromptRun hat keine Prompt Context Ref. Ein angewendeter Update-`ResearchImport` speichert `bundle_version = 2.0` und die validierte `prompt_context_ref`; ein initialer `1.0`-Import speichert keine Prompt Context Ref. `ResearchImport` referenziert niemals direkt einen `prompt_run_id`; mehrere Importe dürfen denselben Snapshot referenzieren.
 
 ## ExternalLink
 
@@ -258,7 +267,11 @@ Validiert Schemes und entscheidet, ob ein Link geöffnet werden darf.
 - `MapProjectionQuery`
 - `PromptContextQuery`
 - `ImportReportQuery`
-- `MobileOpportunityQuery`
+- `PublishedOpportunityOverviewQuery`
+
+### Data Publication
+
+Data Publication ist eine Vocation-owned Supporting Subdomain/Application Responsibility. Ein Publication Adapter erzeugt client-neutrale, versionierte Published Read Projections und Publication Snapshots. Die lokale Datenbank bleibt autoritativ; Publication Metadata und Snapshot Age sind abgeleitete Informationen und nicht Domain Freshness.
 ## Persönliche Triage
 
 `Opportunity.tracking_status` gehört zur Vocation-Opportunity und wird ausschließlich durch persönliche Commands geändert. `PersonalAssessment` enthält Opportunity, Criterion, Wert, Begründung, Erstellzeitpunkt, Revisionsnummer und `supersedes_id`; Datensätze sind append-only, pro Opportunity/Criterion gibt es genau eine aktuelle Revision. `OpportunityDecision` enthält vorherigen und resultierenden Status, Typ, optionalen Grund und bei Restore die Referenz auf die aktive Exclusion.

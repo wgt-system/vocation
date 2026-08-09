@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Protocol
 
 from vocation.domain.criteria import AssessmentCriterion
+from vocation.domain.research_bundle import DuplicateCase, PostingIdentity
+from vocation.domain.update_import import ExistingSubject, PromptContextSnapshot, SubjectType
 
 
 class CriteriaRepository(Protocol):
@@ -13,6 +15,27 @@ class CriteriaRepository(Protocol):
     def set_active(self, criterion_id: str, active: bool) -> AssessmentCriterion: ...
     def reorder(self, criterion_ids: list[str]) -> list[AssessmentCriterion]: ...
     def is_referenced(self, criterion_id: str) -> bool: ...
+
+
+class PostingIdentityRepository(Protocol):
+    def get_posting(self, posting_id: str) -> PostingIdentity | None: ...
+    def find_by_stable_key(self, stable_key: str) -> PostingIdentity | None: ...
+    def find_by_normalized_canonical_url(self, normalized_url: str) -> PostingIdentity | None: ...
+
+
+class DuplicateCaseRepository(Protocol):
+    def get(self, case_id: str) -> DuplicateCase | None: ...
+    def find_by_pair(self, subject_type: str, left_subject_id: str, right_subject_id: str) -> DuplicateCase | None: ...
+    def create(self, case: DuplicateCase) -> DuplicateCase: ...
+    def list(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCase]: ...
+
+
+class PromptContextSnapshotRepository(Protocol):
+    def get(self, prompt_context_ref: str) -> PromptContextSnapshot | None: ...
+
+
+class UpdateSubjectRepository(Protocol):
+    def get(self, subject_type: SubjectType, subject_id: str) -> ExistingSubject | None: ...
 
 
 class PersonalTriageRepository(Protocol):
@@ -44,3 +67,15 @@ class PromptRunRepository(Protocol):
         criteria_snapshot: list[dict],
         prompt_text: str,
     ) -> str: ...
+
+    def save_update(
+        self,
+        *,
+        prompt_type: str,
+        as_of_date: str,
+        research_scope: dict,
+        prompt_context_ref: str,
+        subject_mappings: list[dict],
+        criteria_snapshot: list[dict],
+        prompt_text: str,
+    ) -> tuple[str, str]: ...

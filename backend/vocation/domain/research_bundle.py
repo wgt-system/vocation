@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 from urllib.parse import SplitResult, urlsplit, urlunsplit
 
@@ -39,6 +40,8 @@ class ImportReport:
     warnings: list[str] = field(default_factory=list)
     issues: list[ImportIssue] = field(default_factory=list)
     duplicate_of_import_id: str | None = None
+    bundle_version: str | None = None
+    prompt_context_ref: str | None = None
 
 
 def canonical_json(value: Any) -> str:
@@ -99,3 +102,61 @@ def posting_identity(source: dict[str, Any], source_reference: dict[str, Any], p
     if posting.get("external_posting_id"):
         return f"external:{source_identity(source)}:{posting['external_posting_id'].strip()}"
     return f"url:{normalize_https_url(source_reference['url'])}"
+
+
+@dataclass(frozen=True)
+class PostingIdentity:
+    posting_id: str
+    stable_key: str
+    normalized_canonical_url: str
+
+
+@dataclass(frozen=True)
+class PostingIdentityInput:
+    source: dict[str, Any]
+    source_reference_url: str
+    external_posting_id: str | None = None
+    correlated_posting_id: str | None = None
+
+    @property
+    def normalized_source_reference_url(self) -> str:
+        return normalize_https_url(self.source_reference_url)
+
+    @property
+    def stable_key(self) -> str | None:
+        if not self.external_posting_id or not self.external_posting_id.strip():
+            return None
+        return posting_identity(
+            self.source,
+            {"url": self.source_reference_url},
+            {"external_posting_id": self.external_posting_id},
+        )
+
+
+class PostingIdentityConflictError(ValueError):
+    code = "IDENTITY_CONFLICT"
+
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
+@dataclass(frozen=True)
+class DuplicateCase:
+    id: str
+    research_import_id: str
+    subject_type: str
+    left_subject_id: str
+    right_subject_id: str
+    evidence_summary: str
+    confidence: float | None
+    source_reference_ids: tuple[str, ...]
+    created_at: datetime
+
+
+def canonical_subject_pair(subject_type: str, left_subject_id: str, right_subject_id: str) -> tuple[str, str]:
+    if subject_type not in {"opportunity", "posting"}:
+        raise ValueError("Duplicate Case subject type must be opportunity or posting.")
+    if left_subject_id == right_subject_id:
+        raise ValueError("Duplicate Case subjects must be different.")
+    ordered = sorted((left_subject_id, right_subject_id))
+    return ordered[0], ordered[1]

@@ -40,12 +40,14 @@ Vocation ist eine eigenständig ausführbare, überwiegend lesende Desktop-Anwen
 7. Job Opportunity, Job Posting, Source und Research Observation sind getrennte Konzepte.
 8. Historische Informationen werden nicht stillschweigend gelöscht oder überschrieben.
 9. Externe Links dürfen nur über explizite Nutzeraktionen im Standardbrowser geöffnet werden.
-10. Die iOS-/mobile Nutzung ist zunächst read-only; Desktop-Import muss mobil nicht angeboten werden.
+10. Cross-device Nutzung erfolgt zunächst read-only über client-neutrale Published Vocation Capabilities; Wiiii Got This kann sie auf Windows und iPhone darstellen.
 11. Keine direkte Datenbanknutzung durch Wiiii Got This, Illumination oder einen späteren Map Service.
 12. Öffentliche Verträge werden versioniert und durch Contract Tests geschützt.
 13. Neue Architekturentscheidungen werden als ADR dokumentiert.
 14. Keine spekulative Service-Zerlegung innerhalb des Vocation Context.
 15. Keine automatische Bewerbungserstellung oder -versendung.
+16. Vocation bleibt lokale Autorität; Wiiii Got This liest nie die Vocation-Datenbank und besitzt keine Vocation-Fachlogik.
+17. Veröffentlichung ist optional und abgeleitet. Ein Relay/Storage bleibt domänenblind und ist kein neuer Bounded Context.
 
 ## Arbeitsweise für Codex
 

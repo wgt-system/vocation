@@ -16,6 +16,16 @@ export function ImportReportView({ report }: { report: ImportReport }) {
           Bundle: <code>{report.bundle_id}</code>
         </p>
       )}
+      {report.bundle_version && (
+        <p>
+          Bundle Version: <code>{report.bundle_version}</code>
+        </p>
+      )}
+      {report.prompt_context_ref && (
+        <p>
+          Prompt Context Ref: <code>{report.prompt_context_ref}</code>
+        </p>
+      )}
       {report.duplicate_of_import_id && (
         <p>
           Bereits angewendeter Import:{" "}

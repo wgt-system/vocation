@@ -33,19 +33,12 @@ Für den gesamten bekannten Bestand.
 
 Input:
 
-- bestehende Opportunity- und Posting-IDs
+- ein Vocation-erzeugter Prompt Context Snapshot mit opaque Correlation References
 - letzte Observations
-- Freshness
 - bekannte Sources
 - offene Duplicate Cases
-- geschützte Personal Decisions
 
-Output:
-
-- nur neue oder geänderte Observations
-- neue Opportunities
-- Availability Updates
-- keine Änderung persönlicher Decisions
+Output: Research Update Bundle `2.0`; neue Subjects und Scope-Regeln hängen vom gewählten Update-Typ ab. Availability/Freshness ist nicht Teil dieses Vertrags.
 
 ### Company Update
 
@@ -53,13 +46,13 @@ Scope: eine oder mehrere Companies.
 
 ### Opportunity Update
 
-Scope: ausgewählte Opportunities oder Postings.
+Scope: vom Nutzer ausgewählte Opportunities; deren Postings sind als Nachfahren im Scope. Eine direkte Posting-Auswahl gehört nicht zu diesem Modus.
 
 ### Gap Filling
 
 Scope: fehlende Felder, Widersprüche oder offene Risiken.
 
-### Availability Check
+### Availability Check (späteres Slice, außerhalb v0.3)
 
 Scope: nur Erreichbarkeit und Verfügbarkeitsbeobachtungen.
 
@@ -70,8 +63,8 @@ Ein generiertes Prompt-Paket enthält:
 1. klare Aufgabe,
 2. Scope,
 3. Stichtag,
-4. bestehende IDs,
-5. geschützte Daten,
+4. Vocation-issued opaque Correlation References für Update Subjects,
+5. generische Schutzregeln für persönlichen Zustand,
 6. offene Fragen,
 7. Rechercheanforderungen,
 8. Ausgabe-Schema,
@@ -93,13 +86,10 @@ Nicht automatisch enthalten:
 
 ## 5. Geschützte Informationen
 
-Der Prompt kann persönliche Decisions als Kontext nennen, aber die Ausgabe darf sie nicht ändern.
-
-Beispiel:
+Persönliche Assessments, Decisions und Tracking Status sowie deren Werte sind im v0.3 nicht Bestandteil des öffentlichen Prompt Context. Templates verwenden stattdessen generische Schutzregeln:
 
 ```text
-Die Opportunity ist persönlich ausgeschlossen. Prüfe nur neue externe Fakten.
-Gib keine Änderung des Tracking Status oder der Exclusion aus.
+Research-Ausgaben dürfen niemals Personal Assessments, Decisions, Exclusion/Restore oder Tracking Status ausgeben oder mutieren.
 ```
 
 ## 6. Einheitliche Ausgabe
@@ -109,10 +99,10 @@ Jeder Prompt verlangt:
 - valides JSON,
 - keine Markdown-Fences,
 - keine Einleitung,
-- `bundle_version: "1.0"`,
+- `bundle_version: "1.0"` nur für `initial_market_research`; Update-Prompts verlangen `bundle_version: "2.0"` und `prompt_context_ref`,
 - expliziten Research Scope,
 - Quellen und Zeitpunkte,
-- keine erfundenen Vocation-IDs,
+- keine internen Vocation-IDs und keine erfundenen Correlation References,
 - keine unbekannten Properties oder Assessment Criteria,
 - vollständige Source References und Provenienz.
 
@@ -123,18 +113,22 @@ Jeder Prompt verlangt:
 - Unsicherheit ausdrücklich markieren,
 - nicht erreichbare Quellen nicht automatisch als endgültig geschlossen interpretieren,
 - Scope nicht überschreiten.
+- Correlation References nur aus dem aktuellen Prompt Context Snapshot echoen.
+- Personal Assessments, Tracking Status, Decisions, Exclusions/Restore und Groups/Waves niemals ausgeben.
+- Gap Filling darf nur angeforderte Observations oder aktive Criteria liefern und keine neuen Subjects oder Possible Duplicates.
 
 ## 8. UI-Anforderungen
 
-Vocation soll anbieten:
+Die aktuelle Desktop-UI bietet:
 
 - Prompt-Typ wählen,
 - Scope grafisch auswählen,
 - Preview,
-- Copy to Clipboard,
-- gespeicherte Prompt Runs,
-- Import einem Prompt Run zuordnen,
-- Prompt-Template-Version anzeigen.
+- Copy to Clipboard und Save,
+- Inline-Import des zurückgegebenen JSON,
+- Bundle-/Prompt-Versionen und bei Updates die Prompt Context Ref anzeigen.
+
+Ein Prompt-Run-History-Browser ist nicht Bestandteil von v0.3.
 
 ## 9. Templates
 
@@ -145,7 +139,7 @@ Verbindliche Vorlagen:
 - `prompts/company-update.md`
 - `prompts/opportunity-update.md`
 - `prompts/gap-filling.md`
-- `prompts/availability-check.md`
+- `prompts/availability-check.md` (späteres Slice, nicht v0.3)
 - `prompts/output-contract.md`
 
 ## 10. Datenschutz und Sicherheit
@@ -155,4 +149,4 @@ Verbindliche Vorlagen:
 - keine Secrets,
 - keine lokalen Dateipfade,
 - Prompt Preview vor Copy,
-- geschützte persönliche Daten nur bei fachlicher Notwendigkeit.
+- Der v0.3 Update Prompt Context enthält keine Personal Assessment-, Decision- oder Tracking-Status-Werte.

@@ -1,0 +1,14 @@
+{
+  "bundle_version": "2.0",
+  "bundle_id": "update-opportunity-001",
+  "generated_at": "2026-08-08T10:00:00Z",
+  "prompt_context_ref": "prompt-snapshot-opportunity-001",
+  "research_scope": {"type": "opportunity_update", "as_of_date": "2026-08-08", "selected_correlation_refs": ["opportunity-reference-1"]},
+  "sources": [{"id": "src-board", "name": "Example Board", "type": "job_board"}],
+  "source_references": [{"id": "ref-posting", "source_id": "src-board", "url": "https://jobs.example.org/backend-2", "observed_at": "2026-08-08T09:00:00Z"}],
+  "companies": [{"id": "company-context", "correlation_ref": "company-reference-2"}],
+  "opportunities": [{"id": "opportunity-known", "company_id": "company-context", "correlation_ref": "opportunity-reference-1"}],
+  "postings": [{"id": "posting-known", "company_id": "company-context", "opportunity_id": "opportunity-known", "correlation_ref": "posting-reference-1", "identity_evidence": {"source_reference_id": "ref-posting", "external_posting_id": "external-42"}}],
+  "observations": [{"id": "observation-1", "subject_type": "opportunity", "subject_id": "opportunity-known", "type": "work_model", "value": "hybrid", "source_reference_id": "ref-posting", "observed_at": "2026-08-08T09:00:00Z"}],
+  "assessments": [], "possible_duplicates": [], "warnings": []
+}

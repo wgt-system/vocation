@@ -10,7 +10,7 @@
 - versionierte Import- und Read Contracts,
 - read-heavy Nutzung,
 - lokale Datenhoheit,
-- spätere mobile Read Integration,
+- client-neutrale Published Read Projections für Wiiii Got This auf Windows und iPhone,
 - geringe Betriebs- und Wartungskosten.
 
 ## 2. Laufzeitbild Version 1
@@ -82,8 +82,8 @@ Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit P
 ### Presentation
 
 - Desktop UI
-- später HTTP Read API
-- später mobile Contracts
+- internes HTTP API bleibt eine Presentation API und ist kein automatischer Published WGT Contract
+- Vocation-owned Publication Adapter für client-neutrale Published Capabilities
 
 ## 5. Datenhaltung
 
@@ -110,22 +110,24 @@ Die Runtime darf Templates laden und mit einem Prompt Context Snapshot rendern.
 
 Prompt Templates enthalten keine geheimen oder benutzerspezifischen Daten außerhalb des expliziten Scopes.
 
+Update-Prompt-Traceability folgt `PromptRun → PromptContextSnapshot ← ResearchImport`. Ein Update PromptRun gehört genau zu einem Snapshot; dessen opaque Correlation References sind snapshot-lokal. `ResearchImport` referenziert nicht direkt einen PromptRun. Initial Research liegt außerhalb dieser Update-Prompt-Context-Beziehung.
+
 ## 7. Import Pipeline
 
 ```text
 File/Clipboard
 → Parse
-→ Schema Validate
-→ Contract Validate
-→ Fingerprint
-→ ACL Translation
-→ Identity Resolution
-→ Domain Commands
-→ Transaction
+→ Explicit 1.0/2.0 Dispatch
+→ Schema/Contract Validate
+→ Prompt Context and Scope
+→ Identity
+→ Deterministic Plan
+→ Blocker Check
+→ Single Atomic Apply
 → Import Report
 ```
 
-Version-1-Imports sind vollständig atomar. Strukturelle oder semantische Blocker verhindern jede fachliche Änderung. Der Importversuch und seine Issues dürfen in einer getrennten Transaktion protokolliert werden. Partielle Imports sind nicht erlaubt.
+Research Bundle `1.0` und Research Update Bundle `2.0` werden explizit getrennt dispatcht. Beim Update folgen nach Schema-/Contract-Validierung Prompt Context und Scope/Correlation-Prüfung, Identity, deterministischer Plan und Blocker-Prüfung; erst danach wird eine einzige atomare Apply-Transaktion ausgeführt. Merge-Entscheidungen gehören weder in Parsing noch in Persistenz. Strukturelle oder semantische Blocker verhindern jede fachliche Änderung. Partielle Imports sind nicht erlaubt.
 
 ## 8. Map Architecture
 
@@ -155,17 +157,17 @@ Sicherheitsregeln:
 - Fehler sichtbar,
 - kein automatisches Öffnen während Import oder Kartenrendering.
 
-## 10. Mobile Integration
+## 10. Cross-device Publication
 
-Vocation veröffentlicht später read-only Verträge oder Snapshots.
+Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabilities. Die erste geplante Capability ist `Opportunity Overview` 1.0; die finale Feldstruktur wird in einem späteren Contract-Slice festgelegt.
 
-Mögliche Varianten:
+Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
 
-- lokaler LAN-Service,
-- manueller Snapshot,
-- später Synchronisationsdienst.
+Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.
 
-Version 1 legt keine Cloud fest.
+Cross-device Reads müssen mit der letzten Published Projection funktionieren, wenn der Windows-PC ausgeschaltet ist. Local-only-Nutzung ohne konfigurierte Remote-Publikation bleibt vollständig unterstützt. Ein Sync Bounded Context wird nicht eingeführt; Cross-device Writes bleiben unentschieden.
+
+WGT liest nie die Vocation-Datenbank, importiert keine Vocation-Domainklassen und führt keine Vocation-Fachlogik aus. Python/FastAPI läuft nicht im iPhone-WGT-Client.
 
 ## 11. Packaging
 
@@ -188,6 +190,7 @@ Für die Entwicklung existiert ein Windows-Startskript. Im Produktionsmodus wird
 - Read Contract Snapshot Tests
 - MapProjection Contract Tests
 - Prompt Output Contract Tests
+- Published Opportunity Overview 1.0 Contract Tests
 
 ## 14. Architekturgrenzen
 

@@ -1,13 +1,23 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 ValueType = Literal["numeric", "boolean", "categorical", "text"]
 SubjectType = Literal["company", "opportunity", "posting"]
 TrackingStatus = Literal["new", "to_review", "interesting", "shortlisted", "deferred", "excluded", "archived"]
+UpdateMode = Literal["full_update", "company_update", "opportunity_update", "gap_filling"]
+ObservationType = Literal[
+    "technology_requirement",
+    "task",
+    "seniority",
+    "experience_requirement",
+    "work_model",
+    "salary",
+]
+BundleVersion = Literal["1.0", "2.0"]
 
 
 class CriterionPayload(BaseModel):
@@ -57,8 +67,123 @@ class InitialPromptPayload(BaseModel):
 class GeneratedPromptResponse(BaseModel):
     prompt_run_id: str
     prompt_text: str
-    bundle_version: str
+    bundle_version: BundleVersion
     criteria_count: int
+
+
+class CompanyOptionResponse(BaseModel):
+    id: str
+    name: str
+
+
+class OpportunityOptionResponse(BaseModel):
+    id: str
+    company_id: str
+    title: str
+
+
+class PostingOptionResponse(BaseModel):
+    id: str
+    company_id: str
+    opportunity_id: str
+    title: str
+
+
+class UpdatePromptOptionsResponse(BaseModel):
+    companies: list[CompanyOptionResponse]
+    opportunities: list[OpportunityOptionResponse]
+    postings: list[PostingOptionResponse]
+    observation_types: list[ObservationType]
+
+
+class GapRequestPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    subject_type: SubjectType
+    subject_id: str = Field(min_length=1)
+    observation_type: ObservationType | None = None
+    criterion_id: str | None = None
+
+    @model_validator(mode="after")
+    def exactly_one_evidence_kind(self):
+        if (self.observation_type is None) == (self.criterion_id is None):
+            raise ValueError("Gap requests require exactly one of observation_type or criterion_id.")
+        return self
+
+
+class UpdatePromptPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mode: UpdateMode
+    as_of_date: date
+    selected_ids: list[str] = Field(default_factory=list)
+    gap_requests: list[GapRequestPayload] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_mode_shape(self):
+        if self.mode == "full_update" and (self.selected_ids or self.gap_requests):
+            raise ValueError("Full Update does not accept selected_ids or gap_requests.")
+        if self.mode in {"company_update", "opportunity_update"}:
+            if not self.selected_ids or len(self.selected_ids) != len(set(self.selected_ids)):
+                raise ValueError("Selected IDs must be nonempty and unique.")
+            if self.gap_requests:
+                raise ValueError("This update mode does not accept gap_requests.")
+        if self.mode == "gap_filling" and (self.selected_ids or not self.gap_requests):
+            raise ValueError("Gap Filling requires gap_requests and no selected_ids.")
+        return self
+
+
+class GeneratedUpdatePromptResponse(BaseModel):
+    prompt_run_id: str
+    prompt_context_ref: str
+    prompt_type: UpdateMode
+    prompt_version: str
+    bundle_version: Literal["2.0"]
+    research_scope: ResearchScope
+    prompt_text: str
+    criteria_count: int
+
+
+class FullResearchScope(BaseModel):
+    type: Literal["full_update"]
+    as_of_date: str
+
+
+class SelectedResearchScope(BaseModel):
+    type: Literal["company_update", "opportunity_update"]
+    as_of_date: str
+    selected_correlation_refs: list[str]
+
+
+class GapObservationScopeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    subject_type: SubjectType
+    correlation_ref: str
+    observation_type: ObservationType
+    criterion_id: None = None
+
+
+class GapCriterionScopeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    subject_type: SubjectType
+    correlation_ref: str
+    observation_type: None = None
+    criterion_id: str
+
+
+class GapResearchScope(BaseModel):
+    type: Literal["gap_filling"]
+    as_of_date: str
+    selected_correlation_refs: list[str]
+    requests: list[Annotated[GapObservationScopeRequest | GapCriterionScopeRequest, Field(union_mode="left_to_right")]]
+
+
+ResearchScope = Annotated[
+    FullResearchScope | SelectedResearchScope | GapResearchScope,
+    Field(discriminator="type"),
+]
 
 
 class ImportTextPayload(BaseModel):
@@ -82,6 +207,8 @@ class ImportReportResponse(BaseModel):
     warnings: list[str]
     issues: list[ImportIssueResponse]
     duplicate_of_import_id: str | None = None
+    bundle_version: str | None = None
+    prompt_context_ref: str | None = None
 
 
 class OpportunityListItemResponse(BaseModel):

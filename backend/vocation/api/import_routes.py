@@ -19,6 +19,8 @@ def _response(report: ImportReport) -> ImportReportResponse:
         warnings=report.warnings,
         issues=[ImportIssueResponse(**issue.__dict__) for issue in report.issues],
         duplicate_of_import_id=report.duplicate_of_import_id,
+        bundle_version=report.bundle_version,
+        prompt_context_ref=report.prompt_context_ref,
     )
 
 

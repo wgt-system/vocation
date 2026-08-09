@@ -77,7 +77,7 @@ Sie umfasst insbesondere:
 - Tabellen-, Detail-, Vergleichs- und Kartenansichten
 - Filter, Sortierung und Suche
 - Öffnen externer Originalanzeigen
-- Read Models für spätere mobile Clients
+- client-neutrale Published Vocation Capabilities für Wiiii Got This auf Windows und iPhone
 
 ## 7. Nutzungsaublauf
 
@@ -104,14 +104,10 @@ Desktop:
 - Originalanzeigen öffnen
 - fachliche Pflege
 
-Spätere mobile Nutzung:
+Cross-device Nutzung über Wiiii Got This:
 
-- Stellenliste
-- Detailansicht
-- Kartenansicht
-- Filter und Vergleich
-- Datenstand und Freshness
-- externe Originalanzeige im Browser öffnen
+- geeignete veröffentlichte Read Projections
+- Nutzung der letzten Published Projection, auch wenn der Windows-PC ausgeschaltet ist
 
 Nicht zwingend mobil:
 
@@ -142,7 +138,9 @@ Erzeugt Research Bundles. Vocation übersetzt diese über eine Anticorruption La
 
 ### Wiiii Got This
 
-Kann Vocation später geräte- und plattformabhängig integrieren. Vocation bleibt eigenständig.
+Ist die primäre cross-device Präsentation geeigneter Vocation Capabilities auf Windows und iPhone. Es liest nie die Vocation-Datenbank und besitzt keine Vocation-Fachlogik.
+
+Vocation veröffentlicht versionierte, client-neutrale Read Projections über einen Vocation-eigenen Publication Adapter. Eine optionale Relay-/Storage-Infrastruktur transportiert oder speichert nur abgeleitete Artefakte.
 
 ### Illumination
 
@@ -181,5 +179,6 @@ Vocation ist erfolgreich, wenn:
 - automatische versus manuelle Zusammenführung,
 - Umfang persönlicher Änderungen,
 - Bewerbungsstatus innerhalb oder außerhalb Vocation,
-- Form mobiler Read Models,
 - Zeitpunkt für einen zentralen Kartendienst.
+
+Offen bleiben die konkrete Veröffentlichungstransport-/Authentisierungsausgestaltung, die finalen Felder der Opportunity Overview 1.0 und spätere Cross-device Write-Semantik.

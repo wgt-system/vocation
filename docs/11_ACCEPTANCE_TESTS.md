@@ -26,8 +26,8 @@ Und die Empfehlung wird nur als External Assessment gespeichert.
 
 ## AT-04 Sichere Posting-Zuordnung
 
-Gegeben ein bekanntes Posting mit stabiler Source ID  
-Wenn ein Update dieselbe externe Posting-ID liefert  
+Gegeben ein bekanntes Posting mit Source und deterministischer Identität
+Wenn ein Update dieselbe externe Posting-ID liefert oder die normalisierte HTTPS-URL als Fallback verwendet
 Dann wird keine zweite Posting Entity erzeugt.
 
 ## AT-05 Unsichere Dublette
@@ -39,12 +39,16 @@ Und ein Duplicate Case wird angelegt.
 
 ## AT-06 Availability
 
+**Späteres Slice-Verhalten, nicht v0.3.**
+
 Gegeben eine bisher erreichbare Anzeige  
 Wenn ein Update `explicitly_unavailable` meldet  
 Dann bleibt das Posting historisch erhalten  
 Und die aktuelle Availability wird nachvollziehbar geändert.
 
 ## AT-07 Temporärer Fehler
+
+**Späteres Slice-Verhalten, nicht v0.3.**
 
 Wenn eine Source nur `temporarily_unreachable` ist  
 Dann wird die Opportunity nicht als definitiv geschlossen markiert.
@@ -57,7 +61,8 @@ Dann enthält der Prompt die gewünschte Bundle Version, das reine JSON-Ausgabef
 ## AT-09 Prompt Full Update
 
 Wenn ein Full Update Prompt erzeugt wird  
-Dann enthält er bekannte IDs, Freshness, offene Unsicherheiten und den erlaubten Änderungsumfang.
+Dann enthält er Vocation-issued opaque Correlation References, offene Unsicherheiten und den erlaubten Änderungsumfang
+Und enthält im v0.3 keine Availability/Freshness.
 
 ## AT-10 Prompt Teilupdate
 
@@ -119,15 +124,17 @@ Dann zeigt die Karte dieselbe Opportunity-Menge.
 Wenn ein neuer Import einen Wert verändert  
 Dann bleibt die ältere Observation erhalten.
 
-## AT-21 Read-only Mobile
+## AT-21 Published Cross-device Read
 
-Wenn ein mobiler Client den Read Contract verwendet  
-Dann kann er keine Import- oder Decision-Commands ausführen.
+Wenn Wiiii Got This eine Published Vocation Capability verwendet
+Dann ist sie read-only und enthält keine Import- oder Decision-Commands.
 
-## AT-22 Snapshot Freshness
+## AT-22 Publication Snapshot Age
 
-Wenn ein mobiler Snapshot veraltet ist  
-Dann zeigt das Read Model den Snapshot-Zeitpunkt und Stale Status.
+**Späteres Slice-Verhalten, nicht v0.3.**
+
+Wenn eine Publication Snapshot älter ist
+Dann zeigt der Client Publication Age, ohne daraus stale oder unavailable Job Postings abzuleiten.
 
 ## AT-23 Exclusion mit Grund
 
@@ -233,3 +240,73 @@ Das Schema schützt `UNIQUE(opportunity_id, criterion_id, revision_number)`, `UN
 ## AT-45 Persistent restart
 
 Nach Dispose und Neustart mit derselben SQLite-Datei bleiben Opportunity, Status, aktuelles Personal Assessment, beide Revisionen, vollständige Decision History und die Restore-Referenz erhalten.
+
+## AT-46 Update contract compatibility
+
+Research Bundle `1.0` validiert das unveränderte Initial-Beispiel und lehnt Update Scopes ab. Research Update Bundle `2.0` ist ein separater Contract.
+
+## AT-47 Update scope modes
+
+Full, Company, Opportunity und Gap Filling validieren jeweils mit `prompt_context_ref`; bekannte Subjects verwenden opaque Correlation References, neue Subjects Creation-/Evidence-Felder.
+
+## AT-48 Closed and protected update objects
+
+Unbekannte Properties und Personal-State-Properties werden abgelehnt. Gap Filling mit neuen Companies, Opportunities, Postings oder Possible Duplicates wird strukturell abgelehnt.
+
+## AT-49 Update identity and duplicate evidence
+
+Possible-Duplicate-Einträge sind nur Evidenz für Opportunity-/Posting-Paare mit Quellenbeleg; Company-Duplicates, Self-References und automatische Merge-Bedeutung sind unzulässig. Posting-Identität bleibt Source plus External ID oder HTTPS-URL; Correlation-/Identity-Konflikte sind Blocker.
+
+## AT-50 Explicit version dispatch
+
+Der Import dispatcht Research Bundle `1.0` ausschließlich als initial-only und Research Update Bundle `2.0` ausschließlich als kontrolliertes Update.
+
+## AT-51 Planner blockers before mutation
+
+Unbekannter Prompt Context, Scope-/Correlation-Fehler und deterministische Identity-Konflikte werden im Update-Plan vor jeder Domain-Mutation als Blocker gemeldet.
+
+## AT-52 Safe reuse and append-only evidence
+
+Ein akzeptiertes Update verwendet bestehende Company-, Opportunity- und Posting-Subjects wieder, schreibt deren kanonische Zustände nicht um und speichert neue Sources, Source References und externe Evidence append-only.
+
+## AT-53 Atomic rollback, personal-state preservation and idempotency
+
+Ein vor `Apply` erkannter Blocker verursacht keinerlei Domain-Mutation. Eine Exception während der atomaren `Apply`-Transaktion rollt alle Update-Schreibvorgänge zurück. Persönliche Assessments, Decisions und Tracking Status bleiben unverändert. Ein bereits angewendeter identischer Update-Fingerprint wird nicht erneut angewendet.
+
+## AT-54 Duplicate Case create/reuse without mutation
+
+Possible-Duplicate-Evidence erzeugt oder verwendet ausschließlich einen ungelösten Duplicate Case. Es findet kein Merge, keine Löschung und keine kanonische Umschreibung statt.
+
+## AT-55 Minimale Prompt Context Scopes
+
+Full-, Company-, Opportunity- und Gap-Filling-Prompt Contexts enthalten ausschließlich ihren erlaubten Scope; sie enthalten keine unabhängigen Subjects außerhalb des Scopes und keinen persönlichen Zustand.
+
+## AT-56 Gap-Filling-Minimierung
+
+Ein Gap-Filling-Prompt Context enthält ausschließlich die ausdrücklich angeforderten Subject-/Observation- oder Criterion-Kombinationen.
+
+## AT-57 Prompt Context Traceability
+
+Ein Update PromptRun persistiert genau einen Prompt Context Snapshot und dessen Prompt Context Ref. Ein angewendeter Update-Import persistiert die validierte Ref und Bundle Version 2.0, während Initial Research außerhalb dieser Beziehung bleibt.
+
+## AT-58 Typed Update API
+
+Die typisierten Update-Endpunkte und OpenAPI-Verträge sind verfügbar; der Initial-Research-Endpunkt bleibt kompatibel.
+
+## AT-59 Desktop Update Workflow
+
+Für alle fünf Modi unterstützt die Desktop-UI Scope-Auswahl, Prompt-Generierung, Preview, Copy/Save und Inline-Import des zurückgegebenen JSON. Ein neuer Preview ersetzt einen veralteten Preview-Inhalt.
+
+## AT-60 Update Import Traceability
+
+Ein erzeugtes Update Bundle kann über den v0.3-Importer aus Issue #9 importiert werden; Duplicate-Importe erzeugen keine neue Mutation und bewahren die ursprünglichen Bundle-, Prompt- und Prompt-Context-Metadaten.
+
+## AT-61 WGT iPhone ohne Windows-PC
+
+Wenn der Windows-PC ausgeschaltet ist
+Dann kann Wiiii Got This die letzte veröffentlichte Read Projection auf dem iPhone anzeigen.
+
+## AT-62 Local-only Operation
+
+Wenn keine Remote-Publikation konfiguriert ist
+Dann bleiben lokale Prompting-, Import-, Pflege- und Read-Workflows nutzbar.

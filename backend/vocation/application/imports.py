@@ -16,6 +16,7 @@ from vocation.domain.research_bundle import (
     normalize_https_url,
     posting_identity,
 )
+from vocation.domain.update_import import UpdateImportPlan
 
 MAX_IMPORT_BYTES = 2 * 1024 * 1024
 COLLECTIONS = (
@@ -42,14 +43,32 @@ class ImportRepository(Protocol):
     ) -> ImportReport: ...
     def apply(self, bundle: dict[str, Any], fingerprint: str) -> ImportReport: ...
     def get_report(self, import_id: str) -> ImportReport | None: ...
+    def apply_update(self, bundle: dict[str, Any], plan: UpdateImportPlan, fingerprint: str) -> ImportReport: ...
+
+
+class UpdateImportPlanner(Protocol):
+    def plan(self, bundle: dict[str, Any]) -> Any: ...
 
 
 class ImportService:
-    def __init__(self, repository: ImportRepository, criteria: CriteriaService, schema_path: Path):
+    def __init__(
+        self,
+        repository: ImportRepository,
+        criteria: CriteriaService,
+        schema_path: Path,
+        update_schema_path: Path,
+        update_planner: UpdateImportPlanner,
+    ):
         self.repository = repository
         self.criteria = criteria
+        self.validator = self._load_validator(schema_path)
+        self.update_validator = self._load_validator(update_schema_path)
+        self.update_planner = update_planner
+
+    @staticmethod
+    def _load_validator(schema_path: Path) -> Draft202012Validator:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
-        self.validator = Draft202012Validator(schema, format_checker=FormatChecker())
+        return Draft202012Validator(schema, format_checker=FormatChecker())
 
     def import_text(self, content: str) -> ImportReport:
         if len(content.encode("utf-8")) > MAX_IMPORT_BYTES:
@@ -95,13 +114,29 @@ class ImportService:
                 counts=previous.counts,
                 warnings=previous.warnings,
                 duplicate_of_import_id=previous.import_id,
+                bundle_version=previous.bundle_version,
+                prompt_context_ref=previous.prompt_context_ref,
+            )
+
+        version = bundle.get("bundle_version")
+        if version not in {"1.0", "2.0"}:
+            return self.repository.record_rejected(
+                bundle_id=bundle.get("bundle_id") if isinstance(bundle.get("bundle_id"), str) else None,
+                fingerprint=fingerprint,
+                warnings=bundle.get("warnings", []) if isinstance(bundle.get("warnings"), list) else [],
+                issues=[ImportIssue("UNSUPPORTED_BUNDLE_VERSION", "Unsupported or missing bundle_version.", "$.bundle_version")],
             )
 
         issues = find_protected_fields(bundle)
-        issues.extend(self._schema_issues(bundle, protected_paths={item.path for item in issues}))
+        validator = self.validator if version == "1.0" else self.update_validator
+        issues.extend(self._schema_issues(validator, bundle, protected_paths={item.path for item in issues}))
         if not issues:
-            issues.extend(self._semantic_issues(bundle))
-            issues.extend(self.repository.identity_issues(bundle))
+            if version == "1.0":
+                issues.extend(self._semantic_issues(bundle))
+                issues.extend(self.repository.identity_issues(bundle))
+            else:
+                planning = self.update_planner.plan(bundle)
+                issues.extend(planning.issues)
         warnings = bundle.get("warnings", []) if isinstance(bundle.get("warnings"), list) else []
         if issues:
             return self.repository.record_rejected(
@@ -110,14 +145,16 @@ class ImportService:
                 warnings=warnings,
                 issues=issues,
             )
+        if version == "2.0":
+            return self.repository.apply_update(bundle, planning.plan, fingerprint)
         return self.repository.apply(bundle, fingerprint)
 
     def get_report(self, import_id: str) -> ImportReport | None:
         return self.repository.get_report(import_id)
 
-    def _schema_issues(self, bundle: dict[str, Any], protected_paths: set[str]) -> list[ImportIssue]:
+    def _schema_issues(self, validator: Draft202012Validator, bundle: dict[str, Any], protected_paths: set[str]) -> list[ImportIssue]:
         issues: list[ImportIssue] = []
-        errors = sorted(self.validator.iter_errors(bundle), key=lambda item: list(item.absolute_path))
+        errors = sorted(validator.iter_errors(bundle), key=lambda item: list(item.absolute_path))
         for error in errors:
             path = "$" + "".join(f"[{index}]" if isinstance(index, int) else f".{index}" for index in error.absolute_path)
             if any(protected_path.startswith(path) for protected_path in protected_paths) and error.validator == "additionalProperties":

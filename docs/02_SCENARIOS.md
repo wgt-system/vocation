@@ -12,7 +12,7 @@ Der Nutzer lässt mit einem von Vocation erzeugten Initial-Prompt eine erste Rec
 
 ## S02 – Update des Gesamtbestands
 
-Vocation erzeugt einen Update-Prompt, der bestehende Opportunities, zuletzt bekannte Quellen, Freshness und offene Unsicherheiten enthält. Die Recherche soll nur Änderungen, neue Stellen und Verfügbarkeitsbeobachtungen zurückgeben. Der Import ergänzt den Bestand, ohne persönliche Decisions zu überschreiben.
+Vocation erzeugt einen Update-Prompt mit scope-bezogenem Kontext und offenen Unsicherheiten. Im v0.3 enthält Full Update keine Availability/Freshness. Der Import ergänzt den Bestand, ohne persönliche Decisions zu überschreiben.
 
 ## S03 – Teilupdate eines Unternehmens
 
@@ -74,15 +74,19 @@ Das JSON ist syntaktisch korrekt, aber fachlich unvollständig. Vocation untersc
 
 Ein identischer Bundle-Fingerprint wurde bereits angewendet. Vocation verhindert eine unkontrollierte Doppelanwendung und zeigt den früheren Import an.
 
-## S18 – Mobiler Read-only-Zugriff
+## S18 – WGT Published Read Projection
 
-Ein mobiler Client liest eine reduzierte Projektion. Import und Prompt-Erzeugung werden nicht vorausgesetzt. Originalanzeigen können nach explizitem Tap im Browser geöffnet werden.
+WGT liest eine client-neutrale Published Opportunity Overview. Import und Prompt-Erzeugung bleiben Vocation-Desktop-Aufgaben. Die letzte veröffentlichte Projection bleibt auf dem iPhone nutzbar, wenn der Windows-PC ausgeschaltet ist.
 
-## S19 – Veralteter mobiler Snapshot
+## S19 – Publication Snapshot Age
 
-Ein mobiler Snapshot ist älter als der Desktopbestand. Der Datenstand wird sichtbar, nicht als aktuell ausgegeben.
+Eine Publication Snapshot ist älter als der lokale Bestand. Das Veröffentlichungsalter wird sichtbar; es bedeutet nicht, dass ein Job Posting stale oder unavailable ist.
 
-## S20 – Historische Opportunity wird erneut relevant
+## S20 – Local-only Operation
+
+Wenn keine Remote-Publikation konfiguriert ist, bleiben lokale Prompting-, Import-, Pflege- und Read-Workflows vollständig nutzbar.
+
+## S21 – Historische Opportunity wird erneut relevant
 
 Eine früher ausgeschlossene oder archivierte Position erscheint mit veränderten Anforderungen. Historische Decisions bleiben sichtbar, werden aber nicht blind übertragen.
 
@@ -94,4 +98,4 @@ Eine früher ausgeschlossene oder archivierte Position erscheint mit veränderte
 4. Persönliche Decisions werden nie durch Imports überschrieben.
 5. Externe Links werden nur nach Nutzeraktion geöffnet.
 6. Die Karte besitzt keine eigene fachliche Datenhoheit.
-7. Mobile Clients benötigen nicht denselben Funktionsumfang wie Desktop.
+7. WGT-Clients benötigen nicht denselben Funktionsumfang wie die Vocation-Desktop-Anwendung.

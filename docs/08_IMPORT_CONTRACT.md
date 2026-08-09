@@ -1,7 +1,8 @@
 # Vocation – Research Bundle Import Contract
 
-**Status:** Version 1.0 für den ersten Meilenstein
-**Current Bundle Version:** `1.0`
+**Status:** Zwei implementierte veröffentlichte Research-Verträge auf `dev`
+**Initial Bundle Version:** `1.0` (Initial Research)
+**Update Bundle Version:** `2.0` (Research Update)
 
 ## 1. Zweck und Geltungsbereich
 
@@ -134,3 +135,25 @@ Ein bereits erfolgreich angewendeter Fingerprint wird nicht erneut geschrieben u
 - `examples/imports/initial-valid.json`
 - `examples/imports/invalid-nested-property.json`
 - `examples/imports/invalid-protected-decision.json`
+
+## 14. Research Update Bundle 2.0 (v0.3 implemented on `dev`)
+
+Research Bundle `1.0` bleibt unverändert, gültig ausschließlich für `initial_market_research`. Updates verwenden `schemas/research-update-bundle-v2.schema.json` und enthalten zusätzlich den verpflichtenden `prompt_context_ref`. Die Top-Level-Struktur enthält `bundle_version`, `bundle_id`, `generated_at`, `prompt_context_ref`, `research_scope`, `sources`, `source_references`, `companies`, `opportunities`, `postings`, `observations`, `assessments`, `possible_duplicates` und `warnings`; alle Objekte sind geschlossen.
+
+Correlation References werden ausschließlich von Vocation im Prompt Context Snapshot erzeugt. Sie sind opaque, nur für diesen Snapshot gültig, enthalten keine internen ID-Semantiken und dürfen von Research nur echoed werden. Bundle-lokale IDs bleiben die einzigen Referenzen innerhalb des Bundles. Bekannte Subjects enthalten Correlation Reference und nötige bundle-lokale Beziehungs-IDs; neue Subjects haben keine Correlation Reference und müssen die normalen Creation-/Evidence-Felder liefern.
+
+`research_scope.type` ist genau einer von `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. Full Update erlaubt neue Companies, Opportunities und Postings. Company Update erlaubt neue Opportunities/Postings unter ausgewählten Companies, aber keine neuen Companies. Opportunity Update erlaubt neue Postings unter ausgewählten Opportunities; Companies sind nur Kontext, neue Companies und Opportunities sind verboten. Gap Filling erlaubt ausschließlich ausdrücklich angeforderte Subject-/Feld-Ergebnisse, keine neuen Subjects und keine `possible_duplicates`. Scope-Prüfung erfolgt vor jeder Domain-Mutation.
+
+Gap Filling beschränkt sich auf `technology_requirement`, `task`, `seniority`, `experience_requirement`, `work_model`, `salary` und ausdrücklich angeforderte aktive Assessment Criteria. Es verändert nie Identität, Ownership, Work Locations, Availability/Freshness, Personal Assessments, Decisions oder Tracking Status.
+
+Posting-Identität bleibt deterministisch: Source plus `external_posting_id`, sonst die normalisierte HTTPS-URL der referenzierten Source Reference. Ein bekanntes Posting darf optional `identity_evidence` mit verpflichtender `source_reference_id` und optionaler `external_posting_id` enthalten; ein unabhängiges `canonical_url`-Feld gibt es im Update Contract nicht. Diese Evidence dient nur dem späteren Vergleich mit der Correlation Reference. Widerspruch ist `IDENTITY_CONFLICT`; ein Treffer außerhalb des Scopes ist `SCOPE_VIOLATION`. Gap Filling darf keine Posting-Identity-Evidence enthalten. Fuzzy Matching und Merge sind ausgeschlossen.
+
+`possible_duplicates` ist ausschließlich Evidenz für Opportunity- oder Posting-Paare mit unterschiedlichen bundle-lokalen IDs, mindestens einer Source Reference, Evidence Summary und optionaler Confidence. Es bestätigt keine Dublette und löst keinen Merge aus; Company-Duplicates sind nicht enthalten. Update-Blocker sind `UNKNOWN_PROMPT_CONTEXT`, `SCOPE_MISMATCH`, `UNKNOWN_CORRELATION_REFERENCE`, `SCOPE_VIOLATION`, `IDENTITY_CONFLICT` und `INVALID_DUPLICATE_EVIDENCE` neben den bestehenden Schema-/Protected-Field-Fehlern. Jeder Blocker lehnt das vollständige Update vor Domain-Mutation ab.
+
+Version Dispatch ist explizit: `1.0` wird als Initial Research Bundle validiert, `2.0` als Update Bundle gegen den gespeicherten Prompt Context. Planner-Blocker werden vor jeder Domain-Mutation festgestellt; ein akzeptiertes Update wird in genau einer atomaren Apply-Transaktion ausgeführt. Update-Sources und Source References sind neue Provenance-Datensätze. Wiederverwendete Company-, Opportunity- und Posting-Subjects werden nicht kanonisch umgeschrieben. Duplicate Cases werden nur erstellt oder wiederverwendet; es gibt keinen Merge.
+
+Die Bundle-Version `2.0`, der Update-Importer und die vier Update-Prompt-Modi sind auf `dev` implementiert. Die Desktop-Bedienung umfasst Auswahl, Generierung, Preview, Copy/Save und Inline-Import mit Import Report.
+
+Traceability: Ein angewandter Initial-Import persistiert Bundle Version `1.0` ohne Prompt Context Ref. Ein angewandter Update-Import persistiert Bundle Version `2.0` zusammen mit seiner validierten `prompt_context_ref`. Ein identischer Import Report bewahrt die ursprünglichen Import- und Prompt-Metadaten.
+
+Beispiele: `examples/updates/`; Contract Tests: `backend/tests/test_update_bundle_contract.py`.

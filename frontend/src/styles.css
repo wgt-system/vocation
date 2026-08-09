@@ -131,6 +131,32 @@ nav button.active {
 .checkbox-label input {
   width: auto;
 }
+.selection-list {
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid #ddd6c7;
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+.selection-list legend {
+  font-weight: 750;
+  padding: 0 0.25rem;
+}
+.gap-requests {
+  display: grid;
+  gap: 0.8rem;
+}
+.gap-request {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid #ddd6c7;
+  border-radius: 10px;
+}
+.gap-request button {
+  justify-self: start;
+}
 .status-filters button {
   border: 1px solid #cfc7b8;
   border-radius: 8px;
@@ -358,7 +384,8 @@ dl dd {
     display: none;
   }
   .detail-grid,
-  .form-grid {
+  .form-grid,
+  .gap-request {
     grid-template-columns: 1fr;
   }
   .criterion {
