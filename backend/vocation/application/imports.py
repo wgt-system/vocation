@@ -114,6 +114,8 @@ class ImportService:
                 counts=previous.counts,
                 warnings=previous.warnings,
                 duplicate_of_import_id=previous.import_id,
+                bundle_version=previous.bundle_version,
+                prompt_context_ref=previous.prompt_context_ref,
             )
 
         version = bundle.get("bundle_version")

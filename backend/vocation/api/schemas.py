@@ -61,6 +61,61 @@ class GeneratedPromptResponse(BaseModel):
     criteria_count: int
 
 
+class UpdatePromptOptionsResponse(BaseModel):
+    companies: list[dict[str, str]]
+    opportunities: list[dict[str, str]]
+    postings: list[dict[str, str]]
+    observation_types: list[str]
+
+
+class GapRequestPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    subject_type: SubjectType
+    subject_id: str = Field(min_length=1)
+    observation_type: str | None = None
+    criterion_id: str | None = None
+
+    @model_validator(mode="after")
+    def exactly_one_evidence_kind(self):
+        if (self.observation_type is None) == (self.criterion_id is None):
+            raise ValueError("Gap requests require exactly one of observation_type or criterion_id.")
+        return self
+
+
+class UpdatePromptPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal["full_update", "company_update", "opportunity_update", "gap_filling"]
+    as_of_date: date
+    selected_ids: list[str] = Field(default_factory=list)
+    gap_requests: list[GapRequestPayload] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_mode_shape(self):
+        if self.mode == "full_update" and (self.selected_ids or self.gap_requests):
+            raise ValueError("Full Update does not accept selected_ids or gap_requests.")
+        if self.mode in {"company_update", "opportunity_update"}:
+            if not self.selected_ids or len(self.selected_ids) != len(set(self.selected_ids)):
+                raise ValueError("Selected IDs must be nonempty and unique.")
+            if self.gap_requests:
+                raise ValueError("This update mode does not accept gap_requests.")
+        if self.mode == "gap_filling" and (self.selected_ids or not self.gap_requests):
+            raise ValueError("Gap Filling requires gap_requests and no selected_ids.")
+        return self
+
+
+class GeneratedUpdatePromptResponse(BaseModel):
+    prompt_run_id: str
+    prompt_context_ref: str
+    prompt_type: str
+    prompt_version: str
+    bundle_version: str
+    research_scope: dict
+    prompt_text: str
+    criteria_count: int
+
+
 class ImportTextPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
     content: str
@@ -82,6 +137,8 @@ class ImportReportResponse(BaseModel):
     warnings: list[str]
     issues: list[ImportIssueResponse]
     duplicate_of_import_id: str | None = None
+    bundle_version: str | None = None
+    prompt_context_ref: str | None = None
 
 
 class OpportunityListItemResponse(BaseModel):

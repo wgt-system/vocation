@@ -150,6 +150,7 @@ class SqlAlchemyImportRepository:
                 ResearchImportModel(
                     id=import_id,
                     bundle_id=bundle["bundle_id"],
+                    bundle_version="1.0",
                     fingerprint=fingerprint,
                     status="applied",
                     applied_at=datetime.now(UTC),
@@ -287,7 +288,15 @@ class SqlAlchemyImportRepository:
                     )
                 )
 
-        return ImportReport(import_id, "applied", bundle["bundle_id"], fingerprint, counts, warnings)
+        return ImportReport(
+            import_id,
+            "applied",
+            bundle["bundle_id"],
+            fingerprint,
+            counts,
+            warnings,
+            bundle_version="1.0",
+        )
 
     def apply_update(self, bundle: dict[str, Any], plan: UpdateImportPlan, fingerprint: str) -> ImportReport:
         import_id = _uuid()
@@ -326,6 +335,8 @@ class SqlAlchemyImportRepository:
                 ResearchImportModel(
                     id=import_id,
                     bundle_id=bundle["bundle_id"],
+                    bundle_version="2.0",
+                    prompt_context_ref=plan.prompt_context_ref,
                     fingerprint=fingerprint,
                     status="applied",
                     applied_at=datetime.now(UTC),
@@ -498,7 +509,16 @@ class SqlAlchemyImportRepository:
                         )
                     )
 
-        return ImportReport(import_id, "applied", bundle["bundle_id"], fingerprint, counts, warnings)
+        return ImportReport(
+            import_id,
+            "applied",
+            bundle["bundle_id"],
+            fingerprint,
+            counts,
+            warnings,
+            bundle_version="2.0",
+            prompt_context_ref=plan.prompt_context_ref,
+        )
 
     @staticmethod
     def _report(model: ResearchImportModel) -> ImportReport:
@@ -507,6 +527,8 @@ class SqlAlchemyImportRepository:
             status=model.status,
             bundle_id=model.bundle_id,
             fingerprint=model.fingerprint,
+            bundle_version=model.bundle_version,
+            prompt_context_ref=model.prompt_context_ref,
             counts=json.loads(model.counts_json),
             warnings=json.loads(model.warnings_json),
             issues=[ImportIssue(issue.code, issue.message, issue.path, issue.severity) for issue in model.issues],

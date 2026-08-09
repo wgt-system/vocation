@@ -53,6 +53,36 @@ class PromptService:
         self.update_schema_path = update_schema_path
         self.ref_factory = ref_factory
 
+    def update_options(self) -> dict:
+        market = self.prompt_market.load_market()
+        return {
+            "companies": [
+                {"id": item.subject_id, "name": item.name}
+                for item in sorted(market.companies, key=lambda value: (value.name.casefold(), value.subject_id))
+            ],
+            "opportunities": [
+                {"id": item.subject_id, "company_id": item.company_id, "title": item.title}
+                for item in sorted(market.opportunities, key=lambda value: (value.title.casefold(), value.subject_id))
+            ],
+            "postings": [
+                {
+                    "id": item.subject_id,
+                    "company_id": item.company_id,
+                    "opportunity_id": item.opportunity_id,
+                    "title": item.title,
+                }
+                for item in sorted(market.postings, key=lambda value: (value.title.casefold(), value.subject_id))
+            ],
+            "observation_types": [
+                "technology_requirement",
+                "task",
+                "seniority",
+                "experience_requirement",
+                "work_model",
+                "salary",
+            ],
+        }
+
     def generate_initial(self, *, search_profile: str, constraints: list[str], as_of_date: str) -> GeneratedPrompt:
         if not search_profile.strip():
             raise ValueError("Search profile is required.")

@@ -40,6 +40,8 @@ class ImportReport:
     warnings: list[str] = field(default_factory=list)
     issues: list[ImportIssue] = field(default_factory=list)
     duplicate_of_import_id: str | None = None
+    bundle_version: str | None = None
+    prompt_context_ref: str | None = None
 
 
 def canonical_json(value: Any) -> str:
