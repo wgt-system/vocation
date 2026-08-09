@@ -1,21 +1,23 @@
-# Opportunity Update Prompt
+# Vocation Research Update Bundle 2.0 — Opportunity Update
 
-Prüfe ausschließlich die folgenden Opportunities und Postings:
+Return JSON only. Generate a Bundle with bundle_version exactly "2.0".
+Echo prompt_context_ref and research_scope exactly as supplied below.
+Use only the supplied opaque correlation refs. Generate your own unique bundle-local IDs.
+Never emit internal Vocation IDs. Do not emit or change personal state, Tracking Status,
+Personal Assessments, Decisions, Exclusions, Restore history, Groups, or Waves.
+Do not derive Availability or Freshness. Do not automatically merge or resolve duplicates.
 
-{{OPPORTUNITY_SCOPE}}
+## Prompt Context
+{{PROMPT_CONTEXT}}
 
-Offene Fragen:
-{{OPEN_QUESTIONS}}
+## Active Assessment Criteria
+{{ACTIVE_ASSESSMENT_CRITERIA}}
 
-Liefere neue oder geänderte Observations, aktuelle Sources und Availability. Keine neuen persönlichen Bewertungen oder Decisions.
+## Scope restrictions
+This is an Opportunity Update. Selected Opportunities and their supplied Postings are targets.
+Owning Companies are context only. Do not create Companies or Opportunities. New Postings may
+be created only under a selected target Opportunity. Do not implement direct Posting selection
+and do not rewrite existing canonical fields or ownership.
 
-
-Ausgabeanforderungen:
-- Antworte ausschließlich mit einem validen JSON-Objekt.
-- Keine Markdown-Codeblöcke, keine Einleitung, keine Nachbemerkung.
-- Verwende exakt `bundle_version: "1.0"`.
-- Erfinde keine Vocation-IDs.
-- Jede externe Information benötigt Source und Beobachtungszeitpunkt.
-- Persönliche Assessments, Decisions, Tracking Status und Groups dürfen nicht verändert werden.
-- Unsicherheit muss ausdrücklich markiert werden.
-- Eine nicht erreichbare URL ist nicht automatisch eine endgültig geschlossene Opportunity.
+## Output Schema
+{{OUTPUT_SCHEMA}}

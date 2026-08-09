@@ -1,27 +1,24 @@
-# Full Update Prompt
+Return JSON only. Generate a Bundle with bundle_version exactly "2.0".
+Echo prompt_context_ref and research_scope exactly as supplied below.
+Use only the supplied opaque correlation refs. Generate your own unique bundle-local IDs.
+Never emit internal Vocation IDs. Do not emit or change personal state, Tracking Status,
+Personal Assessments, Decisions, Exclusions, Restore history, Groups, or Waves.
+Do not derive Availability or Freshness. Do not automatically merge or resolve duplicates.
 
-Aktualisiere den bestehenden Vocation-Bestand zum Stichtag {{AS_OF_DATE}}.
+## Prompt Context
 
-## Bekannter Bestand
+{{PROMPT_CONTEXT}}
 
-{{VOCATION_CONTEXT_SNAPSHOT}}
+## Active Assessment Criteria
 
-## Aufgaben
+{{ACTIVE_ASSESSMENT_CRITERIA}}
 
-- prüfe bekannte Postings auf Änderungen und Verfügbarkeit,
-- finde relevante neue Opportunities im gleichen Suchraum,
-- liefere nur neue oder geänderte Observations,
-- erhalte bekannte Vocation-Referenzen,
-- markiere mögliche Dubletten,
-- überschreibe keine persönlichen Decisions.
+## Scope restrictions
 
+This is a Full Update. Existing Companies, Opportunities, and Postings are in scope targets.
+New Companies, Opportunities, and Postings are allowed. Preserve Company and Opportunity
+ownership relationships and provide Source References for every external fact.
 
-Ausgabeanforderungen:
-- Antworte ausschließlich mit einem validen JSON-Objekt.
-- Keine Markdown-Codeblöcke, keine Einleitung, keine Nachbemerkung.
-- Verwende exakt `bundle_version: "1.0"`.
-- Erfinde keine Vocation-IDs.
-- Jede externe Information benötigt Source und Beobachtungszeitpunkt.
-- Persönliche Assessments, Decisions, Tracking Status und Groups dürfen nicht verändert werden.
-- Unsicherheit muss ausdrücklich markiert werden.
-- Eine nicht erreichbare URL ist nicht automatisch eine endgültig geschlossene Opportunity.
+## Output Schema
+
+{{OUTPUT_SCHEMA}}

@@ -67,3 +67,15 @@ class PromptRunRepository(Protocol):
         criteria_snapshot: list[dict],
         prompt_text: str,
     ) -> str: ...
+
+    def save_update(
+        self,
+        *,
+        prompt_type: str,
+        as_of_date: str,
+        research_scope: dict,
+        prompt_context_ref: str,
+        subject_mappings: list[dict],
+        criteria_snapshot: list[dict],
+        prompt_text: str,
+    ) -> tuple[str, str]: ...

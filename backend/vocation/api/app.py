@@ -28,6 +28,7 @@ from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityRea
 from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersonalTriageRepository
 from vocation.infrastructure.posting_identity_repository import SqlAlchemyPostingIdentityRepository
 from vocation.infrastructure.prompt_context_repository import SqlAlchemyPromptContextSnapshotRepository
+from vocation.infrastructure.prompt_market_repository import SqlAlchemyPromptMarketRepository
 from vocation.infrastructure.repositories import (
     SqlAlchemyCriteriaRepository,
     SqlAlchemyPromptRunRepository,
@@ -56,6 +57,9 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         SqlAlchemyPromptRunRepository(database.session_factory),
         settings.initial_prompt_path,
         settings.output_contract_path,
+        SqlAlchemyPromptMarketRepository(database.session_factory),
+        settings.update_prompt_dir,
+        settings.update_schema_path,
     )
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
