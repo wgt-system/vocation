@@ -28,6 +28,28 @@ function errorMessage(reason: unknown, fallback: string) {
   return reason instanceof Error ? reason.message : fallback;
 }
 
+type Availability = "available" | "unavailable" | "uncertain" | "unknown";
+const availabilityLabels: Record<Availability, string> = {
+  available: "Verfügbar",
+  unavailable: "Nicht verfügbar",
+  uncertain: "Unsicher",
+  unknown: "Unbekannt",
+};
+
+function availabilityOf(value: Availability | null | undefined): Availability {
+  return value ?? "unknown";
+}
+
+function freshnessLabel(
+  ageDays: number | null | undefined,
+  checkedAt: string | null | undefined,
+) {
+  if (ageDays != null) return `${ageDays} Tage alt`;
+  if (checkedAt)
+    return `geprüft ${new Date(checkedAt).toLocaleString("de-DE")}`;
+  return "Alter unbekannt";
+}
+
 export function OpportunityDetailView({
   opportunityId,
   onBack,
@@ -215,6 +237,18 @@ export function OpportunityDetailView({
             .map((item) => `${item.label} (${item.precision})`)
             .join(" · ") || "Arbeitsort unbekannt"}
         </p>
+        <p className="availability-summary">
+          Availability:{" "}
+          <strong>
+            {availabilityLabels[availabilityOf(detail.availability)]}
+          </strong>
+          <small>
+            {freshnessLabel(
+              detail.availability_age_days,
+              detail.availability_last_checked_at,
+            )}
+          </small>
+        </p>
         <strong>Status: {detail.tracking_status}</strong>
         {message && <p role="status">{message}</p>}
         {mutationError && (
@@ -233,6 +267,33 @@ export function OpportunityDetailView({
                 {posting.source.name} · beobachtet{" "}
                 {new Date(posting.observed_at).toLocaleString("de-DE")}
               </p>
+              <p className="availability-summary">
+                Availability:{" "}
+                <strong>
+                  {availabilityLabels[availabilityOf(posting.availability)]}
+                </strong>
+                <small>
+                  {freshnessLabel(
+                    posting.availability_age_days,
+                    posting.availability_last_checked_at,
+                  )}
+                </small>
+              </p>
+              {posting.availability_history &&
+                posting.availability_history.length > 0 && (
+                  <div className="availability-history">
+                    <strong>Availability-Historie</strong>
+                    {posting.availability_history.map((entry) => (
+                      <small key={entry.id}>
+                        {entry.result} · beobachtet{" "}
+                        {new Date(entry.observed_at).toLocaleString("de-DE")} ·
+                        aufgezeichnet{" "}
+                        {new Date(entry.recorded_at).toLocaleString("de-DE")} ·{" "}
+                        {entry.evidence_summary}
+                      </small>
+                    ))}
+                  </div>
+                )}
               <code className="url">{posting.source_reference.url}</code>
               {posting.published_at && (
                 <small>Veröffentlicht: {posting.published_at}</small>

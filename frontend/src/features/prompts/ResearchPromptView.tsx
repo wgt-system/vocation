@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
   api,
+  type AvailabilityImportReport,
   type Criterion,
   type GeneratedUpdatePrompt,
   type ImportReport,
@@ -12,6 +13,7 @@ import { ErrorState, Loading } from "../../components/AsyncState";
 import { ImportReportView } from "../imports/ImportReportView";
 
 type EvidenceKind = "observation" | "criterion";
+type ResearchMode = UpdateMode | "availability_check";
 type SubjectType = "company" | "opportunity" | "posting";
 type GapDraft = {
   subjectType: SubjectType;
@@ -22,21 +24,30 @@ type GapDraft = {
 };
 type GeneratedState =
   | { kind: "initial"; promptText: string; bundleVersion: string }
-  | { kind: "update"; result: GeneratedUpdatePrompt };
+  | { kind: "update"; result: GeneratedUpdatePrompt }
+  | {
+      kind: "availability";
+      promptText: string;
+      bundleVersion: string;
+      promptVersion: string;
+      promptContextRef: string;
+    };
 
-const labels: Record<UpdateMode | "initial", string> = {
+const labels: Record<ResearchMode | "initial", string> = {
   initial: "Initial Research",
   full_update: "Full Update",
   company_update: "Company Update",
   opportunity_update: "Opportunity Update",
   gap_filling: "Gap Filling",
+  availability_check: "Availability Check",
 };
-const modes: (UpdateMode | "initial")[] = [
+const modes: (ResearchMode | "initial")[] = [
   "initial",
   "full_update",
   "company_update",
   "opportunity_update",
   "gap_filling",
+  "availability_check",
 ];
 
 function emptyGap(): GapDraft {
@@ -54,7 +65,7 @@ export function ResearchPromptView({
 }: {
   onImported?: () => void;
 }) {
-  const [mode, setMode] = useState<UpdateMode | "initial">("initial");
+  const [mode, setMode] = useState<ResearchMode | "initial">("initial");
   const [profile, setProfile] = useState("");
   const [constraints, setConstraints] = useState("");
   const [asOfDate, setAsOfDate] = useState(
@@ -67,6 +78,8 @@ export function ResearchPromptView({
   const [generated, setGenerated] = useState<GeneratedState | null>(null);
   const [content, setContent] = useState("");
   const [report, setReport] = useState<ImportReport | null>(null);
+  const [availabilityReport, setAvailabilityReport] =
+    useState<AvailabilityImportReport | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [optionsLoading, setOptionsLoading] = useState(false);
@@ -79,6 +92,7 @@ export function ResearchPromptView({
   function clearGenerated() {
     setGenerated(null);
     setReport(null);
+    setAvailabilityReport(null);
     setCopied(false);
   }
   function changeScope(change: () => void) {
@@ -86,7 +100,7 @@ export function ResearchPromptView({
     clearGenerated();
     setFormError("");
   }
-  function changeMode(next: UpdateMode | "initial") {
+  function changeMode(next: ResearchMode | "initial") {
     setMode(next);
     setSelectedIds([]);
     setGaps([]);
@@ -228,6 +242,24 @@ export function ResearchPromptView({
         });
         return;
       }
+      if (mode === "availability_check") {
+        if (selectedIds.length === 0) {
+          setFormError("Mindestens ein Posting muss ausgewählt werden.");
+          return;
+        }
+        const result = await api.generateAvailabilityPrompt({
+          posting_ids: selectedIds,
+          as_of_date: asOfDate,
+        });
+        setGenerated({
+          kind: "availability",
+          promptText: result.prompt_text,
+          bundleVersion: result.bundle_version,
+          promptVersion: result.prompt_version,
+          promptContextRef: result.prompt_context_ref,
+        });
+        return;
+      }
       if (
         mode !== "full_update" &&
         mode !== "gap_filling" &&
@@ -278,7 +310,7 @@ export function ResearchPromptView({
   }
   async function copyPrompt() {
     const text =
-      generated?.kind === "initial"
+      generated?.kind === "initial" || generated?.kind === "availability"
         ? generated.promptText
         : generated?.result.prompt_text;
     if (!text) return;
@@ -287,7 +319,7 @@ export function ResearchPromptView({
   }
   function savePrompt() {
     const text =
-      generated?.kind === "initial"
+      generated?.kind === "initial" || generated?.kind === "availability"
         ? generated.promptText
         : generated?.result.prompt_text;
     if (!text) return;
@@ -304,9 +336,15 @@ export function ResearchPromptView({
     setImportLoading(true);
     setImportError("");
     try {
-      const next = await api.importText(content);
-      setReport(next);
-      if (next.status === "applied") onImported?.();
+      if (generated?.kind === "availability") {
+        const next = await api.importAvailabilityText(content);
+        setAvailabilityReport(next);
+        if (next.status === "applied") onImported?.();
+      } else {
+        const next = await api.importText(content);
+        setReport(next);
+        if (next.status === "applied") onImported?.();
+      }
     } catch (reason) {
       setImportError(
         reason instanceof Error ? reason.message : "Import fehlgeschlagen.",
@@ -319,9 +357,10 @@ export function ResearchPromptView({
     if (!file) return;
     setContent(await file.text());
     setReport(null);
+    setAvailabilityReport(null);
   }
   const promptText =
-    generated?.kind === "initial"
+    generated?.kind === "initial" || generated?.kind === "availability"
       ? generated.promptText
       : generated?.result.prompt_text;
 
@@ -340,7 +379,7 @@ export function ResearchPromptView({
             aria-label="Prompt-Modus"
             value={mode}
             onChange={(event) =>
-              changeMode(event.target.value as UpdateMode | "initial")
+              changeMode(event.target.value as ResearchMode | "initial")
             }
           >
             {modes.map((item) => (
@@ -402,6 +441,21 @@ export function ResearchPromptView({
                 />
                 {item.title} —{" "}
                 {companyNames.get(item.company_id) ?? "Unbekanntes Unternehmen"}
+              </label>
+            ))}
+          </fieldset>
+        )}
+        {mode === "availability_check" && (
+          <fieldset className="selection-list">
+            <legend>Postings auswählen</legend>
+            {options?.postings.map((item) => (
+              <label key={item.id} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(item.id)}
+                  onChange={() => toggleId(item.id)}
+                />
+                {item.title}
               </label>
             ))}
           </fieldset>
@@ -557,7 +611,9 @@ export function ResearchPromptView({
               labels[
                 generated.kind === "initial"
                   ? "initial"
-                  : generated.result.prompt_type
+                  : generated.kind === "availability"
+                    ? "availability_check"
+                    : generated.result.prompt_type
               ]
             }
           </p>
@@ -566,17 +622,29 @@ export function ResearchPromptView({
             <code>
               {generated.kind === "initial"
                 ? generated.bundleVersion
-                : generated.result.bundle_version}
+                : generated.kind === "availability"
+                  ? generated.bundleVersion
+                  : generated.result.bundle_version}
             </code>
           </p>
-          {generated.kind === "update" && (
+          {(generated.kind === "update" ||
+            generated.kind === "availability") && (
             <>
               <p>
-                Prompt Version: <code>{generated.result.prompt_version}</code>
+                Prompt Version:{" "}
+                <code>
+                  {generated.kind === "availability"
+                    ? generated.promptVersion
+                    : generated.result.prompt_version}
+                </code>
               </p>
               <p>
                 Prompt Context Ref:{" "}
-                <code>{generated.result.prompt_context_ref}</code>
+                <code>
+                  {generated.kind === "availability"
+                    ? generated.promptContextRef
+                    : generated.result.prompt_context_ref}
+                </code>
               </p>
             </>
           )}
@@ -604,7 +672,11 @@ export function ResearchPromptView({
           <label>
             Datei auswählen
             <input
-              aria-label="Research-Ergebnis JSON-Datei"
+              aria-label={
+                generated.kind === "availability"
+                  ? "Availability-Ergebnis JSON-Datei"
+                  : "Research-Ergebnis JSON-Datei"
+              }
               type="file"
               accept="application/json,.json"
               onChange={(event) => selectFile(event.target.files?.[0])}
@@ -613,7 +685,11 @@ export function ResearchPromptView({
           <label>
             Oder JSON einfügen
             <textarea
-              aria-label="Research-Ergebnis JSON"
+              aria-label={
+                generated.kind === "availability"
+                  ? "Availability-Ergebnis JSON"
+                  : "Research-Ergebnis JSON"
+              }
               rows={14}
               value={content}
               onChange={(event) => setContent(event.target.value)}
@@ -633,6 +709,9 @@ export function ResearchPromptView({
           )}
           {importError && <ErrorState message={importError} />}
           {report && <ImportReportView report={report} />}
+          {availabilityReport && (
+            <ImportReportView report={availabilityReport} />
+          )}
         </section>
       )}
     </section>

@@ -7,6 +7,28 @@ import {
 } from "../../api/client";
 import { EmptyState, ErrorState, Loading } from "../../components/AsyncState";
 
+type Availability = NonNullable<OpportunityListItem["availability"]>;
+const availabilityLabels: Record<Availability, string> = {
+  available: "Verfügbar",
+  unavailable: "Nicht verfügbar",
+  uncertain: "Unsicher",
+  unknown: "Unbekannt",
+};
+
+function availabilityOf(item: OpportunityListItem): Availability {
+  return item.availability ?? "unknown";
+}
+
+function freshnessLabel(item: OpportunityListItem) {
+  if (item.availability_age_days != null) {
+    return `${item.availability_age_days} Tage alt`;
+  }
+  if (item.availability_last_checked_at) {
+    return `geprüft ${new Date(item.availability_last_checked_at).toLocaleDateString("de-DE")}`;
+  }
+  return "Alter unbekannt";
+}
+
 export function OpportunityList({
   refreshToken,
   onSelect,
@@ -18,6 +40,9 @@ export function OpportunityList({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState<TrackingStatus[]>([]);
+  const [availabilityFilter, setAvailabilityFilter] = useState<
+    Availability | "all"
+  >("all");
   const statuses: { value: TrackingStatus; label: string }[] = [
     { value: "new", label: "Neu" },
     { value: "to_review", label: "Zu prüfen" },
@@ -29,7 +54,10 @@ export function OpportunityList({
   ];
   const visibleItems = items.filter(
     (item) =>
-      statusFilter.length === 0 || statusFilter.includes(item.tracking_status),
+      (statusFilter.length === 0 ||
+        statusFilter.includes(item.tracking_status)) &&
+      (availabilityFilter === "all" ||
+        availabilityOf(item) === availabilityFilter),
   );
   function toggleStatus(status: TrackingStatus) {
     setStatusFilter((current) =>
@@ -79,6 +107,22 @@ export function OpportunityList({
           )}
         </fieldset>
         <span className="count-badge">{visibleItems.length}</span>
+        <label>
+          Availability
+          <select
+            aria-label="Availability filtern"
+            value={availabilityFilter}
+            onChange={(event) =>
+              setAvailabilityFilter(event.target.value as Availability | "all")
+            }
+          >
+            <option value="all">Alle</option>
+            <option value="available">Verfügbar</option>
+            <option value="unavailable">Nicht verfügbar</option>
+            <option value="uncertain">Unsicher</option>
+            <option value="unknown">Unbekannt</option>
+          </select>
+        </label>
       </header>
       {loading && <Loading />}
       {error && <ErrorState message={error} />}
@@ -105,6 +149,12 @@ export function OpportunityList({
               {item.posting_count} Posting · {item.assessment_count} Assessment
               · Status: {item.tracking_status}
             </small>
+            <span
+              className={`availability-badge availability-${availabilityOf(item)}`}
+            >
+              {availabilityLabels[availabilityOf(item)]}
+            </span>
+            <small>{freshnessLabel(item)}</small>
           </button>
         ))}
       </div>

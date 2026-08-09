@@ -163,6 +163,29 @@ nav button.active {
   padding: 0.35rem 0.55rem;
   background: #fffdf8;
 }
+.availability-badge {
+  justify-self: start;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+.availability-available {
+  background: #dcefe4;
+  color: #1e6745;
+}
+.availability-unavailable {
+  background: #f6dedd;
+  color: #8c2f2f;
+}
+.availability-uncertain {
+  background: #f8ebc9;
+  color: #86611d;
+}
+.availability-unknown {
+  background: #e8e5de;
+  color: #665f55;
+}
 .panel,
 .report,
 .criterion,
@@ -358,6 +381,22 @@ textarea {
 }
 .record small {
   display: block;
+}
+.availability-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: baseline;
+}
+.availability-summary small {
+  opacity: 0.7;
+}
+.availability-history {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.5rem 0;
+  border-left: 3px solid #d7d0c1;
+  padding-left: 0.7rem;
 }
 .url,
 .fingerprint {

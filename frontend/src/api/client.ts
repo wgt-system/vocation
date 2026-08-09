@@ -9,6 +9,12 @@ export type UpdatePromptOptions =
 export type GeneratedUpdatePrompt =
   components["schemas"]["GeneratedUpdatePromptResponse"];
 export type GapRequest = components["schemas"]["GapRequestPayload"];
+export type AvailabilityPrompt =
+  components["schemas"]["AvailabilityPromptPayload"];
+export type GeneratedAvailabilityPrompt =
+  components["schemas"]["GeneratedAvailabilityPromptResponse"];
+export type AvailabilityImportReport =
+  components["schemas"]["AvailabilityImportReportResponse"];
 export type TrackingStatus =
   components["schemas"]["OpportunityListItemResponse"]["tracking_status"];
 export type OpportunityListItem =
@@ -77,8 +83,18 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+  generateAvailabilityPrompt: (payload: AvailabilityPrompt) =>
+    request<GeneratedAvailabilityPrompt>("/api/prompts/availability-check", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
   importText: (content: string) =>
     request<ImportReport>("/api/imports/text", {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    }),
+  importAvailabilityText: (content: string) =>
+    request<AvailabilityImportReport>("/api/availability/imports/text", {
       method: "POST",
       body: JSON.stringify({ content }),
     }),
