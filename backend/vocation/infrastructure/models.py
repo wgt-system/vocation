@@ -204,6 +204,7 @@ class OpportunityModel(Base):
         UniqueConstraint("import_id", "bundle_local_id"),
         CheckConstraint("tracking_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
     )
+    group_memberships: Mapped[list[OpportunityGroupMembershipModel]] = relationship(back_populates="opportunity")
 
 
 class WorkLocationModel(Base):
@@ -345,6 +346,38 @@ class OpportunityDecisionModel(Base):
         CheckConstraint("previous_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
         CheckConstraint("resulting_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
         UniqueConstraint("reverses_decision_id"),
+    )
+
+
+class OpportunityGroupModel(Base):
+    __tablename__ = "opportunity_groups"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    name: Mapped[str] = mapped_column(String(300), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    group_type: Mapped[str] = mapped_column(String(30), nullable=False)
+
+    memberships: Mapped[list[OpportunityGroupMembershipModel]] = relationship(
+        back_populates="group", cascade="all, delete-orphan", order_by="OpportunityGroupMembershipModel.position"
+    )
+    __table_args__ = (
+        CheckConstraint("length(trim(name)) > 0", name="ck_opportunity_groups_name_nonempty"),
+        CheckConstraint("group_type IN ('general','application_wave')", name="ck_opportunity_groups_group_type"),
+    )
+
+
+class OpportunityGroupMembershipModel(Base):
+    __tablename__ = "opportunity_group_memberships"
+
+    group_id: Mapped[str] = mapped_column(ForeignKey("opportunity_groups.id", ondelete="CASCADE"), primary_key=True)
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    group: Mapped[OpportunityGroupModel] = relationship(back_populates="memberships")
+    opportunity: Mapped[OpportunityModel] = relationship(back_populates="group_memberships")
+    __table_args__ = (
+        UniqueConstraint("group_id", "position", name="uq_opportunity_group_memberships_position"),
+        CheckConstraint("position >= 0", name="ck_opportunity_group_memberships_position_nonnegative"),
     )
 
 
