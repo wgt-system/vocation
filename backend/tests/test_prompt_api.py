@@ -120,3 +120,46 @@ def test_initial_prompt_endpoint_remains_unchanged(client) -> None:
     assert response.status_code == 200
     assert set(response.json()) == {"prompt_run_id", "prompt_text", "bundle_version", "criteria_count"}
     assert response.json()["bundle_version"] == "1.0"
+
+
+def test_update_api_openapi_uses_explicit_typed_shapes(client) -> None:
+    schemas = client.get("/openapi.json").json()["components"]["schemas"]
+    options = schemas["UpdatePromptOptionsResponse"]
+    assert set(schemas["CompanyOptionResponse"]["properties"]) == {"id", "name"}
+    assert set(schemas["OpportunityOptionResponse"]["properties"]) == {"id", "company_id", "title"}
+    assert set(schemas["PostingOptionResponse"]["properties"]) == {
+        "id",
+        "company_id",
+        "opportunity_id",
+        "title",
+    }
+    assert options["properties"]["companies"]["items"]["$ref"] == "#/components/schemas/CompanyOptionResponse"
+    assert options["properties"]["opportunities"]["items"]["$ref"] == "#/components/schemas/OpportunityOptionResponse"
+    assert options["properties"]["postings"]["items"]["$ref"] == "#/components/schemas/PostingOptionResponse"
+    assert options["properties"]["observation_types"]["items"]["enum"] == [
+        "technology_requirement",
+        "task",
+        "seniority",
+        "experience_requirement",
+        "work_model",
+        "salary",
+    ]
+
+    update_payload = schemas["UpdatePromptPayload"]
+    assert update_payload["properties"]["mode"]["enum"] == [
+        "full_update",
+        "company_update",
+        "opportunity_update",
+        "gap_filling",
+    ]
+    generated = schemas["GeneratedUpdatePromptResponse"]
+    scope = generated["properties"]["research_scope"]
+    assert len(scope["oneOf"]) == 3
+    scope_defs = {item["$ref"].rsplit("/", 1)[-1] for item in scope["oneOf"]}
+    assert scope_defs == {"FullResearchScope", "SelectedResearchScope", "GapResearchScope"}
+    request_variants = schemas["GapResearchScope"]["properties"]["requests"]["items"]["anyOf"]
+    assert {item["$ref"].rsplit("/", 1)[-1] for item in request_variants} == {
+        "GapObservationScopeRequest",
+        "GapCriterionScopeRequest",
+    }
+    assert "subject_id" not in json.dumps(schemas["GeneratedUpdatePromptResponse"])
