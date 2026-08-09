@@ -1,15 +1,17 @@
 import { useState } from "react";
 
 import { CriteriaView } from "./features/criteria/CriteriaView";
+import { GroupsView } from "./features/groups/GroupsView";
 import { ImportView } from "./features/imports/ImportView";
 import { OpportunityDetailView } from "./features/opportunities/OpportunityDetailView";
 import { OpportunityList } from "./features/opportunities/OpportunityList";
 import { PromptView } from "./features/prompts/PromptView";
 
-type View = "opportunities" | "import" | "criteria" | "prompt";
+type View = "opportunities" | "groups" | "import" | "criteria" | "prompt";
 
 const labels: Record<View, string> = {
   opportunities: "Opportunities",
+  groups: "Groups & Waves",
   import: "Import",
   criteria: "Assessment-Kriterien",
   prompt: "Research Prompt",
@@ -68,6 +70,7 @@ export default function App() {
             onImported={() => setRefreshToken((value) => value + 1)}
           />
         )}
+        {view === "groups" && <GroupsView />}
         {view === "criteria" && <CriteriaView />}
         {view === "prompt" && (
           <PromptView

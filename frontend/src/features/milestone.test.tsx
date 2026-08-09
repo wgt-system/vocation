@@ -26,6 +26,7 @@ vi.mock("../api/client", () => ({
     importText: vi.fn(),
     getImportReport: vi.fn(),
     listOpportunities: vi.fn(),
+    listGroups: vi.fn(),
     getOpportunity: vi.fn(),
     createPersonalAssessment: vi.fn(),
     revisePersonalAssessment: vi.fn(),
@@ -51,6 +52,7 @@ const criterion = {
 
 beforeEach(() => {
   vi.mocked(api.listCriteria).mockResolvedValue([criterion]);
+  vi.mocked(api.listGroups).mockResolvedValue([]);
   Object.defineProperty(navigator, "clipboard", {
     configurable: true,
     value: { writeText: vi.fn().mockResolvedValue(undefined) },

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import {
   api,
+  type OpportunityGroup,
   type OpportunityListItem,
   type TrackingStatus,
 } from "../../api/client";
@@ -43,6 +44,8 @@ export function OpportunityList({
   const [availabilityFilter, setAvailabilityFilter] = useState<
     Availability | "all"
   >("all");
+  const [groups, setGroups] = useState<OpportunityGroup[]>([]);
+  const [groupFilter, setGroupFilter] = useState("");
   const statuses: { value: TrackingStatus; label: string }[] = [
     { value: "new", label: "Neu" },
     { value: "to_review", label: "Zu prüfen" },
@@ -69,7 +72,7 @@ export function OpportunityList({
   useEffect(() => {
     setLoading(true);
     api
-      .listOpportunities()
+      .listOpportunities(groupFilter || undefined)
       .then(setItems)
       .catch((reason) =>
         setError(
@@ -79,7 +82,13 @@ export function OpportunityList({
         ),
       )
       .finally(() => setLoading(false));
-  }, [refreshToken]);
+  }, [groupFilter, refreshToken]);
+  useEffect(() => {
+    api
+      .listGroups()
+      .then(setGroups)
+      .catch(() => setGroups([]));
+  }, []);
 
   return (
     <section>
@@ -123,6 +132,21 @@ export function OpportunityList({
             <option value="unknown">Unbekannt</option>
           </select>
         </label>
+        <label>
+          Group/Wave
+          <select
+            aria-label="Group oder Wave filtern"
+            value={groupFilter}
+            onChange={(event) => setGroupFilter(event.target.value)}
+          >
+            <option value="">Alle Groups</option>
+            {groups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </header>
       {loading && <Loading />}
       {error && <ErrorState message={error} />}
@@ -155,6 +179,11 @@ export function OpportunityList({
               {availabilityLabels[availabilityOf(item)]}
             </span>
             <small>{freshnessLabel(item)}</small>
+            {item.groups && item.groups.length > 0 && (
+              <small className="group-membership-summary">
+                {item.groups.map((group) => group.name).join(" · ")}
+              </small>
+            )}
           </button>
         ))}
       </div>

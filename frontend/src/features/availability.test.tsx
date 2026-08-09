@@ -18,6 +18,7 @@ vi.mock("../api/client", () => ({
     importAvailabilityText: vi.fn(),
     importText: vi.fn(),
     listOpportunities: vi.fn(),
+    listGroups: vi.fn(),
     getOpportunity: vi.fn(),
     listCriteria: vi.fn(),
   },
@@ -116,6 +117,7 @@ beforeEach(() => {
     availabilityPrompt,
   );
   vi.mocked(api.listCriteria).mockResolvedValue([]);
+  vi.mocked(api.listGroups).mockResolvedValue([]);
 });
 afterEach(() => {
   cleanup();

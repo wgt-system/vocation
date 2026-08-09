@@ -21,6 +21,16 @@ export type OpportunityListItem =
   components["schemas"]["OpportunityListItemResponse"];
 export type OpportunityDetail =
   components["schemas"]["OpportunityDetailResponse"];
+export type OpportunityGroup =
+  components["schemas"]["OpportunityGroupResponse"];
+export type OpportunityGroupSummary =
+  components["schemas"]["OpportunityGroupSummaryResponse"];
+export type OpportunityGroupPayload =
+  components["schemas"]["OpportunityGroupPayload"];
+export type OpportunityGroupMembershipPayload =
+  components["schemas"]["OpportunityGroupMembershipPayload"];
+export type OpportunityGroupReorderPayload =
+  components["schemas"]["OpportunityGroupReorderPayload"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -37,6 +47,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
         : JSON.stringify(body.detail),
     );
   }
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
 
@@ -99,9 +110,43 @@ export const api = {
       body: JSON.stringify({ content }),
     }),
   getImportReport: (id: string) => request<ImportReport>(`/api/imports/${id}`),
-  listOpportunities: () => request<OpportunityListItem[]>("/api/opportunities"),
+  listOpportunities: (groupId?: string) =>
+    request<OpportunityListItem[]>(
+      groupId
+        ? `/api/opportunities?group_id=${encodeURIComponent(groupId)}`
+        : "/api/opportunities",
+    ),
   getOpportunity: (id: string) =>
     request<OpportunityDetail>(`/api/opportunities/${id}`),
+  listGroups: () => request<OpportunityGroup[]>("/api/groups"),
+  getGroup: (id: string) => request<OpportunityGroup>(`/api/groups/${id}`),
+  createGroup: (payload: OpportunityGroupPayload) =>
+    request<OpportunityGroup>("/api/groups", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  editGroup: (id: string, payload: OpportunityGroupPayload) =>
+    request<OpportunityGroup>(`/api/groups/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
+  deleteGroup: (id: string) =>
+    request<void>(`/api/groups/${id}`, { method: "DELETE" }),
+  addGroupMembership: (groupId: string, opportunityId: string) =>
+    request<OpportunityGroup>(`/api/groups/${groupId}/memberships`, {
+      method: "POST",
+      body: JSON.stringify({ opportunity_id: opportunityId }),
+    }),
+  removeGroupMembership: (groupId: string, opportunityId: string) =>
+    request<OpportunityGroup>(
+      `/api/groups/${groupId}/memberships/${opportunityId}`,
+      { method: "DELETE" },
+    ),
+  reorderGroup: (groupId: string, opportunityIds: string[]) =>
+    request<OpportunityGroup>(`/api/groups/${groupId}/order`, {
+      method: "PUT",
+      body: JSON.stringify({ opportunity_ids: opportunityIds }),
+    }),
   createPersonalAssessment: (
     id: string,
     payload: components["schemas"]["PersonalAssessmentPayload"],

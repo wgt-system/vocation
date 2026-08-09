@@ -237,6 +237,12 @@ export function OpportunityDetailView({
             .map((item) => `${item.label} (${item.precision})`)
             .join(" · ") || "Arbeitsort unbekannt"}
         </p>
+        {detail.groups && detail.groups.length > 0 && (
+          <p className="group-membership-summary">
+            Groups &amp; Waves:{" "}
+            {detail.groups.map((group) => group.name).join(" · ")}
+          </p>
+        )}
         <p className="availability-summary">
           Availability:{" "}
           <strong>

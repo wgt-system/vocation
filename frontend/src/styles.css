@@ -186,6 +186,60 @@ nav button.active {
   background: #e8e5de;
   color: #665f55;
 }
+.groups-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.25rem;
+}
+.group-list {
+  display: grid;
+  gap: 0.5rem;
+}
+.group-list-item {
+  display: grid;
+  gap: 0.2rem;
+  text-align: left;
+  border: 1px solid #ddd6c7;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #fff;
+}
+.group-list-item.active {
+  border-color: #1e5b48;
+  box-shadow: 0 0 0 2px rgb(30 91 72 / 12%);
+}
+.group-detail-header,
+.group-membership-add,
+.group-members li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.group-membership-add {
+  align-items: end;
+  margin-bottom: 1rem;
+}
+.group-membership-add label {
+  flex: 1;
+}
+.group-members {
+  display: grid;
+  gap: 0.55rem;
+  padding-left: 1.6rem;
+}
+.group-members li {
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #eee8dc;
+}
+.group-members li > span {
+  display: grid;
+  gap: 0.15rem;
+}
+.group-membership-summary {
+  color: #675d4e;
+  font-size: 0.8rem;
+}
 .panel,
 .report,
 .criterion,
