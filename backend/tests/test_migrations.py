@@ -616,3 +616,44 @@ def test_prompt_context_links_downgrade_to_0006_preserves_preexisting_data(tmp_p
         assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_subjects WHERE prompt_context_ref = 'context-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+
+def test_availability_0008_upgrade_and_downgrade_preserves_research_and_personal_state(tmp_path: Path) -> None:
+    fresh = tmp_path / "availability-fresh.db"
+    migrate(fresh, "head")
+    fresh_inspector = inspect(create_engine(f"sqlite:///{fresh.as_posix()}"))
+    assert "availability_observations" in fresh_inspector.get_table_names()
+    assert {column["name"] for column in fresh_inspector.get_columns("availability_observations")} == {
+        "id",
+        "import_id",
+        "bundle_local_id",
+        "posting_id",
+        "result",
+        "observed_at",
+        "evidence_summary",
+        "recorded_at",
+    }
+    import_columns = {column["name"]: column for column in fresh_inspector.get_columns("research_imports")}
+    assert import_columns["import_kind"]["nullable"] is False
+    assert any("availability_check" in check["sqltext"] for check in fresh_inspector.get_check_constraints("research_imports"))
+
+    migrated = tmp_path / "availability-from-0007.db"
+    migrate(migrated, "0007")
+    seed_v020_data(migrated)
+    migrate(migrated, "head")
+    engine = create_engine(f"sqlite:///{migrated.as_posix()}")
+    with engine.connect() as connection:
+        assert connection.scalar(text("SELECT import_kind FROM research_imports WHERE id = 'import-1'")) == "research"
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+    config = Config(str(Path(__file__).parents[2] / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{migrated.as_posix()}")
+    config.set_main_option("script_location", str(Path(__file__).parents[1] / "alembic"))
+    command.downgrade(config, "0007")
+    downgraded = inspect(create_engine(f"sqlite:///{migrated.as_posix()}"))
+    assert "availability_observations" not in downgraded.get_table_names()
+    assert "import_kind" not in {column["name"] for column in downgraded.get_columns("research_imports")}
+    with create_engine(f"sqlite:///{migrated.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1

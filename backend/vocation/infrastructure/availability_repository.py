@@ -87,16 +87,15 @@ class SqlAlchemyAvailabilityImportRepository(AvailabilityImportRepository):
             )
             session.flush()
             for planned in plan.observations:
-                observation = planned.observation
                 session.add(
                     AvailabilityObservationModel(
                         id=_uuid(),
                         import_id=import_id,
                         bundle_local_id=planned.bundle_local_id,
-                        posting_id=observation.posting_id,
-                        result=observation.result,
-                        observed_at=observation.observed_at,
-                        evidence_summary=observation.evidence_summary,
+                        posting_id=planned.posting_id,
+                        result=planned.result,
+                        observed_at=planned.observed_at,
+                        evidence_summary=planned.evidence_summary,
                         recorded_at=datetime.now(UTC),
                     )
                 )

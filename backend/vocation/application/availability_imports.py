@@ -9,7 +9,7 @@ from typing import Any, Protocol
 from jsonschema import Draft202012Validator, FormatChecker
 
 from vocation.application.ports import PromptContextSnapshotRepository, UpdateSubjectRepository
-from vocation.domain.availability import AvailabilityObservation
+from vocation.domain.availability import AvailabilityCheckResult
 from vocation.domain.research_bundle import ImportIssue, ImportReport, canonical_fingerprint, canonical_json
 
 MAX_IMPORT_BYTES = 2 * 1024 * 1024
@@ -19,7 +19,10 @@ MAX_IMPORT_BYTES = 2 * 1024 * 1024
 class PlannedAvailabilityObservation:
     bundle_local_id: str
     posting_correlation_ref: str
-    observation: AvailabilityObservation
+    posting_id: str
+    result: AvailabilityCheckResult
+    observed_at: datetime
+    evidence_summary: str
 
 
 @dataclass(frozen=True)
@@ -142,14 +145,10 @@ class AvailabilityImportPlanner:
                 PlannedAvailabilityObservation(
                     bundle_local_id=item["id"],
                     posting_correlation_ref=correlation_ref,
-                    observation=AvailabilityObservation(
-                        id=item["id"],
-                        posting_id=posting_id,
-                        result=item["result"],
-                        observed_at=observed_at,
-                        recorded_at=generated_at,
-                        evidence_summary=item["evidence_summary"],
-                    ),
+                    posting_id=posting_id,
+                    result=item["result"],
+                    observed_at=observed_at,
+                    evidence_summary=item["evidence_summary"],
                 )
             )
 
