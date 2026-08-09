@@ -17,7 +17,7 @@ The v0.2.0 personal triage baseline additionally includes immutable personal ass
 
 Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service. Wiiii Got This is the primary cross-device presentation for suitable published Vocation capabilities on Windows and iPhone; Vocation remains the local authority.
 
-The post-v0.3 Availability/Freshness slice is implemented on `dev`: controlled Availability Check prompting and import, append-only evidence-derived Posting/Opportunity Availability and availability-evidence Freshness, list filters/badges, and detail/history views. It remains outside the released v0.3.0 baseline.
+The post-v0.3 Availability/Freshness slice is implemented on `dev`: controlled Availability Check prompting and import, append-only evidence-derived Posting/Opportunity Availability and availability-evidence Freshness, list filters/badges, and detail/history views. Groups/Waves are also implemented on `dev`: persistent typed groups, ordered memberships, CRUD, filtering, and the React Groups & Waves workflow. Both remain outside the released v0.3.0 baseline.
 
 Published Opportunity Overview 1.0 is implemented on `dev`. Its canonical contract remains `schemas/published-opportunity-overview-v1.schema.json`; the local read-only endpoint is `/published/v1/opportunity-overview` and remains outside the internal React OpenAPI. No relay, WGT client, authentication, remote persistence, or cross-device writes are implemented.
 
@@ -52,7 +52,7 @@ The application uses local SQLite data. Local databases, imported job data, gene
 
 ## Boundaries and limitations
 
-Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Fuzzy identity resolution, groups/waves, comparison, maps, crawling, authentication, and cloud hosting remain outside v0.3. Availability/Freshness is post-v0.3 development on `dev` and remains absent from Published Opportunity Overview 1.0. Published Opportunity Overview 1.0 is implemented locally, without relay, WGT client, authentication, remote persistence, or cross-device writes.
+Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Fuzzy identity resolution, comparison, maps, crawling, authentication, and cloud hosting remain outside v0.3. Availability/Freshness and Groups/Waves are post-v0.3 development implemented on `dev`; Published Opportunity Overview 1.0 remains unchanged and contains neither capability. Published Opportunity Overview 1.0 is implemented locally, without relay, WGT client, authentication, remote persistence, or cross-device writes.
 
 ## Repository structure
 

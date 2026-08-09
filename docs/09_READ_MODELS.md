@@ -79,7 +79,7 @@ Fehlende und widersprüchliche Werte werden explizit dargestellt.
 - Statusverteilung
 - Freshness und Availability Summary
 
-`ApplicationWaveView` ist dieselbe Group-Sicht für Type `application_wave`; es gibt kein separates Wave-Aggregat. Opportunity List/Detail zeigen Memberships und unterstützen Group/Wave-Filter.
+`ApplicationWaveView` ist dieselbe Group-Sicht für Type `application_wave`; es gibt kein separates Wave-Aggregat. Opportunity List/Detail zeigen Memberships und unterstützen Group/Wave-Filter. Diese Read Models und die Group/Wave-Filter sind implementiert; die API ist unter `/api/groups` verfügbar.
 
 ## 7. MapProjection
 

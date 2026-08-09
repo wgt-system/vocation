@@ -381,4 +381,4 @@ Groups/Waves verändern weder Opportunity-Zustand, Tracking Status, Personal Ass
 
 ## AT-81 Group Reads and Filtering
 
-Group list/detail, geordnete Opportunities, Membership-Anzeige in Opportunity List/Detail sowie Group/Wave-Filter sind als geplante V1-Read-Capabilities definiert.
+Group list/detail, geordnete Opportunities, Membership-Anzeige in Opportunity List/Detail sowie `group_id`-Filter sind implementiert. Die React Groups & Waves UI und `/api/groups` unterstützen diese Read-Capabilities.
