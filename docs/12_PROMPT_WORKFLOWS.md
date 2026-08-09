@@ -37,7 +37,6 @@ Input:
 - letzte Observations
 - bekannte Sources
 - offene Duplicate Cases
-- geschützte Personal Decisions
 
 Output: Research Update Bundle `2.0`; neue Subjects und Scope-Regeln hängen vom gewählten Update-Typ ab. Availability/Freshness ist nicht Teil dieses Vertrags.
 
@@ -65,7 +64,7 @@ Ein generiertes Prompt-Paket enthält:
 2. Scope,
 3. Stichtag,
 4. Vocation-issued opaque Correlation References für Update Subjects,
-5. geschützte Daten,
+5. generische Schutzregeln für persönlichen Zustand,
 6. offene Fragen,
 7. Rechercheanforderungen,
 8. Ausgabe-Schema,
@@ -87,13 +86,10 @@ Nicht automatisch enthalten:
 
 ## 5. Geschützte Informationen
 
-Persönliche Assessments, Decisions und Tracking Status sowie deren Werte sind im v0.3 nicht Bestandteil des öffentlichen Prompt Context. Templates verwenden stattdessen generische Schutzregeln, die Research-Ausgaben anweisen, keinen persönlichen Zustand zu mutieren.
-
-Beispiel:
+Persönliche Assessments, Decisions und Tracking Status sowie deren Werte sind im v0.3 nicht Bestandteil des öffentlichen Prompt Context. Templates verwenden stattdessen generische Schutzregeln:
 
 ```text
-Die Opportunity ist persönlich ausgeschlossen. Prüfe nur neue externe Fakten.
-Gib keine Änderung des Tracking Status oder der Exclusion aus.
+Research-Ausgaben dürfen niemals Personal Assessments, Decisions, Exclusion/Restore oder Tracking Status ausgeben oder mutieren.
 ```
 
 ## 6. Einheitliche Ausgabe
@@ -128,7 +124,6 @@ Die aktuelle Desktop-UI bietet:
 - Prompt-Typ wählen,
 - Scope grafisch auswählen,
 - Preview,
-- Copy to Clipboard,
 - Copy to Clipboard und Save,
 - Inline-Import des zurückgegebenen JSON,
 - Bundle-/Prompt-Versionen und bei Updates die Prompt Context Ref anzeigen.
@@ -154,4 +149,4 @@ Verbindliche Vorlagen:
 - keine Secrets,
 - keine lokalen Dateipfade,
 - Prompt Preview vor Copy,
-- geschützte persönliche Daten nur bei fachlicher Notwendigkeit.
+- Der v0.3 Update Prompt Context enthält keine Personal Assessment-, Decision- oder Tracking-Status-Werte.

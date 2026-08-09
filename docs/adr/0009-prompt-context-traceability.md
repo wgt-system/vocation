@@ -5,7 +5,7 @@
 
 ## Decision
 
-`PromptContextSnapshot` is the traceability pivot for Update Research. An Update `ResearchPromptRun` has one nullable unique `prompt_context_ref`; Initial Research uses `null`. An applied `ResearchImport` persists `bundle_version`. An applied Update Bundle 2.0 import also persists its validated `prompt_context_ref`, while an Initial Bundle 1.0 import has no Prompt Context Ref.
+`PromptContextSnapshot` is the traceability pivot for Update Research. The database column for `prompt_context_ref` is nullable because Initial PromptRuns have `null`. Every Update `ResearchPromptRun` invariant requires a non-null `prompt_context_ref`; Initial Research uses `null`. An applied `ResearchImport` persists `bundle_version`. An applied Update Bundle 2.0 import also persists its validated `prompt_context_ref`, while an Initial Bundle 1.0 import has no Prompt Context Ref.
 
 `ResearchImport` stores no direct `prompt_run_id`. One snapshot belongs to at most one PromptRun, while multiple ResearchImports may reference one snapshot. Correlation References remain opaque and valid only within the snapshot that issued them.
 

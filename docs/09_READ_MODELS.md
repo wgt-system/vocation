@@ -126,6 +126,7 @@ Regeln:
 
 - Import Metadata
 - Bundle Version
+- Prompt Context Ref, sofern vorhanden
 - Scope
 - Result
 - Counts
@@ -133,18 +134,14 @@ Regeln:
 - Errors
 - Warnings
 - affected Domain IDs
-- Link zum zugehörigen Prompt Run, sofern vorhanden
 
 ## 9. PromptPreviewView
 
-- Prompt Type
-- Prompt Version
-- Scope Summary
-- included Context Items
-- protected fields note
-- expected Bundle Version
+- mode/type
+- Bundle Version
+- Prompt Version bei Updates
+- Prompt Context Ref bei Updates
 - rendered Prompt
-- estimated size
 
 ## 10. MobileOpportunitySummary
 
