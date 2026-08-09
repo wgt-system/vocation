@@ -222,6 +222,34 @@ class WorkLocationModel(Base):
     evidence_summary: Mapped[str | None] = mapped_column(Text)
 
     opportunity: Mapped[OpportunityModel] = relationship(back_populates="locations")
+    map_location_resolution: Mapped[MapLocationResolutionModel | None] = relationship(
+        back_populates="work_location", cascade="all, delete-orphan", uselist=False
+    )
+
+
+class MapLocationResolutionModel(Base):
+    __tablename__ = "map_location_resolutions"
+
+    work_location_id: Mapped[str] = mapped_column(ForeignKey("work_locations.id", ondelete="CASCADE"), primary_key=True)
+    latitude: Mapped[float] = mapped_column(Float, nullable=False)
+    longitude: Mapped[float] = mapped_column(Float, nullable=False)
+    resolution_source: Mapped[str] = mapped_column(String(20), nullable=False)
+    provider_key: Mapped[str | None] = mapped_column(String(200))
+    resolved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    resolved_query: Mapped[str] = mapped_column(Text, nullable=False)
+
+    work_location: Mapped[WorkLocationModel] = relationship(back_populates="map_location_resolution")
+    __table_args__ = (
+        CheckConstraint("latitude >= -90 AND latitude <= 90", name="ck_map_location_resolutions_latitude"),
+        CheckConstraint("longitude >= -180 AND longitude <= 180", name="ck_map_location_resolutions_longitude"),
+        CheckConstraint("resolution_source IN ('manual','geocoder')", name="ck_map_location_resolutions_source"),
+        CheckConstraint("length(trim(resolved_query)) > 0", name="ck_map_location_resolutions_query_nonempty"),
+        CheckConstraint(
+            "(resolution_source = 'manual' AND provider_key IS NULL) "
+            "OR (resolution_source = 'geocoder' AND length(trim(provider_key)) > 0)",
+            name="ck_map_location_resolutions_provider",
+        ),
+    )
 
 
 class PostingModel(Base):
