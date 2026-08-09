@@ -42,6 +42,7 @@ class ImportReport:
     duplicate_of_import_id: str | None = None
     bundle_version: str | None = None
     prompt_context_ref: str | None = None
+    import_kind: str = "research"
 
 
 def canonical_json(value: Any) -> str:

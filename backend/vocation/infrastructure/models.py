@@ -20,6 +20,7 @@ class ResearchImportModel(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     bundle_id: Mapped[str | None] = mapped_column(String(200))
     bundle_version: Mapped[str | None] = mapped_column(String(20))
+    import_kind: Mapped[str] = mapped_column(String(30), nullable=False, default="research", server_default="research")
     fingerprint: Mapped[str | None] = mapped_column(String(64), index=True)
     prompt_context_ref: Mapped[str | None] = mapped_column(
         ForeignKey("prompt_context_snapshots.prompt_context_ref", name="fk_research_imports_prompt_context_ref"), index=True
@@ -33,6 +34,7 @@ class ResearchImportModel(Base):
     issues: Mapped[list[ImportIssueModel]] = relationship(back_populates="research_import", cascade="all, delete-orphan")
     duplicate_cases: Mapped[list[DuplicateCaseModel]] = relationship(back_populates="research_import")
     prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(back_populates="research_imports")
+    availability_observations: Mapped[list[AvailabilityObservationModel]] = relationship(back_populates="research_import")
 
 
 class ImportIssueModel(Base):
@@ -101,7 +103,7 @@ class PromptContextSnapshotModel(Base):
     research_imports: Mapped[list[ResearchImportModel]] = relationship(back_populates="prompt_context_snapshot")
     __table_args__ = (
         CheckConstraint(
-            "scope_type IN ('full_update','company_update','opportunity_update','gap_filling')",
+            "scope_type IN ('full_update','company_update','opportunity_update','gap_filling','availability_check')",
             name="ck_prompt_context_snapshot_scope_type",
         ),
         CheckConstraint("length(prompt_context_ref) > 0 AND length(prompt_context_ref) <= 200", name="ck_prompt_context_ref_length"),
@@ -239,7 +241,32 @@ class PostingModel(Base):
     content_fingerprint: Mapped[str | None] = mapped_column(String(200))
 
     opportunity: Mapped[OpportunityModel] = relationship(back_populates="postings")
+    availability_observations: Mapped[list[AvailabilityObservationModel]] = relationship(back_populates="posting")
     __table_args__ = (UniqueConstraint("import_id", "bundle_local_id"),)
+
+
+class AvailabilityObservationModel(Base):
+    __tablename__ = "availability_observations"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    import_id: Mapped[str] = mapped_column(ForeignKey("research_imports.id"), index=True)
+    bundle_local_id: Mapped[str] = mapped_column(String(200))
+    posting_id: Mapped[str] = mapped_column(ForeignKey("postings.id"), index=True)
+    result: Mapped[str] = mapped_column(String(40))
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    evidence_summary: Mapped[str] = mapped_column(Text)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    research_import: Mapped[ResearchImportModel] = relationship(back_populates="availability_observations")
+    posting: Mapped[PostingModel] = relationship(back_populates="availability_observations")
+    __table_args__ = (
+        UniqueConstraint("import_id", "bundle_local_id"),
+        UniqueConstraint("import_id", "posting_id"),
+        CheckConstraint(
+            "result IN ('explicitly_available','explicitly_unavailable','temporarily_unreachable','not_found','indeterminate')",
+        ),
+        CheckConstraint("length(trim(evidence_summary)) > 0"),
+    )
 
 
 class ObservationModel(Base):

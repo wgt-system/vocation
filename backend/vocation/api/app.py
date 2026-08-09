@@ -14,6 +14,7 @@ from vocation.api.import_routes import router as import_router
 from vocation.api.opportunity_routes import router as opportunity_router
 from vocation.api.prompt_routes import router as prompt_router
 from vocation.api.published_routes import router as published_router
+from vocation.application.availability_imports import AvailabilityImportPlanner, AvailabilityImportService
 from vocation.application.criteria import CriteriaService
 from vocation.application.duplicate_cases import DuplicateCaseService
 from vocation.application.imports import ImportService
@@ -24,6 +25,7 @@ from vocation.application.prompts import PromptService
 from vocation.application.publication import OpportunityOverviewPublicationService
 from vocation.application.update_planning import UpdateImportPlanner
 from vocation.config import Settings, get_settings
+from vocation.infrastructure.availability_repository import SqlAlchemyAvailabilityImportRepository
 from vocation.infrastructure.bundle_repository import SqlAlchemyImportRepository
 from vocation.infrastructure.database import Database
 from vocation.infrastructure.duplicate_case_repository import SqlAlchemyDuplicateCaseRepository
@@ -83,6 +85,14 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         settings.schema_path,
         settings.update_schema_path,
         app.state.update_import_planner,
+    )
+    app.state.availability_import_service = AvailabilityImportService(
+        SqlAlchemyAvailabilityImportRepository(database.session_factory),
+        AvailabilityImportPlanner(
+            SqlAlchemyPromptContextSnapshotRepository(database.session_factory),
+            SqlAlchemyUpdateSubjectRepository(database.session_factory),
+        ),
+        settings.schema_path.parent / "availability-check-bundle-v1.schema.json",
     )
     app.state.opportunity_service = OpportunityQueryService(SqlAlchemyOpportunityReadRepository(database.session_factory))
     app.state.publication_service = OpportunityOverviewPublicationService(

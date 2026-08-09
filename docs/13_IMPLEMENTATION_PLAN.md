@@ -87,7 +87,7 @@ Noch kein Produktcode.
 - no remote relay implementation yet
 - no personal-state write commands
 
-Contract 1.0 is frozen in `schemas/published-opportunity-overview-v1.schema.json` with a canonical fictional example and schema-only contract tests. Slice 8 freezes the contract only; the local read-only boundary `/published/v1/opportunity-overview` is planned, not implemented. No projection, relay, WGT client, authentication, remote persistence, or cross-device writes are implemented.
+Contract 1.0 is frozen in `schemas/published-opportunity-overview-v1.schema.json` with a canonical fictional example and schema-only contract tests. Slice 8 is implemented on `dev` with the local read-only boundary `/published/v1/opportunity-overview`; it remains outside the internal React OpenAPI. No relay, WGT client, authentication, remote persistence, or cross-device writes are implemented.
 
 ### Slice 9 – Availability und Freshness
 
@@ -96,7 +96,7 @@ Contract 1.0 is frozen in `schemas/published-opportunity-overview-v1.schema.json
 - Freshness
 - UI Indicators
 
-Slice 9 freezes Availability Check Bundle 1.0 and its evidence-derived semantics; implementation, persistence, API, and UI work remain the subsequent implementation task.
+Slice 9 freezes Availability Check Bundle 1.0 and its evidence-derived semantics; this backend task implements persistence and import/evaluator foundations, while read-model/API/UI integration remains subsequent work.
 
 ## Slice 10 – Groups und Waves
 
@@ -168,4 +168,4 @@ Issue #8 – deterministische Identität und ungelöste Duplicate Cases: abgesch
 
 Issue #9 – Prompt Context Persistence, read-only Planning und atomarer Update Import: abgeschlossen.
 
-Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Vocation v0.3.0 enthält Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots und opaque Correlation References, deterministische Posting-Identität, ungelöste Duplicate Cases ohne automatischen Merge, read-only Planning und atomaren Update Apply, PromptRun/ResearchImport-Traceability sowie den vollständigen Desktop Research Prompt preview/copy/save/import workflow. Published Opportunity Overview 1.0 ist als erster Post-v0.3-Vertrag eingefroren, aber nicht implementiert. Availability/Freshness, Groups/Waves, Maps, External Navigation und Comparison folgen danach.
+Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Vocation v0.3.0 enthält Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots und opaque Correlation References, deterministische Posting-Identität, ungelöste Duplicate Cases ohne automatischen Merge, read-only Planning und atomaren Update Apply, PromptRun/ResearchImport-Traceability, den vollständigen Desktop Research Prompt preview/copy/save/import workflow sowie die implementierte Published Opportunity Overview 1.0 Publication auf `dev`. Slice 9 ist als Contract Freeze abgeschlossen; Availability/Freshness-Implementierung und Read-Model-Integration sind noch in Arbeit. Groups/Waves, Maps, External Navigation und Comparison folgen danach.

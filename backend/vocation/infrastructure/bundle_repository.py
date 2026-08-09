@@ -101,6 +101,7 @@ class SqlAlchemyImportRepository:
             model = ResearchImportModel(
                 id=import_id,
                 bundle_id=bundle_id,
+                import_kind="research",
                 fingerprint=fingerprint,
                 status="rejected",
                 counts_json="{}",
@@ -150,6 +151,7 @@ class SqlAlchemyImportRepository:
                 ResearchImportModel(
                     id=import_id,
                     bundle_id=bundle["bundle_id"],
+                    import_kind="research",
                     bundle_version="1.0",
                     fingerprint=fingerprint,
                     status="applied",
@@ -334,6 +336,7 @@ class SqlAlchemyImportRepository:
                 ResearchImportModel(
                     id=import_id,
                     bundle_id=bundle["bundle_id"],
+                    import_kind="research",
                     bundle_version="2.0",
                     prompt_context_ref=plan.prompt_context_ref,
                     fingerprint=fingerprint,
@@ -515,6 +518,7 @@ class SqlAlchemyImportRepository:
             warnings,
             bundle_version="2.0",
             prompt_context_ref=plan.prompt_context_ref,
+            import_kind="research",
         )
 
     @staticmethod
@@ -526,6 +530,7 @@ class SqlAlchemyImportRepository:
             fingerprint=model.fingerprint,
             bundle_version=model.bundle_version,
             prompt_context_ref=model.prompt_context_ref,
+            import_kind=model.import_kind,
             counts=json.loads(model.counts_json),
             warnings=json.loads(model.warnings_json),
             issues=[ImportIssue(issue.code, issue.message, issue.path, issue.severity) for issue in model.issues],

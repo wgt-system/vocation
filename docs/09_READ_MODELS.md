@@ -143,11 +143,11 @@ Regeln:
 - Prompt Context Ref bei Updates
 - rendered Prompt
 
-## 10. PublishedOpportunityOverview (frozen contract, planned projection)
+## 10. PublishedOpportunityOverview (implemented, client-neutral)
 
 Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. Contract 1.0 is frozen by `schemas/published-opportunity-overview-v1.schema.json`; the projection and local adapter are not implemented in this slice.
 
-Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`, `publication` und `opportunities`. Die geschlossenen Opportunity-Objekte enthalten ausschließlich opaque Opportunity-/Company-Referenzen, Titel, Company, Work Locations und Posting Count. Es gibt keine URLs, Navigation, Personal-/Import-/Provenance-Daten, Availability/Freshness oder Schreibinformationen. Der lokale Adapter ist unter `/published/v1/opportunity-overview` geplant und bleibt außerhalb der internen React OpenAPI.
+Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`, `publication` und `opportunities`. Die geschlossenen Opportunity-Objekte enthalten ausschließlich opaque Opportunity-/Company-Referenzen, Titel, Company, Work Locations und Posting Count. Es gibt keine URLs, Navigation, Personal-/Import-/Provenance-Daten, Availability/Freshness oder Schreibinformationen. Der lokale Adapter ist unter `/published/v1/opportunity-overview` implementiert und bleibt außerhalb der internen React OpenAPI.
 
 - `contract_version`
 - publication metadata: `publication_ref`, `generated_at`
@@ -157,7 +157,11 @@ Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`,
 
 Future client-neutral projection for map-capable consumers. It is not a mobile-specific contract and does not change Vocation ownership of Work Locations.
 
-## 12. Publication Metadata
+## 12. Availability/Freshness Integration (planned)
+
+Spätere Read Models werden abgeleitete Availability und die Freshness der Availability-Evidenz aus den append-only Availability Observations exponieren. Dieser Read-Model-Integrationsschritt ist noch nicht implementiert.
+
+## 13. Publication Metadata
 
 For the frozen Published Opportunity Overview 1.0 contract, current publication metadata
 contains only `publication_ref` and `generated_at`. It does not define publication age,
@@ -166,4 +170,4 @@ data freshness, import time, or a stale indicator.
 
 Opportunity-Liste und Detail enthalten den Tracking Status und unterstützen Statusfilter. Die Detailansicht trennt `external_assessments`, aktuelle `personal_assessments`, `personal_assessment_history` und chronologische `decision_history`. Die historische Darstellung ist append-only und stammt aus Vocation-eigenen Tabellen; Research-Bundle-Daten bleiben externe Beobachtungen. Mutation-Fehler dürfen bereits geladene Read Models nicht leeren.
 
-Für Slice 9 zeigen aktuelle Read Models abgeleitete Posting-/Opportunity-Availability sowie availability-evidence Freshness (`last_checked_at`, `age_days`). Freshness hat keine Schwellenkategorie und ändert Availability nicht automatisch.
+Für Slice 9 werden spätere Read Models abgeleitete Posting-/Opportunity-Availability sowie availability-evidence Freshness (`last_checked_at`, `age_days`) zeigen. Freshness hat keine Schwellenkategorie und ändert Availability nicht automatisch.
