@@ -3,6 +3,12 @@ import type { components } from "./generated";
 export type Criterion = components["schemas"]["CriterionResponse"];
 export type ImportIssue = components["schemas"]["ImportIssueResponse"];
 export type ImportReport = components["schemas"]["ImportReportResponse"];
+export type UpdateMode = components["schemas"]["UpdatePromptPayload"]["mode"];
+export type UpdatePromptOptions =
+  components["schemas"]["UpdatePromptOptionsResponse"];
+export type GeneratedUpdatePrompt =
+  components["schemas"]["GeneratedUpdatePromptResponse"];
+export type GapRequest = components["schemas"]["GapRequestPayload"];
 export type TrackingStatus =
   components["schemas"]["OpportunityListItemResponse"]["tracking_status"];
 export type OpportunityListItem =
@@ -62,6 +68,15 @@ export const api = {
         body: JSON.stringify(payload),
       },
     ),
+  getUpdatePromptOptions: () =>
+    request<UpdatePromptOptions>("/api/prompts/update-options"),
+  generateUpdatePrompt: (
+    payload: components["schemas"]["UpdatePromptPayload"],
+  ) =>
+    request<GeneratedUpdatePrompt>("/api/prompts/update", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
   importText: (content: string) =>
     request<ImportReport>("/api/imports/text", {
       method: "POST",

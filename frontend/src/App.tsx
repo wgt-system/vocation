@@ -69,7 +69,11 @@ export default function App() {
           />
         )}
         {view === "criteria" && <CriteriaView />}
-        {view === "prompt" && <PromptView />}
+        {view === "prompt" && (
+          <PromptView
+            onImported={() => setRefreshToken((value) => value + 1)}
+          />
+        )}
       </main>
     </div>
   );

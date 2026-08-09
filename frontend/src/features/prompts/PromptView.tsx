@@ -1,9 +1,10 @@
-import { FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import { api } from "../../api/client";
 import { ErrorState, Loading } from "../../components/AsyncState";
+import { ResearchPromptView } from "./ResearchPromptView";
 
-export function PromptView() {
+function LegacyPromptView() {
   const [profile, setProfile] = useState("");
   const [constraints, setConstraints] = useState("");
   const [asOfDate, setAsOfDate] = useState(
@@ -121,3 +122,5 @@ export function PromptView() {
     </section>
   );
 }
+
+export const PromptView = ResearchPromptView;

@@ -73,6 +73,24 @@
         "title": "Body_import_file_api_imports_file_post",
         "type": "object"
       },
+      "CompanyOptionResponse": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "CompanyOptionResponse",
+        "type": "object"
+      },
       "CompanyResponse": {
         "properties": {
           "id": {
@@ -369,9 +387,203 @@
         "title": "ExclusionPayload",
         "type": "object"
       },
+      "FullResearchScope": {
+        "properties": {
+          "as_of_date": {
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "type": {
+            "const": "full_update",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "as_of_date"
+        ],
+        "title": "FullResearchScope",
+        "type": "object"
+      },
+      "GapCriterionScopeRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "correlation_ref": {
+            "title": "Correlation Ref",
+            "type": "string"
+          },
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "observation_type": {
+            "title": "Observation Type",
+            "type": "null"
+          },
+          "subject_type": {
+            "enum": [
+              "company",
+              "opportunity",
+              "posting"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_type",
+          "correlation_ref",
+          "criterion_id"
+        ],
+        "title": "GapCriterionScopeRequest",
+        "type": "object"
+      },
+      "GapObservationScopeRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "correlation_ref": {
+            "title": "Correlation Ref",
+            "type": "string"
+          },
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "null"
+          },
+          "observation_type": {
+            "enum": [
+              "technology_requirement",
+              "task",
+              "seniority",
+              "experience_requirement",
+              "work_model",
+              "salary"
+            ],
+            "title": "Observation Type",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "company",
+              "opportunity",
+              "posting"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_type",
+          "correlation_ref",
+          "observation_type"
+        ],
+        "title": "GapObservationScopeRequest",
+        "type": "object"
+      },
+      "GapRequestPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "criterion_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criterion Id"
+          },
+          "observation_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "technology_requirement",
+                  "task",
+                  "seniority",
+                  "experience_requirement",
+                  "work_model",
+                  "salary"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observation Type"
+          },
+          "subject_id": {
+            "minLength": 1,
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "company",
+              "opportunity",
+              "posting"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_type",
+          "subject_id"
+        ],
+        "title": "GapRequestPayload",
+        "type": "object"
+      },
+      "GapResearchScope": {
+        "properties": {
+          "as_of_date": {
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "requests": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/GapObservationScopeRequest"
+                },
+                {
+                  "$ref": "#/components/schemas/GapCriterionScopeRequest"
+                }
+              ]
+            },
+            "title": "Requests",
+            "type": "array"
+          },
+          "selected_correlation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Correlation Refs",
+            "type": "array"
+          },
+          "type": {
+            "const": "gap_filling",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "as_of_date",
+          "selected_correlation_refs",
+          "requests"
+        ],
+        "title": "GapResearchScope",
+        "type": "object"
+      },
       "GeneratedPromptResponse": {
         "properties": {
           "bundle_version": {
+            "enum": [
+              "1.0",
+              "2.0"
+            ],
             "title": "Bundle Version",
             "type": "string"
           },
@@ -395,6 +607,80 @@
           "criteria_count"
         ],
         "title": "GeneratedPromptResponse",
+        "type": "object"
+      },
+      "GeneratedUpdatePromptResponse": {
+        "properties": {
+          "bundle_version": {
+            "const": "2.0",
+            "title": "Bundle Version",
+            "type": "string"
+          },
+          "criteria_count": {
+            "title": "Criteria Count",
+            "type": "integer"
+          },
+          "prompt_context_ref": {
+            "title": "Prompt Context Ref",
+            "type": "string"
+          },
+          "prompt_run_id": {
+            "title": "Prompt Run Id",
+            "type": "string"
+          },
+          "prompt_text": {
+            "title": "Prompt Text",
+            "type": "string"
+          },
+          "prompt_type": {
+            "enum": [
+              "full_update",
+              "company_update",
+              "opportunity_update",
+              "gap_filling"
+            ],
+            "title": "Prompt Type",
+            "type": "string"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "research_scope": {
+            "discriminator": {
+              "mapping": {
+                "company_update": "#/components/schemas/SelectedResearchScope",
+                "full_update": "#/components/schemas/FullResearchScope",
+                "gap_filling": "#/components/schemas/GapResearchScope",
+                "opportunity_update": "#/components/schemas/SelectedResearchScope"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/FullResearchScope"
+              },
+              {
+                "$ref": "#/components/schemas/SelectedResearchScope"
+              },
+              {
+                "$ref": "#/components/schemas/GapResearchScope"
+              }
+            ],
+            "title": "Research Scope"
+          }
+        },
+        "required": [
+          "prompt_run_id",
+          "prompt_context_ref",
+          "prompt_type",
+          "prompt_version",
+          "bundle_version",
+          "research_scope",
+          "prompt_text",
+          "criteria_count"
+        ],
+        "title": "GeneratedUpdatePromptResponse",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -479,6 +765,17 @@
             ],
             "title": "Bundle Id"
           },
+          "bundle_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bundle Version"
+          },
           "counts": {
             "additionalProperties": {
               "type": "integer"
@@ -518,6 +815,17 @@
             },
             "title": "Issues",
             "type": "array"
+          },
+          "prompt_context_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Context Ref"
           },
           "status": {
             "title": "Status",
@@ -848,6 +1156,29 @@
         "title": "OpportunityListItemResponse",
         "type": "object"
       },
+      "OpportunityOptionResponse": {
+        "properties": {
+          "company_id": {
+            "title": "Company Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "company_id",
+          "title"
+        ],
+        "title": "OpportunityOptionResponse",
+        "type": "object"
+      },
       "PersonalAssessmentPayload": {
         "additionalProperties": false,
         "properties": {
@@ -973,6 +1304,34 @@
         "title": "PersonalAssessmentRevisionPayload",
         "type": "object"
       },
+      "PostingOptionResponse": {
+        "properties": {
+          "company_id": {
+            "title": "Company Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "company_id",
+          "opportunity_id",
+          "title"
+        ],
+        "title": "PostingOptionResponse",
+        "type": "object"
+      },
       "PostingResponse": {
         "properties": {
           "id": {
@@ -1069,6 +1428,36 @@
           }
         },
         "title": "RestorePayload",
+        "type": "object"
+      },
+      "SelectedResearchScope": {
+        "properties": {
+          "as_of_date": {
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "selected_correlation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Correlation Refs",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "company_update",
+              "opportunity_update"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "as_of_date",
+          "selected_correlation_refs"
+        ],
+        "title": "SelectedResearchScope",
         "type": "object"
       },
       "SourceReferenceResponse": {
@@ -1172,6 +1561,94 @@
           "status"
         ],
         "title": "StatusPayload",
+        "type": "object"
+      },
+      "UpdatePromptOptionsResponse": {
+        "properties": {
+          "companies": {
+            "items": {
+              "$ref": "#/components/schemas/CompanyOptionResponse"
+            },
+            "title": "Companies",
+            "type": "array"
+          },
+          "observation_types": {
+            "items": {
+              "enum": [
+                "technology_requirement",
+                "task",
+                "seniority",
+                "experience_requirement",
+                "work_model",
+                "salary"
+              ],
+              "type": "string"
+            },
+            "title": "Observation Types",
+            "type": "array"
+          },
+          "opportunities": {
+            "items": {
+              "$ref": "#/components/schemas/OpportunityOptionResponse"
+            },
+            "title": "Opportunities",
+            "type": "array"
+          },
+          "postings": {
+            "items": {
+              "$ref": "#/components/schemas/PostingOptionResponse"
+            },
+            "title": "Postings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "companies",
+          "opportunities",
+          "postings",
+          "observation_types"
+        ],
+        "title": "UpdatePromptOptionsResponse",
+        "type": "object"
+      },
+      "UpdatePromptPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of_date": {
+            "format": "date",
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "gap_requests": {
+            "items": {
+              "$ref": "#/components/schemas/GapRequestPayload"
+            },
+            "title": "Gap Requests",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "full_update",
+              "company_update",
+              "opportunity_update",
+              "gap_filling"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "selected_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "mode",
+          "as_of_date"
+        ],
+        "title": "UpdatePromptPayload",
         "type": "object"
       },
       "ValidationError": {
@@ -2089,6 +2566,68 @@
           }
         },
         "summary": "Generate Initial Prompt",
+        "tags": [
+          "research prompts"
+        ]
+      }
+    },
+    "/api/prompts/update": {
+      "post": {
+        "operationId": "generate_update_prompt_api_prompts_update_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePromptPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratedUpdatePromptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate Update Prompt",
+        "tags": [
+          "research prompts"
+        ]
+      }
+    },
+    "/api/prompts/update-options": {
+      "get": {
+        "operationId": "update_prompt_options_api_prompts_update_options_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePromptOptionsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Update Prompt Options",
         "tags": [
           "research prompts"
         ]

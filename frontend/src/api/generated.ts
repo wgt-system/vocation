@@ -312,6 +312,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/prompts/update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Update Prompt */
+        post: operations["generate_update_prompt_api_prompts_update_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompts/update-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Update Prompt Options */
+        get: operations["update_prompt_options_api_prompts_update_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -340,6 +374,13 @@ export interface components {
         Body_import_file_api_imports_file_post: {
             /** File */
             file: string;
+        };
+        /** CompanyOptionResponse */
+        CompanyOptionResponse: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
         };
         /** CompanyResponse */
         CompanyResponse: {
@@ -456,16 +497,113 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** FullResearchScope */
+        FullResearchScope: {
+            /** As Of Date */
+            as_of_date: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "full_update";
+        };
+        /** GapCriterionScopeRequest */
+        GapCriterionScopeRequest: {
+            /** Correlation Ref */
+            correlation_ref: string;
+            /** Criterion Id */
+            criterion_id: string;
+            /** Observation Type */
+            observation_type?: null;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "company" | "opportunity" | "posting";
+        };
+        /** GapObservationScopeRequest */
+        GapObservationScopeRequest: {
+            /** Correlation Ref */
+            correlation_ref: string;
+            /** Criterion Id */
+            criterion_id?: null;
+            /**
+             * Observation Type
+             * @enum {string}
+             */
+            observation_type: "technology_requirement" | "task" | "seniority" | "experience_requirement" | "work_model" | "salary";
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "company" | "opportunity" | "posting";
+        };
+        /** GapRequestPayload */
+        GapRequestPayload: {
+            /** Criterion Id */
+            criterion_id?: string | null;
+            /** Observation Type */
+            observation_type?: ("technology_requirement" | "task" | "seniority" | "experience_requirement" | "work_model" | "salary") | null;
+            /** Subject Id */
+            subject_id: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "company" | "opportunity" | "posting";
+        };
+        /** GapResearchScope */
+        GapResearchScope: {
+            /** As Of Date */
+            as_of_date: string;
+            /** Requests */
+            requests: (components["schemas"]["GapObservationScopeRequest"] | components["schemas"]["GapCriterionScopeRequest"])[];
+            /** Selected Correlation Refs */
+            selected_correlation_refs: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "gap_filling";
+        };
         /** GeneratedPromptResponse */
         GeneratedPromptResponse: {
-            /** Bundle Version */
-            bundle_version: string;
+            /**
+             * Bundle Version
+             * @enum {string}
+             */
+            bundle_version: "1.0" | "2.0";
             /** Criteria Count */
             criteria_count: number;
             /** Prompt Run Id */
             prompt_run_id: string;
             /** Prompt Text */
             prompt_text: string;
+        };
+        /** GeneratedUpdatePromptResponse */
+        GeneratedUpdatePromptResponse: {
+            /**
+             * Bundle Version
+             * @constant
+             */
+            bundle_version: "2.0";
+            /** Criteria Count */
+            criteria_count: number;
+            /** Prompt Context Ref */
+            prompt_context_ref: string;
+            /** Prompt Run Id */
+            prompt_run_id: string;
+            /** Prompt Text */
+            prompt_text: string;
+            /**
+             * Prompt Type
+             * @enum {string}
+             */
+            prompt_type: "full_update" | "company_update" | "opportunity_update" | "gap_filling";
+            /** Prompt Version */
+            prompt_version: string;
+            /** Research Scope */
+            research_scope: components["schemas"]["FullResearchScope"] | components["schemas"]["SelectedResearchScope"] | components["schemas"]["GapResearchScope"];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -498,6 +636,8 @@ export interface components {
         ImportReportResponse: {
             /** Bundle Id */
             bundle_id: string | null;
+            /** Bundle Version */
+            bundle_version?: string | null;
             /** Counts */
             counts: {
                 [key: string]: number;
@@ -510,6 +650,8 @@ export interface components {
             import_id: string;
             /** Issues */
             issues: components["schemas"]["ImportIssueResponse"][];
+            /** Prompt Context Ref */
+            prompt_context_ref?: string | null;
             /** Status */
             status: string;
             /** Warnings */
@@ -614,6 +756,15 @@ export interface components {
              */
             tracking_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
         };
+        /** OpportunityOptionResponse */
+        OpportunityOptionResponse: {
+            /** Company Id */
+            company_id: string;
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+        };
         /** PersonalAssessmentPayload */
         PersonalAssessmentPayload: {
             /** Criterion Id */
@@ -653,6 +804,17 @@ export interface components {
             /** Value */
             value: unknown;
         };
+        /** PostingOptionResponse */
+        PostingOptionResponse: {
+            /** Company Id */
+            company_id: string;
+            /** Id */
+            id: string;
+            /** Opportunity Id */
+            opportunity_id: string;
+            /** Title */
+            title: string;
+        };
         /** PostingResponse */
         PostingResponse: {
             /** Id */
@@ -677,6 +839,18 @@ export interface components {
             reason?: string | null;
             /** Target Status */
             target_status?: ("new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived") | null;
+        };
+        /** SelectedResearchScope */
+        SelectedResearchScope: {
+            /** As Of Date */
+            as_of_date: string;
+            /** Selected Correlation Refs */
+            selected_correlation_refs: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "company_update" | "opportunity_update";
         };
         /** SourceReferenceResponse */
         SourceReferenceResponse: {
@@ -709,6 +883,34 @@ export interface components {
              * @enum {string}
              */
             status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
+        };
+        /** UpdatePromptOptionsResponse */
+        UpdatePromptOptionsResponse: {
+            /** Companies */
+            companies: components["schemas"]["CompanyOptionResponse"][];
+            /** Observation Types */
+            observation_types: ("technology_requirement" | "task" | "seniority" | "experience_requirement" | "work_model" | "salary")[];
+            /** Opportunities */
+            opportunities: components["schemas"]["OpportunityOptionResponse"][];
+            /** Postings */
+            postings: components["schemas"]["PostingOptionResponse"][];
+        };
+        /** UpdatePromptPayload */
+        UpdatePromptPayload: {
+            /**
+             * As Of Date
+             * Format: date
+             */
+            as_of_date: string;
+            /** Gap Requests */
+            gap_requests?: components["schemas"]["GapRequestPayload"][];
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "full_update" | "company_update" | "opportunity_update" | "gap_filling";
+            /** Selected Ids */
+            selected_ids?: string[];
         };
         /** ValidationError */
         ValidationError: {
@@ -1356,6 +1558,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_update_prompt_api_prompts_update_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePromptPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneratedUpdatePromptResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_prompt_options_api_prompts_update_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdatePromptOptionsResponse"];
                 };
             };
         };
