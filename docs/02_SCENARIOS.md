@@ -86,7 +86,7 @@ Eine Publication Snapshot ist älter als der lokale Bestand. Das Veröffentlichu
 
 Wenn keine Remote-Publikation konfiguriert ist, bleiben lokale Prompting-, Import-, Pflege- und Read-Workflows vollständig nutzbar.
 
-## S20 – Historische Opportunity wird erneut relevant
+## S21 – Historische Opportunity wird erneut relevant
 
 Eine früher ausgeschlossene oder archivierte Position erscheint mit veränderten Anforderungen. Historische Decisions bleiben sichtbar, werden aber nicht blind übertragen.
 

@@ -136,16 +136,6 @@ Dann ist sie read-only und enthält keine Import- oder Decision-Commands.
 Wenn eine Publication Snapshot älter ist
 Dann zeigt der Client Publication Age, ohne daraus stale oder unavailable Job Postings abzuleiten.
 
-## AT-61 WGT iPhone ohne Windows-PC
-
-Wenn der Windows-PC ausgeschaltet ist
-Dann kann Wiiii Got This die letzte veröffentlichte Read Projection auf dem iPhone anzeigen.
-
-## AT-62 Local-only Operation
-
-Wenn keine Remote-Publikation konfiguriert ist
-Dann bleiben lokale Prompting-, Import-, Pflege- und Read-Workflows nutzbar.
-
 ## AT-23 Exclusion mit Grund
 
 Wenn eine Opportunity ausgeschlossen wird  
@@ -310,3 +300,13 @@ Für alle fünf Modi unterstützt die Desktop-UI Scope-Auswahl, Prompt-Generieru
 ## AT-60 Update Import Traceability
 
 Ein erzeugtes Update Bundle kann über den v0.3-Importer aus Issue #9 importiert werden; Duplicate-Importe erzeugen keine neue Mutation und bewahren die ursprünglichen Bundle-, Prompt- und Prompt-Context-Metadaten.
+
+## AT-61 WGT iPhone ohne Windows-PC
+
+Wenn der Windows-PC ausgeschaltet ist
+Dann kann Wiiii Got This die letzte veröffentlichte Read Projection auf dem iPhone anzeigen.
+
+## AT-62 Local-only Operation
+
+Wenn keine Remote-Publikation konfiguriert ist
+Dann bleiben lokale Prompting-, Import-, Pflege- und Read-Workflows nutzbar.

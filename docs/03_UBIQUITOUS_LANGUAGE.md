@@ -154,15 +154,15 @@ Für eine konkrete Ansicht bevorzugte, aktuell nutzbare Source Reference. Sie bl
 
 ### Published Read Projection
 
-Veralteter allgemeiner Begriff. Verwende stattdessen client-neutrale `Published Vocation Capability` und `Published Read Projection`.
+Aktueller client-neutraler Begriff für eine veröffentlichte Read Projection. `Mobile Projection` ist der veraltete client-spezifische Begriff.
 
 ### Published Vocation Capability
 
-Versionierter, client-neutraler read-only Vertrag für geeignete Vocation-Daten. Die erste geplante Capability ist `Opportunity Overview` 1.0.
+Versionierte Capability-/Vertragsgrenze für geeignete Vocation-Daten. Die erste geplante Capability ist `Opportunity Overview` 1.0.
 
 ### Publication Snapshot
 
-Eine veröffentlichte, abgeleitete Momentaufnahme eines Read Projections mit Publication Metadata. Ihr Alter beschreibt Publication Age, nicht die Freshness oder Availability eines Job Postings.
+Eine veröffentlichte, abgeleitete Momentaufnahme einer Read Projection mit Publication Metadata. Ihr Alter beschreibt Publication Age, nicht die Freshness oder Availability eines Job Postings.
 
 ## Verbotene oder unpräzise Begriffe
 

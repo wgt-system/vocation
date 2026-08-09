@@ -165,7 +165,7 @@ Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publicatio
 
 Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.
 
-Cross-device Reads müssen mit der letzten Published Projection funktionieren, wenn der Windows-PC ausgeschaltet ist. Lokale-only Nutzung ohne konfigurierte Remote-Publikation bleibt vollständig unterstützt. Ein Sync Bounded Context wird nicht eingeführt; Cross-device Writes bleiben unentschieden.
+Cross-device Reads müssen mit der letzten Published Projection funktionieren, wenn der Windows-PC ausgeschaltet ist. Local-only-Nutzung ohne konfigurierte Remote-Publikation bleibt vollständig unterstützt. Ein Sync Bounded Context wird nicht eingeführt; Cross-device Writes bleiben unentschieden.
 
 WGT liest nie die Vocation-Datenbank, importiert keine Vocation-Domainklassen und führt keine Vocation-Fachlogik aus. Python/FastAPI läuft nicht im iPhone-WGT-Client.
 
