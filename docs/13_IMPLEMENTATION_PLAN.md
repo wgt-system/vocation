@@ -106,13 +106,15 @@ Slice 9 freezes Availability Check Bundle 1.0 and its evidence-derived semantics
 
 V1 definiert `OpportunityGroup` als Aggregate mit Type `general` oder `application_wave`; Application Wave ist kein separates Aggregate. Implementiert sind `CreateOpportunityGroup`, `EditOpportunityGroup`, `DeleteOpportunityGroup`, `AddOpportunityToGroup`, `RemoveOpportunityFromGroup` und `ReorderOpportunityGroup`, persistente geordnete Memberships, `/api/groups`, `group_id`-Filter, Opportunity List/Detail Memberships und die React Groups & Waves UI. Membership ist veränderbarer Organisationszustand; Gruppen verändern keine Opportunity-, Personal-, Research- oder Availability-Daten. Published Opportunity Overview 1.0 bleibt unverändert.
 
-## Slice 11 – Karte
+## Slice 11 – Karte (Semantik eingefroren, Implementierung folgt)
 
 - Work Locations
 - MapProjection
 - Renderer
 - Filterkonsistenz
 - Pin Preview
+
+V1 führt `MapLocationResolution` als Vocation-owned Supporting Data pro WorkLocation ein. Research Bundles bleiben unverändert; Resolution ist nicht append-only Evidence oder Decision History, überschreibt keine WorkLocation Precision und wird nur explizit durch den Nutzer ausgelöst. Der provider-neutrale Geocoder-Port und der ersetzbare Tile Renderer bleiben Infrastruktur. Die interne MapProjection wird aus einer expliziten Opportunity-ID-Menge erzeugt, verwendet ein Feature pro aufgelöster WorkLocation und hält Karte/Liste filterkonsistent. Pin-Klick öffnet nur Vocation Preview/Detail; Published Opportunity Overview 1.0 bleibt unverändert.
 
 ## Slice 12 – External Links
 

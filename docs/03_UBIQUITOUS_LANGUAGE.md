@@ -146,7 +146,13 @@ Für einen konkreten Lesezweck aufbereitete Sicht ohne eigene fachliche Datenhoh
 
 ### Map Projection
 
-Read Model, das Vocation-Daten in kartendarstellbare Features übersetzt.
+Internes Vocation-Read-Model mit genau einem Feature pro aufgelöster WorkLocation. Die Projektion wird aus einer expliziten Menge von Opportunity IDs gebildet und verwendet damit dasselbe Filterergebnis wie die Opportunity-Liste.
+
+### MapLocationResolution
+
+Vocation-owned supporting data für genau eine WorkLocation: `work_location_id`, Latitude, Longitude, `resolution_source` (`manual` oder `geocoder`), optionaler `provider_key`, `resolved_at` und die für die Auflösung verwendete Query oder das Label. Latitude liegt zwischen -90 und 90, Longitude zwischen -180 und 180. Es gibt höchstens eine aktuelle Resolution pro WorkLocation. Eine erfolgreiche explizite Neuauflösung darf die bisherige abgeleitete Resolution ersetzen.
+
+MapLocationResolution ist weder Research Evidence noch Decision History. Ohne Resolution ist eine WorkLocation `unmapped`, nicht ungültig. Geocoding darf die WorkLocation Precision nie erhöhen; die angezeigte Precision bleibt die der WorkLocation. Provider bleiben hinter einem provider-neutralen Port und sind kein Domain- oder Published-Contract-Bestandteil.
 
 ### External Link
 

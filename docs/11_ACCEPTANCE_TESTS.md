@@ -382,3 +382,15 @@ Groups/Waves verändern weder Opportunity-Zustand, Tracking Status, Personal Ass
 ## AT-81 Group Reads and Filtering
 
 Group list/detail, geordnete Opportunities, Membership-Anzeige in Opportunity List/Detail sowie `group_id`-Filter sind implementiert. Die React Groups & Waves UI und `/api/groups` unterstützen diese Read-Capabilities.
+
+## AT-82 MapLocationResolution
+
+Eine WorkLocation kann durch explizite Nutzeraktion höchstens eine aktuelle MapLocationResolution mit gültigen Koordinaten, `manual` oder `geocoder`, optionalem Provider Key, Zeitpunkt und verwendeter Query/Label besitzen. Ohne Resolution ist sie `unmapped`; WorkLocation Evidence und Precision bleiben unverändert.
+
+## AT-83 MapProjection and Filter Consistency
+
+Die interne MapProjection erzeugt ein Feature pro aufgelöster WorkLocation aus einer expliziten Opportunity-ID-Menge. Karte und Liste repräsentieren dadurch dieselben gefilterten Opportunities; Group/Wave-Memberships und Availability werden nur gelesen.
+
+## AT-84 Desktop Map Boundary
+
+Pin-Klick öffnet nur Vocation Preview/Detail. Es gibt keine automatische oder periodische Geocodierung, keine externe URL-Navigation und keine Mutation von Opportunity-, Personal-, Research- oder Availability-Zustand. Published Opportunity Overview 1.0 bleibt unverändert.

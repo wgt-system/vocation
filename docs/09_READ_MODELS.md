@@ -115,6 +115,8 @@ Fehlende und widersprüchliche Werte werden explizit dargestellt.
 }
 ```
 
+Die interne Projection enthält pro aufgelöster WorkLocation mindestens `feature_id`, `work_location_id`, `opportunity_id`, `company_id`, Titel, Company Name, Location Label, Coordinates, WorkLocation Precision, Tracking Status, Availability und kompakte Group/Wave-Memberships. Nicht aufgelöste WorkLocations (`unmapped`) erzeugen kein Feature. Die Projection wird aus einer expliziten Opportunity-ID-Menge erzeugt, damit Karte und Liste filterkonsistent bleiben. Clustering ist Renderer-Logik.
+
 Regeln:
 
 - nur explizit kartierbare Locations,
@@ -122,6 +124,7 @@ Regeln:
 - mehrere Opportunities an einem Standort dürfen geclustert werden,
 - Browserlinks bleiben Source References,
 - Pin-Klick öffnet keine externe URL automatisch.
+- Pin-Klick öffnet in Slice 11 nur Vocation Preview/Detail; Browser-Navigation gehört zu Slice 12.
 
 ## 8. ImportReportView
 

@@ -52,7 +52,7 @@ Mehrere Opportunities werden anhand von Technologien, Aufgaben, Standort, Freshn
 
 ## S12 – Kartenansicht
 
-Die Karte zeigt gefilterte Opportunities an ihren Work Locations. Precision und approximierte Positionen sind erkennbar. Ein Pin öffnet zunächst eine kompakte Vorschau oder Detailansicht.
+Die Karte zeigt die aktuell gefilterte Menge an Opportunities an aufgelösten Work Locations. Eine explizite Nutzeraktion kann für eine WorkLocation eine manuelle oder geocoderbasierte MapLocationResolution anlegen oder ersetzen. Precision und approximierte Positionen bleiben die der WorkLocation. Ein Pin öffnet ausschließlich eine Vocation-Vorschau oder Detailansicht; externe Navigation gehört zu Slice 12.
 
 ## S13 – Originalanzeige aus Karten-Pin öffnen
 

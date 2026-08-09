@@ -144,6 +144,13 @@ Im v0.3 ausschließlich eine ungelöste mögliche Identitätsbeziehung mit Evide
 - `PromptContextSnapshot`
 - `ExternalLink`
 - `MapFeature`
+- `MapLocationResolution`
+
+### MapLocationResolution
+
+Supporting Data im Vocation Context für eine `WorkLocation`, mit `WorkLocationId`, Latitude, Longitude, `ResolutionSource` (`manual` oder `geocoder`), optionalem `ProviderKey`, `ResolvedAt` und verwendeter Query/Label. Koordinaten sind auf Latitude -90..90 und Longitude -180..180 begrenzt; pro WorkLocation existiert höchstens eine aktuelle Resolution.
+
+Eine erfolgreiche explizite Neuauflösung ersetzt die bisherige abgeleitete Resolution. Die Daten sind weder append-only Research Evidence noch Decision History. Keine Resolution bedeutet `unmapped`, nicht eine ungültige WorkLocation. Geocoding verändert weder WorkLocation noch deren Precision. Auflösung erfolgt ausschließlich explizit durch den Nutzer; automatische oder periodische Geocoding-Läufe gibt es nicht. Geocoder werden über einen provider-neutralen Port angebunden.
 
 ## ResearchPromptRun
 

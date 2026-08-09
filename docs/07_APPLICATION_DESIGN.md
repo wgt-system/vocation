@@ -197,7 +197,7 @@ Vergleicht ausgewählte Opportunities und zeigt fehlende oder widersprüchliche 
 
 ### GetMapProjection
 
-Liefert generische Map Features für den aktuell gesetzten Filter.
+Liefert generische Map Features für eine explizite Menge von Opportunity IDs, typischerweise die aktuell gefilterte Opportunity-Menge. Es gibt ein Feature pro aufgelöster WorkLocation.
 
 Jedes Feature enthält:
 
@@ -210,6 +210,8 @@ Jedes Feature enthält:
 - Status
 - Preview
 - verfügbare Posting Links
+
+Map Features enthalten zusätzlich WorkLocation Label, WorkLocation Precision, Availability und kompakte Group/Wave-Memberships. Ein Pin öffnet nur Vocation Preview/Detail; externe URLs werden in Slice 11 nicht geöffnet.
 
 ### GetPromptPreview
 
@@ -242,8 +244,9 @@ Der JSON-Vertrag ist in `schemas/published-opportunity-overview-v1.schema.json` 
 2. Karte öffnen.
 3. Pin anklicken.
 4. Opportunity-Vorschau öffnen.
-5. Detailansicht oder Posting-Quelle auswählen.
-6. Originalanzeige im Browser öffnen.
+5. Detailansicht öffnen.
+
+Eine manuelle oder provider-neutrale Geocoder-Auflösung einer WorkLocation wird nur durch explizite Nutzeraktion ausgelöst. Die Karte und Liste verwenden dasselbe Opportunity-Filterergebnis; Clustering bleibt Renderer-Präsentationslogik und ist kein Domain-Zustand.
 
 ### Import Flow
 
