@@ -152,9 +152,7 @@ class ImportService:
     def get_report(self, import_id: str) -> ImportReport | None:
         return self.repository.get_report(import_id)
 
-    def _schema_issues(
-        self, validator: Draft202012Validator, bundle: dict[str, Any], protected_paths: set[str]
-    ) -> list[ImportIssue]:
+    def _schema_issues(self, validator: Draft202012Validator, bundle: dict[str, Any], protected_paths: set[str]) -> list[ImportIssue]:
         issues: list[ImportIssue] = []
         errors = sorted(validator.iter_errors(bundle), key=lambda item: list(item.absolute_path))
         for error in errors:

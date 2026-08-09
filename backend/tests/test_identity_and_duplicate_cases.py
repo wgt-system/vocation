@@ -60,9 +60,7 @@ def test_posting_identity_resolver_covers_deterministic_and_correlation_cases(cl
     resolver = client.app.state.posting_identity_resolver
     first, second = postings
 
-    by_external = resolver.resolve(
-        PostingIdentityInput(source, "https://example.com/careers/new", external_posting_id="EX-123")
-    )
+    by_external = resolver.resolve(PostingIdentityInput(source, "https://example.com/careers/new", external_posting_id="EX-123"))
     assert by_external.posting.posting_id == first.id
     assert by_external.kind == "external_posting_id"
     by_url = resolver.resolve(PostingIdentityInput(source, first.canonical_url))

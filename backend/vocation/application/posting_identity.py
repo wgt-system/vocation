@@ -30,9 +30,7 @@ class PostingIdentityResolver:
     def resolve(self, identity: PostingIdentityInput) -> PostingIdentityResolution:
         url_match = self.repository.find_by_normalized_canonical_url(identity.normalized_source_reference_url)
         stable_match = self.repository.find_by_stable_key(identity.stable_key) if identity.stable_key else None
-        correlated = (
-            self.repository.get_posting(identity.correlated_posting_id) if identity.correlated_posting_id else None
-        )
+        correlated = self.repository.get_posting(identity.correlated_posting_id) if identity.correlated_posting_id else None
         if identity.correlated_posting_id and correlated is None:
             raise PostingIdentityConflictError("The correlated Posting does not exist.")
 

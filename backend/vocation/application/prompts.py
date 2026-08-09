@@ -4,12 +4,17 @@ import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, cast
 from uuid import uuid4
 
 from vocation.application.criteria import CriteriaService
 from vocation.application.ports import PromptRunRepository
 from vocation.application.prompt_market import PromptMarketRepository
-from vocation.domain.prompt_market import PromptMarket
+from vocation.domain.prompt_market import MarketAssessment, MarketObservation, PromptMarket
+
+type SubjectKey = tuple[str, str]
+type RequestedPair = tuple[str, str, str | None, str | None]
+type JsonObject = dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -27,7 +32,7 @@ class GeneratedUpdatePrompt:
     prompt_type: str
     prompt_version: str
     bundle_version: str
-    research_scope: dict
+    research_scope: JsonObject
     prompt_text: str
     criteria_count: int
 
@@ -113,19 +118,15 @@ class PromptService:
         mode: str,
         as_of_date: str,
         selected_ids: list[str] | None = None,
-        gap_requests: list[dict] | None = None,
+        gap_requests: list[JsonObject] | None = None,
     ) -> GeneratedUpdatePrompt:
         if mode not in {"full_update", "company_update", "opportunity_update", "gap_filling"}:
             raise ValueError("Unsupported update mode.")
         market = self.prompt_market.load_market()
-        scope, included, targets, requested_pairs, selected_order = self._build_scope(
-            market, mode, selected_ids or [], gap_requests or []
-        )
+        scope, included, targets, requested_pairs, selected_order = self._build_scope(market, mode, selected_ids or [], gap_requests or [])
         scope["as_of_date"] = as_of_date
         prompt_context_ref = self.ref_factory()
-        correlation_refs = {
-            subject: self.ref_factory() for subject in sorted(included, key=lambda value: (value[0], value[1]))
-        }
+        correlation_refs = {subject: self.ref_factory() for subject in sorted(included, key=lambda value: (value[0], value[1]))}
         context = self._render_context(
             market,
             scope,
@@ -140,11 +141,7 @@ class PromptService:
         final_scope = context["research_scope"]
         active_criteria = self.criteria.list(active_only=True)
         if mode == "gap_filling":
-            requested_criteria = {
-                request["criterion_id"]
-                for request in gap_requests or []
-                if request.get("criterion_id") is not None
-            }
+            requested_criteria = {request["criterion_id"] for request in gap_requests or [] if request.get("criterion_id") is not None}
             active_criteria = [criterion for criterion in active_criteria if criterion.criterion_id in requested_criteria]
         criteria_snapshot = [criterion.as_snapshot() for criterion in active_criteria]
         template = (self.update_template_dir / f"{mode.replace('_', '-')}.md").read_text(encoding="utf-8")
@@ -186,27 +183,28 @@ class PromptService:
         market: PromptMarket,
         mode: str,
         selected_ids: list[str],
-        gap_requests: list[dict],
+        gap_requests: list[JsonObject],
     ) -> tuple[
-        dict,
-        set[tuple[str, str]],
-        set[tuple[str, str]],
-        set[tuple[str, str, str | None, str | None]],
-        list[tuple[str, str]],
+        JsonObject,
+        set[SubjectKey],
+        set[SubjectKey],
+        set[RequestedPair],
+        list[SubjectKey],
     ]:
         companies = {company.subject_id: company for company in market.companies}
         opportunities = {opportunity.subject_id: opportunity for opportunity in market.opportunities}
         postings = {posting.subject_id: posting for posting in market.postings}
-        included: set[tuple[str, str]] = set()
-        targets: set[tuple[str, str]] = set()
-        requested_pairs: set[tuple[str, str, str | None, str | None]] = set()
-        selected_order: list[tuple[str, str]] = []
+        included: set[SubjectKey] = set()
+        targets: set[SubjectKey] = set()
+        requested_pairs: set[RequestedPair] = set()
+        selected_order: list[SubjectKey] = []
+        scope: JsonObject
         if mode == "full_update":
-            targets = {
-                ("company", company_id) for company_id in companies
-            } | {("opportunity", opportunity_id) for opportunity_id in opportunities} | {
-                ("posting", posting_id) for posting_id in postings
-            }
+            targets = (
+                {("company", company_id) for company_id in companies}
+                | {("opportunity", opportunity_id) for opportunity_id in opportunities}
+                | {("posting", posting_id) for posting_id in postings}
+            )
             included = set(targets)
             scope = {"type": mode, "as_of_date": ""}
         elif mode == "company_update":
@@ -217,9 +215,9 @@ class PromptService:
                 targets.add(("company", company_id))
                 if ("company", company_id) not in selected_order:
                     selected_order.append(("company", company_id))
-            for opportunity in market.opportunities:
-                if ("company", opportunity.company_id) in targets:
-                    targets.add(("opportunity", opportunity.subject_id))
+            for market_opportunity in market.opportunities:
+                if ("company", market_opportunity.company_id) in targets:
+                    targets.add(("opportunity", market_opportunity.subject_id))
             for posting in market.postings:
                 if ("opportunity", posting.opportunity_id) in targets:
                     targets.add(("posting", posting.subject_id))
@@ -228,13 +226,13 @@ class PromptService:
         elif mode == "opportunity_update":
             self._require_ids(selected_ids, "Opportunity")
             for opportunity_id in selected_ids:
-                opportunity = opportunities.get(opportunity_id)
-                if opportunity is None:
+                selected_opportunity = opportunities.get(opportunity_id)
+                if selected_opportunity is None:
                     raise ValueError(f"Unknown Opportunity '{opportunity_id}'.")
                 targets.add(("opportunity", opportunity_id))
                 if ("opportunity", opportunity_id) not in selected_order:
                     selected_order.append(("opportunity", opportunity_id))
-                included.add(("company", opportunity.company_id))
+                included.add(("company", selected_opportunity.company_id))
             for posting in market.postings:
                 if ("opportunity", posting.opportunity_id) in targets:
                     targets.add(("posting", posting.subject_id))
@@ -243,12 +241,12 @@ class PromptService:
         else:
             if not gap_requests:
                 raise ValueError("Gap Filling requires at least one request.")
-            request_keys: set[tuple[str, str, str | None, str | None]] = set()
+            request_keys: set[RequestedPair] = set()
             for request in gap_requests:
-                subject_type = request.get("subject_type")
-                subject_id = request.get("subject_id")
-                observation_type = request.get("observation_type")
-                criterion_id = request.get("criterion_id")
+                subject_type = cast(str, request.get("subject_type"))
+                subject_id = cast(str, request.get("subject_id"))
+                observation_type = cast(str | None, request.get("observation_type"))
+                criterion_id = cast(str | None, request.get("criterion_id"))
                 key = (subject_type, subject_id, observation_type, criterion_id)
                 if key in request_keys:
                     raise ValueError("Gap Filling requests must be unique.")
@@ -300,38 +298,31 @@ class PromptService:
     def _render_context(
         self,
         market: PromptMarket,
-        scope: dict,
-        included: set[tuple[str, str]],
-        targets: set[tuple[str, str]],
-        correlation_refs: dict[tuple[str, str], str],
-        requested_pairs: set[tuple[str, str, str | None, str | None]],
-        gap_requests: list[dict],
-        selected_order: list[tuple[str, str]],
+        scope: JsonObject,
+        included: set[SubjectKey],
+        targets: set[SubjectKey],
+        correlation_refs: dict[SubjectKey, str],
+        requested_pairs: set[RequestedPair],
+        gap_requests: list[JsonObject],
+        selected_order: list[SubjectKey],
         prompt_context_ref: str,
-    ) -> dict:
+    ) -> JsonObject:
         scope = json.loads(json.dumps(scope))
         if scope["type"] != "full_update":
-            scope["selected_correlation_refs"] = [
-                correlation_refs[subject]
-                for subject in selected_order
-            ]
+            scope["selected_correlation_refs"] = [correlation_refs[subject] for subject in selected_order]
         if scope["type"] == "gap_filling":
             scope["requests"] = [
                 {
                     "correlation_ref": correlation_refs[(request["subject_type"], request["subject_id"])],
                     "subject_type": request["subject_type"],
-                    **{
-                        key: request[key]
-                        for key in ("observation_type", "criterion_id")
-                        if key in request
-                    },
+                    **{key: request[key] for key in ("observation_type", "criterion_id") if key in request},
                 }
                 for request in gap_requests
             ]
         companies = {company.subject_id: company for company in market.companies}
         opportunities = {opportunity.subject_id: opportunity for opportunity in market.opportunities}
         postings = {posting.subject_id: posting for posting in market.postings}
-        context = {
+        context: JsonObject = {
             "prompt_context_ref": prompt_context_ref,
             "research_scope": scope,
             "known_subjects": {"companies": [], "opportunities": [], "postings": []},
@@ -414,28 +405,31 @@ class PromptService:
                     "source_urls": list(case.source_urls),
                 }
                 for case in market.duplicate_cases
-                if (case.subject_type, case.left_subject_id) in targets
-                and (case.subject_type, case.right_subject_id) in targets
+                if (case.subject_type, case.left_subject_id) in targets and (case.subject_type, case.right_subject_id) in targets
             ]
         return context
 
     @staticmethod
     def _latest_observations(
         market: PromptMarket,
-        targets: set[tuple[str, str]],
-        requested_pairs: set[tuple[str, str, str | None, str | None]],
-    ):
-        latest = {}
+        targets: set[SubjectKey],
+        requested_pairs: set[RequestedPair],
+    ) -> list[MarketObservation]:
+        latest: dict[tuple[str, str, str], MarketObservation] = {}
         for item in market.observations:
             subject = (item.subject_type, item.subject_id)
             if subject not in targets:
                 continue
-            if requested_pairs and (
-                item.subject_type,
-                item.subject_id,
-                item.observation_type,
-                None,
-            ) not in requested_pairs:
+            if (
+                requested_pairs
+                and (
+                    item.subject_type,
+                    item.subject_id,
+                    item.observation_type,
+                    None,
+                )
+                not in requested_pairs
+            ):
                 continue
             key = (item.subject_type, item.subject_id, item.observation_type)
             if key not in latest or item.observed_at > latest[key].observed_at:
@@ -445,20 +439,24 @@ class PromptService:
     @staticmethod
     def _latest_assessments(
         market: PromptMarket,
-        targets: set[tuple[str, str]],
-        requested_pairs: set[tuple[str, str, str | None, str | None]],
-    ):
-        latest = {}
+        targets: set[SubjectKey],
+        requested_pairs: set[RequestedPair],
+    ) -> list[MarketAssessment]:
+        latest: dict[tuple[str, str, str], MarketAssessment] = {}
         for item in market.assessments:
             subject = (item.subject_type, item.subject_id)
             if subject not in targets:
                 continue
-            if requested_pairs and (
-                item.subject_type,
-                item.subject_id,
-                None,
-                item.criterion_id,
-            ) not in requested_pairs:
+            if (
+                requested_pairs
+                and (
+                    item.subject_type,
+                    item.subject_id,
+                    None,
+                    item.criterion_id,
+                )
+                not in requested_pairs
+            ):
                 continue
             key = (item.subject_type, item.subject_id, item.criterion_id)
             if key not in latest or item.created_at > latest[key].created_at:

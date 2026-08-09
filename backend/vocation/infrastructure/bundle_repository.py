@@ -311,8 +311,7 @@ class SqlAlchemyImportRepository:
             "posting": {item.bundle_local_id: item for item in plan.postings},
         }
         subjects = {
-            subject_type: {item.bundle_local_id: item.subject_id for item in items.values()}
-            for subject_type, items in planned.items()
+            subject_type: {item.bundle_local_id: item.subject_id for item in items.values()} for subject_type, items in planned.items()
         }
         counts = {
             "sources_created": len(source_ids),
@@ -429,9 +428,7 @@ class SqlAlchemyImportRepository:
                     continue
                 posting = postings[item.bundle_local_id]
                 reference = next(
-                    reference
-                    for reference in bundle["source_references"]
-                    if reference["id"] == posting["source_reference_id"]
+                    reference for reference in bundle["source_references"] if reference["id"] == posting["source_reference_id"]
                 )
                 source = next(source for source in bundle["sources"] if source["id"] == reference["source_id"])
                 session.add(

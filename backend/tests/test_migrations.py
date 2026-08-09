@@ -130,10 +130,7 @@ def insert_duplicate_case(database: Path, case_id: str = "case-1") -> None:
             {"id": case_id},
         )
         connection.execute(
-            text(
-                "INSERT INTO duplicate_case_source_references (duplicate_case_id, source_reference_id) "
-                "VALUES (:id, 'ref-1')"
-            ),
+            text("INSERT INTO duplicate_case_source_references (duplicate_case_id, source_reference_id) VALUES (:id, 'ref-1')"),
             {"id": case_id},
         )
 
@@ -154,7 +151,7 @@ def insert_prompt_context_snapshot(
                 "INSERT INTO prompt_context_snapshots "
                 "(prompt_context_ref, scope_type, as_of_date, scope_json, fingerprint, created_at) "
                 "VALUES (:prompt_context_ref, 'opportunity_update', '2026-08-08', "
-                "'{\"type\":\"opportunity_update\",\"as_of_date\":\"2026-08-08\"}', :fingerprint, '2026-08-08')"
+                '\'{"type":"opportunity_update","as_of_date":"2026-08-08"}\', :fingerprint, \'2026-08-08\')'
             ),
             {"prompt_context_ref": prompt_context_ref, "fingerprint": fingerprint},
         )
@@ -335,8 +332,7 @@ def schema_for_duplicate_cases(database: Path) -> dict:
     inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
     return {
         "uniques": [
-            (constraint["name"], tuple(constraint["column_names"]))
-            for constraint in inspector.get_unique_constraints("duplicate_cases")
+            (constraint["name"], tuple(constraint["column_names"])) for constraint in inspector.get_unique_constraints("duplicate_cases")
         ],
         "checks": [check["name"] for check in inspector.get_check_constraints("duplicate_cases")],
     }
@@ -390,10 +386,7 @@ def test_duplicate_case_constraints_and_cascade_are_enforced(tmp_path: Path) -> 
     with pytest.raises(IntegrityError):
         with engine.begin() as connection:
             connection.execute(
-                text(
-                    "INSERT INTO duplicate_case_source_references (duplicate_case_id, source_reference_id) "
-                    "VALUES ('case-1', 'ref-1')"
-                )
+                text("INSERT INTO duplicate_case_source_references (duplicate_case_id, source_reference_id) VALUES ('case-1', 'ref-1')")
             )
 
     with engine.begin() as connection:
@@ -549,8 +542,7 @@ def test_prompt_context_links_fresh_and_0006_upgrade_backfill_and_restart(tmp_pa
     assert "bundle_version" in {column["name"] for column in fresh_inspector.get_columns("research_imports")}
     assert any(column["name"] == "search_profile" and column["nullable"] for column in fresh_inspector.get_columns("prompt_runs"))
     assert ("uq_prompt_runs_prompt_context_ref", ("prompt_context_ref",)) in [
-        (constraint["name"], tuple(constraint["column_names"]))
-        for constraint in fresh_inspector.get_unique_constraints("prompt_runs")
+        (constraint["name"], tuple(constraint["column_names"])) for constraint in fresh_inspector.get_unique_constraints("prompt_runs")
     ]
     for table in ("prompt_runs", "research_imports"):
         foreign_key = next(
@@ -583,18 +575,19 @@ def test_prompt_context_links_fresh_and_0006_upgrade_backfill_and_restart(tmp_pa
         assert connection.scalar(text("SELECT COUNT(*) FROM research_imports WHERE prompt_context_ref = 'context-1'")) == 2
         assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
-        assert connection.scalar(
-            text(
-                "SELECT subject_type || ':' || left_subject_id || ':' || right_subject_id || ':' || evidence_summary "
-                "FROM duplicate_cases WHERE id = 'case-1'"
+        assert (
+            connection.scalar(
+                text(
+                    "SELECT subject_type || ':' || left_subject_id || ':' || right_subject_id || ':' || evidence_summary "
+                    "FROM duplicate_cases WHERE id = 'case-1'"
+                )
             )
-        ) == "opportunity:opportunity-1:opportunity-2:Similar role and employer evidence"
-        assert connection.scalar(
-            text(
-                "SELECT source_reference_id FROM duplicate_case_source_references "
-                "WHERE duplicate_case_id = 'case-1'"
-            )
-        ) == "ref-1"
+            == "opportunity:opportunity-1:opportunity-2:Similar role and employer evidence"
+        )
+        assert (
+            connection.scalar(text("SELECT source_reference_id FROM duplicate_case_source_references WHERE duplicate_case_id = 'case-1'"))
+            == "ref-1"
+        )
 
 
 def test_prompt_context_links_downgrade_to_0006_preserves_preexisting_data(tmp_path: Path) -> None:

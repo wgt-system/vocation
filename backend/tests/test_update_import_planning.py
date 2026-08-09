@@ -337,9 +337,7 @@ def test_opportunity_update_can_create_posting_but_not_opportunity(client) -> No
     assert result.plan.postings[0].action == "create"
 
     forbidden = copy.deepcopy(bundle)
-    forbidden["opportunities"].append(
-        {"id": "new-opportunity", "company_id": "company-context", "canonical_title": "Forbidden"}
-    )
+    forbidden["opportunities"].append({"id": "new-opportunity", "company_id": "company-context", "canonical_title": "Forbidden"})
     rejected = client.app.state.update_import_planner.plan(forbidden)
     assert "SCOPE_VIOLATION" in codes(rejected)
 
@@ -471,9 +469,7 @@ def test_duplicate_case_reuse_same_subject_and_context_only_blockers(client) -> 
                 created_at=datetime.now(UTC),
             )
         )
-    assert client.app.state.duplicate_case_service.repository.find_by_pair(
-        "opportunity", opportunity_a.id, opportunity_b.id
-    )
+    assert client.app.state.duplicate_case_service.repository.find_by_pair("opportunity", opportunity_a.id, opportunity_b.id)
     before = row_counts(client)
     result = client.app.state.update_import_planner.plan(bundle)
     assert not result.issues

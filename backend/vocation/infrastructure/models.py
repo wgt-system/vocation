@@ -32,9 +32,7 @@ class ResearchImportModel(Base):
 
     issues: Mapped[list[ImportIssueModel]] = relationship(back_populates="research_import", cascade="all, delete-orphan")
     duplicate_cases: Mapped[list[DuplicateCaseModel]] = relationship(back_populates="research_import")
-    prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(
-        back_populates="research_imports"
-    )
+    prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(back_populates="research_imports")
 
 
 class ImportIssueModel(Base):
@@ -84,9 +82,7 @@ class PromptRunModel(Base):
     criteria_snapshot_json: Mapped[str] = mapped_column(Text)
     prompt_text: Mapped[str] = mapped_column(Text)
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-    prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(
-        back_populates="prompt_run"
-    )
+    prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(back_populates="prompt_run")
     __table_args__ = (UniqueConstraint("prompt_context_ref", name="uq_prompt_runs_prompt_context_ref"),)
 
 
@@ -100,9 +96,7 @@ class PromptContextSnapshotModel(Base):
     fingerprint: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
 
-    subjects: Mapped[list[PromptContextSubjectModel]] = relationship(
-        back_populates="prompt_context_snapshot", cascade="all, delete-orphan"
-    )
+    subjects: Mapped[list[PromptContextSubjectModel]] = relationship(back_populates="prompt_context_snapshot", cascade="all, delete-orphan")
     prompt_run: Mapped[PromptRunModel | None] = relationship(back_populates="prompt_context_snapshot")
     research_imports: Mapped[list[ResearchImportModel]] = relationship(back_populates="prompt_context_snapshot")
     __table_args__ = (
@@ -355,9 +349,7 @@ class DuplicateCaseModel(Base):
 class DuplicateCaseSourceReferenceModel(Base):
     __tablename__ = "duplicate_case_source_references"
 
-    duplicate_case_id: Mapped[str] = mapped_column(
-        ForeignKey("duplicate_cases.id", ondelete="CASCADE"), primary_key=True
-    )
+    duplicate_case_id: Mapped[str] = mapped_column(ForeignKey("duplicate_cases.id", ondelete="CASCADE"), primary_key=True)
     source_reference_id: Mapped[str] = mapped_column(ForeignKey("source_references.id"), primary_key=True)
 
     duplicate_case: Mapped[DuplicateCaseModel] = relationship(back_populates="source_reference_links")

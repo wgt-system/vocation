@@ -22,9 +22,7 @@ from vocation.infrastructure.models import (
 
 
 def _initial_bundle() -> str:
-    return (Path(__file__).resolve().parents[2] / "examples" / "imports" / "initial-valid.json").read_text(
-        encoding="utf-8"
-    )
+    return (Path(__file__).resolve().parents[2] / "examples" / "imports" / "initial-valid.json").read_text(encoding="utf-8")
 
 
 def _context(prompt_text: str) -> dict:
@@ -117,9 +115,7 @@ def _seed_duplicate_case(app, ids: dict[str, dict[str, str]]) -> None:
                 created_at=datetime(2026, 8, 8, tzinfo=UTC),
             )
         )
-        session.add(
-            DuplicateCaseSourceReferenceModel(duplicate_case_id=case_id, source_reference_id=reference_id)
-        )
+        session.add(DuplicateCaseSourceReferenceModel(duplicate_case_id=case_id, source_reference_id=reference_id))
 
 
 def test_update_prompt_full_scope_is_public_and_persisted(client, app) -> None:
@@ -161,9 +157,7 @@ def test_update_prompt_scopes_and_gap_requests_use_correlation_refs(client, app)
     assert client.post("/api/imports/text", json={"content": _initial_bundle()}).json()["status"] == "applied"
     company_id, opportunity_id, posting_id = _market_ids(app)
 
-    company_result = app.state.prompt_service.generate_update(
-        mode="company_update", as_of_date="2026-08-09", selected_ids=[company_id]
-    )
+    company_result = app.state.prompt_service.generate_update(mode="company_update", as_of_date="2026-08-09", selected_ids=[company_id])
     company_context = _context(company_result.prompt_text)
     assert company_context["research_scope"]["selected_correlation_refs"] == [
         company_context["known_subjects"]["companies"][0]["correlation_ref"]
@@ -196,12 +190,7 @@ def test_update_prompt_scopes_and_gap_requests_use_correlation_refs(client, app)
     assert len(gap_context["known_subjects"]["opportunities"]) == 1
     assert len(gap_context["known_subjects"]["companies"]) == 1
     assert gap_context["known_subjects"]["companies"][0]["is_target"] is False
-    assert all(
-        item["is_target"]
-        for name, group in gap_context["known_subjects"].items()
-        if name != "companies"
-        for item in group
-    )
+    assert all(item["is_target"] for name, group in gap_context["known_subjects"].items() if name != "companies" for item in group)
     assert {item["type"] for item in gap_context["latest_observations"]} == {"technology_requirement"}
     assert {item["criterion_id"] for item in gap_context["latest_external_assessments"]} == {"junior_suitability"}
     assert gap_context["unresolved_duplicate_cases"] == []
@@ -243,28 +232,56 @@ def test_latest_evidence_is_reduced_per_subject_and_field(client, app) -> None:
         session.add_all(
             [
                 ObservationModel(
-                    id=str(uuid4()), import_id=import_id, bundle_local_id="old-task", subject_type="posting",
-                    subject_id=ids["posting"], observation_type="task", value_json=json.dumps("old"),
-                    source_reference_id=reference_id, observed_at=datetime(2026, 8, 1, tzinfo=UTC),
-                    confidence=0.4, evidence_summary="old evidence",
+                    id=str(uuid4()),
+                    import_id=import_id,
+                    bundle_local_id="old-task",
+                    subject_type="posting",
+                    subject_id=ids["posting"],
+                    observation_type="task",
+                    value_json=json.dumps("old"),
+                    source_reference_id=reference_id,
+                    observed_at=datetime(2026, 8, 1, tzinfo=UTC),
+                    confidence=0.4,
+                    evidence_summary="old evidence",
                 ),
                 ObservationModel(
-                    id=str(uuid4()), import_id=import_id, bundle_local_id="new-task", subject_type="posting",
-                    subject_id=ids["posting"], observation_type="task", value_json=json.dumps("new"),
-                    source_reference_id=reference_id, observed_at=datetime(2026, 8, 9, tzinfo=UTC),
-                    confidence=0.9, evidence_summary="new evidence",
+                    id=str(uuid4()),
+                    import_id=import_id,
+                    bundle_local_id="new-task",
+                    subject_type="posting",
+                    subject_id=ids["posting"],
+                    observation_type="task",
+                    value_json=json.dumps("new"),
+                    source_reference_id=reference_id,
+                    observed_at=datetime(2026, 8, 9, tzinfo=UTC),
+                    confidence=0.9,
+                    evidence_summary="new evidence",
                 ),
                 ExternalAssessmentModel(
-                    id=str(uuid4()), import_id=import_id, bundle_local_id="old-assessment", subject_type="opportunity",
-                    subject_id=ids["opportunity"], criterion_id="junior_suitability", value_json="2",
-                    origin="external_research", source_reference_ids_json=json.dumps([reference_id]),
-                    created_at=datetime(2026, 8, 1, tzinfo=UTC), reasoning="old assessment",
+                    id=str(uuid4()),
+                    import_id=import_id,
+                    bundle_local_id="old-assessment",
+                    subject_type="opportunity",
+                    subject_id=ids["opportunity"],
+                    criterion_id="junior_suitability",
+                    value_json="2",
+                    origin="external_research",
+                    source_reference_ids_json=json.dumps([reference_id]),
+                    created_at=datetime(2026, 8, 1, tzinfo=UTC),
+                    reasoning="old assessment",
                 ),
                 ExternalAssessmentModel(
-                    id=str(uuid4()), import_id=import_id, bundle_local_id="new-assessment", subject_type="opportunity",
-                    subject_id=ids["opportunity"], criterion_id="junior_suitability", value_json="4",
-                    origin="external_research", source_reference_ids_json=json.dumps([reference_id]),
-                    created_at=datetime(2026, 8, 9, tzinfo=UTC), reasoning="new assessment",
+                    id=str(uuid4()),
+                    import_id=import_id,
+                    bundle_local_id="new-assessment",
+                    subject_type="opportunity",
+                    subject_id=ids["opportunity"],
+                    criterion_id="junior_suitability",
+                    value_json="4",
+                    origin="external_research",
+                    source_reference_ids_json=json.dumps([reference_id]),
+                    created_at=datetime(2026, 8, 9, tzinfo=UTC),
+                    reasoning="new assessment",
                 ),
             ]
         )
@@ -296,7 +313,8 @@ def test_duplicate_cases_follow_target_scope_and_are_absent_from_gap(client, app
 
     gap_context = _context(
         app.state.prompt_service.generate_update(
-            mode="gap_filling", as_of_date="2026-08-09",
+            mode="gap_filling",
+            as_of_date="2026-08-09",
             gap_requests=[{"subject_type": "opportunity", "subject_id": ids["first"]["opportunity"], "criterion_id": "junior_suitability"}],
         ).prompt_text
     )
@@ -307,7 +325,8 @@ def test_gap_minimizes_evidence_and_criteria_snapshot(client, app) -> None:
     assert client.post("/api/imports/text", json={"content": _initial_bundle()}).json()["status"] == "applied"
     ids = _ids_by_import(app)["first"]
     result = app.state.prompt_service.generate_update(
-        mode="gap_filling", as_of_date="2026-08-09",
+        mode="gap_filling",
+        as_of_date="2026-08-09",
         gap_requests=[
             {"subject_type": "posting", "subject_id": ids["posting"], "observation_type": "technology_requirement"},
             {"subject_type": "opportunity", "subject_id": ids["opportunity"], "criterion_id": "junior_suitability"},

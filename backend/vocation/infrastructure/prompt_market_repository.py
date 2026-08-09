@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
+from typing import Literal, cast
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -15,6 +16,7 @@ from vocation.domain.prompt_market import (
     MarketOpportunity,
     MarketPosting,
     PromptMarket,
+    SubjectType,
 )
 from vocation.infrastructure.models import (
     CompanyModel,
@@ -35,10 +37,7 @@ class SqlAlchemyPromptMarketRepository:
 
     def load_market(self) -> PromptMarket:
         with self.session_factory() as session:
-            references = {
-                reference.id: reference.url
-                for reference in session.scalars(select(SourceReferenceModel)).all()
-            }
+            references = {reference.id: reference.url for reference in session.scalars(select(SourceReferenceModel)).all()}
             companies = session.scalars(select(CompanyModel).order_by(CompanyModel.id)).all()
             opportunities = session.scalars(select(OpportunityModel).order_by(OpportunityModel.id)).all()
             postings = session.scalars(select(PostingModel).order_by(PostingModel.id)).all()
@@ -73,8 +72,7 @@ class SqlAlchemyPromptMarketRepository:
 
             return PromptMarket(
                 companies=tuple(
-                    MarketCompany(company.id, company.canonical_name, references.get(company.source_reference_id))
-                    for company in companies
+                    MarketCompany(company.id, company.canonical_name, references.get(company.source_reference_id)) for company in companies
                 ),
                 opportunities=tuple(
                     MarketOpportunity(
@@ -101,7 +99,7 @@ class SqlAlchemyPromptMarketRepository:
                 ),
                 observations=tuple(
                     MarketObservation(
-                        observation.subject_type,
+                        cast(SubjectType, observation.subject_type),
                         observation.subject_id,
                         observation.observation_type,
                         json.loads(observation.value_json),
@@ -114,7 +112,7 @@ class SqlAlchemyPromptMarketRepository:
                 ),
                 assessments=tuple(
                     MarketAssessment(
-                        assessment.subject_type,
+                        cast(SubjectType, assessment.subject_type),
                         assessment.subject_id,
                         assessment.criterion_id,
                         json.loads(assessment.value_json),
@@ -131,7 +129,10 @@ class SqlAlchemyPromptMarketRepository:
                 duplicate_cases=tuple(
                     MarketDuplicateCase(
                         case.id,
-                        case.subject_type,
+                        cast(
+                            Literal["opportunity", "posting"],
+                            case.subject_type,
+                        ),
                         case.left_subject_id,
                         case.right_subject_id,
                         case.evidence_summary,

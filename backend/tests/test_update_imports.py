@@ -92,15 +92,16 @@ def test_full_update_materializes_plan_and_counts(client) -> None:
     with client.app.state.database.session_factory() as session:
         duplicate = session.scalar(select(DuplicateCaseModel).where(DuplicateCaseModel.research_import_id == report["import_id"]))
         assert duplicate is not None
-        assert session.scalar(
-            select(func.count()).select_from(DuplicateCaseSourceReferenceModel).where(
-                DuplicateCaseSourceReferenceModel.duplicate_case_id == duplicate.id
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(DuplicateCaseSourceReferenceModel)
+                .where(DuplicateCaseSourceReferenceModel.duplicate_case_id == duplicate.id)
             )
-        ) == 1
+            == 1
+        )
         link = session.scalar(
-            select(DuplicateCaseSourceReferenceModel).where(
-                DuplicateCaseSourceReferenceModel.duplicate_case_id == duplicate.id
-            )
+            select(DuplicateCaseSourceReferenceModel).where(DuplicateCaseSourceReferenceModel.duplicate_case_id == duplicate.id)
         )
         source_reference = session.get(SourceReferenceModel, link.source_reference_id)
         assert source_reference.import_id == report["import_id"]
@@ -287,9 +288,7 @@ def test_update_reuses_existing_duplicate_case_without_modification(client) -> N
         before_links = [
             link.source_reference_id
             for link in session.scalars(
-                select(DuplicateCaseSourceReferenceModel).where(
-                    DuplicateCaseSourceReferenceModel.duplicate_case_id == before_case.id
-                )
+                select(DuplicateCaseSourceReferenceModel).where(DuplicateCaseSourceReferenceModel.duplicate_case_id == before_case.id)
             )
         ]
     before_count = row_counts(client)["duplicate_cases"]
@@ -303,9 +302,7 @@ def test_update_reuses_existing_duplicate_case_without_modification(client) -> N
         after_links = [
             link.source_reference_id
             for link in session.scalars(
-                select(DuplicateCaseSourceReferenceModel).where(
-                    DuplicateCaseSourceReferenceModel.duplicate_case_id == after_case.id
-                )
+                select(DuplicateCaseSourceReferenceModel).where(DuplicateCaseSourceReferenceModel.duplicate_case_id == after_case.id)
             )
         ]
         assert after_case.research_import_id == before_case.research_import_id
