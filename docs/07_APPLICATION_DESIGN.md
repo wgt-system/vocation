@@ -206,7 +206,7 @@ Zeigt pro Entry Ergebnis, Warnungen, Fehler und betroffene Objekte.
 
 Read-only capability boundary owned by Vocation Data Publication. The Publication Adapter builds a versioned, client-neutral `Opportunity Overview` projection and its Publication Metadata. The 1.0 JSON field schema is now frozen by `schemas/published-opportunity-overview-v1.schema.json`. Publication never becomes a second domain authority.
 
-Der JSON-Vertrag ist in `schemas/published-opportunity-overview-v1.schema.json` eingefroren. Der implementierte lokale Adapterpfad ist `/published/v1/opportunity-overview`; er ist unabhängig von `/api/opportunities`, schreibt nicht und darf das Artefakt nicht umdeuten. Ein späteres Relay transportiert dasselbe Artefakt unverändert.
+Der JSON-Vertrag ist in `schemas/published-opportunity-overview-v1.schema.json` eingefroren. Der lokale Adapterpfad `/published/v1/opportunity-overview` ist geplant, unabhängig von `/api/opportunities`, schreibfrei und darf das Artefakt nicht umdeuten. Ein späteres Relay transportiert dasselbe Artefakt unverändert.
 
 ## 5. Desktop UI-Flows
 

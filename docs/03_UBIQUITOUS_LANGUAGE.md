@@ -112,13 +112,17 @@ Position im persönlichen Sichtungsprozess: `new`, `to_review`, `interesting`, `
 
 Zeitbezogene Beobachtung über die Erreichbarkeit oder Aktivität eines Posting.
 
+Availability Check Bundle 1.0 verwendet ausschließlich `explicitly_available`, `explicitly_unavailable`, `temporarily_unreachable`, `not_found` und `indeterminate`. Die letzten drei Ergebnisse sind unzuverlässige Evidenz und führen zu `uncertain`, niemals automatisch zu `unavailable`.
+
 ### Availability
 
 Abgeleitete aktuelle Einschätzung: `available`, `unavailable`, `uncertain`, `unknown`.
 
+Die Ableitung verwendet die neueste Availability Observation: explizit verfügbar → `available`, explizit nicht verfügbar → `unavailable`, temporär unerreichbar/nicht gefunden/indeterminiert → `uncertain`, keine Observation → `unknown`. Opportunity Availability aggregiert ihre Postings, ohne einen permanenten Opportunity-Closed-Zustand zu erzeugen.
+
 ### Freshness
 
-Aktualität des vorhandenen Informationsstands, nicht der realen Stelle.
+In Slice 9 ausschließlich Freshness der Availability-Evidenz. `last_checked_at` ist der Zeitstempel der neuesten Availability Observation; `age_days` sind ganze verstrichene UTC-24-Stundenperioden aus einer injizierten Uhr. Es gibt keine Schwellenkategorien oder automatische Ablaufregel. Dies ist nicht Freshness von Gehalt, Technologien, Aufgaben, Arbeitsmodell, Assessments oder allgemeinen Observations.
 
 ### Possible Duplicate
 

@@ -39,19 +39,15 @@ Und ein Duplicate Case wird angelegt.
 
 ## AT-06 Availability
 
-**Späteres Slice-Verhalten, nicht v0.3.**
-
 Gegeben eine bisher erreichbare Anzeige  
-Wenn ein Update `explicitly_unavailable` meldet  
+Wenn ein Availability Check `explicitly_unavailable` meldet
 Dann bleibt das Posting historisch erhalten  
-Und die aktuelle Availability wird nachvollziehbar geändert.
+Und die aus Observations abgeleitete Availability wird nachvollziehbar geändert.
 
 ## AT-07 Temporärer Fehler
 
-**Späteres Slice-Verhalten, nicht v0.3.**
-
 Wenn eine Source nur `temporarily_unreachable` ist  
-Dann wird die Opportunity nicht als definitiv geschlossen markiert.
+Dann wird die Availability `uncertain` und die Opportunity nicht als definitiv geschlossen markiert.
 
 ## AT-08 Prompt Initial Research
 
@@ -334,3 +330,35 @@ Ein gültiges Opportunity-Overview-Artefakt darf eine leere `opportunities`-List
 ## AT-68 Publication Age versus Freshness
 
 Das Artefakt enthält `generated_at`, aber weder `publication_age` noch `stale`. Consumer können daraus Publication Age ableiten; daraus darf keine Vocation Availability/Freshness abgeleitet werden.
+
+## AT-69 Availability Check Bundle 1.0
+
+Ein Availability Check Bundle 1.0 validiert nur mit `bundle_kind: "availability_check"`, `bundle_version: "1.0"`, Prompt Context Ref, Availability Scope, mindestens einer Observation und den fünf eingefrorenen Result-Werten.
+
+## AT-70 Append-only Availability Observations
+
+Ein akzeptierter Availability Check ergänzt AvailabilityObservations append-only. Ein Blocker erzeugt keine Observation-Writes und keine persönlichen Änderungen.
+
+## AT-71 AvailabilityEvaluator
+
+Die neueste Observation mappt deterministisch auf `available`, `unavailable`, `uncertain` oder `unknown`. `temporarily_unreachable`, `not_found` und `indeterminate` ergeben `uncertain`, nie definitiv `unavailable`.
+
+## AT-72 Opportunity Availability Aggregation
+
+Opportunity Availability ist `available`, wenn ein Posting verfügbar ist; sonst `uncertain`, wenn eines unsicher ist; sonst `unknown`, wenn eines unbekannt ist; nur bei vorhandenen und ausschließlich nicht verfügbaren Postings `unavailable`. Ohne Postings ist sie `unknown`.
+
+## AT-73 Personal-state Preservation
+
+Availability Checks verändern weder Tracking Status, Personal Assessments, Decisions, Exclusion/Restore noch Groups/Waves.
+
+## AT-74 Availability-evidence Freshness
+
+Posting- und Opportunity-Read-Models leiten `last_checked_at` und nichtnegative `age_days` aus der neuesten Availability Observation und einer injizierten UTC-Uhr ab. Freshness ist keine Availability-Änderung.
+
+## AT-75 No Automatic Stale Threshold
+
+Es gibt keine Fresh-/Stale-Kategorie und keinen automatischen Ablauf. Alte explizit verfügbare Evidenz bleibt `available`, während ihr Alter separat angezeigt wird.
+
+## AT-76 Research Update Compatibility
+
+Research Update Bundle 2.0 bleibt unverändert; Availability-Felder, Availability-Scope und Availability-Observation-Typen werden nicht in diesen Vertrag aufgenommen.

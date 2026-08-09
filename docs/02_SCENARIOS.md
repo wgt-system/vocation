@@ -32,7 +32,7 @@ Zwei Postings sind ähnlich, aber nicht sicher identisch. Vocation erzeugt einen
 
 ## S07 – Nicht mehr erreichbare Anzeige
 
-Ein Update meldet eine entfernte Source Reference. Vocation speichert die Availability Observation, behält historische Inhalte und unterscheidet Posting-Unavailability von Opportunity-Closure.
+Ein Availability Check meldet das Ergebnis für ein bekanntes Posting. Vocation speichert die Availability Observation append-only, behält historische Inhalte und unterscheidet Posting-Unavailability von Opportunity-Closure. Temporäre oder unzuverlässige Ergebnisse führen zu `uncertain`, nicht definitiv zu `unavailable`.
 
 ## S08 – Widersprüchliche Quellen
 

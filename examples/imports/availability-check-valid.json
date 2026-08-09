@@ -1,0 +1,40 @@
+{
+  "bundle_kind": "availability_check",
+  "bundle_version": "1.0",
+  "bundle_id": "availability-check-fictional-001",
+  "generated_at": "2026-08-09T10:00:00Z",
+  "prompt_context_ref": "snapshot-fictional-001",
+  "research_scope": {
+    "type": "availability_check",
+    "as_of_date": "2026-08-09",
+    "selected_correlation_refs": [
+      "posting-alpha",
+      "posting-beacon",
+      "posting-cobalt"
+    ]
+  },
+  "observations": [
+    {
+      "id": "observation-alpha",
+      "posting_correlation_ref": "posting-alpha",
+      "result": "explicitly_available",
+      "observed_at": "2026-08-09T09:10:00Z",
+      "evidence_summary": "The fictional listing is active and accepts applications."
+    },
+    {
+      "id": "observation-beacon",
+      "posting_correlation_ref": "posting-beacon",
+      "result": "explicitly_unavailable",
+      "observed_at": "2026-08-09T09:20:00Z",
+      "evidence_summary": "The fictional listing reports that the position has closed."
+    },
+    {
+      "id": "observation-cobalt",
+      "posting_correlation_ref": "posting-cobalt",
+      "result": "temporarily_unreachable",
+      "observed_at": "2026-08-09T09:30:00Z",
+      "evidence_summary": "The fictional source returned a transient access error."
+    }
+  ],
+  "warnings": []
+}
