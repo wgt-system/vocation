@@ -107,6 +107,7 @@ class PromptService:
             selected_order,
             prompt_context_ref,
         )
+        final_scope = context["research_scope"]
         active_criteria = self.criteria.list(active_only=True)
         if mode == "gap_filling":
             requested_criteria = {
@@ -125,7 +126,7 @@ class PromptService:
         prompt_run_id, prompt_context_ref = self.prompt_runs.save_update(
             prompt_type=mode,
             as_of_date=as_of_date,
-            research_scope=scope,
+            research_scope=final_scope,
             prompt_context_ref=prompt_context_ref,
             subject_mappings=[
                 {
@@ -145,7 +146,7 @@ class PromptService:
             mode,
             "1.0",
             "2.0",
-            scope,
+            final_scope,
             prompt_text,
             len(criteria_snapshot),
         )

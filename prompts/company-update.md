@@ -16,8 +16,9 @@ Do not derive Availability or Freshness. Do not automatically merge or resolve d
 ## Scope restrictions
 This is a Company Update. Selected Companies and their supplied Opportunities and Postings
 are target subjects. Do not create Companies. New Opportunities may be created only under
-an in-scope target Company. New Postings may be created only under an in-scope target
-Opportunity. Do not rewrite existing canonical fields or ownership.
+an in-scope target Company. New Postings may be created under an existing in-scope target
+Opportunity or under a new Opportunity created in this update under an in-scope target
+Company. Do not rewrite existing canonical fields or ownership.
 
 ## Output Schema
 {{OUTPUT_SCHEMA}}
