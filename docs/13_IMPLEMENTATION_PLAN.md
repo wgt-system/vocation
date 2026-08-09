@@ -1,6 +1,6 @@
 # Vocation – Implementation Plan
 
-**Status:** Draft 0.1
+**Status:** v0.3 vollständig auf `dev` implementiert; noch nicht als Milestone veröffentlicht.
 
 ## Phase 0 – Spezifikationsprüfung
 
@@ -151,4 +151,4 @@ Issue #8 – deterministische Identität und ungelöste Duplicate Cases: abgesch
 
 Issue #9 – Prompt Context Persistence, read-only Planning und atomarer Update Import: abgeschlossen.
 
-Research Bundle `1.0` bleibt unverändert und initial-only. Issue #10 – scoped prompting und Desktop-Update-Workflow – bleibt offen. Availability/Freshness, Groups/Waves, Maps, Comparison und External Navigation bleiben spätere Slices.
+Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Availability/Freshness, Groups/Waves, Maps, External Navigation und Comparison bleiben spätere Slices. v0.3 wird erst nach finaler Control-Plane-Prüfung und Merge als Milestone veröffentlicht.

@@ -110,6 +110,8 @@ Die Runtime darf Templates laden und mit einem Prompt Context Snapshot rendern.
 
 Prompt Templates enthalten keine geheimen oder benutzerspezifischen Daten außerhalb des expliziten Scopes.
 
+Update-Prompt-Traceability folgt `PromptRun → PromptContextSnapshot ← ResearchImport`. Ein Update PromptRun gehört genau zu einem Snapshot; dessen opaque Correlation References sind snapshot-lokal. `ResearchImport` referenziert nicht direkt einen PromptRun. Initial Research liegt außerhalb dieser Update-Prompt-Context-Beziehung.
+
 ## 7. Import Pipeline
 
 ```text

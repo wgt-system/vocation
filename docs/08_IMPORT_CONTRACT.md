@@ -1,7 +1,8 @@
 # Vocation – Research Bundle Import Contract
 
-**Status:** Version 1.0 für den ersten Meilenstein
-**Current Bundle Version:** `1.0`
+**Status:** Zwei implementierte veröffentlichte Research-Verträge auf `dev`
+**Initial Bundle Version:** `1.0` (Initial Research)
+**Update Bundle Version:** `2.0` (Research Update)
 
 ## 1. Zweck und Geltungsbereich
 
@@ -151,6 +152,8 @@ Posting-Identität bleibt deterministisch: Source plus `external_posting_id`, so
 
 Version Dispatch ist explizit: `1.0` wird als Initial Research Bundle validiert, `2.0` als Update Bundle gegen den gespeicherten Prompt Context. Planner-Blocker werden vor jeder Domain-Mutation festgestellt; ein akzeptiertes Update wird in genau einer atomaren Apply-Transaktion ausgeführt. Update-Sources und Source References sind neue Provenance-Datensätze. Wiederverwendete Company-, Opportunity- und Posting-Subjects werden nicht kanonisch umgeschrieben. Duplicate Cases werden nur erstellt oder wiederverwendet; es gibt keinen Merge.
 
-Die Bundle-Version `2.0` und der Update-Importer sind auf `dev` implementiert. Prompting und die vollständige Desktop-Update-Bedienung bleiben Issue #10.
+Die Bundle-Version `2.0`, der Update-Importer und die vier Update-Prompt-Modi sind auf `dev` implementiert. Die Desktop-Bedienung umfasst Auswahl, Generierung, Preview, Copy/Save und Inline-Import mit Import Report.
+
+Traceability: Ein angewandter Initial-Import persistiert Bundle Version `1.0` ohne Prompt Context Ref. Ein angewandter Update-Import persistiert Bundle Version `2.0` zusammen mit seiner validierten `prompt_context_ref`. Ein identischer Import Report bewahrt die ursprünglichen Import- und Prompt-Metadaten.
 
 Beispiele: `examples/updates/`; Contract Tests: `backend/tests/test_update_bundle_contract.py`.

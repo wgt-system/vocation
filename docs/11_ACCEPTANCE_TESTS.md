@@ -276,3 +276,27 @@ Ein vor `Apply` erkannter Blocker verursacht keinerlei Domain-Mutation. Eine Exc
 ## AT-54 Duplicate Case create/reuse without mutation
 
 Possible-Duplicate-Evidence erzeugt oder verwendet ausschließlich einen ungelösten Duplicate Case. Es findet kein Merge, keine Löschung und keine kanonische Umschreibung statt.
+
+## AT-55 Minimale Prompt Context Scopes
+
+Full-, Company-, Opportunity- und Gap-Filling-Prompt Contexts enthalten ausschließlich ihren erlaubten Scope; sie enthalten keine unabhängigen Subjects außerhalb des Scopes und keinen persönlichen Zustand.
+
+## AT-56 Gap-Filling-Minimierung
+
+Ein Gap-Filling-Prompt Context enthält ausschließlich die ausdrücklich angeforderten Subject-/Observation- oder Criterion-Kombinationen.
+
+## AT-57 Prompt Context Traceability
+
+Ein Update PromptRun persistiert genau einen Prompt Context Snapshot und dessen Prompt Context Ref. Ein angewendeter Update-Import persistiert die validierte Ref und Bundle Version 2.0, während Initial Research außerhalb dieser Beziehung bleibt.
+
+## AT-58 Typed Update API
+
+Die typisierten Update-Endpunkte und OpenAPI-Verträge sind verfügbar; der Initial-Research-Endpunkt bleibt kompatibel.
+
+## AT-59 Desktop Update Workflow
+
+Für alle fünf Modi unterstützt die Desktop-UI Scope-Auswahl, Prompt-Generierung, Preview, Copy/Save und Inline-Import des zurückgegebenen JSON. Ein neuer Preview ersetzt einen veralteten Preview-Inhalt.
+
+## AT-60 Update Import Traceability
+
+Ein erzeugtes Update Bundle kann über den v0.3-Importer aus Issue #9 importiert werden; Duplicate-Importe erzeugen keine neue Mutation und bewahren die ursprünglichen Bundle-, Prompt- und Prompt-Context-Metadaten.

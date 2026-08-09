@@ -13,7 +13,7 @@ The first usable Research Bundle workflow is implemented:
 - opportunity list and detail views with postings, sources, observations, and external assessments
 - local SQLite migrations and a FastAPI/React desktop-oriented application
 
-The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. The `dev` branch now implements v0.3 through Issue #9: the Research Update Bundle 2.0 contract, deterministic identity and unresolved Duplicate Cases, Prompt Context persistence, planning, and atomic update import. Update prompting and the desktop update workflow remain Issue #10.
+The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. The `dev` branch now implements the complete v0.3 scope through Issue #10: Research Update Bundle 2.0, deterministic identity and unresolved Duplicate Cases, Prompt Context persistence, scoped planning and atomic update import, all four update prompt modes, and the desktop preview/copy/save/import workflow. v0.3 is not released yet.
 
 Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service.
 

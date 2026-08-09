@@ -47,7 +47,7 @@ Scope: eine oder mehrere Companies.
 
 ### Opportunity Update
 
-Scope: ausgewählte Opportunities oder Postings.
+Scope: vom Nutzer ausgewählte Opportunities; deren Postings sind als Nachfahren im Scope. Eine direkte Posting-Auswahl gehört nicht zu diesem Modus.
 
 ### Gap Filling
 
@@ -87,7 +87,7 @@ Nicht automatisch enthalten:
 
 ## 5. Geschützte Informationen
 
-Der Prompt kann persönliche Decisions als Kontext nennen, aber die Ausgabe darf sie nicht ändern.
+Persönliche Assessments, Decisions und Tracking Status sowie deren Werte sind im v0.3 nicht Bestandteil des öffentlichen Prompt Context. Templates verwenden stattdessen generische Schutzregeln, die Research-Ausgaben anweisen, keinen persönlichen Zustand zu mutieren.
 
 Beispiel:
 
@@ -123,15 +123,17 @@ Jeder Prompt verlangt:
 
 ## 8. UI-Anforderungen
 
-Vocation soll anbieten:
+Die aktuelle Desktop-UI bietet:
 
 - Prompt-Typ wählen,
 - Scope grafisch auswählen,
 - Preview,
 - Copy to Clipboard,
-- gespeicherte Prompt Runs,
-- Import einem Prompt Run zuordnen,
-- Prompt-Template-Version anzeigen.
+- Copy to Clipboard und Save,
+- Inline-Import des zurückgegebenen JSON,
+- Bundle-/Prompt-Versionen und bei Updates die Prompt Context Ref anzeigen.
+
+Ein Prompt-Run-History-Browser ist nicht Bestandteil von v0.3.
 
 ## 9. Templates
 

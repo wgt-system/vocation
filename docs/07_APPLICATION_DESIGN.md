@@ -16,7 +16,7 @@ Version 1 kennt einen lokalen Nutzer. Es gibt kein allgemeines Benutzer- oder Ro
 
 Vocation verwaltet seinen eigenen Criteria Catalog. Inkompatible semantische Änderungen an bereits verwendeten Kriterien werden abgelehnt und verlangen eine neue Criterion ID.
 
-### GenerateResearchPrompt
+### GenerateResearchPrompt (implementiert)
 
 Input:
 
@@ -42,7 +42,9 @@ Output:
 
 - Prompt Text
 - Prompt Run ID
+- Prompt Context Ref bei Updates
 - Scope Summary
+- Prompt Version
 - erwartete Bundle Version
 
 Fehler:
@@ -74,7 +76,7 @@ Ablauf:
 
 Research Bundle `1.0` bleibt initial-only und wird ausdrücklich getrennt von Research Update Bundle `2.0` behandelt. Beim Update werden bestehende Company-, Opportunity- und Posting-Zeilen sicher wiederverwendet, ohne kanonische Zustände umzuschreiben; externe Evidence ist append-only. Blocker werden vor Domain-Mutation erkannt, danach wird das akzeptierte Update atomar angewendet. Identische Bundles werden nicht erneut angewendet.
 
-Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. Contract, Dispatch, Prompt Context, Planung und atomarer Update-Import sind auf `dev` implementiert; Prompting und Desktop-Workflow bleiben Issue #10.
+Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. GenerateResearchPrompt ist für Initial Research und alle vier Update-Modi implementiert. Updates persistieren Prompt Run, Prompt Context Ref, expliziten Scope, Prompt Version und Bundle Version `2.0`.
 
 Output:
 
@@ -202,14 +204,14 @@ Zeigt pro Entry Ergebnis, Warnungen, Fehler und betroffene Objekte.
 
 ## 5. Desktop UI-Flows
 
-### Prompt Flow
+### Prompt Flow (implementiert)
 
-1. Recherchemodus wählen.
-2. Scope wählen.
+1. Recherchemodus und Scope wählen.
+2. Prompt generieren.
 3. Vorschau prüfen.
-4. Prompt kopieren.
-5. extern recherchieren.
-6. JSON importieren.
+4. Prompt kopieren, speichern oder extern verwenden.
+5. zurückgegebenes JSON inline importieren.
+6. Import Report prüfen.
 
 ### Map Flow
 

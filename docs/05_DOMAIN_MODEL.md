@@ -79,13 +79,14 @@ Felder:
 - `PromptScope`
 - `GeneratedAt`
 - `ContextSnapshotFingerprint`
-- optionale Referenz auf späteren Import
+- genau eine Referenz auf den `PromptContextSnapshot`
 
 Regeln:
 
 - PromptRun verändert keine Domänendaten,
 - Scope ist explizit,
-- eingebetteter Kontext ist read-only,
+- ein Update PromptRun referenziert genau einen PromptContextSnapshot; ein Initial PromptRun hat keinen Update Prompt Context,
+- der PromptContextSnapshot ist der Traceability-Pivot und enthält read-only Kontext,
 - Ausgabeanforderung verweist auf eine Bundle Version.
 
 ### OpportunityAssessment
@@ -140,6 +141,8 @@ Im v0.3 ausschließlich eine ungelöste mögliche Identitätsbeziehung mit Evide
 - `availability_check`
 - `custom_subset`
 
+`availability_check` und andere nicht in v0.3 implementierte Prompt-Typen sind spätere Slices.
+
 ### Prompt Scope
 
 Enthält:
@@ -157,9 +160,11 @@ Enthält:
 2. Ein Prompt darf nicht behaupten, selbst recherchiert zu haben.
 3. Ein Prompt muss die gewünschte Ausgabe als reines JSON verlangen.
 4. Ein Teilupdate darf keine außerhalb des Scopes liegenden Änderungen als verbindlich ausgeben.
-5. Persönliche Decisions und Assessments werden als geschützt markiert.
+5. Templates enthalten generische Schutzregeln; persönliche Assessments, Decisions und Tracking Status sowie deren Werte werden nicht in den öffentlichen Prompt Context eingebettet.
 
 Für v0.3 sind Update Bundles ein eigener Published Contract `2.0`. Eine Correlation Reference gilt nur für den ausstellenden Prompt Context Snapshot und kann zwischen Prompt Runs wechseln. Sie löst genau ein bestehendes Company-, Opportunity- oder Posting-Objekt auf, erlaubt aber keine Änderung bestehender Ownership-Beziehungen.
+
+`PromptContextSnapshot` ist der Traceability-Pivot: ein Update PromptRun gehört genau zu einem Snapshot, ein Initial PromptRun hat keinen Update Prompt Context. Ein angewendeter Update-`ResearchImport` speichert `bundle_version = 2.0` und die validierte `prompt_context_ref`; ein initialer `1.0`-Import speichert keine Prompt Context Ref. `ResearchImport` referenziert niemals direkt einen `prompt_run_id`; mehrere Importe dürfen denselben Snapshot referenzieren.
 
 ## ExternalLink
 
