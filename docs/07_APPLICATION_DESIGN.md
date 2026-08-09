@@ -105,11 +105,19 @@ Hebt eine frühere Einschränkung nachvollziehbar auf.
 
 ### CreateOpportunityGroup
 
-Erzeugt allgemeine Group oder Application Wave.
+Erzeugt eine OpportunityGroup mit stabiler Group ID, nichtleerem Namen, optionaler Beschreibung und Type `general` oder `application_wave`; es entstehen keine Opportunity-Zustandsänderungen.
+
+### EditOpportunityGroup / DeleteOpportunityGroup
+
+Edit ändert nur die Gruppenmetadaten. Delete entfernt die Memberships der Group, aber niemals Opportunities oder deren Zustand.
 
 ### AddOpportunityToGroup / RemoveOpportunityFromGroup
 
-Verändert keine Opportunity-Identität.
+Add fügt eine Membership am Ende ein; Remove entfernt nur die Membership. `(group_id, opportunity_id)` ist eindeutig.
+
+### ReorderOpportunityGroup
+
+Erhält den vollständigen geordneten Member-Satz und normalisiert die Positionen deterministisch.
 
 ### ResolveDuplicateCase
 
@@ -173,6 +181,15 @@ Liefert:
 - Groups
 - Duplicate Cases
 - History Summary
+
+Group-Memberships werden in Liste und Detail angezeigt und können als Filter verwendet werden.
+
+### Group Queries
+
+- Group list
+- Group detail with ordered Opportunities
+- Opportunity list/detail memberships
+- Opportunity filtering by Group/Wave
 
 ### CompareOpportunities
 

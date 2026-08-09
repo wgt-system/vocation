@@ -98,11 +98,13 @@ Contract 1.0 is frozen in `schemas/published-opportunity-overview-v1.schema.json
 
 Slice 9 freezes Availability Check Bundle 1.0 and its evidence-derived semantics. Availability Prompt generation, the dedicated Availability Import HTTP boundary, internal Availability/Freshness read-model/API integration, list filters/badges, and detail/history UI are implemented on `dev`. This remains post-v0.3 development and does not change Published Opportunity Overview 1.0.
 
-## Slice 10 – Groups und Waves
+## Slice 10 – Groups und Waves (Semantik eingefroren, Implementierung folgt)
 
 - Opportunity Groups
 - Application Waves
 - Filter und Übersicht
+
+V1 definiert `OpportunityGroup` als Aggregate mit Type `general` oder `application_wave`; Application Wave ist kein separates Aggregate. Geplante Commands sind `CreateOpportunityGroup`, `EditOpportunityGroup`, `DeleteOpportunityGroup`, `AddOpportunityToGroup`, `RemoveOpportunityFromGroup` und `ReorderOpportunityGroup`. Geplante Reads sind Group list, Group detail mit geordneten Opportunities, Memberships in Opportunity List/Detail und Group/Wave-Filter. Membership ist veränderbarer Organisationszustand; Gruppen verändern keine Opportunity-, Personal-, Research- oder Availability-Daten. Published Opportunity Overview 1.0 bleibt unverändert.
 
 ## Slice 11 – Karte
 

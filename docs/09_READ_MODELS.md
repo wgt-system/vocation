@@ -74,11 +74,12 @@ Fehlende und widersprüchliche Werte werden explizit dargestellt.
 
 ## 6. GroupView / ApplicationWaveView
 
-- Group Metadata
-- Opportunity Items
-- Reihenfolge
+- Group Metadata: stable Group ID, name, optional description, type
+- ordered Opportunity Items with explicit positions
 - Statusverteilung
 - Freshness und Availability Summary
+
+`ApplicationWaveView` ist dieselbe Group-Sicht für Type `application_wave`; es gibt kein separates Wave-Aggregat. Opportunity List/Detail zeigen Memberships und unterstützen Group/Wave-Filter.
 
 ## 7. MapProjection
 

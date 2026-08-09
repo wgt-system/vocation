@@ -134,11 +134,11 @@ Explizite Entscheidung: identisch, getrennt, verwandt oder ungeklärt.
 
 ### Opportunity Group
 
-Benannte Sammlung für einen organisatorischen Zweck.
+Benannte Sammlung für einen organisatorischen Zweck mit stabiler Group ID, nichtleerem Namen, optionaler Beschreibung und Typ `general` oder `application_wave`. Memberships referenzieren Group ID und Opportunity ID sowie eine explizite Position. `(group_id, opportunity_id)` ist eindeutig; eine Opportunity darf mehreren Groups angehören.
 
 ### Application Wave
 
-Spezielle Opportunity Group für eine gemeinsame Bewerbungsphase.
+Spezielle `OpportunityGroup` für eine gemeinsame Bewerbungsphase. Sie ist in V1 kein separates Aggregate und bringt keine impliziten Bewerbungs-, Fristen- oder Statussemantiken mit.
 
 ### Read Model
 

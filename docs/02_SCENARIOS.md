@@ -44,7 +44,7 @@ Der Nutzer schließt eine Opportunity mit Grund aus. Ein späterer Import darf d
 
 ## S10 – Opportunity Group oder Application Wave
 
-Der Nutzer gruppiert Opportunities. Gruppen verändern weder Identität noch Historie der Opportunities.
+Der Nutzer erstellt eine `OpportunityGroup` vom Typ `general` oder `application_wave`, fügt Opportunities in expliziter Reihenfolge hinzu, entfernt oder ordnet sie neu. Eine Application Wave ist dabei keine eigene Aggregate-Klasse. Gruppen verändern weder Identität noch Historie der Opportunities und lösen keine Bewerbungs- oder Statusautomatik aus.
 
 ## S11 – Vergleich
 

@@ -366,3 +366,19 @@ Es gibt keine Fresh-/Stale-Kategorie und keinen automatischen Ablauf. Alte expli
 ## AT-77 Research Update Compatibility
 
 Research Update Bundle 2.0 bleibt unverändert; Availability-Felder, Availability-Scope und Availability-Observation-Typen werden nicht in diesen Vertrag aufgenommen.
+
+## AT-78 Opportunity Groups and Application Waves
+
+Eine Group besitzt stabile ID, nichtleeren Namen, optionale Beschreibung und Type `general` oder `application_wave`; Application Wave ist kein separates Aggregate.
+
+## AT-79 Ordered Membership and Group Commands
+
+Memberships sind durch `(group_id, opportunity_id)` eindeutig und besitzen explizite Positionen. Add hängt an, Remove betrifft nur die Group, Reorder normalisiert den vollständigen Satz deterministisch, Delete löscht keine Opportunity.
+
+## AT-80 Group State Isolation
+
+Groups/Waves verändern weder Opportunity-Zustand, Tracking Status, Personal Assessments, Decisions, Availability/Freshness noch Research-Daten. Research- und Availability-Bundles können keine Memberships erzeugen oder ändern.
+
+## AT-81 Group Reads and Filtering
+
+Group list/detail, geordnete Opportunities, Membership-Anzeige in Opportunity List/Detail sowie Group/Wave-Filter sind als geplante V1-Read-Capabilities definiert.

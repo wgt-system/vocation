@@ -109,7 +109,21 @@ Bewusste persönliche Entscheidung mit Reason und möglicher Reversal-Beziehung.
 
 ### OpportunityGroup
 
-Gruppe mit Type und Memberships.
+Aggregate mit stabiler `GroupId`, nichtleerem Namen, optionaler Beschreibung, Type `general` oder `application_wave` und geordneten Memberships. `ApplicationWave` ist ausschließlich eine OpportunityGroup mit Type `application_wave`.
+
+Membership enthält `GroupId`, `OpportunityId` und eine explizite Position. `(group_id, opportunity_id)` ist eindeutig. Eine Opportunity darf mehreren Groups und mehreren Application Waves angehören; es gibt weder Exklusivität noch eine Active-Wave-Invariante.
+
+Invarianten und Commands:
+
+- `CreateOpportunityGroup` erzeugt keine Änderung an einer Opportunity.
+- `AddOpportunityToGroup` hängt eine Membership ans Ende an.
+- `RemoveOpportunityFromGroup` betrifft nur die Membership der Group.
+- `ReorderOpportunityGroup` erhält den vollständigen geordneten Member-Satz und normalisiert Positionen deterministisch.
+- `DeleteOpportunityGroup` löscht Memberships, niemals Opportunities oder deren Zustand.
+- Group Membership ist veränderbarer Organisationszustand und keine append-only Decision-Historie.
+- Groups/Waves verändern niemals Tracking Status, Personal Assessments, Decisions, Availability/Freshness oder Research-Daten.
+- Research- und Availability-Bundles dürfen Groups/Waves weder erzeugen noch verändern.
+- V1 enthält keine Bewerbungseinreichung, Frist, Application Status oder automatische Statusübergänge.
 
 ### DuplicateCase
 
