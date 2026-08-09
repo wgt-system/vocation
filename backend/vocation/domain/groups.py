@@ -10,6 +10,8 @@ GroupType = Literal["general", "application_wave"]
 class OpportunityGroupMembership:
     opportunity_id: str
     position: int
+    opportunity_title: str | None = None
+    company_name: str | None = None
 
 
 @dataclass(frozen=True)

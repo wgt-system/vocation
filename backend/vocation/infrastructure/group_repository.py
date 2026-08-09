@@ -169,5 +169,13 @@ class SqlAlchemyOpportunityGroupRepository:
             name=model.name,
             description=model.description,
             group_type=model.group_type,  # type: ignore[arg-type]
-            memberships=tuple(OpportunityGroupMembership(item.opportunity_id, item.position) for item in memberships),
+            memberships=tuple(
+                OpportunityGroupMembership(
+                    item.opportunity_id,
+                    item.position,
+                    item.opportunity.canonical_title,
+                    item.opportunity.company.canonical_name,
+                )
+                for item in memberships
+            ),
         )

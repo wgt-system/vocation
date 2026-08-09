@@ -124,6 +124,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Groups */
+        get: operations["list_groups_api_groups_get"];
+        put?: never;
+        /** Create Group */
+        post: operations["create_group_api_groups_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/groups/{group_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Group */
+        get: operations["get_group_api_groups__group_id__get"];
+        /** Edit Group */
+        put: operations["edit_group_api_groups__group_id__put"];
+        post?: never;
+        /** Delete Group */
+        delete: operations["delete_group_api_groups__group_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/groups/{group_id}/memberships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Membership */
+        post: operations["add_membership_api_groups__group_id__memberships_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/groups/{group_id}/memberships/{opportunity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Membership */
+        delete: operations["remove_membership_api_groups__group_id__memberships__opportunity_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/groups/{group_id}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reorder Group */
+        put: operations["reorder_group_api_groups__group_id__order_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -771,6 +859,17 @@ export interface components {
             /** Research Scope */
             research_scope: components["schemas"]["FullResearchScope"] | components["schemas"]["SelectedResearchScope"] | components["schemas"]["GapResearchScope"];
         };
+        /** GroupMembershipResponse */
+        GroupMembershipResponse: {
+            /** Company Name */
+            company_name: string;
+            /** Opportunity Id */
+            opportunity_id: string;
+            /** Opportunity Title */
+            opportunity_title: string;
+            /** Position */
+            position: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -881,6 +980,8 @@ export interface components {
             decision_history: components["schemas"]["DecisionResponse"][];
             /** External Assessments */
             external_assessments: components["schemas"]["AssessmentResponse"][];
+            /** Groups */
+            groups?: components["schemas"]["OpportunityGroupSummaryResponse"][];
             /** Id */
             id: string;
             import_provenance: components["schemas"]["ImportProvenanceResponse"];
@@ -904,6 +1005,56 @@ export interface components {
              */
             tracking_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
         };
+        /** OpportunityGroupMembershipPayload */
+        OpportunityGroupMembershipPayload: {
+            /** Opportunity Id */
+            opportunity_id: string;
+        };
+        /** OpportunityGroupPayload */
+        OpportunityGroupPayload: {
+            /** Description */
+            description?: string | null;
+            /**
+             * Group Type
+             * @enum {string}
+             */
+            group_type: "general" | "application_wave";
+            /** Name */
+            name: string;
+        };
+        /** OpportunityGroupReorderPayload */
+        OpportunityGroupReorderPayload: {
+            /** Opportunity Ids */
+            opportunity_ids: string[];
+        };
+        /** OpportunityGroupResponse */
+        OpportunityGroupResponse: {
+            /** Description */
+            description: string | null;
+            /**
+             * Group Type
+             * @enum {string}
+             */
+            group_type: "general" | "application_wave";
+            /** Id */
+            id: string;
+            /** Memberships */
+            memberships: components["schemas"]["GroupMembershipResponse"][];
+            /** Name */
+            name: string;
+        };
+        /** OpportunityGroupSummaryResponse */
+        OpportunityGroupSummaryResponse: {
+            /** Group Id */
+            group_id: string;
+            /**
+             * Group Type
+             * @enum {string}
+             */
+            group_type: "general" | "application_wave";
+            /** Name */
+            name: string;
+        };
         /** OpportunityListItemResponse */
         OpportunityListItemResponse: {
             /** Assessment Count */
@@ -916,6 +1067,8 @@ export interface components {
             availability_last_checked_at?: string | null;
             /** Company Name */
             company_name: string;
+            /** Groups */
+            groups?: components["schemas"]["OpportunityGroupSummaryResponse"][];
             /** Id */
             id: string;
             /** Import Id */
@@ -1373,6 +1526,256 @@ export interface operations {
             };
         };
     };
+    list_groups_api_groups_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityGroupResponse"][];
+                };
+            };
+        };
+    };
+    create_group_api_groups_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityGroupPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityGroupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_group_api_groups__group_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityGroupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_group_api_groups__group_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityGroupPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityGroupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_group_api_groups__group_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_membership_api_groups__group_id__memberships_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityGroupMembershipPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityGroupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_membership_api_groups__group_id__memberships__opportunity_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityGroupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reorder_group_api_groups__group_id__order_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityGroupReorderPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityGroupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_api_health_get: {
         parameters: {
             query?: never;
@@ -1494,7 +1897,9 @@ export interface operations {
     };
     list_opportunities_api_opportunities_get: {
         parameters: {
-            query?: never;
+            query?: {
+                group_id?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1508,6 +1913,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OpportunityListItemResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

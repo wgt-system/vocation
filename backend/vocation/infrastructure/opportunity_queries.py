@@ -14,6 +14,8 @@ from vocation.infrastructure.models import (
     CompanyModel,
     ExternalAssessmentModel,
     ObservationModel,
+    OpportunityGroupMembershipModel,
+    OpportunityGroupModel,
     OpportunityModel,
     PostingModel,
     ResearchImportModel,
@@ -82,10 +84,23 @@ class SqlAlchemyOpportunityReadRepository:
             )
         }
 
-    def list(self) -> list[dict[str, Any]]:
+    @staticmethod
+    def _groups(session: Session, opportunity_id: str) -> list[dict[str, str]]:
+        rows = session.execute(
+            select(OpportunityGroupModel.id, OpportunityGroupModel.name, OpportunityGroupModel.group_type)
+            .join(OpportunityGroupMembershipModel, OpportunityGroupMembershipModel.group_id == OpportunityGroupModel.id)
+            .where(OpportunityGroupMembershipModel.opportunity_id == opportunity_id)
+            .order_by(OpportunityGroupModel.id)
+        ).all()
+        return [{"group_id": row.id, "name": row.name, "group_type": row.group_type} for row in rows]
+
+    def list(self, *, group_id: str | None = None) -> list[dict[str, Any]]:
         with self.session_factory() as session:
             now = self.clock()
-            opportunities = session.scalars(select(OpportunityModel).order_by(OpportunityModel.canonical_title)).all()
+            query = select(OpportunityModel)
+            if group_id is not None:
+                query = query.join(OpportunityGroupMembershipModel).where(OpportunityGroupMembershipModel.group_id == group_id)
+            opportunities = session.scalars(query.order_by(OpportunityModel.canonical_title)).all()
             result: list[dict[str, Any]] = []
             for opportunity in opportunities:
                 company = session.get(CompanyModel, opportunity.company_id)
@@ -124,6 +139,7 @@ class SqlAlchemyOpportunityReadRepository:
                         "availability": aggregate.availability,
                         "availability_last_checked_at": _iso(aggregate.last_checked_at),
                         "availability_age_days": aggregate.age_days,
+                        "groups": self._groups(session, opportunity.id),
                     }
                 )
             return result
@@ -266,4 +282,5 @@ class SqlAlchemyOpportunityReadRepository:
                 "availability": aggregate.availability,
                 "availability_last_checked_at": _iso(aggregate.last_checked_at),
                 "availability_age_days": aggregate.age_days,
+                "groups": self._groups(session, opportunity.id),
             }

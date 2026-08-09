@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 ValueType = Literal["numeric", "boolean", "categorical", "text"]
 SubjectType = Literal["company", "opportunity", "posting"]
 TrackingStatus = Literal["new", "to_review", "interesting", "shortlisted", "deferred", "excluded", "archived"]
+GroupType = Literal["general", "application_wave"]
 UpdateMode = Literal["full_update", "company_update", "opportunity_update", "gap_filling"]
 ObservationType = Literal[
     "technology_requirement",
@@ -302,6 +303,7 @@ class OpportunityListItemResponse(BaseModel):
     availability: Literal["available", "unavailable", "uncertain", "unknown"] | None = None
     availability_last_checked_at: str | None = None
     availability_age_days: int | None = None
+    groups: list[OpportunityGroupSummaryResponse] = Field(default_factory=list)
 
 
 class CompanyResponse(BaseModel):
@@ -349,6 +351,47 @@ class AvailabilityHistoryResponse(BaseModel):
     observed_at: str
     recorded_at: str
     evidence_summary: str
+
+
+class GroupMembershipResponse(BaseModel):
+    opportunity_id: str
+    position: int
+    opportunity_title: str
+    company_name: str
+
+
+class OpportunityGroupPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1, max_length=300)
+    description: str | None = None
+    group_type: GroupType
+
+
+class OpportunityGroupMembershipPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    opportunity_id: str = Field(min_length=1)
+
+
+class OpportunityGroupReorderPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    opportunity_ids: list[str]
+
+
+class OpportunityGroupResponse(BaseModel):
+    id: str
+    name: str
+    description: str | None
+    group_type: GroupType
+    memberships: list[GroupMembershipResponse]
+
+
+class OpportunityGroupSummaryResponse(BaseModel):
+    group_id: str
+    name: str
+    group_type: GroupType
 
 
 class ObservationResponse(BaseModel):
@@ -449,3 +492,4 @@ class OpportunityDetailResponse(BaseModel):
     availability: Literal["available", "unavailable", "uncertain", "unknown"] | None = None
     availability_last_checked_at: str | None = None
     availability_age_days: int | None = None
+    groups: list[OpportunityGroupSummaryResponse] = Field(default_factory=list)
