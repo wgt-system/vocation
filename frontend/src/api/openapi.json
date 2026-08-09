@@ -1199,6 +1199,302 @@
         "title": "LocationResponse",
         "type": "object"
       },
+      "MapGroupMembershipResponse": {
+        "properties": {
+          "group_id": {
+            "title": "Group Id",
+            "type": "string"
+          },
+          "group_type": {
+            "enum": [
+              "general",
+              "application_wave"
+            ],
+            "title": "Group Type",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id",
+          "name",
+          "group_type"
+        ],
+        "title": "MapGroupMembershipResponse",
+        "type": "object"
+      },
+      "MapLocationResponse": {
+        "properties": {
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "company_id": {
+            "title": "Company Id",
+            "type": "string"
+          },
+          "company_name": {
+            "title": "Company Name",
+            "type": "string"
+          },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "precision": {
+            "title": "Precision",
+            "type": "string"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapResolutionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "work_location_id": {
+            "title": "Work Location Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_location_id",
+          "opportunity_id",
+          "title",
+          "company_id",
+          "company_name",
+          "label",
+          "city",
+          "region",
+          "country_code",
+          "precision",
+          "resolution"
+        ],
+        "title": "MapLocationResponse",
+        "type": "object"
+      },
+      "MapProjectionFeatureResponse": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "available",
+              "unavailable",
+              "uncertain",
+              "unknown"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "company_id": {
+            "title": "Company Id",
+            "type": "string"
+          },
+          "company_name": {
+            "title": "Company Name",
+            "type": "string"
+          },
+          "feature_id": {
+            "title": "Feature Id",
+            "type": "string"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/MapGroupMembershipResponse"
+            },
+            "title": "Groups",
+            "type": "array"
+          },
+          "latitude": {
+            "title": "Latitude",
+            "type": "number"
+          },
+          "location_label": {
+            "title": "Location Label",
+            "type": "string"
+          },
+          "longitude": {
+            "title": "Longitude",
+            "type": "number"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "precision": {
+            "title": "Precision",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "tracking_status": {
+            "enum": [
+              "new",
+              "to_review",
+              "interesting",
+              "shortlisted",
+              "deferred",
+              "excluded",
+              "archived"
+            ],
+            "title": "Tracking Status",
+            "type": "string"
+          },
+          "work_location_id": {
+            "title": "Work Location Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feature_id",
+          "work_location_id",
+          "opportunity_id",
+          "company_id",
+          "title",
+          "company_name",
+          "location_label",
+          "latitude",
+          "longitude",
+          "precision",
+          "tracking_status",
+          "availability",
+          "groups"
+        ],
+        "title": "MapProjectionFeatureResponse",
+        "type": "object"
+      },
+      "MapProjectionPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "opportunity_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Opportunity Ids",
+            "type": "array"
+          }
+        },
+        "title": "MapProjectionPayload",
+        "type": "object"
+      },
+      "MapResolutionPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "latitude": {
+            "title": "Latitude",
+            "type": "number"
+          },
+          "longitude": {
+            "title": "Longitude",
+            "type": "number"
+          },
+          "resolved_query": {
+            "minLength": 1,
+            "title": "Resolved Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude",
+          "resolved_query"
+        ],
+        "title": "MapResolutionPayload",
+        "type": "object"
+      },
+      "MapResolutionResponse": {
+        "properties": {
+          "latitude": {
+            "title": "Latitude",
+            "type": "number"
+          },
+          "longitude": {
+            "title": "Longitude",
+            "type": "number"
+          },
+          "provider_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Key"
+          },
+          "resolution_source": {
+            "enum": [
+              "manual",
+              "geocoder"
+            ],
+            "title": "Resolution Source",
+            "type": "string"
+          },
+          "resolved_at": {
+            "title": "Resolved At",
+            "type": "string"
+          },
+          "resolved_query": {
+            "title": "Resolved Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude",
+          "resolution_source",
+          "provider_key",
+          "resolved_at",
+          "resolved_query"
+        ],
+        "title": "MapResolutionResponse",
+        "type": "object"
+      },
       "ObservationResponse": {
         "properties": {
           "confidence": {
@@ -3079,6 +3375,161 @@
         "summary": "Get Import Report",
         "tags": [
           "research imports"
+        ]
+      }
+    },
+    "/api/map/locations": {
+      "get": {
+        "operationId": "list_map_locations_api_map_locations_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MapLocationResponse"
+                  },
+                  "title": "Response List Map Locations Api Map Locations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Map Locations",
+        "tags": [
+          "map"
+        ]
+      }
+    },
+    "/api/map/locations/{work_location_id}/resolution": {
+      "delete": {
+        "operationId": "delete_resolution_api_map_locations__work_location_id__resolution_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "work_location_id",
+            "required": true,
+            "schema": {
+              "title": "Work Location Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Resolution",
+        "tags": [
+          "map"
+        ]
+      },
+      "put": {
+        "operationId": "set_resolution_api_map_locations__work_location_id__resolution_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "work_location_id",
+            "required": true,
+            "schema": {
+              "title": "Work Location Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MapResolutionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MapResolutionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Resolution",
+        "tags": [
+          "map"
+        ]
+      }
+    },
+    "/api/map/projection": {
+      "post": {
+        "operationId": "map_projection_api_map_projection_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MapProjectionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MapProjectionFeatureResponse"
+                  },
+                  "title": "Response Map Projection Api Map Projection Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Map Projection",
+        "tags": [
+          "map"
         ]
       }
     },

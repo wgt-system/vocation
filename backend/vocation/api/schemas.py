@@ -394,6 +394,65 @@ class OpportunityGroupSummaryResponse(BaseModel):
     group_type: GroupType
 
 
+class MapResolutionResponse(BaseModel):
+    latitude: float
+    longitude: float
+    resolution_source: Literal["manual", "geocoder"]
+    provider_key: str | None
+    resolved_at: str
+    resolved_query: str
+
+
+class MapLocationResponse(BaseModel):
+    work_location_id: str
+    opportunity_id: str
+    title: str
+    company_id: str
+    company_name: str
+    label: str
+    city: str | None
+    region: str | None
+    country_code: str | None
+    precision: str
+    resolution: MapResolutionResponse | None
+
+
+class MapResolutionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    latitude: float
+    longitude: float
+    resolved_query: str = Field(min_length=1)
+
+
+class MapProjectionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    opportunity_ids: list[str] = Field(default_factory=list)
+
+
+class MapGroupMembershipResponse(BaseModel):
+    group_id: str
+    name: str
+    group_type: GroupType
+
+
+class MapProjectionFeatureResponse(BaseModel):
+    feature_id: str
+    work_location_id: str
+    opportunity_id: str
+    company_id: str
+    title: str
+    company_name: str
+    location_label: str
+    latitude: float
+    longitude: float
+    precision: str
+    tracking_status: TrackingStatus
+    availability: Literal["available", "unavailable", "uncertain", "unknown"]
+    groups: list[MapGroupMembershipResponse]
+
+
 class ObservationResponse(BaseModel):
     id: str
     subject_type: str

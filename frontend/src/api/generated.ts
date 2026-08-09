@@ -280,6 +280,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/map/locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Map Locations */
+        get: operations["list_map_locations_api_map_locations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/map/locations/{work_location_id}/resolution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set Resolution */
+        put: operations["set_resolution_api_map_locations__work_location_id__resolution_put"];
+        post?: never;
+        /** Delete Resolution */
+        delete: operations["delete_resolution_api_map_locations__work_location_id__resolution_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/map/projection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Map Projection */
+        post: operations["map_projection_api_map_projection_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/opportunities": {
         parameters: {
             query?: never;
@@ -947,6 +999,109 @@ export interface components {
             label: string;
             /** Precision */
             precision: string;
+        };
+        /** MapGroupMembershipResponse */
+        MapGroupMembershipResponse: {
+            /** Group Id */
+            group_id: string;
+            /**
+             * Group Type
+             * @enum {string}
+             */
+            group_type: "general" | "application_wave";
+            /** Name */
+            name: string;
+        };
+        /** MapLocationResponse */
+        MapLocationResponse: {
+            /** City */
+            city: string | null;
+            /** Company Id */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
+            /** Country Code */
+            country_code: string | null;
+            /** Label */
+            label: string;
+            /** Opportunity Id */
+            opportunity_id: string;
+            /** Precision */
+            precision: string;
+            /** Region */
+            region: string | null;
+            resolution: components["schemas"]["MapResolutionResponse"] | null;
+            /** Title */
+            title: string;
+            /** Work Location Id */
+            work_location_id: string;
+        };
+        /** MapProjectionFeatureResponse */
+        MapProjectionFeatureResponse: {
+            /**
+             * Availability
+             * @enum {string}
+             */
+            availability: "available" | "unavailable" | "uncertain" | "unknown";
+            /** Company Id */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
+            /** Feature Id */
+            feature_id: string;
+            /** Groups */
+            groups: components["schemas"]["MapGroupMembershipResponse"][];
+            /** Latitude */
+            latitude: number;
+            /** Location Label */
+            location_label: string;
+            /** Longitude */
+            longitude: number;
+            /** Opportunity Id */
+            opportunity_id: string;
+            /** Precision */
+            precision: string;
+            /** Title */
+            title: string;
+            /**
+             * Tracking Status
+             * @enum {string}
+             */
+            tracking_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
+            /** Work Location Id */
+            work_location_id: string;
+        };
+        /** MapProjectionPayload */
+        MapProjectionPayload: {
+            /** Opportunity Ids */
+            opportunity_ids?: string[];
+        };
+        /** MapResolutionPayload */
+        MapResolutionPayload: {
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Resolved Query */
+            resolved_query: string;
+        };
+        /** MapResolutionResponse */
+        MapResolutionResponse: {
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Provider Key */
+            provider_key: string | null;
+            /**
+             * Resolution Source
+             * @enum {string}
+             */
+            resolution_source: "manual" | "geocoder";
+            /** Resolved At */
+            resolved_at: string;
+            /** Resolved Query */
+            resolved_query: string;
         };
         /** ObservationResponse */
         ObservationResponse: {
@@ -1882,6 +2037,123 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImportReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_map_locations_api_map_locations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapLocationResponse"][];
+                };
+            };
+        };
+    };
+    set_resolution_api_map_locations__work_location_id__resolution_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                work_location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MapResolutionPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapResolutionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_resolution_api_map_locations__work_location_id__resolution_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                work_location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    map_projection_api_map_projection_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MapProjectionPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapProjectionFeatureResponse"][];
                 };
             };
             /** @description Validation Error */
