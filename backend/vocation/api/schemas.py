@@ -18,6 +18,7 @@ ObservationType = Literal[
     "salary",
 ]
 BundleVersion = Literal["1.0", "2.0"]
+PublishedPrecision = Literal["exact_address", "site", "city", "region", "approximate", "unknown"]
 
 
 class CriterionPayload(BaseModel):
@@ -69,6 +70,39 @@ class GeneratedPromptResponse(BaseModel):
     prompt_text: str
     bundle_version: BundleVersion
     criteria_count: int
+
+
+class PublishedCompanyResponse(BaseModel):
+    company_ref: str
+    name: str
+
+
+class PublishedWorkLocationResponse(BaseModel):
+    label: str
+    city: str | None
+    region: str | None
+    country_code: str | None
+    precision: PublishedPrecision
+
+
+class PublishedOpportunityResponse(BaseModel):
+    opportunity_ref: str
+    title: str
+    company: PublishedCompanyResponse
+    work_locations: list[PublishedWorkLocationResponse]
+    posting_count: int
+
+
+class PublishedPublicationResponse(BaseModel):
+    publication_ref: str
+    generated_at: str
+
+
+class PublishedOpportunityOverviewResponse(BaseModel):
+    capability: Literal["vocation.opportunity_overview"]
+    contract_version: Literal["1.0"]
+    publication: PublishedPublicationResponse
+    opportunities: list[PublishedOpportunityResponse]
 
 
 class CompanyOptionResponse(BaseModel):

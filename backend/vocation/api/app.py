@@ -8,10 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from vocation import __version__
 from vocation.api.criteria_routes import router as criteria_router
 from vocation.api.import_routes import router as import_router
 from vocation.api.opportunity_routes import router as opportunity_router
 from vocation.api.prompt_routes import router as prompt_router
+from vocation.api.published_routes import router as published_router
 from vocation.application.criteria import CriteriaService
 from vocation.application.duplicate_cases import DuplicateCaseService
 from vocation.application.imports import ImportService
@@ -19,6 +21,7 @@ from vocation.application.opportunities import OpportunityQueryService
 from vocation.application.personal_triage import PersonalTriageService
 from vocation.application.posting_identity import PostingIdentityResolver
 from vocation.application.prompts import PromptService
+from vocation.application.publication import OpportunityOverviewPublicationService
 from vocation.application.update_planning import UpdateImportPlanner
 from vocation.config import Settings, get_settings
 from vocation.infrastructure.bundle_repository import SqlAlchemyImportRepository
@@ -29,6 +32,7 @@ from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersona
 from vocation.infrastructure.posting_identity_repository import SqlAlchemyPostingIdentityRepository
 from vocation.infrastructure.prompt_context_repository import SqlAlchemyPromptContextSnapshotRepository
 from vocation.infrastructure.prompt_market_repository import SqlAlchemyPromptMarketRepository
+from vocation.infrastructure.publication_repository import SqlAlchemyOpportunityOverviewPublicationRepository
 from vocation.infrastructure.repositories import (
     SqlAlchemyCriteriaRepository,
     SqlAlchemyPromptRunRepository,
@@ -47,7 +51,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         yield
         database.dispose()
 
-    app = FastAPI(title="Vocation", version="0.2.0", lifespan=lifespan)
+    app = FastAPI(title="Vocation", version=__version__, lifespan=lifespan)
     app.state.database = database
     app.state.settings = settings
     criteria_repository = SqlAlchemyCriteriaRepository(database.session_factory)
@@ -81,6 +85,9 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         app.state.update_import_planner,
     )
     app.state.opportunity_service = OpportunityQueryService(SqlAlchemyOpportunityReadRepository(database.session_factory))
+    app.state.publication_service = OpportunityOverviewPublicationService(
+        SqlAlchemyOpportunityOverviewPublicationRepository(database.session_factory)
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -97,6 +104,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.include_router(prompt_router)
     app.include_router(import_router)
     app.include_router(opportunity_router)
+    app.include_router(published_router)
 
     frontend_dist: Path = settings.frontend_dist
     if frontend_dist.exists():

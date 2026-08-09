@@ -159,7 +159,7 @@ Sicherheitsregeln:
 
 ## 10. Cross-device Publication
 
-Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabilities. Die erste geplante Capability ist `Opportunity Overview` 1.0; die finale Feldstruktur wird in einem späteren Contract-Slice festgelegt.
+Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabilities.
 
 Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch eingefroren. Der geplante lokale Veröffentlichungspfad ist `/published/v1/opportunity-overview`; das bestehende `/api/...` React API bleibt interne Presentation API. HTTP/OpenAPI ist nicht die Quelle der Cross-Context-Payload.
 

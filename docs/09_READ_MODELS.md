@@ -145,27 +145,23 @@ Regeln:
 
 ## 10. PublishedOpportunityOverview (planned, client-neutral)
 
-Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. The first contract slice defines the boundary and tests without freezing the final JSON field schema.
+Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. Contract 1.0 is frozen by `schemas/published-opportunity-overview-v1.schema.json`.
 
 Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`, `publication` und `opportunities`. Die geschlossenen Opportunity-Objekte enthalten ausschließlich opaque Opportunity-/Company-Referenzen, Titel, Company, Work Locations und Posting Count. Es gibt keine URLs, Navigation, Personal-/Import-/Provenance-Daten, Availability/Freshness oder Schreibinformationen. Der lokale Adapter ist für `/published/v1/opportunity-overview` geplant.
 
-- Publication Snapshot Metadata
-- projection version
-- client-neutral opportunity overview data
-- explicit publication age
+- `contract_version`
+- publication metadata: `publication_ref`, `generated_at`
+- frozen opportunity overview payload
 
 ## 11. Published Map Projection (future, client-neutral)
 
 Future client-neutral projection for map-capable consumers. It is not a mobile-specific contract and does not change Vocation ownership of Work Locations.
 
-## 12. DataSnapshotMetadata
+## 12. Publication Metadata
 
-- Snapshot ID
-- generated at
-- Vocation data version
-- latest import time
-- stale indicator
-- supported contracts
+For the frozen Published Opportunity Overview 1.0 contract, current publication metadata
+contains only `publication_ref` and `generated_at`. It does not define publication age,
+data freshness, import time, or a stale indicator.
 ## Opportunity-Triage-Read-Model (v0.2.0)
 
 Opportunity-Liste und Detail enthalten den Tracking Status und unterstützen Statusfilter. Die Detailansicht trennt `external_assessments`, aktuelle `personal_assessments`, `personal_assessment_history` und chronologische `decision_history`. Die historische Darstellung ist append-only und stammt aus Vocation-eigenen Tabellen; Research-Bundle-Daten bleiben externe Beobachtungen. Mutation-Fehler dürfen bereits geladene Read Models nicht leeren.
