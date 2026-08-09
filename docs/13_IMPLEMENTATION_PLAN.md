@@ -1,6 +1,6 @@
 # Vocation – Implementation Plan
 
-**Status:** v0.3 vollständig auf `dev` implementiert; noch nicht als Milestone veröffentlicht.
+**Status:** v0.3.0 released baseline.
 
 ## Phase 0 – Spezifikationsprüfung
 
@@ -164,4 +164,4 @@ Issue #8 – deterministische Identität und ungelöste Duplicate Cases: abgesch
 
 Issue #9 – Prompt Context Persistence, read-only Planning und atomarer Update Import: abgeschlossen.
 
-Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Data Publication und Published Opportunity Overview 1.0 sind die erste Post-v0.3-Priorität. Availability/Freshness, Groups/Waves, Maps, External Navigation und Comparison folgen danach. v0.3 wird erst nach finaler Control-Plane-Prüfung und Merge als Milestone veröffentlicht.
+Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Vocation v0.3.0 enthält Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots und opaque Correlation References, deterministische Posting-Identität, ungelöste Duplicate Cases ohne automatischen Merge, read-only Planning und atomaren Update Apply, PromptRun/ResearchImport-Traceability sowie den vollständigen Desktop Research Prompt preview/copy/save/import workflow. Data Publication und Published Opportunity Overview 1.0 sind die erste Post-v0.3-Priorität und nicht Bestandteil dieses Releases. Availability/Freshness, Groups/Waves, Maps, External Navigation und Comparison folgen danach.

@@ -2,7 +2,7 @@
 
 Vocation is a standalone, local-first application for a personal job market. Research happens externally (initially through ChatGPT): Vocation generates criteria-driven prompts, imports versioned JSON Research Bundles, validates them, and provides a traceable read model.
 
-## Current status: v0.2.0 released baseline
+## Current status: v0.3.0 released baseline
 
 The first usable Research Bundle workflow is implemented:
 
@@ -13,7 +13,7 @@ The first usable Research Bundle workflow is implemented:
 - opportunity list and detail views with postings, sources, observations, and external assessments
 - local SQLite migrations and a FastAPI/React desktop-oriented application
 
-The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. The `dev` branch now implements the complete v0.3 scope through Issue #10: Research Update Bundle 2.0, deterministic identity and unresolved Duplicate Cases, Prompt Context persistence, scoped planning and atomic update import, all four update prompt modes, and the desktop preview/copy/save/import workflow. v0.3 is not released yet.
+The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. Vocation v0.3.0 is the controlled research-update release: Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots and opaque Correlation References, deterministic Posting identity, unresolved Duplicate Cases without automatic merge, read-only planning and atomic Update apply, PromptRun/ResearchImport traceability, and the complete desktop Research Prompt preview/copy/save/import workflow. Initial Research Bundle 1.0 compatibility is retained.
 
 Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service. Wiiii Got This is the primary cross-device presentation for suitable published Vocation capabilities on Windows and iPhone; Vocation remains the local authority.
 
@@ -48,7 +48,7 @@ The application uses local SQLite data. Local databases, imported job data, gene
 
 ## Boundaries and limitations
 
-Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Update prompting/UI, fuzzy identity resolution, groups/waves, availability/freshness, comparison, maps, crawling, authentication, and cloud hosting remain outside the released v0.2.0 baseline; the implemented v0.3 scope is available on `dev` but not yet released.
+Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Fuzzy identity resolution, groups/waves, availability/freshness, comparison, maps, crawling, authentication, and cloud hosting remain outside v0.3. Published Opportunity Overview 1.0 remains the first planned post-v0.3 slice and is not implemented by this release.
 
 ## Repository structure
 
