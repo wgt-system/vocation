@@ -35,7 +35,6 @@ Input:
 
 - ein Vocation-erzeugter Prompt Context Snapshot mit opaque Correlation References
 - letzte Observations
-- Freshness
 - bekannte Sources
 - offene Duplicate Cases
 - geschützte Personal Decisions
@@ -54,7 +53,7 @@ Scope: ausgewählte Opportunities oder Postings.
 
 Scope: fehlende Felder, Widersprüche oder offene Risiken.
 
-### Availability Check
+### Availability Check (späteres Slice, außerhalb v0.3)
 
 Scope: nur Erreichbarkeit und Verfügbarkeitsbeobachtungen.
 
@@ -65,7 +64,7 @@ Ein generiertes Prompt-Paket enthält:
 1. klare Aufgabe,
 2. Scope,
 3. Stichtag,
-4. bestehende IDs,
+4. Vocation-issued opaque Correlation References für Update Subjects,
 5. geschützte Daten,
 6. offene Fragen,
 7. Rechercheanforderungen,
@@ -143,7 +142,7 @@ Verbindliche Vorlagen:
 - `prompts/company-update.md`
 - `prompts/opportunity-update.md`
 - `prompts/gap-filling.md`
-- `prompts/availability-check.md`
+- `prompts/availability-check.md` (späteres Slice, nicht v0.3)
 - `prompts/output-contract.md`
 
 ## 10. Datenschutz und Sicherheit

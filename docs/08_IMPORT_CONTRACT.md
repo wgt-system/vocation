@@ -135,7 +135,7 @@ Ein bereits erfolgreich angewendeter Fingerprint wird nicht erneut geschrieben u
 - `examples/imports/invalid-nested-property.json`
 - `examples/imports/invalid-protected-decision.json`
 
-## 14. Research Update Bundle 2.0 (v0.3 contract-only)
+## 14. Research Update Bundle 2.0 (v0.3 implemented on `dev`)
 
 Research Bundle `1.0` bleibt unverändert, gültig ausschließlich für `initial_market_research`. Updates verwenden `schemas/research-update-bundle-v2.schema.json` und enthalten zusätzlich den verpflichtenden `prompt_context_ref`. Die Top-Level-Struktur enthält `bundle_version`, `bundle_id`, `generated_at`, `prompt_context_ref`, `research_scope`, `sources`, `source_references`, `companies`, `opportunities`, `postings`, `observations`, `assessments`, `possible_duplicates` und `warnings`; alle Objekte sind geschlossen.
 
@@ -148,5 +148,9 @@ Gap Filling beschränkt sich auf `technology_requirement`, `task`, `seniority`, 
 Posting-Identität bleibt deterministisch: Source plus `external_posting_id`, sonst die normalisierte HTTPS-URL der referenzierten Source Reference. Ein bekanntes Posting darf optional `identity_evidence` mit verpflichtender `source_reference_id` und optionaler `external_posting_id` enthalten; ein unabhängiges `canonical_url`-Feld gibt es im Update Contract nicht. Diese Evidence dient nur dem späteren Vergleich mit der Correlation Reference. Widerspruch ist `IDENTITY_CONFLICT`; ein Treffer außerhalb des Scopes ist `SCOPE_VIOLATION`. Gap Filling darf keine Posting-Identity-Evidence enthalten. Fuzzy Matching und Merge sind ausgeschlossen.
 
 `possible_duplicates` ist ausschließlich Evidenz für Opportunity- oder Posting-Paare mit unterschiedlichen bundle-lokalen IDs, mindestens einer Source Reference, Evidence Summary und optionaler Confidence. Es bestätigt keine Dublette und löst keinen Merge aus; Company-Duplicates sind nicht enthalten. Update-Blocker sind `UNKNOWN_PROMPT_CONTEXT`, `SCOPE_MISMATCH`, `UNKNOWN_CORRELATION_REFERENCE`, `SCOPE_VIOLATION`, `IDENTITY_CONFLICT` und `INVALID_DUPLICATE_EVIDENCE` neben den bestehenden Schema-/Protected-Field-Fehlern. Jeder Blocker lehnt das vollständige Update vor Domain-Mutation ab.
+
+Version Dispatch ist explizit: `1.0` wird als Initial Research Bundle validiert, `2.0` als Update Bundle gegen den gespeicherten Prompt Context. Planner-Blocker werden vor jeder Domain-Mutation festgestellt; ein akzeptiertes Update wird in genau einer atomaren Apply-Transaktion ausgeführt. Update-Sources und Source References sind neue Provenance-Datensätze. Wiederverwendete Company-, Opportunity- und Posting-Subjects werden nicht kanonisch umgeschrieben. Duplicate Cases werden nur erstellt oder wiederverwendet; es gibt keinen Merge.
+
+Die Bundle-Version `2.0` und der Update-Importer sind auf `dev` implementiert. Prompting und die vollständige Desktop-Update-Bedienung bleiben Issue #10.
 
 Beispiele: `examples/updates/`; Contract Tests: `backend/tests/test_update_bundle_contract.py`.

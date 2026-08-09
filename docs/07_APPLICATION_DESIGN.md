@@ -66,20 +66,21 @@ Ablauf:
 4. Schema validieren.
 5. Fingerprint berechnen.
 6. frühere Importe prüfen.
-7. über ImportTranslator übersetzen.
-8. Identität und Dubletten prüfen.
-9. Domänenänderungen anwenden.
-10. Import Report erzeugen.
+7. die Bundle-Version explizit dispatchen: Research Bundle `1.0` oder Research Update Bundle `2.0`.
+8. beim Update den gespeicherten Prompt Context laden und Scope/Correlation validieren.
+9. Identität prüfen und einen deterministischen Plan mit Blockern erzeugen.
+10. bei fehlerfreiem Plan genau eine atomare Apply-Transaktion ausführen.
+11. Import Report erzeugen.
 
-Im ersten Meilenstein ist der Import pro Bundle vollständig atomar und akzeptiert ausschließlich Initial Research Bundles. Blockierende Fehler führen zu keinen fachlichen Änderungen. Identische kanonische Bundles werden nicht erneut angewendet.
+Research Bundle `1.0` bleibt initial-only und wird ausdrücklich getrennt von Research Update Bundle `2.0` behandelt. Beim Update werden bestehende Company-, Opportunity- und Posting-Zeilen sicher wiederverwendet, ohne kanonische Zustände umzuschreiben; externe Evidence ist append-only. Blocker werden vor Domain-Mutation erkannt, danach wird das akzeptierte Update atomar angewendet. Identische Bundles werden nicht erneut angewendet.
 
-Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. Dieser Vertrag wird in Issue #7 nur spezifiziert und getestet; Update-Import, Dispatch und Identity Resolver sind nicht Teil dieses Slices.
+Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. Contract, Dispatch, Prompt Context, Planung und atomarer Update-Import sind auf `dev` implementiert; Prompting und Desktop-Workflow bleiben Issue #10.
 
 Output:
 
 - Import ID
 - Result
-- created/updated/unchanged counts
+- created/reused/unchanged counts
 - Warnings und Errors
 
 ### ChangeTrackingStatus
@@ -110,7 +111,7 @@ Verändert keine Opportunity-Identität.
 
 ### ResolveDuplicateCase
 
-Mögliche Ergebnisse:
+Im v0.3 erzeugt oder verwendet der Update-Plan ausschließlich ungelöste Duplicate Cases aus möglicher Duplicate-Evidence. Es gibt noch keine bestätigte Auflösung und keinen Merge. Spätere Entscheidungen können folgende Ergebnisse liefern:
 
 - confirmed duplicate,
 - confirmed distinct,

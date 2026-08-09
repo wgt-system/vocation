@@ -110,7 +110,7 @@ Gruppe mit Type und Memberships.
 
 ### DuplicateCase
 
-Mögliche oder bestätigte Identitätsbeziehung.
+Im v0.3 ausschließlich eine ungelöste mögliche Identitätsbeziehung mit Evidenz. Es gibt noch keinen bestätigten, gelösten oder Merge-Zustand. Zukünftige Duplicate Decisions (`confirmed duplicate`, `confirmed distinct`, `related but distinct`, `keep unresolved`) bleiben spätere Domänenentscheidungen.
 
 ## Entities und Value Objects
 

@@ -115,17 +115,17 @@ Prompt Templates enthalten keine geheimen oder benutzerspezifischen Daten außer
 ```text
 File/Clipboard
 → Parse
-→ Schema Validate
-→ Contract Validate
-→ Fingerprint
-→ ACL Translation
-→ Identity Resolution
-→ Domain Commands
-→ Transaction
+→ Explicit 1.0/2.0 Dispatch
+→ Schema/Contract Validate
+→ Prompt Context and Scope
+→ Identity
+→ Deterministic Plan
+→ Blocker Check
+→ Single Atomic Apply
 → Import Report
 ```
 
-Version-1-Imports sind vollständig atomar. Strukturelle oder semantische Blocker verhindern jede fachliche Änderung. Der Importversuch und seine Issues dürfen in einer getrennten Transaktion protokolliert werden. Partielle Imports sind nicht erlaubt.
+Research Bundle `1.0` und Research Update Bundle `2.0` werden explizit getrennt dispatcht. Beim Update folgen nach Schema-/Contract-Validierung Prompt Context und Scope/Correlation-Prüfung, Identity, deterministischer Plan und Blocker-Prüfung; erst danach wird eine einzige atomare Apply-Transaktion ausgeführt. Merge-Entscheidungen gehören weder in Parsing noch in Persistenz. Strukturelle oder semantische Blocker verhindern jede fachliche Änderung. Partielle Imports sind nicht erlaubt.
 
 ## 8. Map Architecture
 

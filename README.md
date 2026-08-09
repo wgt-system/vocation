@@ -13,7 +13,7 @@ The first usable Research Bundle workflow is implemented:
 - opportunity list and detail views with postings, sources, observations, and external assessments
 - local SQLite migrations and a FastAPI/React desktop-oriented application
 
-The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. The v0.3 Research Update Bundle 2.0 contract is specified and contract-tested, but update importing is not implemented.
+The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. The `dev` branch now implements v0.3 through Issue #9: the Research Update Bundle 2.0 contract, deterministic identity and unresolved Duplicate Cases, Prompt Context persistence, planning, and atomic update import. Update prompting and the desktop update workflow remain Issue #10.
 
 Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service.
 
@@ -48,7 +48,7 @@ The application uses local SQLite data. Local databases, imported job data, gene
 
 ## Boundaries and limitations
 
-Research is external and import is initially a desktop capability. Mobile/iOS usage is read-only. Update importing, fuzzy identity resolution, groups/waves, availability/freshness, comparison, maps, crawling, authentication, cloud hosting, and external read contracts remain outside the released v0.2.0 baseline.
+Research is external and import is initially a desktop capability. Mobile/iOS usage is read-only. Update prompting/UI, fuzzy identity resolution, groups/waves, availability/freshness, comparison, maps, crawling, authentication, cloud hosting, and external read contracts remain outside the released v0.2.0 baseline; the implemented v0.3 update importer is available on `dev` but not yet released.
 
 ## Repository structure
 

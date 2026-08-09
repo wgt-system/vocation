@@ -68,11 +68,11 @@ Noch kein Produktcode.
 
 ## Slice 7 – Update Imports und Dubletten
 
-- bekannte IDs
-- Update Scope
-- Identity Resolver
-- Duplicate Cases
-- konservative Merge-Strategie
+- Vocation-issued opaque Correlation References
+- gespeicherter Prompt Context und Update Scope
+- deterministische Posting-Identität
+- ungelöste Duplicate Cases als Evidenz
+- kein automatischer Merge
 
 ## Slice 8 – Availability und Freshness
 
@@ -143,6 +143,12 @@ Nicht parallelisieren, solange instabil:
 
 Der v0.2.0-Scope umfasst versionierte Personal Assessments, Tracking Status, Decision History, Exclusion/Restore sowie Desktop-API- und React-Steuerung. Nicht enthalten bleiben Update-Bundles, fuzzy matching, Rankings, Gruppen/Waves, Maps, mobile Verträge, Crawling, kostenpflichtige LLM-APIs und Authentifizierung.
 
-## v0.3.0 – Update Contract (Issue #7)
+## v0.3.0 – Implementierungsstand
 
-Dieser Slice definiert und testet ausschließlich den veröffentlichten Research Update Bundle Contract `2.0`: opaque Prompt-Context-Korrelation, Full/Company/Opportunity/Gap-Filling-Scope, neue versus bekannte Subjects, deterministische Posting-Identität, Possible-Duplicate-Evidenz und Update-Fehlercodes. Research Bundle `1.0` bleibt unverändert und initial-only. Es gibt in diesem Slice keinen Update-Importer, keinen Identity Resolver, keine DuplicateCase-Persistenz, keine Migration und keine API/UI-Erweiterung.
+Issue #7 – Research Update Bundle 2.0 Contract: abgeschlossen.
+
+Issue #8 – deterministische Identität und ungelöste Duplicate Cases: abgeschlossen.
+
+Issue #9 – Prompt Context Persistence, read-only Planning und atomarer Update Import: abgeschlossen.
+
+Research Bundle `1.0` bleibt unverändert und initial-only. Issue #10 – scoped prompting und Desktop-Update-Workflow – bleibt offen. Availability/Freshness, Groups/Waves, Maps, Comparison und External Navigation bleiben spätere Slices.

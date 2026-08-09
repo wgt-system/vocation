@@ -26,8 +26,8 @@ Und die Empfehlung wird nur als External Assessment gespeichert.
 
 ## AT-04 Sichere Posting-Zuordnung
 
-Gegeben ein bekanntes Posting mit stabiler Source ID  
-Wenn ein Update dieselbe externe Posting-ID liefert  
+Gegeben ein bekanntes Posting mit Source und deterministischer Identität
+Wenn ein Update dieselbe externe Posting-ID liefert oder die normalisierte HTTPS-URL als Fallback verwendet
 Dann wird keine zweite Posting Entity erzeugt.
 
 ## AT-05 Unsichere Dublette
@@ -39,12 +39,16 @@ Und ein Duplicate Case wird angelegt.
 
 ## AT-06 Availability
 
+**Späteres Slice-Verhalten, nicht v0.3.**
+
 Gegeben eine bisher erreichbare Anzeige  
 Wenn ein Update `explicitly_unavailable` meldet  
 Dann bleibt das Posting historisch erhalten  
 Und die aktuelle Availability wird nachvollziehbar geändert.
 
 ## AT-07 Temporärer Fehler
+
+**Späteres Slice-Verhalten, nicht v0.3.**
 
 Wenn eine Source nur `temporarily_unreachable` ist  
 Dann wird die Opportunity nicht als definitiv geschlossen markiert.
@@ -57,7 +61,8 @@ Dann enthält der Prompt die gewünschte Bundle Version, das reine JSON-Ausgabef
 ## AT-09 Prompt Full Update
 
 Wenn ein Full Update Prompt erzeugt wird  
-Dann enthält er bekannte IDs, Freshness, offene Unsicherheiten und den erlaubten Änderungsumfang.
+Dann enthält er Vocation-issued opaque Correlation References, offene Unsicherheiten und den erlaubten Änderungsumfang
+Und enthält im v0.3 keine Availability/Freshness.
 
 ## AT-10 Prompt Teilupdate
 
@@ -125,6 +130,8 @@ Wenn ein mobiler Client den Read Contract verwendet
 Dann kann er keine Import- oder Decision-Commands ausführen.
 
 ## AT-22 Snapshot Freshness
+
+**Späteres Slice-Verhalten, nicht v0.3.**
 
 Wenn ein mobiler Snapshot veraltet ist  
 Dann zeigt das Read Model den Snapshot-Zeitpunkt und Stale Status.
@@ -249,3 +256,23 @@ Unbekannte Properties und Personal-State-Properties werden abgelehnt. Gap Fillin
 ## AT-49 Update identity and duplicate evidence
 
 Possible-Duplicate-Einträge sind nur Evidenz für Opportunity-/Posting-Paare mit Quellenbeleg; Company-Duplicates, Self-References und automatische Merge-Bedeutung sind unzulässig. Posting-Identität bleibt Source plus External ID oder HTTPS-URL; Correlation-/Identity-Konflikte sind Blocker.
+
+## AT-50 Explicit version dispatch
+
+Der Import dispatcht Research Bundle `1.0` ausschließlich als initial-only und Research Update Bundle `2.0` ausschließlich als kontrolliertes Update.
+
+## AT-51 Planner blockers before mutation
+
+Unbekannter Prompt Context, Scope-/Correlation-Fehler und deterministische Identity-Konflikte werden im Update-Plan vor jeder Domain-Mutation als Blocker gemeldet.
+
+## AT-52 Safe reuse and append-only evidence
+
+Ein akzeptiertes Update verwendet bestehende Company-, Opportunity- und Posting-Subjects wieder, schreibt deren kanonische Zustände nicht um und speichert neue Sources, Source References und externe Evidence append-only.
+
+## AT-53 Atomic rollback, personal-state preservation and idempotency
+
+Ein blockiertes Update rollt vollständig zurück, persönliche Assessments, Decisions und Tracking Status bleiben unverändert, und ein identischer Update-Fingerprint wird nicht erneut angewendet.
+
+## AT-54 Duplicate Case create/reuse without mutation
+
+Possible-Duplicate-Evidence erzeugt oder verwendet ausschließlich einen ungelösten Duplicate Case. Es findet kein Merge, keine Löschung und keine kanonische Umschreibung statt.
