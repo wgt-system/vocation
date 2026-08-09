@@ -19,7 +19,11 @@ class ResearchImportModel(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     bundle_id: Mapped[str | None] = mapped_column(String(200))
+    bundle_version: Mapped[str | None] = mapped_column(String(20))
     fingerprint: Mapped[str | None] = mapped_column(String(64), index=True)
+    prompt_context_ref: Mapped[str | None] = mapped_column(
+        ForeignKey("prompt_context_snapshots.prompt_context_ref", name="fk_research_imports_prompt_context_ref"), index=True
+    )
     status: Mapped[str] = mapped_column(String(20), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -28,6 +32,9 @@ class ResearchImportModel(Base):
 
     issues: Mapped[list[ImportIssueModel]] = relationship(back_populates="research_import", cascade="all, delete-orphan")
     duplicate_cases: Mapped[list[DuplicateCaseModel]] = relationship(back_populates="research_import")
+    prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(
+        back_populates="research_imports"
+    )
 
 
 class ImportIssueModel(Base):
@@ -68,12 +75,18 @@ class PromptRunModel(Base):
     prompt_type: Mapped[str] = mapped_column(String(50), default="initial_market_research")
     prompt_version: Mapped[str] = mapped_column(String(20), default="1.0")
     bundle_version: Mapped[str] = mapped_column(String(20), default="1.0")
-    search_profile: Mapped[str] = mapped_column(Text)
+    search_profile: Mapped[str | None] = mapped_column(Text)
+    prompt_context_ref: Mapped[str | None] = mapped_column(
+        ForeignKey("prompt_context_snapshots.prompt_context_ref", name="fk_prompt_runs_prompt_context_ref")
+    )
     constraints_json: Mapped[str] = mapped_column(Text)
     as_of_date: Mapped[str] = mapped_column(String(10))
     criteria_snapshot_json: Mapped[str] = mapped_column(Text)
     prompt_text: Mapped[str] = mapped_column(Text)
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(
+        back_populates="prompt_run"
+    )
 
 
 class PromptContextSnapshotModel(Base):
@@ -89,6 +102,8 @@ class PromptContextSnapshotModel(Base):
     subjects: Mapped[list[PromptContextSubjectModel]] = relationship(
         back_populates="prompt_context_snapshot", cascade="all, delete-orphan"
     )
+    prompt_run: Mapped[PromptRunModel | None] = relationship(back_populates="prompt_context_snapshot")
+    research_imports: Mapped[list[ResearchImportModel]] = relationship(back_populates="prompt_context_snapshot")
     __table_args__ = (
         CheckConstraint(
             "scope_type IN ('full_update','company_update','opportunity_update','gap_filling')",

@@ -173,6 +173,70 @@ def insert_prompt_context_snapshot(
         )
 
 
+def insert_prompt_run(
+    database: Path,
+    prompt_run_id: str,
+    *,
+    search_profile: str | None,
+    prompt_context_ref: str | None,
+    bundle_version: str = "1.0",
+) -> None:
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO prompt_runs "
+                "(id, prompt_type, prompt_version, bundle_version, search_profile, prompt_context_ref, "
+                "constraints_json, as_of_date, criteria_snapshot_json, prompt_text, generated_at) "
+                "VALUES (:id, 'opportunity_update', '1.0', :bundle_version, :search_profile, :prompt_context_ref, "
+                "'{}', '2026-08-08', '{}', 'prompt', '2026-08-08')"
+            ),
+            {
+                "id": prompt_run_id,
+                "bundle_version": bundle_version,
+                "search_profile": search_profile,
+                "prompt_context_ref": prompt_context_ref,
+            },
+        )
+
+
+def insert_research_import_with_context(
+    database: Path,
+    import_id: str,
+    prompt_context_ref: str,
+    bundle_version: str = "2.0",
+) -> None:
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO research_imports "
+                "(id, status, bundle_version, prompt_context_ref, created_at, counts_json, warnings_json) "
+                "VALUES (:id, 'applied', :bundle_version, :prompt_context_ref, '2026-08-08', '{}', '[]')"
+            ),
+            {
+                "id": import_id,
+                "bundle_version": bundle_version,
+                "prompt_context_ref": prompt_context_ref,
+            },
+        )
+
+
+def insert_initial_prompt_run(database: Path, prompt_run_id: str = "prompt-initial") -> None:
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO prompt_runs "
+                "(id, prompt_type, prompt_version, bundle_version, search_profile, constraints_json, "
+                "as_of_date, criteria_snapshot_json, prompt_text, generated_at) "
+                "VALUES (:id, 'initial_market_research', '1.0', '1.0', 'Junior software roles', "
+                "'{}', '2026-08-08', '{}', 'prompt', '2026-08-08')"
+            ),
+            {"id": prompt_run_id},
+        )
+
+
 def test_empty_and_v010_upgrade_produce_equivalent_triage_schema(tmp_path: Path) -> None:
     fresh = tmp_path / "fresh.db"
     released = tmp_path / "released.db"
@@ -472,5 +536,74 @@ def test_prompt_context_downgrade_to_0005_preserves_vocation_data(tmp_path: Path
     engine = create_engine(f"sqlite:///{database.as_posix()}")
     with engine.connect() as connection:
         assert connection.scalar(text("SELECT COUNT(*) FROM duplicate_cases")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+
+def test_prompt_context_links_fresh_and_0006_upgrade_backfill_and_restart(tmp_path: Path) -> None:
+    fresh = tmp_path / "fresh-0007.db"
+    migrated = tmp_path / "migrated-0007.db"
+    migrate(fresh, "head")
+    fresh_inspector = inspect(create_engine(f"sqlite:///{fresh.as_posix()}"))
+    assert "prompt_context_ref" in {column["name"] for column in fresh_inspector.get_columns("prompt_runs")}
+    assert "bundle_version" in {column["name"] for column in fresh_inspector.get_columns("research_imports")}
+    assert any(column["name"] == "search_profile" and column["nullable"] for column in fresh_inspector.get_columns("prompt_runs"))
+    for table in ("prompt_runs", "research_imports"):
+        foreign_key = next(
+            foreign_key
+            for foreign_key in fresh_inspector.get_foreign_keys(table)
+            if foreign_key["referred_table"] == "prompt_context_snapshots"
+        )
+        assert foreign_key.get("options", {}).get("ondelete") is None
+
+    migrate(migrated, "0006")
+    seed_v020_data(migrated)
+    insert_initial_prompt_run(migrated)
+    insert_prompt_context_snapshot(migrated)
+    migrate(migrated, "head")
+    insert_prompt_run(migrated, "prompt-update-1", search_profile=None, prompt_context_ref="context-1", bundle_version="2.0")
+    insert_research_import_with_context(migrated, "import-update-1", "context-1")
+    insert_research_import_with_context(migrated, "import-update-2", "context-1")
+
+    with pytest.raises(IntegrityError):
+        insert_prompt_run(migrated, "prompt-update-2", search_profile=None, prompt_context_ref="context-1", bundle_version="2.0")
+
+    engine = create_engine(f"sqlite:///{migrated.as_posix()}")
+    engine.dispose()
+    restarted = create_engine(f"sqlite:///{migrated.as_posix()}")
+    with restarted.connect() as connection:
+        assert connection.scalar(text("SELECT bundle_version FROM research_imports WHERE id = 'import-1'")) == "1.0"
+        assert connection.scalar(text("SELECT search_profile FROM prompt_runs WHERE id = 'prompt-initial'")) == "Junior software roles"
+        assert connection.scalar(text("SELECT search_profile FROM prompt_runs WHERE id = 'prompt-update-1'")) is None
+        assert connection.scalar(text("SELECT COUNT(*) FROM research_imports WHERE prompt_context_ref = 'context-1'")) == 2
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM duplicate_cases")) == 0
+
+
+def test_prompt_context_links_downgrade_to_0006_preserves_preexisting_data(tmp_path: Path) -> None:
+    database = tmp_path / "downgrade-0007.db"
+    migrate(database, "0006")
+    seed_v020_data(database)
+    insert_initial_prompt_run(database)
+    insert_prompt_context_snapshot(database)
+    migrate(database, "head")
+    insert_prompt_run(database, "prompt-update-1", search_profile=None, prompt_context_ref="context-1", bundle_version="2.0")
+    insert_research_import_with_context(database, "import-update-1", "context-1")
+
+    config = Config(str(Path(__file__).parents[2] / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
+    config.set_main_option("script_location", str(Path(__file__).parents[1] / "alembic"))
+    command.downgrade(config, "0006")
+
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+    assert "prompt_context_ref" not in {column["name"] for column in inspector.get_columns("prompt_runs")}
+    assert "bundle_version" not in {column["name"] for column in inspector.get_columns("research_imports")}
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.connect() as connection:
+        assert connection.scalar(text("SELECT COUNT(*) FROM prompt_runs WHERE id = 'prompt-initial'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM research_imports WHERE id = 'import-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_snapshots WHERE prompt_context_ref = 'context-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_subjects WHERE prompt_context_ref = 'context-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
