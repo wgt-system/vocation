@@ -143,11 +143,11 @@ Regeln:
 - Prompt Context Ref bei Updates
 - rendered Prompt
 
-## 10. PublishedOpportunityOverview (planned, client-neutral)
+## 10. PublishedOpportunityOverview (implemented, client-neutral)
 
 Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. Contract 1.0 is frozen by `schemas/published-opportunity-overview-v1.schema.json`.
 
-Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`, `publication` und `opportunities`. Die geschlossenen Opportunity-Objekte enthalten ausschließlich opaque Opportunity-/Company-Referenzen, Titel, Company, Work Locations und Posting Count. Es gibt keine URLs, Navigation, Personal-/Import-/Provenance-Daten, Availability/Freshness oder Schreibinformationen. Der lokale Adapter ist für `/published/v1/opportunity-overview` geplant.
+Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`, `publication` und `opportunities`. Die geschlossenen Opportunity-Objekte enthalten ausschließlich opaque Opportunity-/Company-Referenzen, Titel, Company, Work Locations und Posting Count. Es gibt keine URLs, Navigation, Personal-/Import-/Provenance-Daten, Availability/Freshness oder Schreibinformationen. Der lokale Adapter ist unter `/published/v1/opportunity-overview` implementiert und bleibt außerhalb der internen React OpenAPI.
 
 - `contract_version`
 - publication metadata: `publication_ref`, `generated_at`

@@ -161,7 +161,7 @@ Sicherheitsregeln:
 
 Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabilities.
 
-Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch eingefroren. Der geplante lokale Veröffentlichungspfad ist `/published/v1/opportunity-overview`; das bestehende `/api/...` React API bleibt interne Presentation API. HTTP/OpenAPI ist nicht die Quelle der Cross-Context-Payload.
+Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch eingefroren. Der implementierte lokale Veröffentlichungspfad ist `/published/v1/opportunity-overview`; er bleibt außerhalb der internen React OpenAPI, während das bestehende `/api/...` React API interne Presentation API bleibt. HTTP/OpenAPI ist nicht die Quelle der Cross-Context-Payload.
 
 Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
 
