@@ -271,7 +271,7 @@ Ein akzeptiertes Update verwendet bestehende Company-, Opportunity- und Posting-
 
 ## AT-53 Atomic rollback, personal-state preservation and idempotency
 
-Ein blockiertes Update rollt vollständig zurück, persönliche Assessments, Decisions und Tracking Status bleiben unverändert, und ein identischer Update-Fingerprint wird nicht erneut angewendet.
+Ein vor `Apply` erkannter Blocker verursacht keinerlei Domain-Mutation. Eine Exception während der atomaren `Apply`-Transaktion rollt alle Update-Schreibvorgänge zurück. Persönliche Assessments, Decisions und Tracking Status bleiben unverändert. Ein bereits angewendeter identischer Update-Fingerprint wird nicht erneut angewendet.
 
 ## AT-54 Duplicate Case create/reuse without mutation
 
