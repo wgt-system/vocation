@@ -548,6 +548,10 @@ def test_prompt_context_links_fresh_and_0006_upgrade_backfill_and_restart(tmp_pa
     assert "prompt_context_ref" in {column["name"] for column in fresh_inspector.get_columns("prompt_runs")}
     assert "bundle_version" in {column["name"] for column in fresh_inspector.get_columns("research_imports")}
     assert any(column["name"] == "search_profile" and column["nullable"] for column in fresh_inspector.get_columns("prompt_runs"))
+    assert ("uq_prompt_runs_prompt_context_ref", ("prompt_context_ref",)) in [
+        (constraint["name"], tuple(constraint["column_names"]))
+        for constraint in fresh_inspector.get_unique_constraints("prompt_runs")
+    ]
     for table in ("prompt_runs", "research_imports"):
         foreign_key = next(
             foreign_key
@@ -559,6 +563,7 @@ def test_prompt_context_links_fresh_and_0006_upgrade_backfill_and_restart(tmp_pa
     migrate(migrated, "0006")
     seed_v020_data(migrated)
     insert_initial_prompt_run(migrated)
+    insert_duplicate_case(migrated)
     insert_prompt_context_snapshot(migrated)
     migrate(migrated, "head")
     insert_prompt_run(migrated, "prompt-update-1", search_profile=None, prompt_context_ref="context-1", bundle_version="2.0")
@@ -578,7 +583,18 @@ def test_prompt_context_links_fresh_and_0006_upgrade_backfill_and_restart(tmp_pa
         assert connection.scalar(text("SELECT COUNT(*) FROM research_imports WHERE prompt_context_ref = 'context-1'")) == 2
         assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
-        assert connection.scalar(text("SELECT COUNT(*) FROM duplicate_cases")) == 0
+        assert connection.scalar(
+            text(
+                "SELECT subject_type || ':' || left_subject_id || ':' || right_subject_id || ':' || evidence_summary "
+                "FROM duplicate_cases WHERE id = 'case-1'"
+            )
+        ) == "opportunity:opportunity-1:opportunity-2:Similar role and employer evidence"
+        assert connection.scalar(
+            text(
+                "SELECT source_reference_id FROM duplicate_case_source_references "
+                "WHERE duplicate_case_id = 'case-1'"
+            )
+        ) == "ref-1"
 
 
 def test_prompt_context_links_downgrade_to_0006_preserves_preexisting_data(tmp_path: Path) -> None:

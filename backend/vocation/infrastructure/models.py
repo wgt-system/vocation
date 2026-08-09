@@ -87,6 +87,7 @@ class PromptRunModel(Base):
     prompt_context_snapshot: Mapped[PromptContextSnapshotModel | None] = relationship(
         back_populates="prompt_run"
     )
+    __table_args__ = (UniqueConstraint("prompt_context_ref", name="uq_prompt_runs_prompt_context_ref"),)
 
 
 class PromptContextSnapshotModel(Base):
