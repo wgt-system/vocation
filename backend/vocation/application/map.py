@@ -21,6 +21,14 @@ class Geocoder(Protocol):
     def geocode(self, query: str) -> GeocodingResult | None: ...
 
 
+class GeocodingQueryError(ValueError):
+    pass
+
+
+class GeocodingNoResultError(LookupError):
+    pass
+
+
 @dataclass(frozen=True)
 class MapGroupMembership:
     group_id: str
@@ -72,8 +80,9 @@ class MapRepository(Protocol):
 
 
 class MapService:
-    def __init__(self, repository: MapRepository, clock: Callable[[], datetime] | None = None):
+    def __init__(self, repository: MapRepository, geocoder: Geocoder | None = None, clock: Callable[[], datetime] | None = None):
         self.repository = repository
+        self.geocoder = geocoder
         self.clock = clock or (lambda: datetime.now(UTC))
 
     def list_locations(self) -> list[MapLocationContext]:
@@ -82,6 +91,29 @@ class MapService:
     def set_manual_resolution(self, work_location_id: str, latitude: float, longitude: float, resolved_query: str) -> MapLocationResolution:
         return self.repository.set_resolution(
             MapLocationResolution(work_location_id, latitude, longitude, "manual", None, self.clock(), resolved_query)
+        )
+
+    def geocode_resolution(self, work_location_id: str, query: str) -> MapLocationResolution:
+        if not query.strip():
+            raise GeocodingQueryError("Geocoding query must be nonempty.")
+        location = self.repository.get_location(work_location_id)
+        if location is None:
+            raise LookupError(f"Work Location '{work_location_id}' does not exist.")
+        if self.geocoder is None:
+            raise RuntimeError("No geocoder is configured.")
+        result = self.geocoder.geocode(query)
+        if result is None:
+            raise GeocodingNoResultError(f"No geocoding result found for query '{query}'.")
+        return self.repository.set_resolution(
+            MapLocationResolution(
+                work_location_id,
+                result.latitude,
+                result.longitude,
+                "geocoder",
+                result.provider_key,
+                self.clock(),
+                result.resolved_query,
+            )
         )
 
     def delete_resolution(self, work_location_id: str) -> None:

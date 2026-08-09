@@ -6,6 +6,7 @@ from typing import cast
 from fastapi import APIRouter, HTTPException, Request
 
 from vocation.api.schemas import (
+    GeocodeResolutionPayload,
     GroupType,
     MapGroupMembershipResponse,
     MapLocationResponse,
@@ -15,11 +16,12 @@ from vocation.api.schemas import (
     MapResolutionResponse,
     TrackingStatus,
 )
-from vocation.application.map import MapLocationContext, MapProjectionFeature, MapService
+from vocation.application.map import GeocodingNoResultError, GeocodingQueryError, MapLocationContext, MapProjectionFeature, MapService
 from vocation.infrastructure.map_location_repository import (
     MapLocationResolutionValidationError,
     WorkLocationNotFoundError,
 )
+from vocation.infrastructure.nominatim_geocoder import NominatimResponseError, NominatimUnavailableError
 
 router = APIRouter(prefix="/api/map", tags=["map"])
 
@@ -104,6 +106,22 @@ def delete_resolution(work_location_id: str, request: Request) -> None:
         _service(request).delete_resolution(work_location_id)
     except WorkLocationNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@router.post("/locations/{work_location_id}/geocode", response_model=MapResolutionResponse)
+def geocode_location(work_location_id: str, payload: GeocodeResolutionPayload, request: Request) -> MapResolutionResponse:
+    try:
+        return _resolution(_service(request).geocode_resolution(work_location_id, payload.query))  # type: ignore[return-value]
+    except (LookupError, GeocodingNoResultError) as error:
+        status = 404
+        detail = str(error)
+        if isinstance(error, GeocodingNoResultError):
+            detail = "No geocoding result found."
+        raise HTTPException(status_code=status, detail=detail) from error
+    except (GeocodingQueryError, NominatimResponseError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    except NominatimUnavailableError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
 
 
 @router.post("/projection", response_model=list[MapProjectionFeatureResponse])

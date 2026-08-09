@@ -425,6 +425,12 @@ class MapResolutionPayload(BaseModel):
     resolved_query: str = Field(min_length=1)
 
 
+class GeocodeResolutionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(min_length=1)
+
+
 class MapProjectionPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

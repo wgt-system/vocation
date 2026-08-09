@@ -37,6 +37,7 @@ from vocation.infrastructure.database import Database
 from vocation.infrastructure.duplicate_case_repository import SqlAlchemyDuplicateCaseRepository
 from vocation.infrastructure.group_repository import SqlAlchemyOpportunityGroupRepository
 from vocation.infrastructure.map_location_repository import SqlAlchemyMapLocationResolutionRepository
+from vocation.infrastructure.nominatim_geocoder import NominatimGeocoder
 from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
 from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersonalTriageRepository
 from vocation.infrastructure.posting_identity_repository import SqlAlchemyPostingIdentityRepository
@@ -58,8 +59,11 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     async def lifespan(_app: FastAPI):
         if run_migrations:
             database.migrate()
-        yield
-        database.dispose()
+        try:
+            yield
+        finally:
+            app.state.nominatim_geocoder.close()
+            database.dispose()
 
     app = FastAPI(title="Vocation", version=__version__, lifespan=lifespan)
     app.state.database = database
@@ -86,7 +90,8 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
     app.state.opportunity_group_service = OpportunityGroupService(SqlAlchemyOpportunityGroupRepository(database.session_factory))
-    app.state.map_service = MapService(SqlAlchemyMapLocationResolutionRepository(database.session_factory))
+    app.state.nominatim_geocoder = NominatimGeocoder(settings.nominatim_base_url)
+    app.state.map_service = MapService(SqlAlchemyMapLocationResolutionRepository(database.session_factory), app.state.nominatim_geocoder)
     app.state.posting_identity_resolver = PostingIdentityResolver(SqlAlchemyPostingIdentityRepository(database.session_factory))
     app.state.duplicate_case_service = DuplicateCaseService(SqlAlchemyDuplicateCaseRepository(database.session_factory))
     app.state.update_import_planner = UpdateImportPlanner(

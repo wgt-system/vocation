@@ -297,6 +297,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/map/locations/{work_location_id}/geocode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Geocode Location */
+        post: operations["geocode_location_api_map_locations__work_location_id__geocode_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/map/locations/{work_location_id}/resolution": {
         parameters: {
             query?: never;
@@ -910,6 +927,11 @@ export interface components {
             prompt_version: string;
             /** Research Scope */
             research_scope: components["schemas"]["FullResearchScope"] | components["schemas"]["SelectedResearchScope"] | components["schemas"]["GapResearchScope"];
+        };
+        /** GeocodeResolutionPayload */
+        GeocodeResolutionPayload: {
+            /** Query */
+            query: string;
         };
         /** GroupMembershipResponse */
         GroupMembershipResponse: {
@@ -2066,6 +2088,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MapLocationResponse"][];
+                };
+            };
+        };
+    };
+    geocode_location_api_map_locations__work_location_id__geocode_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                work_location_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GeocodeResolutionPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapResolutionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

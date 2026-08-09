@@ -1092,6 +1092,7 @@ source = { editable = "." }
 dependencies = [
     { name = "alembic" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "jsonschema", extra = ["format"] },
     { name = "pydantic" },
     { name = "python-multipart" },
@@ -1118,8 +1119,7 @@ test = [
 requires-dist = [
     { name = "alembic", specifier = ">=1.16,<2" },
     { name = "fastapi", specifier = ">=0.116,<1" },
-    { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.28,<1" },
-    { name = "httpx", marker = "extra == 'test'", specifier = ">=0.28,<1" },
+    { name = "httpx", specifier = ">=0.28,<1" },
     { name = "jsonschema", extras = ["format"], specifier = ">=4.25,<5" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.15,<2" },
     { name = "pydantic", specifier = ">=2.11,<3" },
