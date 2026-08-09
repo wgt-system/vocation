@@ -87,6 +87,8 @@ Noch kein Produktcode.
 - no remote relay implementation yet
 - no personal-state write commands
 
+Contract 1.0 is frozen in `schemas/published-opportunity-overview-v1.schema.json` with a canonical fictional example and schema-only contract tests. The planned local boundary is `/published/v1/opportunity-overview`; no projection implementation, relay, client, or persistence is part of this contract-freeze slice.
+
 ### Slice 9 – Availability und Freshness
 
 - Availability Observations

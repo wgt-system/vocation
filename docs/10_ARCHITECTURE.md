@@ -161,6 +161,8 @@ Sicherheitsregeln:
 
 Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabilities. Die erste geplante Capability ist `Opportunity Overview` 1.0; die finale Feldstruktur wird in einem späteren Contract-Slice festgelegt.
 
+Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch eingefroren. Der geplante lokale Veröffentlichungspfad ist `/published/v1/opportunity-overview`; das bestehende `/api/...` React API bleibt interne Presentation API. HTTP/OpenAPI ist nicht die Quelle der Cross-Context-Payload.
+
 Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
 
 Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.

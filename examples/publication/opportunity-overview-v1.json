@@ -1,0 +1,53 @@
+{
+  "capability": "vocation.opportunity_overview",
+  "contract_version": "1.0",
+  "publication": {
+    "publication_ref": "publication-example-2026-08-09",
+    "generated_at": "2026-08-09T10:00:00Z"
+  },
+  "opportunities": [
+    {
+      "opportunity_ref": "opportunity-alpha",
+      "title": "Platform Engineer",
+      "company": {
+        "company_ref": "company-aurora",
+        "name": "Aurora Systems"
+      },
+      "work_locations": [
+        {
+          "label": "Berlin office",
+          "city": "Berlin",
+          "region": "Berlin",
+          "country_code": "DE",
+          "precision": "site"
+        },
+        {
+          "label": "Remote within Germany",
+          "city": null,
+          "region": "Germany",
+          "country_code": "DE",
+          "precision": "region"
+        }
+      ],
+      "posting_count": 2
+    },
+    {
+      "opportunity_ref": "opportunity-beacon",
+      "title": "Data Analyst",
+      "company": {
+        "company_ref": "company-beacon",
+        "name": "Beacon Labs"
+      },
+      "work_locations": [
+        {
+          "label": "Hamburg",
+          "city": "Hamburg",
+          "region": null,
+          "country_code": "DE",
+          "precision": "city"
+        }
+      ],
+      "posting_count": 1
+    }
+  ]
+}

@@ -310,3 +310,27 @@ Dann kann Wiiii Got This die letzte veröffentlichte Read Projection auf dem iPh
 
 Wenn keine Remote-Publikation konfiguriert ist
 Dann bleiben lokale Prompting-, Import-, Pflege- und Read-Workflows nutzbar.
+
+## AT-63 Opportunity Overview 1.0 Contract
+
+Das Artefakt validiert gegen `schemas/published-opportunity-overview-v1.schema.json`; Capability und Contract Version sind exakt `vocation.opportunity_overview` und `1.0`.
+
+## AT-64 Published Field Exclusions
+
+Das Artefakt enthält keine geschützten persönlichen, internen Import-/Provenance-, Prompt-, Observation-, URL-, Availability/Freshness- oder Schreibfelder; unbekannte Properties werden abgelehnt.
+
+## AT-65 Opaque Published References
+
+`opportunity_ref`, `company_ref` und `publication_ref` sind nichtleere opaque Vocation-Referenzen. Verbraucher dürfen sie speichern und zurückgeben, aber nicht interpretieren.
+
+## AT-66 Deterministic Opportunity Overview
+
+Vocation erzeugt Opportunities und Work Locations in der eingefrorenen deterministischen Reihenfolge; die Reihenfolge ist für stabile Snapshots und Tests bestimmt, aber nicht fachlich semantisch.
+
+## AT-67 Empty Published Market
+
+Ein gültiges Opportunity-Overview-Artefakt darf eine leere `opportunities`-Liste enthalten.
+
+## AT-68 Publication Age versus Freshness
+
+Das Artefakt enthält `generated_at`, aber weder `publication_age` noch `stale`. Consumer können daraus Publication Age ableiten; daraus darf keine Vocation Availability/Freshness abgeleitet werden.

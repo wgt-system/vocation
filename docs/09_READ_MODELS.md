@@ -147,6 +147,8 @@ Regeln:
 
 Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. The first contract slice defines the boundary and tests without freezing the final JSON field schema.
 
+Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`, `publication` und `opportunities`. Die geschlossenen Opportunity-Objekte enthalten ausschließlich opaque Opportunity-/Company-Referenzen, Titel, Company, Work Locations und Posting Count. Es gibt keine URLs, Navigation, Personal-/Import-/Provenance-Daten, Availability/Freshness oder Schreibinformationen. Der lokale Adapter ist für `/published/v1/opportunity-overview` geplant.
+
 - Publication Snapshot Metadata
 - projection version
 - client-neutral opportunity overview data

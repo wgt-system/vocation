@@ -63,6 +63,8 @@ Muster:
 
 Vocation entscheidet fachliche Inhalte und erzeugt die versionierte client-neutrale Published Read Projection. WGT entscheidet Geräte- und Plattformdarstellung. Relay/Storage ist Infrastruktur und kein neuer Bounded Context.
 
+Der erste eingefrorene Vertrag ist `Opportunity Overview` Published Capability 1.0. Ein späterer lokaler Adapter kann das unveränderte Artefakt unter `/published/v1/opportunity-overview` bereitstellen; HTTP/OpenAPI und ein Relay sind nicht die Quelle der Vertragswahrheit.
+
 ## Vocation ↔ Illumination
 
 Version 1: `Separate Ways`.

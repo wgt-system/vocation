@@ -160,6 +160,8 @@ Aktueller client-neutraler Begriff für eine veröffentlichte Read Projection. `
 
 Versionierte Capability-/Vertragsgrenze für geeignete Vocation-Daten. Die erste geplante Capability ist `Opportunity Overview` 1.0.
 
+Der Published Contract 1.0 ist durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch definiert. `opportunity_ref` und `company_ref` sind stabile opaque, von Vocation ausgestellte Referenzen. Verbraucher dürfen sie speichern, vergleichen und zurückgeben, aber weder parsen noch Datenbankstrukturen daraus ableiten.
+
 ### Publication Snapshot
 
 Eine veröffentlichte, abgeleitete Momentaufnahme einer Read Projection mit Publication Metadata. Ihr Alter beschreibt Publication Age, nicht die Freshness oder Availability eines Job Postings.
