@@ -7,8 +7,10 @@ import {
   type TrackingStatus,
 } from "../../api/client";
 import { EmptyState, ErrorState, Loading } from "../../components/AsyncState";
+import { MapView } from "./MapView";
 
 type Availability = NonNullable<OpportunityListItem["availability"]>;
+type DisplayMode = "list" | "map";
 const availabilityLabels: Record<Availability, string> = {
   available: "Verfügbar",
   unavailable: "Nicht verfügbar",
@@ -46,6 +48,7 @@ export function OpportunityList({
   >("all");
   const [groups, setGroups] = useState<OpportunityGroup[]>([]);
   const [groupFilter, setGroupFilter] = useState("");
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("list");
   const statuses: { value: TrackingStatus; label: string }[] = [
     { value: "new", label: "Neu" },
     { value: "to_review", label: "Zu prüfen" },
@@ -147,6 +150,22 @@ export function OpportunityList({
             ))}
           </select>
         </label>
+        <div className="view-toggle" aria-label="Opportunity Ansicht">
+          <button
+            type="button"
+            className={displayMode === "list" ? "active" : ""}
+            onClick={() => setDisplayMode("list")}
+          >
+            Liste
+          </button>
+          <button
+            type="button"
+            className={displayMode === "map" ? "active" : ""}
+            onClick={() => setDisplayMode("map")}
+          >
+            Karte
+          </button>
+        </div>
       </header>
       {loading && <Loading />}
       {error && <ErrorState message={error} />}
@@ -159,34 +178,40 @@ export function OpportunityList({
           </p>
         </EmptyState>
       )}
-      <div className="opportunity-grid">
-        {visibleItems.map((item) => (
-          <button
-            className={`opportunity-card status-${item.tracking_status}`}
-            key={item.id}
-            onClick={() => onSelect(item.id)}
-          >
-            <span className="eyebrow">{item.company_name}</span>
-            <strong>{item.title}</strong>
-            <span>{item.locations.join(" · ") || "Arbeitsort unbekannt"}</span>
-            <small>
-              {item.posting_count} Posting · {item.assessment_count} Assessment
-              · Status: {item.tracking_status}
-            </small>
-            <span
-              className={`availability-badge availability-${availabilityOf(item)}`}
+      {displayMode === "list" ? (
+        <div className="opportunity-grid">
+          {visibleItems.map((item) => (
+            <button
+              className={`opportunity-card status-${item.tracking_status}`}
+              key={item.id}
+              onClick={() => onSelect(item.id)}
             >
-              {availabilityLabels[availabilityOf(item)]}
-            </span>
-            <small>{freshnessLabel(item)}</small>
-            {item.groups && item.groups.length > 0 && (
-              <small className="group-membership-summary">
-                {item.groups.map((group) => group.name).join(" · ")}
+              <span className="eyebrow">{item.company_name}</span>
+              <strong>{item.title}</strong>
+              <span>
+                {item.locations.join(" · ") || "Arbeitsort unbekannt"}
+              </span>
+              <small>
+                {item.posting_count} Posting · {item.assessment_count}{" "}
+                Assessment · Status: {item.tracking_status}
               </small>
-            )}
-          </button>
-        ))}
-      </div>
+              <span
+                className={`availability-badge availability-${availabilityOf(item)}`}
+              >
+                {availabilityLabels[availabilityOf(item)]}
+              </span>
+              <small>{freshnessLabel(item)}</small>
+              {item.groups && item.groups.length > 0 && (
+                <small className="group-membership-summary">
+                  {item.groups.map((group) => group.name).join(" · ")}
+                </small>
+              )}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <MapView visibleItems={visibleItems} onSelect={onSelect} />
+      )}
     </section>
   );
 }

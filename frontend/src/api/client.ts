@@ -31,6 +31,14 @@ export type OpportunityGroupMembershipPayload =
   components["schemas"]["OpportunityGroupMembershipPayload"];
 export type OpportunityGroupReorderPayload =
   components["schemas"]["OpportunityGroupReorderPayload"];
+export type MapLocation = components["schemas"]["MapLocationResponse"];
+export type MapResolution = components["schemas"]["MapResolutionResponse"];
+export type MapResolutionPayload =
+  components["schemas"]["MapResolutionPayload"];
+export type GeocodeResolutionPayload =
+  components["schemas"]["GeocodeResolutionPayload"];
+export type MapProjectionFeature =
+  components["schemas"]["MapProjectionFeatureResponse"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -145,6 +153,29 @@ export const api = {
   reorderGroup: (groupId: string, opportunityIds: string[]) =>
     request<OpportunityGroup>(`/api/groups/${groupId}/order`, {
       method: "PUT",
+      body: JSON.stringify({ opportunity_ids: opportunityIds }),
+    }),
+  listMapLocations: () => request<MapLocation[]>("/api/map/locations"),
+  setMapResolution: (workLocationId: string, payload: MapResolutionPayload) =>
+    request<MapResolution>(`/api/map/locations/${workLocationId}/resolution`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
+  deleteMapResolution: (workLocationId: string) =>
+    request<void>(`/api/map/locations/${workLocationId}/resolution`, {
+      method: "DELETE",
+    }),
+  geocodeMapLocation: (
+    workLocationId: string,
+    payload: GeocodeResolutionPayload,
+  ) =>
+    request<MapResolution>(`/api/map/locations/${workLocationId}/geocode`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  getMapProjection: (opportunityIds: string[]) =>
+    request<MapProjectionFeature[]>("/api/map/projection", {
+      method: "POST",
       body: JSON.stringify({ opportunity_ids: opportunityIds }),
     }),
   createPersonalAssessment: (

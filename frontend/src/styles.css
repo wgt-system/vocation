@@ -240,6 +240,80 @@ nav button.active {
   color: #675d4e;
   font-size: 0.8rem;
 }
+.view-toggle {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border: 1px solid #cfc7b8;
+  border-radius: 9px;
+  background: #fffdf8;
+}
+.view-toggle button {
+  border: 0;
+  border-radius: 7px;
+  padding: 0.45rem 0.7rem;
+  background: transparent;
+}
+.view-toggle button.active {
+  background: #1e5b48;
+  color: #fff;
+}
+.map-workspace {
+  display: grid;
+  gap: 1.25rem;
+}
+.opportunity-map {
+  width: 100%;
+  min-height: 480px;
+  border: 1px solid #cfc7b8;
+  border-radius: 16px;
+  z-index: 0;
+}
+.map-marker-icon {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: #1e5b48;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 35%);
+  transform: rotate(-45deg);
+}
+.map-popup {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 180px;
+}
+.map-popup button {
+  margin-top: 0.25rem;
+}
+.map-locations-panel h2 {
+  margin-top: 0;
+}
+.map-location-list {
+  display: grid;
+  gap: 0.8rem;
+}
+.map-location-card {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.8fr) minmax(18rem, 1.2fr);
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #eee8dc;
+}
+.map-location-card > div:first-child,
+.map-resolution-controls {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+.map-resolution-controls > button {
+  justify-self: start;
+}
+.map-manual-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
 .panel,
 .report,
 .criterion,
@@ -478,7 +552,9 @@ dl dd {
   }
   .detail-grid,
   .form-grid,
-  .gap-request {
+  .gap-request,
+  .groups-layout,
+  .map-location-card {
     grid-template-columns: 1fr;
   }
   .criterion {
