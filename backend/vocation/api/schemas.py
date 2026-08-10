@@ -477,6 +477,71 @@ class MapProjectionFeatureResponse(BaseModel):
     groups: list[MapGroupMembershipResponse]
 
 
+class ComparisonWorkLocationResponse(BaseModel):
+    label: str
+    precision: str
+
+
+class ComparisonDimensionValueResponse(BaseModel):
+    value: Any
+    subject_type: Literal["opportunity", "posting"]
+    subject_id: str
+    observed_at: str
+    evidence_summary: str | None
+
+
+class ComparisonDimensionCellResponse(BaseModel):
+    state: Literal["present", "missing"]
+    values: list[ComparisonDimensionValueResponse]
+
+
+class ComparisonAssessmentCriterionResponse(BaseModel):
+    criterion_id: str
+    display_name: str
+    display_order: int
+
+
+class ComparisonPersonalAssessmentResponse(BaseModel):
+    criterion_id: str
+    value: Any
+    reasoning: str | None
+    created_at: str
+
+
+class ComparisonExternalAssessmentResponse(BaseModel):
+    criterion_id: str
+    value: Any
+    reasoning: str | None
+    created_at: str
+
+
+class ComparisonOpportunityResponse(BaseModel):
+    opportunity_id: str
+    title: str
+    company_id: str
+    company_name: str
+    work_locations: list[ComparisonWorkLocationResponse]
+    tracking_status: TrackingStatus
+    availability: Literal["available", "unavailable", "uncertain", "unknown"]
+    availability_last_checked_at: str | None
+    availability_age_days: int | None
+    groups: list[MapGroupMembershipResponse]
+    research_dimensions: dict[str, ComparisonDimensionCellResponse]
+    personal_assessments: list[ComparisonPersonalAssessmentResponse]
+    external_assessments: list[ComparisonExternalAssessmentResponse]
+
+
+class OpportunityComparisonResponse(BaseModel):
+    opportunities: list[ComparisonOpportunityResponse]
+    assessment_criteria: list[ComparisonAssessmentCriterionResponse]
+
+
+class OpportunityComparisonPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    opportunity_ids: list[str]
+
+
 class ObservationResponse(BaseModel):
     id: str
     subject_type: str

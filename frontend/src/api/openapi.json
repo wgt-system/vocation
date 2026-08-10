@@ -304,6 +304,300 @@
         "title": "CompanyResponse",
         "type": "object"
       },
+      "ComparisonAssessmentCriterionResponse": {
+        "properties": {
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "display_order": {
+            "title": "Display Order",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "display_name",
+          "display_order"
+        ],
+        "title": "ComparisonAssessmentCriterionResponse",
+        "type": "object"
+      },
+      "ComparisonDimensionCellResponse": {
+        "properties": {
+          "state": {
+            "enum": [
+              "present",
+              "missing"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "values": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonDimensionValueResponse"
+            },
+            "title": "Values",
+            "type": "array"
+          }
+        },
+        "required": [
+          "state",
+          "values"
+        ],
+        "title": "ComparisonDimensionCellResponse",
+        "type": "object"
+      },
+      "ComparisonDimensionValueResponse": {
+        "properties": {
+          "evidence_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Summary"
+          },
+          "observed_at": {
+            "title": "Observed At",
+            "type": "string"
+          },
+          "subject_id": {
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "opportunity",
+              "posting"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value",
+          "subject_type",
+          "subject_id",
+          "observed_at",
+          "evidence_summary"
+        ],
+        "title": "ComparisonDimensionValueResponse",
+        "type": "object"
+      },
+      "ComparisonExternalAssessmentResponse": {
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "value",
+          "reasoning",
+          "created_at"
+        ],
+        "title": "ComparisonExternalAssessmentResponse",
+        "type": "object"
+      },
+      "ComparisonOpportunityResponse": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "available",
+              "unavailable",
+              "uncertain",
+              "unknown"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "availability_age_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Age Days"
+          },
+          "availability_last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Last Checked At"
+          },
+          "company_id": {
+            "title": "Company Id",
+            "type": "string"
+          },
+          "company_name": {
+            "title": "Company Name",
+            "type": "string"
+          },
+          "external_assessments": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonExternalAssessmentResponse"
+            },
+            "title": "External Assessments",
+            "type": "array"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/MapGroupMembershipResponse"
+            },
+            "title": "Groups",
+            "type": "array"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "personal_assessments": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonPersonalAssessmentResponse"
+            },
+            "title": "Personal Assessments",
+            "type": "array"
+          },
+          "research_dimensions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ComparisonDimensionCellResponse"
+            },
+            "title": "Research Dimensions",
+            "type": "object"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "tracking_status": {
+            "enum": [
+              "new",
+              "to_review",
+              "interesting",
+              "shortlisted",
+              "deferred",
+              "excluded",
+              "archived"
+            ],
+            "title": "Tracking Status",
+            "type": "string"
+          },
+          "work_locations": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonWorkLocationResponse"
+            },
+            "title": "Work Locations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "opportunity_id",
+          "title",
+          "company_id",
+          "company_name",
+          "work_locations",
+          "tracking_status",
+          "availability",
+          "availability_last_checked_at",
+          "availability_age_days",
+          "groups",
+          "research_dimensions",
+          "personal_assessments",
+          "external_assessments"
+        ],
+        "title": "ComparisonOpportunityResponse",
+        "type": "object"
+      },
+      "ComparisonPersonalAssessmentResponse": {
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "value",
+          "reasoning",
+          "created_at"
+        ],
+        "title": "ComparisonPersonalAssessmentResponse",
+        "type": "object"
+      },
+      "ComparisonWorkLocationResponse": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "precision": {
+            "title": "Precision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "precision"
+        ],
+        "title": "ComparisonWorkLocationResponse",
+        "type": "object"
+      },
       "CriterionPayload": {
         "additionalProperties": false,
         "properties": {
@@ -1656,6 +1950,47 @@
         "title": "ObservationResponse",
         "type": "object"
       },
+      "OpportunityComparisonPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "opportunity_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Opportunity Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "opportunity_ids"
+        ],
+        "title": "OpportunityComparisonPayload",
+        "type": "object"
+      },
+      "OpportunityComparisonResponse": {
+        "properties": {
+          "assessment_criteria": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonAssessmentCriterionResponse"
+            },
+            "title": "Assessment Criteria",
+            "type": "array"
+          },
+          "opportunities": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonOpportunityResponse"
+            },
+            "title": "Opportunities",
+            "type": "array"
+          }
+        },
+        "required": [
+          "opportunities",
+          "assessment_criteria"
+        ],
+        "title": "OpportunityComparisonResponse",
+        "type": "object"
+      },
       "OpportunityDetailResponse": {
         "properties": {
           "assessments": {
@@ -2777,6 +3112,47 @@
         "summary": "Get Import Report",
         "tags": [
           "availability"
+        ]
+      }
+    },
+    "/api/comparison/opportunities": {
+      "post": {
+        "operationId": "compare_opportunities_api_comparison_opportunities_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityComparisonPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityComparisonResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare Opportunities",
+        "tags": [
+          "comparison"
         ]
       }
     },

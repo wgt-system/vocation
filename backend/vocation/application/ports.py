@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from vocation.application.comparison import ComparisonCriterion, ComparisonOpportunity
 from vocation.domain.criteria import AssessmentCriterion
 from vocation.domain.external_links import ExternalLink
 from vocation.domain.research_bundle import DuplicateCase, PostingIdentity
@@ -27,6 +28,11 @@ class PostingIdentityRepository(Protocol):
 class ExternalLinkRepository(Protocol):
     def links_for_opportunity(self, opportunity_id: str) -> list[ExternalLink] | None: ...
     def links_for_posting(self, opportunity_id: str, posting_id: str) -> list[ExternalLink] | None: ...
+
+
+class ComparisonRepository(Protocol):
+    def get_many(self, opportunity_ids: list[str]) -> list[ComparisonOpportunity]: ...
+    def criteria(self, criterion_ids: list[str]) -> list[ComparisonCriterion]: ...
 
 
 class DuplicateCaseRepository(Protocol):

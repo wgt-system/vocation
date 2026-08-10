@@ -55,6 +55,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/comparison/opportunities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Compare Opportunities */
+        post: operations["compare_opportunities_api_comparison_opportunities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/criteria": {
         parameters: {
             query?: never;
@@ -713,6 +730,107 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** ComparisonAssessmentCriterionResponse */
+        ComparisonAssessmentCriterionResponse: {
+            /** Criterion Id */
+            criterion_id: string;
+            /** Display Name */
+            display_name: string;
+            /** Display Order */
+            display_order: number;
+        };
+        /** ComparisonDimensionCellResponse */
+        ComparisonDimensionCellResponse: {
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "present" | "missing";
+            /** Values */
+            values: components["schemas"]["ComparisonDimensionValueResponse"][];
+        };
+        /** ComparisonDimensionValueResponse */
+        ComparisonDimensionValueResponse: {
+            /** Evidence Summary */
+            evidence_summary: string | null;
+            /** Observed At */
+            observed_at: string;
+            /** Subject Id */
+            subject_id: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "opportunity" | "posting";
+            /** Value */
+            value: unknown;
+        };
+        /** ComparisonExternalAssessmentResponse */
+        ComparisonExternalAssessmentResponse: {
+            /** Created At */
+            created_at: string;
+            /** Criterion Id */
+            criterion_id: string;
+            /** Reasoning */
+            reasoning: string | null;
+            /** Value */
+            value: unknown;
+        };
+        /** ComparisonOpportunityResponse */
+        ComparisonOpportunityResponse: {
+            /**
+             * Availability
+             * @enum {string}
+             */
+            availability: "available" | "unavailable" | "uncertain" | "unknown";
+            /** Availability Age Days */
+            availability_age_days: number | null;
+            /** Availability Last Checked At */
+            availability_last_checked_at: string | null;
+            /** Company Id */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
+            /** External Assessments */
+            external_assessments: components["schemas"]["ComparisonExternalAssessmentResponse"][];
+            /** Groups */
+            groups: components["schemas"]["MapGroupMembershipResponse"][];
+            /** Opportunity Id */
+            opportunity_id: string;
+            /** Personal Assessments */
+            personal_assessments: components["schemas"]["ComparisonPersonalAssessmentResponse"][];
+            /** Research Dimensions */
+            research_dimensions: {
+                [key: string]: components["schemas"]["ComparisonDimensionCellResponse"];
+            };
+            /** Title */
+            title: string;
+            /**
+             * Tracking Status
+             * @enum {string}
+             */
+            tracking_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
+            /** Work Locations */
+            work_locations: components["schemas"]["ComparisonWorkLocationResponse"][];
+        };
+        /** ComparisonPersonalAssessmentResponse */
+        ComparisonPersonalAssessmentResponse: {
+            /** Created At */
+            created_at: string;
+            /** Criterion Id */
+            criterion_id: string;
+            /** Reasoning */
+            reasoning: string | null;
+            /** Value */
+            value: unknown;
+        };
+        /** ComparisonWorkLocationResponse */
+        ComparisonWorkLocationResponse: {
+            /** Label */
+            label: string;
+            /** Precision */
+            precision: string;
+        };
         /** CriterionPayload */
         CriterionPayload: {
             /**
@@ -1208,6 +1326,18 @@ export interface components {
             /** Value */
             value: unknown;
         };
+        /** OpportunityComparisonPayload */
+        OpportunityComparisonPayload: {
+            /** Opportunity Ids */
+            opportunity_ids: string[];
+        };
+        /** OpportunityComparisonResponse */
+        OpportunityComparisonResponse: {
+            /** Assessment Criteria */
+            assessment_criteria: components["schemas"]["ComparisonAssessmentCriterionResponse"][];
+            /** Opportunities */
+            opportunities: components["schemas"]["ComparisonOpportunityResponse"][];
+        };
         /** OpportunityDetailResponse */
         OpportunityDetailResponse: {
             /** Assessments */
@@ -1600,6 +1730,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AvailabilityImportReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_opportunities_api_comparison_opportunities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityComparisonPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityComparisonResponse"];
                 };
             };
             /** @description Validation Error */
