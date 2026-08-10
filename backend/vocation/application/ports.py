@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Protocol
 
 from vocation.domain.criteria import AssessmentCriterion
+from vocation.domain.external_links import ExternalLink
 from vocation.domain.research_bundle import DuplicateCase, PostingIdentity
 from vocation.domain.update_import import ExistingSubject, PromptContextSnapshot, SubjectType
 
@@ -21,6 +22,11 @@ class PostingIdentityRepository(Protocol):
     def get_posting(self, posting_id: str) -> PostingIdentity | None: ...
     def find_by_stable_key(self, stable_key: str) -> PostingIdentity | None: ...
     def find_by_normalized_canonical_url(self, normalized_url: str) -> PostingIdentity | None: ...
+
+
+class ExternalLinkRepository(Protocol):
+    def links_for_opportunity(self, opportunity_id: str) -> list[ExternalLink] | None: ...
+    def links_for_posting(self, opportunity_id: str, posting_id: str) -> list[ExternalLink] | None: ...
 
 
 class DuplicateCaseRepository(Protocol):
