@@ -194,9 +194,13 @@ Group-Memberships werden in Liste und Detail angezeigt und können als Filter ve
 - Opportunity list/detail memberships
 - Opportunity filtering by Group/Wave
 
-### CompareOpportunities
+### CompareOpportunities (geplante Slice-13-Funktion)
 
-Vergleicht ausgewählte Opportunities und zeigt fehlende oder widersprüchliche Daten explizit.
+Input ist eine temporäre, explizit geordnete Liste von 2 bis 4 eindeutigen Opportunity IDs. Alle IDs müssen existieren; Duplikate oder eine andere Anzahl werden abgelehnt. Die Ausgabe verwendet exakt diese Spaltenreihenfolge und zeigt pro Opportunity ID, Title, Company, WorkLocations mit Label/Precision, Tracking Status, Availability, Availability `last_checked_at`/`age_days` sowie kompakte Group/Wave-Memberships.
+
+Verglichen werden die Research-Dimensionen `technology_requirement`, `task`, `seniority`, `experience_requirement`, `work_model` und `salary` aus Opportunity- und Posting-scoped Observations. Fehlende Werte sind explizit `missing`; mehrere distinct Werte bleiben sichtbar und werden nicht automatisch als widersprüchlich bewertet. Opportunity-scoped Assessments werden nach bestehendem Criterion dargestellt; Personal Assessments nur mit aktueller Revision, External Assessments als mehrere Werte ohne automatische Auswahl. Company- und Posting-scoped Assessments werden nicht in Opportunity-Zellen zusammengeführt.
+
+Die Auswahl ist temporärer UI-Zustand. Comparison ist read-only, verändert weder Tracking Status, Groups/Waves, Assessments noch Decisions und enthält weder URLs noch Browser-Aktionen. Risk bleibt mangels konkreter Risk-Read-Quelle außerhalb der V1-Ansicht.
 
 ### GetMapProjection (implemented)
 

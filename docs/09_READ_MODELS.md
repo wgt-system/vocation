@@ -42,7 +42,17 @@ Enthält:
 - Duplicate Cases
 - Change Summary
 
-## 4. OpportunityComparisonView
+## 4. OpportunityComparisonView (planned Slice 13 read model)
+
+Interner, nicht persistierter Read Model für eine temporäre Auswahl von mindestens 2 und höchstens 4 eindeutigen, existierenden Opportunities. Die Spaltenreihenfolge folgt exakt der angeforderten Opportunity-ID-Reihenfolge. Eine fehlende Opportunity oder ungültige Anzahl wird als Fehler gemeldet.
+
+Jede Spalte enthält mindestens:
+
+- Opportunity ID, Title, Company ID und Company Name
+- WorkLocations mit Label und Precision
+- Tracking Status
+- Availability sowie Availability `last_checked_at` und `age_days`
+- kompakte Group/Wave-Memberships
 
 Zeilen oder Dimensionen:
 
@@ -56,12 +66,13 @@ Zeilen oder Dimensionen:
 - Locations
 - Salary
 - Assessments
-- Risks
 - Availability
 - Freshness
-- Personal Status
+- Opportunity-scoped Assessments
 
-Fehlende und widersprüchliche Werte werden explizit dargestellt.
+Research-Zellen verwenden ausschließlich Opportunity- und Posting-scoped Observations der sechs festgelegten Dimensionen. Keine Observations bedeutet `missing`; mehrere distinct Werte werden deterministisch, vorzugsweise neuestes Evidence zuerst mit stabilem ID-Tie-Break, als mehrere Werte dargestellt. Unterschiedliche Werte sind nicht automatisch contradictory. Personal Assessments zeigen nur die aktuelle Revision criterion-keyed, External Assessments nur Opportunity-scoped und ebenfalls ohne automatische Auswahl. Company-scoped Daten werden nicht kopiert. Risk bleibt mangels konkreter Read-Quelle außerhalb dieses V1-Read-Models.
+
+Comparison besitzt keine Persistenz, keine URLs/Browseraktionen und keine eigene Datenhoheit. Published Opportunity Overview 1.0 bleibt unverändert.
 
 ## 5. CompanyOverviewView
 

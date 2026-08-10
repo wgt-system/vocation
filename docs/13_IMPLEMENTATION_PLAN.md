@@ -125,10 +125,12 @@ V1 führt `MapLocationResolution` als Vocation-owned Supporting Data pro WorkLoc
 
 V1 definiert ExternalLink als abgeleiteten Read-/Application-Wert ohne eigene Persistenz. Implementiert sind ExternalLinkPolicy, deterministischer PreferredPostingSelector, SQLAlchemy Read-Adapter, SystemBrowserAdapter, `/api/external-links`, typed interne OpenAPI-/Frontend-Clients, Opportunity-Detail-Workflow sowie Map-Popup-Navigation mit dedupliziertem Link-Laden pro Opportunity. Die Policy akzeptiert nur absolute HTTPS-URLs mit Host und prüft lokal ohne URL-Probing. Availability, Source Type, `observed_at` und Posting ID bestimmen das Ranking; explizite Auswahl wird nicht gespeichert. `OpenPostingInBrowser` ist ausschließlich Nutzeraktion. MapProjection bleibt URL-frei; Research Contracts und Published Opportunity Overview 1.0 bleiben unverändert.
 
-## Slice 13 – Vergleich
+## Slice 13 – Vergleich (Semantik eingefroren, Implementierung folgt)
 
 - Comparison Read Model
 - UI
+
+V1 definiert `OpportunityComparisonView` als internen, read-only und nicht persistierten Vergleich für 2 bis 4 explizit geordnete, existierende Opportunities. Die Ansicht zeigt Summary, Availability-evidence Freshness, Groups/Waves, sechs Research-Dimensionen und Opportunity-scoped Assessments mit explizitem Missing-State und deterministischer Evidenzreihenfolge. Sie ist kein Ranking, Scoring, Recommendation, Winner Selector oder neue Assessment-Domäne. Es gibt keine inferred Contradictions, keine URLs/Browser-Aktionen und keine Mutation. Eine konkrete Risk-Read-Quelle ist nicht implementiert; Risk-Vergleich bleibt spätere Arbeit. Published Opportunity Overview 1.0 bleibt unverändert.
 
 ## Slice 14 – Client-neutral Published Capability expansion
 

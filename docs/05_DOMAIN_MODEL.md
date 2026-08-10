@@ -282,6 +282,12 @@ Die implementierte SQLAlchemy-Read-Adapter liefert ExternalLink-Kandidaten ohne 
 - `JobListQuery`
 - `JobDetailQuery`
 - `OpportunityComparisonQuery`
+
+### OpportunityComparisonQuery
+
+Read-only Query für 2 bis 4 eindeutige, existierende Opportunity IDs in der angeforderten Reihenfolge. Sie erzeugt keine Domain-Mutation und keine Persistenz. Alle ausgewählten Opportunities müssen existieren; fehlende IDs führen zu einem Fehler statt stiller Auslassung. Es gibt kein Ranking, Scoring, keinen Winner und keine persistierte Shortlist.
+
+Die Query vergleicht Opportunity- und zugehörige Posting-Observations nur in den sechs Dimensionen `technology_requirement`, `task`, `seniority`, `experience_requirement`, `work_model` und `salary`. Company-scoped Observations/Assessments werden nicht in Opportunity-Zellen kopiert. Opportunity-scoped Personal- und External-Assessments werden nach Assessment Criterion dargestellt; Personal Assessments verwenden nur die aktuelle Revision, ohne Historie. Mehrere Werte bleiben als Evidenzwerte sichtbar und werden nicht aus unterschiedlichen Strings automatisch als Widerspruch abgeleitet. Eine strukturierte Contradiction wird nur übernommen, wenn sie bereits explizit als solche vorliegt.
 - `CompanyOverviewQuery`
 - `MapProjectionQuery`
 - `PromptContextQuery`

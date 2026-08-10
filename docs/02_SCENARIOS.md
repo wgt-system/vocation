@@ -48,7 +48,7 @@ Der Nutzer erstellt eine `OpportunityGroup` vom Typ `general` oder `application_
 
 ## S11 – Vergleich
 
-Mehrere Opportunities werden anhand von Technologien, Aufgaben, Standort, Freshness, Assessments und Risks verglichen. Fehlende Werte bleiben fehlend und werden nicht als negativ interpretiert.
+Der Nutzer wählt 2 bis 4 bestehende Opportunities in expliziter Reihenfolge und öffnet `Vergleichen`. Die read-only Ansicht zeigt Technologien, Aufgaben, Seniorität, Erfahrung, Arbeitsmodell, Gehalt, WorkLocations, Availability-/Evidence-Freshness, Assessments und Groups/Waves spaltenweise. Fehlende Werte bleiben explizit fehlend; mehrere Evidenzwerte bleiben sichtbar und werden nicht automatisch als widersprüchlich, bewertet oder gerankt. Risk-Vergleich bleibt bis zu einer konkreten Risk-Read-Quelle später.
 
 ## S12 – Kartenansicht
 

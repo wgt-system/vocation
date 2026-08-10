@@ -96,6 +96,8 @@ Vom Nutzer vorgenommene oder bestätigte Bewertung.
 
 Klärungsbedürftiger oder negativer Aspekt; noch keine Exclusion.
 
+Für Slice 13 existiert keine konkrete implementierte Risk-Read-Quelle. Risk ist daher kein Bestandteil der V1-OpportunityComparisonView und bleibt spätere Arbeit.
+
 ### Decision
 
 Bewusste persönliche Festlegung.
@@ -163,6 +165,10 @@ Die ExternalLinkPolicy akzeptiert ausschließlich absolute `https`-URLs mit nich
 ### Preferred Posting Link
 
 Für eine konkrete Ansicht deterministisch bevorzugter ExternalLink. Explizite Posting-/Source-Auswahl überschreibt die automatische Auswahl nur für den aktuellen Open-Vorgang und wird nicht gespeichert. Ohne explizite Auswahl gilt: Availability `available > unknown > uncertain > unavailable`, Source Type `company_careers > job_board > professional_network > other`, neuestes `observed_at`, dann Posting ID als Tie-Break. Es gibt keine persistierte persönliche Posting-Präferenz.
+
+### Opportunity Comparison
+
+Read-only interner Vocation-Vergleich einer temporär ausgewählten, explizit geordneten Menge von 2 bis 4 bestehenden Opportunities. Die Auswahl wird nicht persistiert und die Ansicht besitzt keine eigene fachliche Datenhoheit.
 
 ### Published Read Projection
 
