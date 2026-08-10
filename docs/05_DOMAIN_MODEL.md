@@ -189,7 +189,7 @@ Für v0.3 sind Update Bundles ein eigener Published Contract `2.0`. Eine Correla
 
 `PromptContextSnapshot` ist der Traceability-Pivot und besitzt seinen eigenen Fingerprint. Ein Update PromptRun gehört genau zu einem Snapshot; ein Initial PromptRun hat keine Prompt Context Ref. Ein angewendeter Update-`ResearchImport` speichert `bundle_version = 2.0` und die validierte `prompt_context_ref`; ein initialer `1.0`-Import speichert keine Prompt Context Ref. `ResearchImport` referenziert niemals direkt einen `prompt_run_id`; mehrere Importe dürfen denselben Snapshot referenzieren.
 
-## ExternalLink
+## ExternalLink (implemented read/application value)
 
 Derived Application/Read Value aus bestehendem Posting, Source und SourceReference; keine eigene Persistence-Tabelle.
 
@@ -245,6 +245,8 @@ Eine explizite Posting-/Source-Auswahl überschreibt die Auswahl nur für die ak
 ### ExternalLinkPolicy
 
 Validiert absolute HTTPS-URLs lokal strukturell und entscheidet, ob ein Link geöffnet werden darf. Der Browser Adapter ist austauschbare Infrastruktur.
+
+Die implementierte SQLAlchemy-Read-Adapter liefert ExternalLink-Kandidaten ohne eigene Persistenz. `SystemBrowserAdapter` öffnet ausschließlich bereits validierte URLs im Standardbrowser des Betriebssystems.
 
 ## Domain Events
 

@@ -410,3 +410,7 @@ Gültige Links werden deterministisch nach Availability, Source Type, neuestem `
 ## AT-88 URL-Free MapProjection
 
 Die MapProjection enthält keine URLs oder `posting_links`. Map-Popup-Linkkandidaten werden separat über Opportunity ID ermittelt; Published Opportunity Overview 1.0 bleibt URL-frei.
+
+## AT-89 External Navigation Workflow
+
+Die implementierten `/api/external-links`-Read-/Open-Endpunkte, typed Clients und Opportunity-Detail-UI zeigen Source, Availability, Observed At und Preferred-Marker. Default-/Preferred- sowie explizites Posting-Öffnen, No-Link- und lokale Browser-Fehlerzustände sind abgedeckt; Map-Popups laden Kandidaten separat und dedupliziert pro Opportunity.

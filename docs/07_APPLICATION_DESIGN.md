@@ -128,7 +128,7 @@ Im v0.3 erzeugt oder verwendet der Update-Plan ausschließlich ungelöste Duplic
 - related but distinct,
 - keep unresolved.
 
-### OpenPostingInBrowser (geplante Slice-12-Funktion)
+### OpenPostingInBrowser (implementiert)
 
 Input:
 
@@ -150,6 +150,8 @@ Fehler:
 - Browserstart fehlgeschlagen.
 
 Es gibt in V1 keine Navigation beim Laden von Details, der Karte, eines Markers oder beim Ändern von Filtern und keine Navigation-Audit-/Event-Persistenz.
+
+Die Read-/Open-Endpunkte sind unter `/api/external-links` verfügbar; typed internes OpenAPI und Frontend-Client sind implementiert. Opportunity Detail zeigt Source, Availability, Observed At und den Preferred-Marker, unterstützt Default-/Preferred- sowie explizites Posting-Öffnen und zeigt No-Link- und lokale Browser-Fehlerzustände.
 
 ## 4. Queries
 
@@ -253,7 +255,7 @@ Eine manuelle oder provider-neutrale Geocoder-Auflösung einer WorkLocation wird
 
 Die UI bietet explizite Geocode-, Manual- und Delete-Resolution-Aktionen sowie Marker-Popups mit Navigation zu Vocation Details.
 
-In Slice 12 können Marker-Popups zusätzlich ExternalLink-Kandidaten per Opportunity ID laden und `Originalanzeige öffnen` oder Source-Auswahl anbieten. URLs sind kein Bestandteil der MapProjection.
+Die implementierten Marker-Popups laden ExternalLink-Kandidaten separat per Opportunity ID, deduplizieren das Laden pro Opportunity und bieten `Originalanzeige öffnen` oder Source-Auswahl an. URLs sind kein Bestandteil der MapProjection.
 
 ### Import Flow
 

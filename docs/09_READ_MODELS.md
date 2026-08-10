@@ -121,6 +121,10 @@ Regeln:
 
 Die MapProjection bleibt damit URL-frei. Slice 12 leitet ExternalLink-Kandidaten separat aus einer Opportunity ID ab; sie sind kein Projection-Feld.
 
+## 8. ExternalLinkView (implemented)
+
+ExternalLink-Kandidaten werden aus bestehenden Posting-, Source- und SourceReference-Daten gelesen und enthalten Source, URL, Display Label, Posting Availability, Observed At und den Preferred-Marker. `/api/external-links` liefert die Read-/Open-Funktionen; es gibt keine ExternalLink-Tabelle. Opportunity Detail zeigt die Kandidaten und lokale No-Link/Browser-Fehlerzustände. Map-Popups laden diese Kandidaten separat und dedupliziert pro Opportunity; die MapProjection bleibt URL-frei.
+
 ## 8. ImportReportView
 
 - Import Metadata
