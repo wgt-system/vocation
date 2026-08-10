@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import {
   api,
   type OpportunityGroup,
+  type OpportunityComparison,
   type OpportunityListItem,
   type TrackingStatus,
 } from "../../api/client";
 import { EmptyState, ErrorState, Loading } from "../../components/AsyncState";
 import { MapView } from "./MapView";
+import { OpportunityComparisonView } from "./OpportunityComparisonView";
 
 type Availability = NonNullable<OpportunityListItem["availability"]>;
 type DisplayMode = "list" | "map";
@@ -49,6 +51,12 @@ export function OpportunityList({
   const [groups, setGroups] = useState<OpportunityGroup[]>([]);
   const [groupFilter, setGroupFilter] = useState("");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("list");
+  const [selectedItems, setSelectedItems] = useState<OpportunityListItem[]>([]);
+  const [comparison, setComparison] = useState<OpportunityComparison | null>(
+    null,
+  );
+  const [comparisonLoading, setComparisonLoading] = useState(false);
+  const [comparisonError, setComparisonError] = useState("");
   const statuses: { value: TrackingStatus; label: string }[] = [
     { value: "new", label: "Neu" },
     { value: "to_review", label: "Zu prüfen" },
@@ -92,6 +100,47 @@ export function OpportunityList({
       .then(setGroups)
       .catch(() => setGroups([]));
   }, []);
+
+  function toggleComparison(item: OpportunityListItem) {
+    setComparisonError("");
+    setSelectedItems((current) => {
+      const existing = current.some((selected) => selected.id === item.id);
+      if (existing)
+        return current.filter((selected) => selected.id !== item.id);
+      if (current.length >= 4) return current;
+      return [...current, item];
+    });
+  }
+
+  async function compareSelected() {
+    if (selectedItems.length < 2 || selectedItems.length > 4) return;
+    setComparisonLoading(true);
+    setComparisonError("");
+    try {
+      const next = await api.compareOpportunities(
+        selectedItems.map((item) => item.id),
+      );
+      setComparison(next);
+    } catch (reason) {
+      setComparisonError(
+        reason instanceof Error
+          ? reason.message
+          : "Vergleich konnte nicht geladen werden.",
+      );
+    } finally {
+      setComparisonLoading(false);
+    }
+  }
+
+  if (comparison) {
+    return (
+      <OpportunityComparisonView
+        comparison={comparison}
+        onBack={() => setComparison(null)}
+        onSelect={onSelect}
+      />
+    );
+  }
 
   return (
     <section>
@@ -167,6 +216,46 @@ export function OpportunityList({
           </button>
         </div>
       </header>
+      {selectedItems.length > 0 && (
+        <section className="panel comparison-selection">
+          <div className="comparison-selection-header">
+            <div>
+              <h2>Vergleichsauswahl</h2>
+              <p>{selectedItems.length} von 2–4 Opportunities ausgewählt</p>
+            </div>
+            <div className="actions">
+              <button type="button" onClick={() => setSelectedItems([])}>
+                Auswahl löschen
+              </button>
+              <button
+                className="primary"
+                type="button"
+                disabled={selectedItems.length < 2 || comparisonLoading}
+                onClick={() => void compareSelected()}
+              >
+                {comparisonLoading ? "Vergleich wird geladen …" : "Vergleichen"}
+              </button>
+            </div>
+          </div>
+          <ol className="comparison-selection-list">
+            {selectedItems.map((item) => (
+              <li key={item.id}>
+                <span>
+                  {item.company_name} – {item.title}
+                </span>
+                <button type="button" onClick={() => toggleComparison(item)}>
+                  Entfernen
+                </button>
+              </li>
+            ))}
+          </ol>
+          {comparisonError && (
+            <p className="state state-error" role="alert">
+              {comparisonError}
+            </p>
+          )}
+        </section>
+      )}
       {loading && <Loading />}
       {error && <ErrorState message={error} />}
       {!loading && !error && items.length === 0 && (
@@ -181,10 +270,9 @@ export function OpportunityList({
       {displayMode === "list" ? (
         <div className="opportunity-grid">
           {visibleItems.map((item) => (
-            <button
+            <article
               className={`opportunity-card status-${item.tracking_status}`}
               key={item.id}
-              onClick={() => onSelect(item.id)}
             >
               <span className="eyebrow">{item.company_name}</span>
               <strong>{item.title}</strong>
@@ -206,7 +294,28 @@ export function OpportunityList({
                   {item.groups.map((group) => group.name).join(" · ")}
                 </small>
               )}
-            </button>
+              <div className="opportunity-card-actions">
+                <label className="comparison-checkbox">
+                  <input
+                    type="checkbox"
+                    aria-label={`Für Vergleich auswählen: ${item.company_name} – ${item.title}`}
+                    checked={selectedItems.some(
+                      (selected) => selected.id === item.id,
+                    )}
+                    disabled={
+                      !selectedItems.some(
+                        (selected) => selected.id === item.id,
+                      ) && selectedItems.length >= 4
+                    }
+                    onChange={() => toggleComparison(item)}
+                  />
+                  Vergleich
+                </label>
+                <button type="button" onClick={() => onSelect(item.id)}>
+                  Details
+                </button>
+              </div>
+            </article>
           ))}
         </div>
       ) : (

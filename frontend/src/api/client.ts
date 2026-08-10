@@ -42,6 +42,10 @@ export type MapProjectionFeature =
 export type ExternalLink = components["schemas"]["ExternalLinkResponse"];
 export type ExternalLinkOpenPayload =
   components["schemas"]["ExternalLinkOpenPayload"];
+export type OpportunityComparison =
+  components["schemas"]["OpportunityComparisonResponse"];
+export type ComparisonOpportunity =
+  components["schemas"]["ComparisonOpportunityResponse"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -143,6 +147,11 @@ export const api = {
         ),
       },
     ),
+  compareOpportunities: (opportunityIds: string[]) =>
+    request<OpportunityComparison>("/api/comparison/opportunities", {
+      method: "POST",
+      body: JSON.stringify({ opportunity_ids: opportunityIds }),
+    }),
   listGroups: () => request<OpportunityGroup[]>("/api/groups"),
   getGroup: (id: string) => request<OpportunityGroup>(`/api/groups/${id}`),
   createGroup: (payload: OpportunityGroupPayload) =>
