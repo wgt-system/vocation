@@ -582,6 +582,96 @@
         "title": "ExclusionPayload",
         "type": "object"
       },
+      "ExternalLinkOpenPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "posting_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posting Id"
+          }
+        },
+        "title": "ExternalLinkOpenPayload",
+        "type": "object"
+      },
+      "ExternalLinkResponse": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "available",
+              "unavailable",
+              "uncertain",
+              "unknown"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "display_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Label"
+          },
+          "observed_at": {
+            "title": "Observed At",
+            "type": "string"
+          },
+          "posting_id": {
+            "title": "Posting Id",
+            "type": "string"
+          },
+          "preferred": {
+            "title": "Preferred",
+            "type": "boolean"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_name": {
+            "title": "Source Name",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "company_careers",
+              "job_board",
+              "professional_network",
+              "other"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "posting_id",
+          "source_id",
+          "source_name",
+          "source_type",
+          "url",
+          "display_label",
+          "availability",
+          "observed_at",
+          "preferred"
+        ],
+        "title": "ExternalLinkResponse",
+        "type": "object"
+      },
       "FullResearchScope": {
         "properties": {
           "as_of_date": {
@@ -2900,6 +2990,104 @@
         "summary": "Activate Criterion",
         "tags": [
           "assessment criteria"
+        ]
+      }
+    },
+    "/api/external-links/opportunities/{opportunity_id}": {
+      "get": {
+        "operationId": "opportunity_links_api_external_links_opportunities__opportunity_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExternalLinkResponse"
+                  },
+                  "title": "Response Opportunity Links Api External Links Opportunities  Opportunity Id  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Opportunity Links",
+        "tags": [
+          "external-links"
+        ]
+      }
+    },
+    "/api/external-links/opportunities/{opportunity_id}/open": {
+      "post": {
+        "operationId": "open_opportunity_api_external_links_opportunities__opportunity_id__open_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExternalLinkOpenPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalLinkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Open Opportunity",
+        "tags": [
+          "external-links"
         ]
       }
     },

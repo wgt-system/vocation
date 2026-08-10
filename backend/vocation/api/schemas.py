@@ -417,6 +417,24 @@ class MapLocationResponse(BaseModel):
     resolution: MapResolutionResponse | None
 
 
+class ExternalLinkResponse(BaseModel):
+    posting_id: str
+    source_id: str
+    source_name: str
+    source_type: Literal["company_careers", "job_board", "professional_network", "other"]
+    url: str
+    display_label: str | None
+    availability: Literal["available", "unavailable", "uncertain", "unknown"]
+    observed_at: str
+    preferred: bool
+
+
+class ExternalLinkOpenPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    posting_id: str | None = None
+
+
 class MapResolutionPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

@@ -124,6 +124,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/external-links/opportunities/{opportunity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Opportunity Links */
+        get: operations["opportunity_links_api_external_links_opportunities__opportunity_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/external-links/opportunities/{opportunity_id}/open": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Open Opportunity */
+        post: operations["open_opportunity_api_external_links_opportunities__opportunity_id__open_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/groups": {
         parameters: {
             query?: never;
@@ -786,6 +820,38 @@ export interface components {
         ExclusionPayload: {
             /** Reason */
             reason: string;
+        };
+        /** ExternalLinkOpenPayload */
+        ExternalLinkOpenPayload: {
+            /** Posting Id */
+            posting_id?: string | null;
+        };
+        /** ExternalLinkResponse */
+        ExternalLinkResponse: {
+            /**
+             * Availability
+             * @enum {string}
+             */
+            availability: "available" | "unavailable" | "uncertain" | "unknown";
+            /** Display Label */
+            display_label: string | null;
+            /** Observed At */
+            observed_at: string;
+            /** Posting Id */
+            posting_id: string;
+            /** Preferred */
+            preferred: boolean;
+            /** Source Id */
+            source_id: string;
+            /** Source Name */
+            source_name: string;
+            /**
+             * Source Type
+             * @enum {string}
+             */
+            source_type: "company_careers" | "job_board" | "professional_network" | "other";
+            /** Url */
+            url: string;
         };
         /** FullResearchScope */
         FullResearchScope: {
@@ -1690,6 +1756,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CriterionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    opportunity_links_api_external_links_opportunities__opportunity_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExternalLinkResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    open_opportunity_api_external_links_opportunities__opportunity_id__open_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExternalLinkOpenPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExternalLinkResponse"];
                 };
             };
             /** @description Validation Error */
