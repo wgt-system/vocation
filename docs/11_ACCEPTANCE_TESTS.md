@@ -417,11 +417,11 @@ Die implementierten `/api/external-links`-Read-/Open-Endpunkte, typed Clients un
 
 ## AT-90 Comparison Selection
 
-`Vergleichen` akzeptiert genau 2 bis 4 eindeutige, existierende Opportunity IDs, behält deren angeforderte Reihenfolge und lehnt Duplikate, falsche Anzahl oder fehlende Opportunities ohne stille Auslassung ab. Die Auswahl wird nicht persistiert.
+Die implementierte `Vergleichen`-UI und `POST /api/comparison/opportunities` akzeptieren genau 2 bis 4 eindeutige, existierende Opportunity IDs, behalten deren angeforderte Reihenfolge und lehnen Duplikate, falsche Anzahl oder fehlende Opportunities ohne stille Auslassung ab. Die Auswahl wird nicht persistiert.
 
 ## AT-91 Opportunity Comparison Read Model
 
-Jede Vergleichsspalte zeigt Opportunity/Company, WorkLocations mit Precision, Tracking Status, Availability mit Availability-evidence Freshness sowie kompakte Group/Wave-Memberships. Das Read Model ist intern, read-only und enthält keine URLs oder Browser-Aktionen.
+Jede Vergleichsspalte zeigt Opportunity/Company, WorkLocations mit Precision, Tracking Status, Availability mit Availability-evidence Freshness sowie kompakte Group/Wave-Memberships. Das implementierte Read Model ist intern, read-only, horizontal scrollbar für 2–4 Spalten und enthält keine URLs oder Browser-Aktionen.
 
 ## AT-92 Research Evidence Comparison
 
@@ -429,4 +429,4 @@ Die sechs festgelegten Research-Dimensionen verwenden nur Opportunity- und Posti
 
 ## AT-93 Assessment Comparison and State Isolation
 
-Opportunity-scoped Assessments werden criterion-keyed verglichen; Personal Assessments zeigen nur die aktuelle Revision, External Assessments mehrere Werte ohne automatische Auswahl. Comparison verändert weder Tracking Status, Groups/Waves, Assessments noch Decisions. Risk bleibt ohne konkrete Read-Quelle außerhalb der V1-Ansicht.
+Opportunity-scoped Assessments werden criterion-keyed verglichen; Personal Assessments zeigen nur die aktuelle Revision, External Assessments mehrere Werte ohne automatische Auswahl. Die typed Clients und die Navigation zu bestehenden Vocation Details sind implementiert. Comparison verändert weder Tracking Status, Groups/Waves, Assessments noch Decisions. Risk bleibt ohne konkrete Read-Quelle außerhalb der V1-Ansicht.

@@ -283,7 +283,7 @@ Die implementierte SQLAlchemy-Read-Adapter liefert ExternalLink-Kandidaten ohne 
 - `JobDetailQuery`
 - `OpportunityComparisonQuery`
 
-### OpportunityComparisonQuery
+### OpportunityComparisonQuery (implemented read query)
 
 Read-only Query für 2 bis 4 eindeutige, existierende Opportunity IDs in der angeforderten Reihenfolge. Sie erzeugt keine Domain-Mutation und keine Persistenz. Alle ausgewählten Opportunities müssen existieren; fehlende IDs führen zu einem Fehler statt stiller Auslassung. Es gibt kein Ranking, Scoring, keinen Winner und keine persistierte Shortlist.
 

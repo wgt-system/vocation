@@ -52,7 +52,7 @@ The application uses local SQLite data. Local databases, imported job data, gene
 
 ## Boundaries and limitations
 
-Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Fuzzy identity resolution, comparison, crawling, authentication, and cloud hosting remain outside v0.3. Availability/Freshness, Groups/Waves, and Map are post-v0.3 development implemented on `dev`; Published Opportunity Overview 1.0 remains unchanged and contains none of these capabilities. Published Opportunity Overview 1.0 is implemented locally, without relay, WGT client, authentication, remote persistence, or cross-device writes.
+Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Fuzzy identity resolution, crawling, authentication, and cloud hosting remain outside v0.3. Availability/Freshness, Groups/Waves, Map, and Comparison are post-v0.3 development implemented on `dev`; Published Opportunity Overview 1.0 remains unchanged and contains none of these capabilities. Published Opportunity Overview 1.0 is implemented locally, without relay, WGT client, authentication, remote persistence, or cross-device writes.
 
 ## Repository structure
 
