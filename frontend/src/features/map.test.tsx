@@ -28,6 +28,8 @@ vi.mock("../api/client", () => ({
     listGroups: vi.fn(),
     listMapLocations: vi.fn(),
     getMapProjection: vi.fn(),
+    listExternalLinks: vi.fn(),
+    openExternalLink: vi.fn(),
     geocodeMapLocation: vi.fn(),
     setMapResolution: vi.fn(),
     deleteMapResolution: vi.fn(),
@@ -96,6 +98,7 @@ beforeEach(() => {
   vi.mocked(api.geocodeMapLocation).mockResolvedValue(location.resolution!);
   vi.mocked(api.setMapResolution).mockResolvedValue(location.resolution!);
   vi.mocked(api.deleteMapResolution).mockResolvedValue(undefined);
+  vi.mocked(api.listExternalLinks).mockResolvedValue([]);
 });
 
 afterEach(() => {

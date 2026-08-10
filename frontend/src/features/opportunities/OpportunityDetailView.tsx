@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   api,
   type Criterion,
+  type ExternalLink,
   type OpportunityDetail,
   type TrackingStatus,
 } from "../../api/client";
@@ -67,6 +68,10 @@ export function OpportunityDetailView({
   const [statusReason, setStatusReason] = useState("");
   const [exclusionReason, setExclusionReason] = useState("");
   const [message, setMessage] = useState("");
+  const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([]);
+  const [externalLinksLoading, setExternalLinksLoading] = useState(true);
+  const [externalLinkError, setExternalLinkError] = useState("");
+  const [openingExternalLink, setOpeningExternalLink] = useState("");
 
   async function reload() {
     const next = await api.getOpportunity(opportunityId);
@@ -91,6 +96,23 @@ export function OpportunityDetailView({
           errorMessage(reason, "Detail konnte nicht geladen werden."),
         ),
       );
+  }, [opportunityId]);
+
+  useEffect(() => {
+    setExternalLinksLoading(true);
+    setExternalLinkError("");
+    api
+      .listExternalLinks(opportunityId)
+      .then(setExternalLinks)
+      .catch((reason) =>
+        setExternalLinkError(
+          errorMessage(
+            reason,
+            "Originalanzeigen konnten nicht geladen werden.",
+          ),
+        ),
+      )
+      .finally(() => setExternalLinksLoading(false));
   }, [opportunityId]);
 
   useEffect(() => {
@@ -224,6 +246,21 @@ export function OpportunityDetailView({
     }
   }
 
+  async function openExternalLink(postingId?: string) {
+    const key = postingId ?? "preferred";
+    setOpeningExternalLink(key);
+    setExternalLinkError("");
+    try {
+      await api.openExternalLink(opportunityId, postingId);
+    } catch (reason) {
+      setExternalLinkError(
+        errorMessage(reason, "Originalanzeige konnte nicht geöffnet werden."),
+      );
+    } finally {
+      setOpeningExternalLink("");
+    }
+  }
+
   return (
     <section>
       <button className="back" onClick={onBack}>
@@ -306,6 +343,71 @@ export function OpportunityDetailView({
               )}
             </article>
           ))}
+          <div className="external-links-section">
+            <div className="external-links-header">
+              <div>
+                <h3>Originalanzeigen</h3>
+                <p className="external-links-help">
+                  Öffnen erfolgt über die Vocation External Navigation API.
+                </p>
+              </div>
+              {externalLinks.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => void openExternalLink()}
+                  disabled={openingExternalLink === "preferred"}
+                >
+                  {openingExternalLink === "preferred"
+                    ? "Öffnen …"
+                    : "Bevorzugte Originalanzeige öffnen"}
+                </button>
+              )}
+            </div>
+            {externalLinksLoading && (
+              <Loading label="Originalanzeigen werden geladen …" />
+            )}
+            {externalLinkError && (
+              <p className="state state-error" role="alert">
+                {externalLinkError}
+              </p>
+            )}
+            {!externalLinksLoading &&
+              externalLinks.length === 0 &&
+              !externalLinkError && (
+                <p>Keine gültige Originalanzeige verfügbar</p>
+              )}
+            {externalLinks.length > 0 && (
+              <div className="external-link-list">
+                {externalLinks.map((link) => (
+                  <div className="external-link-row" key={link.posting_id}>
+                    <div>
+                      <strong>{link.source_name}</strong>
+                      {link.display_label && (
+                        <span> · {link.display_label}</span>
+                      )}
+                      {link.preferred && (
+                        <span className="preferred-marker"> · bevorzugt</span>
+                      )}
+                      <small>
+                        Availability: {availabilityLabels[link.availability]} ·
+                        beobachtet{" "}
+                        {new Date(link.observed_at).toLocaleString("de-DE")}
+                      </small>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void openExternalLink(link.posting_id)}
+                      disabled={openingExternalLink === link.posting_id}
+                    >
+                      {openingExternalLink === link.posting_id
+                        ? "Öffnen …"
+                        : "Öffnen"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </section>
         <section className="panel">
           <h2>External Assessments</h2>

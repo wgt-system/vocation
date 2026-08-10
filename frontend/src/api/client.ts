@@ -39,6 +39,9 @@ export type GeocodeResolutionPayload =
   components["schemas"]["GeocodeResolutionPayload"];
 export type MapProjectionFeature =
   components["schemas"]["MapProjectionFeatureResponse"];
+export type ExternalLink = components["schemas"]["ExternalLinkResponse"];
+export type ExternalLinkOpenPayload =
+  components["schemas"]["ExternalLinkOpenPayload"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -126,6 +129,20 @@ export const api = {
     ),
   getOpportunity: (id: string) =>
     request<OpportunityDetail>(`/api/opportunities/${id}`),
+  listExternalLinks: (opportunityId: string) =>
+    request<ExternalLink[]>(
+      `/api/external-links/opportunities/${opportunityId}`,
+    ),
+  openExternalLink: (opportunityId: string, postingId?: string) =>
+    request<ExternalLink>(
+      `/api/external-links/opportunities/${opportunityId}/open`,
+      {
+        method: "POST",
+        body: JSON.stringify(
+          postingId === undefined ? {} : { posting_id: postingId },
+        ),
+      },
+    ),
   listGroups: () => request<OpportunityGroup[]>("/api/groups"),
   getGroup: (id: string) => request<OpportunityGroup>(`/api/groups/${id}`),
   createGroup: (payload: OpportunityGroupPayload) =>

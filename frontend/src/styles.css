@@ -526,6 +526,47 @@ textarea {
   border-left: 3px solid #d7d0c1;
   padding-left: 0.7rem;
 }
+.external-links-section {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid #e3ddcf;
+}
+.external-links-header,
+.external-link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.external-links-header h3 {
+  margin: 0;
+}
+.external-links-help {
+  margin: 0.2rem 0 0;
+  color: #675d4e;
+  font-size: 0.8rem;
+}
+.external-link-list {
+  display: grid;
+  gap: 0.5rem;
+}
+.external-link-row {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eee8dc;
+}
+.external-link-row > div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+.preferred-marker {
+  color: #8a6630;
+  font-weight: 750;
+}
+.map-popup-error {
+  color: #9b2f2f;
+}
 .url,
 .fingerprint {
   overflow-wrap: anywhere;

@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 import {
   api,
+  type ExternalLink,
   type MapLocation,
   type MapProjectionFeature,
   type OpportunityListItem,
@@ -75,6 +76,20 @@ export function MapView({
   const [error, setError] = useState("");
   const [mutationError, setMutationError] = useState("");
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
+  const [externalLinksByOpportunity, setExternalLinksByOpportunity] = useState<
+    Record<string, ExternalLink[]>
+  >({});
+  const [externalLinksLoaded, setExternalLinksLoaded] = useState<Set<string>>(
+    new Set(),
+  );
+  const [externalLinkErrors, setExternalLinkErrors] = useState<
+    Record<string, string>
+  >({});
+  const [selectedPostingByOpportunity, setSelectedPostingByOpportunity] =
+    useState<Record<string, string>>({});
+  const [openingExternalLink, setOpeningExternalLink] = useState("");
+  const externalLinkCache = useRef<Record<string, ExternalLink[]>>({});
+  const externalLinkRequests = useRef(new Set<string>());
   const visibleOpportunityIds = useMemo(
     () => visibleItems.map((item) => item.id),
     [visibleItems],
@@ -120,6 +135,41 @@ export function MapView({
       active = false;
     };
   }, [visibleKey]);
+
+  useEffect(() => {
+    const opportunityIds = [
+      ...new Set(features.map((feature) => feature.opportunity_id)),
+    ];
+    const pendingIds = opportunityIds.filter(
+      (id) =>
+        !externalLinkCache.current[id] && !externalLinkRequests.current.has(id),
+    );
+    pendingIds.forEach((id) => externalLinkRequests.current.add(id));
+    if (pendingIds.length === 0) return;
+    Promise.all(
+      pendingIds.map(async (id) => {
+        try {
+          const links = await api.listExternalLinks(id);
+          externalLinkCache.current[id] = links;
+          setExternalLinksByOpportunity((current) => ({
+            ...current,
+            [id]: links,
+          }));
+        } catch (reason) {
+          setExternalLinkErrors((current) => ({
+            ...current,
+            [id]:
+              reason instanceof Error
+                ? reason.message
+                : "Originalanzeigen konnten nicht geladen werden.",
+          }));
+        } finally {
+          setExternalLinksLoaded((current) => new Set(current).add(id));
+          externalLinkRequests.current.delete(id);
+        }
+      }),
+    ).catch(() => undefined);
+  }, [features]);
 
   const visibleLocationIds = new Set(visibleOpportunityIds);
   const visibleLocations = locations.filter((location) =>
@@ -205,6 +255,25 @@ export function MapView({
     );
   }
 
+  async function openExternalLink(opportunityId: string, postingId?: string) {
+    const key = `${opportunityId}:${postingId ?? "preferred"}`;
+    setOpeningExternalLink(key);
+    setExternalLinkErrors((current) => ({ ...current, [opportunityId]: "" }));
+    try {
+      await api.openExternalLink(opportunityId, postingId);
+    } catch (reason) {
+      setExternalLinkErrors((current) => ({
+        ...current,
+        [opportunityId]:
+          reason instanceof Error
+            ? reason.message
+            : "Originalanzeige konnte nicht geöffnet werden.",
+      }));
+    } finally {
+      setOpeningExternalLink("");
+    }
+  }
+
   return (
     <div className="map-workspace">
       {error && <ErrorState message={error} />}
@@ -255,6 +324,89 @@ export function MapView({
                       Groups/Waves:{" "}
                       {feature.groups.map((group) => group.name).join(" · ")}
                     </span>
+                  )}
+                  {!externalLinksLoaded.has(feature.opportunity_id) && (
+                    <small>Originalanzeigen werden geladen …</small>
+                  )}
+                  {externalLinksLoaded.has(feature.opportunity_id) &&
+                    (externalLinksByOpportunity[feature.opportunity_id]
+                      ?.length ?? 0) === 0 && (
+                      <small>Keine gültige Originalanzeige verfügbar</small>
+                    )}
+                  {(externalLinksByOpportunity[feature.opportunity_id]
+                    ?.length ?? 0) > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void openExternalLink(feature.opportunity_id)
+                        }
+                        disabled={
+                          openingExternalLink ===
+                          `${feature.opportunity_id}:preferred`
+                        }
+                      >
+                        Originalanzeige öffnen
+                      </button>
+                      {(externalLinksByOpportunity[feature.opportunity_id]
+                        ?.length ?? 0) > 1 && (
+                        <>
+                          <select
+                            aria-label={`Originalanzeige für ${feature.title}`}
+                            value={
+                              selectedPostingByOpportunity[
+                                feature.opportunity_id
+                              ] ??
+                              externalLinksByOpportunity[
+                                feature.opportunity_id
+                              ]?.[0]?.posting_id ??
+                              ""
+                            }
+                            onChange={(event) =>
+                              setSelectedPostingByOpportunity((current) => ({
+                                ...current,
+                                [feature.opportunity_id]: event.target.value,
+                              }))
+                            }
+                          >
+                            {externalLinksByOpportunity[
+                              feature.opportunity_id
+                            ]?.map((link) => (
+                              <option
+                                key={link.posting_id}
+                                value={link.posting_id}
+                              >
+                                {link.source_name}
+                                {link.display_label
+                                  ? ` · ${link.display_label}`
+                                  : ""}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void openExternalLink(
+                                feature.opportunity_id,
+                                selectedPostingByOpportunity[
+                                  feature.opportunity_id
+                                ] ??
+                                  externalLinksByOpportunity[
+                                    feature.opportunity_id
+                                  ]?.[0]?.posting_id,
+                              )
+                            }
+                          >
+                            Quelle öffnen
+                          </button>
+                        </>
+                      )}
+                    </>
+                  )}
+                  {externalLinkErrors[feature.opportunity_id] && (
+                    <small className="map-popup-error">
+                      {externalLinkErrors[feature.opportunity_id]}
+                    </small>
                   )}
                   <button
                     type="button"

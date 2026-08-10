@@ -9,6 +9,8 @@ vi.mock("../../api/client", () => ({
   api: {
     listCriteria: vi.fn(),
     getOpportunity: vi.fn(),
+    listExternalLinks: vi.fn(),
+    openExternalLink: vi.fn(),
     createPersonalAssessment: vi.fn(),
     revisePersonalAssessment: vi.fn(),
     changeStatus: vi.fn(),
@@ -141,6 +143,7 @@ function renderDetail(detail = makeDetail()) {
 }
 
 beforeEach(() => {
+  vi.mocked(api.listExternalLinks).mockResolvedValue([]);
   vi.mocked(api.createPersonalAssessment).mockResolvedValue({} as never);
   vi.mocked(api.revisePersonalAssessment).mockResolvedValue({} as never);
   vi.mocked(api.changeStatus).mockResolvedValue({} as never);

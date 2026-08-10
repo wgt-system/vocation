@@ -20,6 +20,8 @@ vi.mock("../api/client", () => ({
     listOpportunities: vi.fn(),
     listGroups: vi.fn(),
     getOpportunity: vi.fn(),
+    listExternalLinks: vi.fn(),
+    openExternalLink: vi.fn(),
     listCriteria: vi.fn(),
   },
 }));
@@ -118,6 +120,7 @@ beforeEach(() => {
   );
   vi.mocked(api.listCriteria).mockResolvedValue([]);
   vi.mocked(api.listGroups).mockResolvedValue([]);
+  vi.mocked(api.listExternalLinks).mockResolvedValue([]);
 });
 afterEach(() => {
   cleanup();
