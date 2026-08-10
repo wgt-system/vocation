@@ -128,7 +128,7 @@ Im v0.3 erzeugt oder verwendet der Update-Plan ausschließlich ungelöste Duplic
 - related but distinct,
 - keep unresolved.
 
-### OpenPostingInBrowser
+### OpenPostingInBrowser (geplante Slice-12-Funktion)
 
 Input:
 
@@ -136,12 +136,11 @@ Input:
 
 Ablauf:
 
-1. Preferred Posting bestimmen oder Auswahl anzeigen.
-2. ExternalLinkPolicy anwenden.
-3. explizite Nutzeraktion bestätigen.
-4. OS Browser Adapter aufrufen.
-5. Ergebnis oder Fehler anzeigen.
-6. optional Audit Event speichern.
+1. gültige ExternalLink-Kandidaten ableiten.
+2. explizite Posting-Auswahl verwenden oder PreferredPostingSelector anwenden.
+3. ExternalLinkPolicy anwenden.
+4. nur die validierte URL an den Browser Adapter übergeben.
+5. Erfolg oder Fehler anzeigen.
 
 Fehler:
 
@@ -149,6 +148,8 @@ Fehler:
 - Link ungültig,
 - Scheme nicht erlaubt,
 - Browserstart fehlgeschlagen.
+
+Es gibt in V1 keine Navigation beim Laden von Details, der Karte, eines Markers oder beim Ändern von Filtern und keine Navigation-Audit-/Event-Persistenz.
 
 ## 4. Queries
 
@@ -209,7 +210,7 @@ Jedes Feature enthält:
 - Precision
 - Status
 - Preview
-- verfügbare Posting Links
+- Posting-Link-Verfügbarkeit (ohne URLs)
 
 Map Features enthalten zusätzlich WorkLocation Label, WorkLocation Precision, Availability und kompakte Group/Wave-Memberships. Ein Pin öffnet nur Vocation Preview/Detail; externe URLs werden in Slice 11 nicht geöffnet.
 
@@ -251,6 +252,8 @@ Der JSON-Vertrag ist in `schemas/published-opportunity-overview-v1.schema.json` 
 Eine manuelle oder provider-neutrale Geocoder-Auflösung einer WorkLocation wird nur durch explizite Nutzeraktion ausgelöst. Die Karte und Liste verwenden dasselbe Opportunity-Filterergebnis; Clustering bleibt Renderer-Präsentationslogik und ist kein Domain-Zustand.
 
 Die UI bietet explizite Geocode-, Manual- und Delete-Resolution-Aktionen sowie Marker-Popups mit Navigation zu Vocation Details.
+
+In Slice 12 können Marker-Popups zusätzlich ExternalLink-Kandidaten per Opportunity ID laden und `Originalanzeige öffnen` oder Source-Auswahl anbieten. URLs sind kein Bestandteil der MapProjection.
 
 ### Import Flow
 

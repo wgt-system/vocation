@@ -102,14 +102,7 @@ Fehlende und widersprüchliche Werte werden explizit dargestellt.
         "assessment": "7/10",
         "risk_count": 1
       },
-      "posting_links": [
-        {
-          "posting_id": "posting-id",
-          "source_name": "Company Careers",
-          "url": "https://example.com/job",
-          "preferred": true
-        }
-      ]
+      "groups": ["group-id"]
     }
   ]
 }
@@ -125,6 +118,8 @@ Regeln:
 - Browserlinks bleiben Source References,
 - Pin-Klick öffnet keine externe URL automatisch.
 - Pin-Klick öffnet in Slice 11 nur Vocation Preview/Detail; Browser-Navigation gehört zu Slice 12.
+
+Die MapProjection bleibt damit URL-frei. Slice 12 leitet ExternalLink-Kandidaten separat aus einer Opportunity ID ab; sie sind kein Projection-Feld.
 
 ## 8. ImportReportView
 

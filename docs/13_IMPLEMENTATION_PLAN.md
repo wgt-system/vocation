@@ -116,12 +116,14 @@ V1 definiert `OpportunityGroup` als Aggregate mit Type `general` oder `applicati
 
 V1 führt `MapLocationResolution` als Vocation-owned Supporting Data pro WorkLocation ein. Implementiert sind Persistence, explizite Manual-/Geocoder-Auflösung, provider-neutraler Geocoder-Port mit konfigurierbarem Nominatim-Adapter, expliziter Geocode-Endpunkt, interne MapProjection, `/api/map`, Leaflet/React Leaflet, gemeinsame List/Map-Filter über die aktuell sichtbaren Opportunity IDs, Marker-Popups mit Vocation-Details-Navigation sowie Geocode/Manual/Delete-UI mit OpenStreetMap-Tile-Attribution. Research Bundles bleiben unverändert; Resolution ist nicht append-only Evidence oder Decision History, überschreibt keine WorkLocation Precision und wird nur explizit durch den Nutzer ausgelöst. Keine automatische/background Geocodierung, kein Address Crawling, keine externe Browser-Navigation und keine Status-/Personal-/Research-/Availability-Mutation. Published Opportunity Overview 1.0 bleibt unverändert; Nominatim und Leaflet bleiben austauschbare Infrastruktur.
 
-## Slice 12 – External Links
+## Slice 12 – External Links (Semantik eingefroren, Implementierung folgt)
 
 - PreferredPostingSelector
 - ExternalLinkPolicy
 - Browser Adapter
 - Quellenwahl im Pin und Detail
+
+V1 definiert ExternalLink als abgeleiteten Read-/Application-Wert ohne eigene Persistenz. Die ExternalLinkPolicy akzeptiert nur absolute HTTPS-URLs mit Host und prüft lokal ohne URL-Probing. PreferredPostingSelector rankt gültige Links deterministisch nach Availability, Source Type, `observed_at` und Posting ID; explizite Auswahl wird nicht gespeichert. `OpenPostingInBrowser` ist ausschließlich Nutzeraktion über einen austauschbaren Browser Adapter. MapProjection bleibt URL-frei; Linkkandidaten werden separat ermittelt. Research Contracts und Published Opportunity Overview 1.0 bleiben unverändert.
 
 ## Slice 13 – Vergleich
 

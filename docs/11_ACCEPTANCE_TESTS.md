@@ -394,3 +394,19 @@ Die implementierte interne MapProjection erzeugt ein Feature pro aufgelöster Wo
 ## AT-84 Desktop Map Boundary
 
 Die implementierte Leaflet/React Leaflet-Karte zeigt OpenStreetMap-Tile-Attribution; Marker-Popups navigieren zu Vocation Details. Es gibt keine automatische oder periodische Geocodierung, keine externe URL-Navigation und keine Mutation von Opportunity-, Personal-, Research- oder Availability-Zustand. Published Opportunity Overview 1.0 bleibt unverändert.
+
+## AT-85 ExternalLinkPolicy
+
+ExternalLink ist ein abgeleiteter Read-Wert ohne eigene Tabelle. Nur absolute `https`-URLs mit nichtleerem Host sind gültig; andere, malformed oder relative URLs werden lokal abgelehnt und erreichen keinen Browser Adapter.
+
+## AT-86 PreferredPostingSelector
+
+Gültige Links werden deterministisch nach Availability, Source Type, neuestem `observed_at` und Posting ID gerankt. Explizite Posting-/Source-Auswahl gilt nur für die aktuelle Aktion; es gibt keine persistierte persönliche Präferenz.
+
+## AT-87 Explicit Navigation
+
+`OpenPostingInBrowser` öffnet ausschließlich nach expliziter Nutzeraktion über einen austauschbaren Browser Adapter. Laden, Filtern, Detail- oder Map-Marker-Aktionen öffnen keinen Browser; Availability und persönlicher Zustand bleiben unverändert.
+
+## AT-88 URL-Free MapProjection
+
+Die MapProjection enthält keine URLs oder `posting_links`. Map-Popup-Linkkandidaten werden separat über Opportunity ID ermittelt; Published Opportunity Overview 1.0 bleibt URL-frei.

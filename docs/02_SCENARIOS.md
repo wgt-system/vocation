@@ -56,11 +56,11 @@ Die Karte zeigt die aktuell gefilterte Menge an Opportunities an aufgelösten Wo
 
 ## S13 – Originalanzeige aus Karten-Pin öffnen
 
-Der Nutzer klickt auf einen Company- oder Opportunity-Pin. Die Vorschau zeigt verfügbare Postings. Durch eine explizite Aktion öffnet Vocation die ausgewählte Originalanzeige im Standardbrowser. Vocation darf den Browser nicht ohne Nutzeraktion öffnen.
+Der Nutzer klickt auf einen Company- oder Opportunity-Pin. Die Vorschau zeigt gültige ExternalLink-Kandidaten und Posting Availability. Durch eine explizite Aktion öffnet Vocation die ausgewählte Originalanzeige im Standardbrowser. Vocation darf den Browser nicht ohne Nutzeraktion öffnen.
 
 ## S14 – Mehrere Postings an einem Pin
 
-Eine Opportunity besitzt mehrere erreichbare Postings. Der Pin zeigt die verfügbaren Quellen. Der Nutzer wählt die gewünschte Originalanzeige.
+Eine Opportunity besitzt mehrere Posting-Link-Kandidaten. Der Pin zeigt Quellen und Availability. Der Nutzer wählt die gewünschte Originalanzeige oder verwendet den deterministisch bevorzugten Link.
 
 ## S15 – Ungültige externe URL
 

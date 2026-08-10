@@ -191,22 +191,17 @@ Für v0.3 sind Update Bundles ein eigener Published Contract `2.0`. Eine Correla
 
 ## ExternalLink
 
-Value Object:
+Derived Application/Read Value aus bestehendem Posting, Source und SourceReference; keine eigene Persistence-Tabelle.
 
-- URL
-- Scheme
-- Display Label
-- SourceId
-- PostingId
-- Validation Status
+Mindestfelder: `posting_id`, `source_id`, `source_name`, `source_type`, `url`, `display_label`, Posting Availability, `observed_at`, `preferred`.
 
 Regeln:
 
-- nur `https` und optional `http`,
-- keine `file:`, `javascript:`, `data:` oder proprietären Schemes,
-- Öffnen nur nach expliziter Nutzeraktion,
-- Linkauswahl bleibt nachvollziehbar,
-- nicht erreichbare Links werden nicht automatisch gelöscht.
+- nur absolute `https`-URLs mit nichtleerem Host,
+- `http`, `file:`, `javascript:`, `data:` und proprietäre/unbekannte Schemes sowie malformed/relative URLs ablehnen,
+- lokale strukturelle Validierung ohne Fetch, HEAD-Check, Crawling oder URL-Probing,
+- Posting Availability wird angezeigt, definiert aber nicht URL-Gültigkeit,
+- nur nach expliziter Nutzeraktion öffnen; ungültige Links erreichen nie den Browser Adapter.
 
 ## Domain Services
 
@@ -238,17 +233,18 @@ Erzeugt den minimal nötigen Kontext für einen Prompt Scope.
 
 ### PreferredPostingSelector
 
-Wählt für eine Ansicht bevorzugte Posting-Links anhand dokumentierter Regeln:
+Wählt für eine Ansicht bevorzugte gültige Posting-Links anhand dokumentierter Regeln:
 
-1. explizit persönlich bevorzugtes Posting,
-2. erreichbare Company Source,
-3. jüngste erreichbare primäre Source,
-4. andere erreichbare Source,
-5. ansonsten kein automatisches Öffnen.
+1. Availability `available > unknown > uncertain > unavailable`,
+2. Source Type `company_careers > job_board > professional_network > other`,
+3. neuestes Posting `observed_at`,
+4. Posting ID als deterministischer Tie-Break.
+
+Eine explizite Posting-/Source-Auswahl überschreibt die Auswahl nur für die aktuelle Aktion und wird nicht persistiert. Der Selector mutiert weder Availability noch Posting-Zustand; ohne gültigen Link gibt es keinen Preferred Link.
 
 ### ExternalLinkPolicy
 
-Validiert Schemes und entscheidet, ob ein Link geöffnet werden darf.
+Validiert absolute HTTPS-URLs lokal strukturell und entscheidet, ob ein Link geöffnet werden darf. Der Browser Adapter ist austauschbare Infrastruktur.
 
 ## Domain Events
 

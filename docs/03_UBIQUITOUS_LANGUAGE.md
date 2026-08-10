@@ -156,11 +156,13 @@ MapLocationResolution ist weder Research Evidence noch Decision History. Ohne Re
 
 ### External Link
 
-Validierte Source Reference, die nach expliziter Nutzeraktion im Standardbrowser geöffnet werden kann.
+Abgeleiteter Application-/Read-Wert aus einem bestehenden Posting, einer Source und Source Reference. Er enthält Posting ID, Source ID/Name/Type, URL, Display Label, Posting Availability, Observed At und `preferred`; es gibt keine eigene ExternalLink-Persistenz.
+
+Die ExternalLinkPolicy akzeptiert ausschließlich absolute `https`-URLs mit nichtleerem Host. `http`, `file`, `javascript`, `data`, proprietäre/unbekannte Schemes sowie malformed oder relative URLs werden lokal strukturell abgelehnt. Es findet kein Fetch, HEAD-Check, Crawling oder sonstiges URL-Probing statt. Ungültige Links erreichen niemals den Browser Adapter.
 
 ### Preferred Posting Link
 
-Für eine konkrete Ansicht bevorzugte, aktuell nutzbare Source Reference. Sie bleibt eine Auswahlregel und keine neue fachliche Wahrheit.
+Für eine konkrete Ansicht deterministisch bevorzugter ExternalLink. Explizite Posting-/Source-Auswahl überschreibt die automatische Auswahl nur für den aktuellen Open-Vorgang und wird nicht gespeichert. Ohne explizite Auswahl gilt: Availability `available > unknown > uncertain > unavailable`, Source Type `company_careers > job_board > professional_network > other`, neuestes `observed_at`, dann Posting ID als Tie-Break. Es gibt keine persistierte persönliche Posting-Präferenz.
 
 ### Published Read Projection
 
