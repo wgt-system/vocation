@@ -385,12 +385,12 @@ Group list/detail, geordnete Opportunities, Membership-Anzeige in Opportunity Li
 
 ## AT-82 MapLocationResolution
 
-Eine WorkLocation kann durch explizite Nutzeraktion höchstens eine aktuelle MapLocationResolution mit gültigen Koordinaten, `manual` oder `geocoder`, optionalem Provider Key, Zeitpunkt und verwendeter Query/Label besitzen. Ohne Resolution ist sie `unmapped`; WorkLocation Evidence und Precision bleiben unverändert.
+Eine WorkLocation kann durch explizite Nutzeraktion höchstens eine aktuelle MapLocationResolution mit gültigen Koordinaten, `manual` oder `geocoder`, optionalem Provider Key, Zeitpunkt und verwendeter Query/Label besitzen. Die Persistence und UI-Aktionen für Geocode, Manual und Delete sind implementiert. Ohne Resolution ist sie `unmapped`; WorkLocation Evidence und Precision bleiben unverändert.
 
 ## AT-83 MapProjection and Filter Consistency
 
-Die interne MapProjection erzeugt ein Feature pro aufgelöster WorkLocation aus einer expliziten Opportunity-ID-Menge. Karte und Liste repräsentieren dadurch dieselben gefilterten Opportunities; Group/Wave-Memberships und Availability werden nur gelesen.
+Die implementierte interne MapProjection erzeugt ein Feature pro aufgelöster WorkLocation aus einer expliziten Opportunity-ID-Menge. `/api/map`, gemeinsame List/Map-Filter, Tracking Status, Availability und Group/Wave-Memberships werden nur gelesen und repräsentieren dieselben gefilterten Opportunities.
 
 ## AT-84 Desktop Map Boundary
 
-Pin-Klick öffnet nur Vocation Preview/Detail. Es gibt keine automatische oder periodische Geocodierung, keine externe URL-Navigation und keine Mutation von Opportunity-, Personal-, Research- oder Availability-Zustand. Published Opportunity Overview 1.0 bleibt unverändert.
+Die implementierte Leaflet/React Leaflet-Karte zeigt OpenStreetMap-Tile-Attribution; Marker-Popups navigieren zu Vocation Details. Es gibt keine automatische oder periodische Geocodierung, keine externe URL-Navigation und keine Mutation von Opportunity-, Personal-, Research- oder Availability-Zustand. Published Opportunity Overview 1.0 bleibt unverändert.

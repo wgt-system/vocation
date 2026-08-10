@@ -195,7 +195,7 @@ Group-Memberships werden in Liste und Detail angezeigt und können als Filter ve
 
 Vergleicht ausgewählte Opportunities und zeigt fehlende oder widersprüchliche Daten explizit.
 
-### GetMapProjection
+### GetMapProjection (implemented)
 
 Liefert generische Map Features für eine explizite Menge von Opportunity IDs, typischerweise die aktuell gefilterte Opportunity-Menge. Es gibt ein Feature pro aufgelöster WorkLocation.
 
@@ -212,6 +212,8 @@ Jedes Feature enthält:
 - verfügbare Posting Links
 
 Map Features enthalten zusätzlich WorkLocation Label, WorkLocation Precision, Availability und kompakte Group/Wave-Memberships. Ein Pin öffnet nur Vocation Preview/Detail; externe URLs werden in Slice 11 nicht geöffnet.
+
+Die Map API ist unter `/api/map` implementiert. Explizite Geocodierung/Manuell-Auflösung und das Löschen einer Resolution sind Nutzeraktionen; der provider-neutrale Geocoder-Port ist mit einem konfigurierbaren Nominatim-Adapter hinterlegt. Leaflet/React Leaflet rendert die Karte mit OpenStreetMap-Tile-Attribution; Renderer und Provider bleiben austauschbare Infrastruktur.
 
 ### GetPromptPreview
 
@@ -238,7 +240,7 @@ Der JSON-Vertrag ist in `schemas/published-opportunity-overview-v1.schema.json` 
 5. zurückgegebenes JSON inline importieren.
 6. Import Report prüfen.
 
-### Map Flow
+### Map Flow (implementiert)
 
 1. Filter setzen.
 2. Karte öffnen.
@@ -247,6 +249,8 @@ Der JSON-Vertrag ist in `schemas/published-opportunity-overview-v1.schema.json` 
 5. Detailansicht öffnen.
 
 Eine manuelle oder provider-neutrale Geocoder-Auflösung einer WorkLocation wird nur durch explizite Nutzeraktion ausgelöst. Die Karte und Liste verwenden dasselbe Opportunity-Filterergebnis; Clustering bleibt Renderer-Präsentationslogik und ist kein Domain-Zustand.
+
+Die UI bietet explizite Geocode-, Manual- und Delete-Resolution-Aktionen sowie Marker-Popups mit Navigation zu Vocation Details.
 
 ### Import Flow
 

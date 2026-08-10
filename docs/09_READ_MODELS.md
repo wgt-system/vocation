@@ -81,7 +81,7 @@ Fehlende und widersprüchliche Werte werden explizit dargestellt.
 
 `ApplicationWaveView` ist dieselbe Group-Sicht für Type `application_wave`; es gibt kein separates Wave-Aggregat. Opportunity List/Detail zeigen Memberships und unterstützen Group/Wave-Filter. Diese Read Models und die Group/Wave-Filter sind implementiert; die API ist unter `/api/groups` verfügbar.
 
-## 7. MapProjection
+## 7. MapProjection (implemented)
 
 ```json
 {
@@ -115,7 +115,7 @@ Fehlende und widersprüchliche Werte werden explizit dargestellt.
 }
 ```
 
-Die interne Projection enthält pro aufgelöster WorkLocation mindestens `feature_id`, `work_location_id`, `opportunity_id`, `company_id`, Titel, Company Name, Location Label, Coordinates, WorkLocation Precision, Tracking Status, Availability und kompakte Group/Wave-Memberships. Nicht aufgelöste WorkLocations (`unmapped`) erzeugen kein Feature. Die Projection wird aus einer expliziten Opportunity-ID-Menge erzeugt, damit Karte und Liste filterkonsistent bleiben. Clustering ist Renderer-Logik.
+Die interne Projection enthält pro aufgelöster WorkLocation mindestens `feature_id`, `work_location_id`, `opportunity_id`, `company_id`, Titel, Company Name, Location Label, Coordinates, WorkLocation Precision, Tracking Status, Availability und kompakte Group/Wave-Memberships. Nicht aufgelöste WorkLocations (`unmapped`) erzeugen kein Feature. Die Projection wird aus einer expliziten Opportunity-ID-Menge erzeugt, damit Karte und Liste filterkonsistent bleiben. `/api/map`, Leaflet/React Leaflet, Marker-Popups und die gemeinsamen List/Map-Filter sind implementiert. Clustering ist Renderer-Logik; OpenStreetMap-Tile-Attribution wird angezeigt.
 
 Regeln:
 
