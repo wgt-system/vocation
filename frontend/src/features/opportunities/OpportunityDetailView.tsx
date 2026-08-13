@@ -8,6 +8,7 @@ import {
   type TrackingStatus,
 } from "../../api/client";
 import { ErrorState, Loading } from "../../components/AsyncState";
+import { ApplicationCasePanel } from "./ApplicationCasePanel";
 
 const transitionStatuses: {
   value: Exclude<TrackingStatus, "excluded">;
@@ -301,6 +302,7 @@ export function OpportunityDetailView({
         )}
       </header>
       <div className="detail-grid">
+        <ApplicationCasePanel opportunityId={opportunityId} />
         <section className="panel">
           <h2>Postings und Quellen</h2>
           {detail.postings.map((posting) => (

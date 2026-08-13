@@ -15,6 +15,224 @@
         "title": "ActivationPayload",
         "type": "object"
       },
+      "ApplicationCaseLifecyclePayload": {
+        "additionalProperties": false,
+        "properties": {
+          "lifecycle": {
+            "enum": [
+              "draft",
+              "ready",
+              "submitted",
+              "interviewing",
+              "offer",
+              "accepted",
+              "rejected",
+              "withdrawn"
+            ],
+            "title": "Lifecycle",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lifecycle"
+        ],
+        "title": "ApplicationCaseLifecyclePayload",
+        "type": "object"
+      },
+      "ApplicationCaseResponse": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "lifecycle": {
+            "enum": [
+              "draft",
+              "ready",
+              "submitted",
+              "interviewing",
+              "offer",
+              "accepted",
+              "rejected",
+              "withdrawn"
+            ],
+            "title": "Lifecycle",
+            "type": "string"
+          },
+          "lifecycle_events": {
+            "items": {
+              "$ref": "#/components/schemas/ApplicationLifecycleEventResponse"
+            },
+            "title": "Lifecycle Events",
+            "type": "array"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "opportunity_id",
+          "lifecycle",
+          "created_at",
+          "updated_at",
+          "lifecycle_events"
+        ],
+        "title": "ApplicationCaseResponse",
+        "type": "object"
+      },
+      "ApplicationLifecycleEventResponse": {
+        "properties": {
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "previous_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "draft",
+                  "ready",
+                  "submitted",
+                  "interviewing",
+                  "offer",
+                  "accepted",
+                  "rejected",
+                  "withdrawn"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Status"
+          },
+          "resulting_status": {
+            "enum": [
+              "draft",
+              "ready",
+              "submitted",
+              "interviewing",
+              "offer",
+              "accepted",
+              "rejected",
+              "withdrawn"
+            ],
+            "title": "Resulting Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "previous_status",
+          "resulting_status",
+          "occurred_at"
+        ],
+        "title": "ApplicationLifecycleEventResponse",
+        "type": "object"
+      },
+      "ApplicationMaterialPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "cv",
+              "cover_letter",
+              "other"
+            ],
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "display_name"
+        ],
+        "title": "ApplicationMaterialPayload",
+        "type": "object"
+      },
+      "ApplicationMaterialResponse": {
+        "properties": {
+          "application_case_id": {
+            "title": "Application Case Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "cv",
+              "cover_letter",
+              "other"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "application_case_id",
+          "kind",
+          "display_name",
+          "revision",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ApplicationMaterialResponse",
+        "type": "object"
+      },
+      "ApplicationMaterialRevisionPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "display_name"
+        ],
+        "title": "ApplicationMaterialRevisionPayload",
+        "type": "object"
+      },
       "AssessmentResponse": {
         "properties": {
           "criterion_id": {
@@ -2991,6 +3209,248 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/application-cases/{case_id}": {
+      "get": {
+        "operationId": "get_case_api_application_cases__case_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationCaseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Case",
+        "tags": [
+          "application-cases"
+        ]
+      }
+    },
+    "/api/application-cases/{case_id}/lifecycle": {
+      "post": {
+        "operationId": "change_lifecycle_api_application_cases__case_id__lifecycle_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationCaseLifecyclePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationCaseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Change Lifecycle",
+        "tags": [
+          "application-cases"
+        ]
+      }
+    },
+    "/api/application-cases/{case_id}/materials": {
+      "get": {
+        "operationId": "list_materials_api_application_cases__case_id__materials_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationMaterialResponse"
+                  },
+                  "title": "Response List Materials Api Application Cases  Case Id  Materials Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Materials",
+        "tags": [
+          "application-cases"
+        ]
+      },
+      "post": {
+        "operationId": "create_material_api_application_cases__case_id__materials_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationMaterialPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationMaterialResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Material",
+        "tags": [
+          "application-cases"
+        ]
+      }
+    },
+    "/api/application-materials/{material_id}/revisions": {
+      "post": {
+        "operationId": "revise_material_api_application_materials__material_id__revisions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "material_id",
+            "required": true,
+            "schema": {
+              "title": "Material Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationMaterialRevisionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationMaterialResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revise Material",
+        "tags": [
+          "application-cases"
+        ]
+      }
+    },
     "/api/availability/imports/file": {
       "post": {
         "operationId": "import_file_api_availability_imports_file_post",
@@ -4256,6 +4716,92 @@
         "summary": "Opportunity Detail",
         "tags": [
           "opportunities"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/application-cases": {
+      "get": {
+        "operationId": "list_cases_api_opportunities__opportunity_id__application_cases_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationCaseResponse"
+                  },
+                  "title": "Response List Cases Api Opportunities  Opportunity Id  Application Cases Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Cases",
+        "tags": [
+          "application-cases"
+        ]
+      },
+      "post": {
+        "operationId": "create_case_api_opportunities__opportunity_id__application_cases_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationCaseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Case",
+        "tags": [
+          "application-cases"
         ]
       }
     },

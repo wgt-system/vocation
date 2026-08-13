@@ -28,6 +28,8 @@ vi.mock("../api/client", () => ({
     getOpportunity: vi.fn(),
     listCriteria: vi.fn(),
     listExternalLinks: vi.fn(),
+    listApplicationCases: vi.fn(),
+    listApplicationMaterials: vi.fn(),
     openExternalLink: vi.fn(),
     listMapLocations: vi.fn(),
     getMapProjection: vi.fn(),
@@ -128,6 +130,8 @@ beforeEach(() => {
   vi.mocked(api.listCriteria).mockResolvedValue([]);
   vi.mocked(api.getOpportunity).mockResolvedValue(detail);
   vi.mocked(api.listExternalLinks).mockResolvedValue(links);
+  vi.mocked(api.listApplicationCases).mockResolvedValue([]);
+  vi.mocked(api.listApplicationMaterials).mockResolvedValue([]);
   vi.mocked(api.openExternalLink).mockResolvedValue(links[0]);
   vi.mocked(api.listMapLocations).mockResolvedValue([]);
   vi.mocked(api.getMapProjection).mockResolvedValue([mapFeature]);

@@ -46,6 +46,15 @@ export type OpportunityComparison =
   components["schemas"]["OpportunityComparisonResponse"];
 export type ComparisonOpportunity =
   components["schemas"]["ComparisonOpportunityResponse"];
+export type ApplicationLifecycle =
+  components["schemas"]["ApplicationCaseResponse"]["lifecycle"];
+export type ApplicationCase = components["schemas"]["ApplicationCaseResponse"];
+export type ApplicationLifecycleEvent =
+  components["schemas"]["ApplicationLifecycleEventResponse"];
+export type ApplicationMaterial =
+  components["schemas"]["ApplicationMaterialResponse"];
+export type ApplicationMaterialKind =
+  components["schemas"]["ApplicationMaterialResponse"]["kind"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -133,6 +142,43 @@ export const api = {
     ),
   getOpportunity: (id: string) =>
     request<OpportunityDetail>(`/api/opportunities/${id}`),
+  listApplicationCases: (opportunityId: string) =>
+    request<ApplicationCase[]>(
+      `/api/opportunities/${opportunityId}/application-cases`,
+    ),
+  createApplicationCase: (opportunityId: string) =>
+    request<ApplicationCase>(
+      `/api/opportunities/${opportunityId}/application-cases`,
+      { method: "POST" },
+    ),
+  getApplicationCase: (caseId: string) =>
+    request<ApplicationCase>(`/api/application-cases/${caseId}`),
+  changeApplicationCaseLifecycle: (
+    caseId: string,
+    lifecycle: ApplicationLifecycle,
+  ) =>
+    request<ApplicationCase>(`/api/application-cases/${caseId}/lifecycle`, {
+      method: "POST",
+      body: JSON.stringify({ lifecycle }),
+    }),
+  listApplicationMaterials: (caseId: string) =>
+    request<ApplicationMaterial[]>(
+      `/api/application-cases/${caseId}/materials`,
+    ),
+  createApplicationMaterial: (
+    caseId: string,
+    kind: ApplicationMaterialKind,
+    displayName: string,
+  ) =>
+    request<ApplicationMaterial>(`/api/application-cases/${caseId}/materials`, {
+      method: "POST",
+      body: JSON.stringify({ kind, display_name: displayName }),
+    }),
+  reviseApplicationMaterial: (materialId: string, displayName: string) =>
+    request<ApplicationMaterial>(
+      `/api/application-materials/${materialId}/revisions`,
+      { method: "POST", body: JSON.stringify({ display_name: displayName }) },
+    ),
   listExternalLinks: (opportunityId: string) =>
     request<ExternalLink[]>(
       `/api/external-links/opportunities/${opportunityId}`,
