@@ -31,6 +31,23 @@ class OpportunityOverviewPublicationRepository(Protocol):
 
 
 @dataclass(frozen=True)
+class PublicationMapFeatureSource:
+    feature_ref: str
+    opportunity_ref: str
+    title: str
+    company_ref: str
+    company_name: str
+    location_label: str
+    precision: str
+    latitude: float
+    longitude: float
+
+
+class MapProjectionPublicationRepository(Protocol):
+    def load_features(self) -> tuple[PublicationMapFeatureSource, ...]: ...
+
+
+@dataclass(frozen=True)
 class PublishedCompany:
     company_ref: str
     name: str
@@ -100,6 +117,62 @@ class PublishedOpportunityOverview:
         }
 
 
+@dataclass(frozen=True)
+class PublishedMapCompany:
+    company_ref: str
+    name: str
+
+
+@dataclass(frozen=True)
+class PublishedMapFeature:
+    feature_ref: str
+    opportunity_ref: str
+    title: str
+    company: PublishedMapCompany
+    location_label: str
+    precision: str
+    latitude: float
+    longitude: float
+
+
+@dataclass(frozen=True)
+class PublishedMapProjection:
+    capability: str
+    contract_version: str
+    publication: PublicationMetadata
+    features: tuple[PublishedMapFeature, ...]
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "capability": self.capability,
+            "contract_version": self.contract_version,
+            "publication": {
+                "publication_ref": self.publication.publication_ref,
+                "generated_at": self.publication.generated_at,
+            },
+            "features": [
+                {
+                    "feature_ref": feature.feature_ref,
+                    "opportunity_ref": feature.opportunity_ref,
+                    "title": feature.title,
+                    "company": {
+                        "company_ref": feature.company.company_ref,
+                        "name": feature.company.name,
+                    },
+                    "work_location": {
+                        "label": feature.location_label,
+                        "precision": feature.precision,
+                    },
+                    "coordinates": {
+                        "latitude": feature.latitude,
+                        "longitude": feature.longitude,
+                    },
+                }
+                for feature in self.features
+            ],
+        }
+
+
 def _optional_text_key(value: str | None) -> tuple[bool, str]:
     return (value is None, "" if value is None else value.casefold())
 
@@ -158,4 +231,47 @@ class OpportunityOverviewPublicationService:
             contract_version="1.0",
             publication=PublicationMetadata(self._ref_factory(), generated_at_text),
             opportunities=opportunities,
+        )
+
+
+class MapProjectionPublicationService:
+    def __init__(
+        self,
+        repository: MapProjectionPublicationRepository,
+        *,
+        ref_factory: Callable[[], str] | None = None,
+        clock: Callable[[], datetime] | None = None,
+    ) -> None:
+        self._repository = repository
+        self._ref_factory = ref_factory or (lambda: str(uuid4()))
+        self._clock = clock or (lambda: datetime.now(UTC))
+
+    def generate(self) -> PublishedMapProjection:
+        sources = sorted(
+            self._repository.load_features(),
+            key=lambda item: (item.company_name.casefold(), item.title.casefold(), item.location_label.casefold(), item.feature_ref),
+        )
+        generated_at = self._clock()
+        if generated_at.tzinfo is None:
+            generated_at = generated_at.replace(tzinfo=UTC)
+        return PublishedMapProjection(
+            capability="vocation.map_projection",
+            contract_version="1.0",
+            publication=PublicationMetadata(
+                self._ref_factory(),
+                generated_at.astimezone(UTC).isoformat().replace("+00:00", "Z"),
+            ),
+            features=tuple(
+                PublishedMapFeature(
+                    feature_ref=item.feature_ref,
+                    opportunity_ref=item.opportunity_ref,
+                    title=item.title,
+                    company=PublishedMapCompany(item.company_ref, item.company_name),
+                    location_label=item.location_label,
+                    precision=item.precision,
+                    latitude=item.latitude,
+                    longitude=item.longitude,
+                )
+                for item in sources
+            ),
         )

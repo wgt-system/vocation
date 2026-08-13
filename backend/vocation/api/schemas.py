@@ -106,6 +106,37 @@ class PublishedOpportunityOverviewResponse(BaseModel):
     opportunities: list[PublishedOpportunityResponse]
 
 
+class PublishedMapCompanyResponse(BaseModel):
+    company_ref: str
+    name: str
+
+
+class PublishedMapWorkLocationResponse(BaseModel):
+    label: str
+    precision: PublishedPrecision
+
+
+class PublishedMapCoordinatesResponse(BaseModel):
+    latitude: float
+    longitude: float
+
+
+class PublishedMapFeatureResponse(BaseModel):
+    feature_ref: str
+    opportunity_ref: str
+    title: str
+    company: PublishedMapCompanyResponse
+    work_location: PublishedMapWorkLocationResponse
+    coordinates: PublishedMapCoordinatesResponse
+
+
+class PublishedMapProjectionResponse(BaseModel):
+    capability: Literal["vocation.map_projection"]
+    contract_version: Literal["1.0"]
+    publication: PublishedPublicationResponse
+    features: list[PublishedMapFeatureResponse]
+
+
 class CompanyOptionResponse(BaseModel):
     id: str
     name: str

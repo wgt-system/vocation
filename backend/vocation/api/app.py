@@ -32,7 +32,7 @@ from vocation.application.opportunities import OpportunityQueryService
 from vocation.application.personal_triage import PersonalTriageService
 from vocation.application.posting_identity import PostingIdentityResolver
 from vocation.application.prompts import PromptService
-from vocation.application.publication import OpportunityOverviewPublicationService
+from vocation.application.publication import MapProjectionPublicationService, OpportunityOverviewPublicationService
 from vocation.application.update_planning import UpdateImportPlanner
 from vocation.config import Settings, get_settings
 from vocation.infrastructure.availability_repository import SqlAlchemyAvailabilityImportRepository
@@ -50,7 +50,10 @@ from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersona
 from vocation.infrastructure.posting_identity_repository import SqlAlchemyPostingIdentityRepository
 from vocation.infrastructure.prompt_context_repository import SqlAlchemyPromptContextSnapshotRepository
 from vocation.infrastructure.prompt_market_repository import SqlAlchemyPromptMarketRepository
-from vocation.infrastructure.publication_repository import SqlAlchemyOpportunityOverviewPublicationRepository
+from vocation.infrastructure.publication_repository import (
+    SqlAlchemyMapProjectionPublicationRepository,
+    SqlAlchemyOpportunityOverviewPublicationRepository,
+)
 from vocation.infrastructure.repositories import (
     SqlAlchemyCriteriaRepository,
     SqlAlchemyPromptRunRepository,
@@ -130,6 +133,9 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.comparison_service = OpportunityComparisonService(SqlAlchemyComparisonRepository(database.session_factory))
     app.state.publication_service = OpportunityOverviewPublicationService(
         SqlAlchemyOpportunityOverviewPublicationRepository(database.session_factory)
+    )
+    app.state.map_publication_service = MapProjectionPublicationService(
+        SqlAlchemyMapProjectionPublicationRepository(database.session_factory)
     )
     app.add_middleware(
         CORSMiddleware,
