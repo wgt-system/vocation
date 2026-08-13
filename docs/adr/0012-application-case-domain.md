@@ -1,6 +1,6 @@
 # ADR-0012: Vocation owns Application Cases and private application material
 
-**Status:** Accepted  
+**Status:** Accepted
 **Date:** 2026-08-13
 
 ## Decision
