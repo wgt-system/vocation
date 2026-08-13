@@ -18,6 +18,12 @@ Besitzt Geräte-, Plattform-, Service- und Integrationslogik.
 
 Ein späterer Zugriff auf private ApplicationMaterial erfolgt ausschließlich über eine separate explizite private Integrationsgrenze. WGT und Conveyance besitzen keine ApplicationCase-Fachsemantik.
 
+### Conveyance Context
+
+Besitzt generische langlebige Zustellung und Relay-Semantik, opaque Channels und Envelopes sowie die dafür akzeptierten technischen Trust- und Security-Mechanismen.
+
+Conveyance versteht keine Vocation-Fachsemantik und ist keine Autorität für Vocation-Daten.
+
 ### Illumination Context
 
 Besitzt Fragen, Lösungen, Übungen und Lernfortschritt.
@@ -52,20 +58,10 @@ Muster:
 ```text
 Vocation
   → Vocation Publication Adapter
-  → optional generic Relay/Storage
-  → Wiiii Got This
-  → Windows / iPhone
+  → Wiiii Got This Windows
+  → Conveyance (opaque protected delivery)
+  → Wiiii Got This iPhone
 ```
-
-Muster:
-
-- Open Host Service
-- Published Read Contracts
-- Customer/Supplier
-
-Vocation entscheidet fachliche Inhalte und erzeugt die versionierte client-neutrale Published Read Projection. WGT entscheidet Geräte- und Plattformdarstellung. Relay/Storage ist Infrastruktur und kein neuer Bounded Context.
-
-Der erste eingefrorene Vertrag ist `Opportunity Overview` Published Capability 1.0. Ein späterer lokaler Adapter kann das unveränderte Artefakt unter `/published/v1/opportunity-overview` bereitstellen; HTTP/OpenAPI und ein Relay sind nicht die Quelle der Vertragswahrheit.
 
 ## Vocation ↔ Illumination
 
