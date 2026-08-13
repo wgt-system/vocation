@@ -461,6 +461,17 @@ class ApplicationMaterialResponse(BaseModel):
     updated_at: datetime
 
 
+class ApplicationDocumentResponse(BaseModel):
+    id: str
+    material_id: str
+    material_revision: int
+    original_filename: str
+    media_type: Literal["application/pdf", "text/plain", "text/markdown"]
+    byte_size: int
+    sha256: str
+    created_at: datetime
+
+
 class ApplicationCaseLifecyclePayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
