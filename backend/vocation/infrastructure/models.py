@@ -2,7 +2,20 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint, text
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -291,11 +304,48 @@ class ApplicationMaterialRevisionModel(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     material: Mapped[ApplicationMaterialModel] = relationship(back_populates="revisions")
+    documents: Mapped[list[ApplicationDocumentModel]] = relationship(back_populates="material_revision")
     __table_args__ = (
         CheckConstraint("revision >= 1", name="ck_application_material_revisions_revision"),
         CheckConstraint(
             "length(trim(display_name)) > 0",
             name="ck_application_material_revisions_display_name_nonempty",
+        ),
+    )
+
+
+class ApplicationDocumentModel(Base):
+    __tablename__ = "application_documents"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    material_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    material_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    original_filename: Mapped[str] = mapped_column(String(300), nullable=False)
+    media_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    byte_size: Mapped[int] = mapped_column(Integer, nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    storage_ref: Mapped[str] = mapped_column(String(500), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    material_revision_record: Mapped[ApplicationMaterialRevisionModel] = relationship(back_populates="documents")
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["material_id", "material_revision"],
+            ["application_material_revisions.material_id", "application_material_revisions.revision"],
+            name="fk_application_documents_material_revision",
+        ),
+        UniqueConstraint("material_id", "material_revision", name="uq_application_documents_material_revision"),
+        CheckConstraint("material_revision >= 1", name="ck_application_documents_material_revision"),
+        CheckConstraint("byte_size >= 0", name="ck_application_documents_byte_size"),
+        CheckConstraint("length(trim(original_filename)) > 0", name="ck_application_documents_filename_nonempty"),
+        CheckConstraint("length(trim(storage_ref)) > 0", name="ck_application_documents_storage_ref_nonempty"),
+        CheckConstraint(
+            "media_type IN ('application/pdf','text/plain','text/markdown')",
+            name="ck_application_documents_media_type",
+        ),
+        CheckConstraint(
+            "length(sha256) = 64 AND sha256 = lower(sha256) AND sha256 NOT GLOB '*[^0-9a-f]*'",
+            name="ck_application_documents_sha256",
         ),
     )
 

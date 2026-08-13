@@ -801,3 +801,204 @@ def test_application_case_downgrade_removes_only_new_structures(tmp_path: Path) 
         assert connection.scalar(text("SELECT canonical_title FROM opportunities WHERE id = 'opportunity-1'")) == "Junior Engineer"
         assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+
+def seed_application_document_data(database: Path) -> None:
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        connection.execute(
+            text(
+                "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+                "VALUES ('case-document', 'opportunity-1', 'draft', '2026-08-13', '2026-08-13')"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO application_case_lifecycle_events "
+                "(application_case_id, sequence, previous_status, resulting_status, occurred_at) "
+                "VALUES ('case-document', 1, NULL, 'draft', '2026-08-13')"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO application_materials (id, application_case_id, kind, created_at) "
+                "VALUES ('material-document', 'case-document', 'cv', '2026-08-13')"
+            )
+        )
+        for revision, name in ((1, "Resume"), (2, "Resume revised")):
+            connection.execute(
+                text(
+                    "INSERT INTO application_material_revisions "
+                    "(material_id, revision, display_name, updated_at) "
+                    "VALUES ('material-document', :revision, :name, '2026-08-13')"
+                ),
+                {"revision": revision, "name": name},
+            )
+
+
+def insert_application_document(connection, *, document_id: str = "document-1", material_revision: int = 1, **overrides) -> None:
+    values = {
+        "id": document_id,
+        "material_id": "material-document",
+        "material_revision": material_revision,
+        "original_filename": "Resume.pdf",
+        "media_type": "application/pdf",
+        "byte_size": 10,
+        "sha256": "a" * 64,
+        "storage_ref": f"opaque-{document_id}",
+        "created_at": "2026-08-13",
+    }
+    values.update(overrides)
+    connection.execute(
+        text(
+            "INSERT INTO application_documents "
+            "(id, material_id, material_revision, original_filename, media_type, byte_size, sha256, storage_ref, created_at) "
+            "VALUES (:id, :material_id, :material_revision, :original_filename, :media_type, :byte_size, "
+            ":sha256, :storage_ref, :created_at)"
+        ),
+        values,
+    )
+
+
+def test_application_document_fresh_schema_has_expected_shape(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-fresh.db"
+    migrate(database, "head")
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+
+    assert "application_documents" in inspector.get_table_names()
+    assert {column["name"] for column in inspector.get_columns("application_documents")} == {
+        "id",
+        "material_id",
+        "material_revision",
+        "original_filename",
+        "media_type",
+        "byte_size",
+        "sha256",
+        "storage_ref",
+        "created_at",
+    }
+    assert "uq_application_documents_material_revision" in {
+        unique["name"] for unique in inspector.get_unique_constraints("application_documents")
+    }
+    assert {
+        "ck_application_documents_material_revision",
+        "ck_application_documents_byte_size",
+        "ck_application_documents_filename_nonempty",
+        "ck_application_documents_storage_ref_nonempty",
+        "ck_application_documents_media_type",
+        "ck_application_documents_sha256",
+    }.issubset({check["name"] for check in inspector.get_check_constraints("application_documents")})
+
+
+def test_application_document_0011_upgrade_preserves_application_data(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-upgrade.db"
+    migrate(database, "0011")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    migrate(database, "head")
+
+    with create_engine(f"sqlite:///{database.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT lifecycle FROM application_cases WHERE id = 'case-document'")) == "draft"
+        assert (
+            connection.scalar(
+                text("SELECT display_name FROM application_material_revisions WHERE material_id = 'material-document' AND revision = 2")
+            )
+            == "Resume revised"
+        )
+        assert connection.scalar(text("SELECT tracking_status FROM opportunities WHERE id = 'opportunity-1'")) == "shortlisted"
+
+
+def test_application_document_valid_reference_and_unique_revision_constraint(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-reference.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with engine.begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        insert_application_document(connection)
+        with pytest.raises(IntegrityError):
+            insert_application_document(connection, document_id="document-duplicate")
+        insert_application_document(connection, document_id="document-revision-2", material_revision=2, storage_ref="opaque-revision-2")
+        assert connection.scalar(text("SELECT COUNT(*) FROM application_documents")) == 2
+
+
+def test_application_document_missing_revision_fk_is_rejected(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-fk.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with pytest.raises(IntegrityError):
+        with engine.begin() as connection:
+            connection.execute(text("PRAGMA foreign_keys = ON"))
+            insert_application_document(connection, material_revision=99)
+
+
+def test_application_document_invalid_values_are_rejected(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-invalid.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    invalid_values = [
+        {"media_type": "application/octet-stream"},
+        {"byte_size": -1},
+        {"material_revision": 0},
+        {"original_filename": "   "},
+        {"storage_ref": "   "},
+        {"sha256": "A" * 64},
+        {"sha256": "g" * 64},
+        {"sha256": "a" * 63},
+    ]
+
+    for index, overrides in enumerate(invalid_values):
+        with pytest.raises(IntegrityError):
+            with engine.begin() as connection:
+                connection.execute(text("PRAGMA foreign_keys = ON"))
+                insert_application_document(connection, document_id=f"invalid-{index}", **overrides)
+
+
+def test_application_document_equal_sha256_is_allowed_for_different_revisions(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-digest.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with engine.begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        insert_application_document(connection, material_revision=1)
+        insert_application_document(
+            connection, document_id="document-same-digest-revision", material_revision=2, storage_ref="opaque-other"
+        )
+        assert connection.scalar(text("SELECT COUNT(*) FROM application_documents WHERE sha256 = :sha256"), {"sha256": "a" * 64}) == 2
+
+
+def test_application_document_downgrade_removes_only_document_metadata(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-downgrade.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    with create_engine(f"sqlite:///{database.as_posix()}").begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        insert_application_document(connection)
+
+    config = Config(str(Path(__file__).parents[2] / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
+    config.set_main_option("script_location", str(Path(__file__).parents[1] / "alembic"))
+    command.downgrade(config, "0011")
+
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+    assert "application_documents" not in inspector.get_table_names()
+    with create_engine(f"sqlite:///{database.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT lifecycle FROM application_cases WHERE id = 'case-document'")) == "draft"
+        assert (
+            connection.scalar(
+                text("SELECT display_name FROM application_material_revisions WHERE material_id = 'material-document' AND revision = 2")
+            )
+            == "Resume revised"
+        )
