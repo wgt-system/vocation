@@ -89,9 +89,20 @@ Output:
 
 Nur persönliche Aktion. External Imports dürfen diesen Command nicht auslösen.
 
-### ApplicationCase Commands (Spezifikation, Implementierung später)
+### ApplicationCase Commands (implementiert)
 
-`CreateApplicationCase`, `ChangeApplicationCaseLifecycle` und explizite Material-Metadaten-Revisionen sind Vocation-eigene Nutzeraktionen. ApplicationCase-Lifecycle ist unabhängig vom Opportunity Tracking Status. Research-/Availability-Imports und Groups/Waves dürfen diese Commands nicht implizit auslösen. Dokumentinhalt, Submission, Rendering und externe Integrationen sind nicht Bestandteil dieser Slice.
+`CreateApplicationCase`, `ChangeApplicationCaseLifecycle`, `CreateApplicationMaterial` und `ReviseApplicationMaterial` sind implementierte Vocation-eigene Nutzeraktionen. ApplicationCase-Lifecycle ist unabhängig vom Opportunity Tracking Status. Research-/Availability-Imports und Groups/Waves dürfen diese Commands nicht implizit auslösen. Dokumentinhalt, Submission, Rendering und externe Integrationen sind nicht Bestandteil dieser Slice.
+
+Implementierte Queries und interne API:
+
+- ApplicationCases für eine Opportunity auflisten: `GET /api/opportunities/{opportunity_id}/application-cases`
+- ApplicationCase anlegen: `POST /api/opportunities/{opportunity_id}/application-cases`
+- ApplicationCase laden: `GET /api/application-cases/{case_id}`
+- Lifecycle ändern: `POST /api/application-cases/{case_id}/lifecycle`
+- Material-Metadaten auflisten/anlegen: `GET/POST /api/application-cases/{case_id}/materials`
+- Material-Revision anlegen: `POST /api/application-materials/{material_id}/revisions`
+
+Der typed interne OpenAPI-/Frontend-Client und der Opportunity-Detail-Workflow sind implementiert.
 
 ### AddPersonalAssessment
 
@@ -189,7 +200,7 @@ Liefert:
 - Duplicate Cases
 - History Summary
 
-Ein späterer ApplicationCase-Read-Workflow zeigt ApplicationCase-Lifecycle und private Material-Metadaten nur innerhalb der Vocation-Anwendung; diese Daten werden nicht in Published Read Projections aufgenommen.
+Der Opportunity-Detail-Workflow zeigt ApplicationCase-Lifecycle und private Material-Metadaten nur innerhalb der Vocation-Anwendung; diese Daten werden nicht in Published Read Projections aufgenommen.
 
 Group-Memberships werden in Liste und Detail angezeigt und können als Filter verwendet werden. Die implementierte API ist unter `/api/groups` verfügbar; die React Groups & Waves UI unterstützt Group CRUD sowie Add, Remove und Reorder Membership.
 

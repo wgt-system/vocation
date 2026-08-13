@@ -445,12 +445,16 @@ Jedes Feature enthält nur opaque Refs, Titel, Company, WorkLocation Label/Preci
 
 ## AT-97 ApplicationCase Ownership and Lifecycle
 
-Ein ApplicationCase ist an genau eine Opportunity gebunden, wird ausschließlich explizit erstellt und verwendet die Zustände `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`, `rejected` und `withdrawn`; die letzten drei sind terminal. Lifecycle Events bleiben historisch lesbar und sind vom Opportunity Tracking Status getrennt.
+Die implementierte ApplicationCase-Domäne bindet einen Case an genau eine Opportunity, wird ausschließlich explizit erstellt und verwendet die Zustände `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`, `rejected` und `withdrawn`; die letzten drei sind terminal. Lifecycle Events bleiben historisch lesbar und sind vom Opportunity Tracking Status getrennt.
 
 ## AT-98 ApplicationCase Isolation
 
-Research-/Availability-Imports und Groups/Waves erzeugen oder ändern keine ApplicationCases. Es gibt keine automatische Submission oder Transition aus E-Mail, Kalender oder externen Quellen; eine Opportunity besitzt höchstens einen aktiven/nonterminal Case.
+Die implementierte Persistenz und History erzwingen höchstens einen aktiven/nonterminal Case je Opportunity. Research-/Availability-Imports und Groups/Waves erzeugen oder ändern keine ApplicationCases. Es gibt keine automatische Submission oder Transition aus E-Mail, Kalender oder externen Quellen.
 
 ## AT-99 Private ApplicationMaterial Boundary
 
-ApplicationMaterial-Metadaten verwenden die Arten `cv`, `cover_letter` und `other` sowie explizite historische Revisionen. Private Inhalte erscheinen weder in Published Contracts, öffentlichen Fixtures, Logs, Research-/Availability-Bundles noch Publication Endpoints. Opportunity Overview 1.0 und Map Projection 1.0 bleiben unverändert.
+ApplicationMaterial-Metadaten verwenden die Arten `cv`, `cover_letter` und `other` sowie explizite historische Revisionen; aktuelle Metadaten und die aus der Revision-Historie rekonstruierte aktuelle Revision sind implementiert. Private Inhalte erscheinen weder in Published Contracts, öffentlichen Fixtures, Logs, Research-/Availability-Bundles noch Publication Endpoints. Opportunity Overview 1.0 und Map Projection 1.0 bleiben unverändert.
+
+## AT-100 ApplicationCase API and UI
+
+Die internen ApplicationCase-/Material-Endpunkte, der typed Client und das Opportunity-Detail-React-Panel sind implementiert. Unterstützt werden Case-Liste/Detail, Lifecycle, Material-Metadaten und Material-Revisionen; ein vollständiger Material-History-Endpoint sowie Dokumentinhalte/Storage-Metadaten existieren nicht.

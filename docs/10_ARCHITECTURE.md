@@ -167,6 +167,8 @@ Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/publish
 
 ApplicationCases und private ApplicationMaterial-Metadaten gehören zur Vocation-Domain. Sie werden niemals durch Research/Availability oder Groups/Waves erzeugt und nicht über öffentliche Publication Endpoints ausgegeben. Eine spätere WGT-/Conveyance-Anbindung darf nur über eine separate private Grenze und opaque protected payloads erfolgen; Conveyance besitzt keine Vocation-Semantik.
 
+Die implementierte lokale Kette lautet: ApplicationCase-Domain → ApplicationCaseService → `SqlAlchemyApplicationCaseRepository` → SQLite/Alembic `0011` → internes FastAPI `/api/...` → typed React client → Opportunity-Detail-ApplicationCase-Panel. Persistiert werden `application_cases`, `application_case_lifecycle_events`, `application_materials` und `application_material_revisions`. Ein partieller Unique Index erzwingt höchstens einen nonterminalen Case je Opportunity. Lifecycle- und Material-Revision-Historie sind append-only; terminale Cases bleiben historisch. Opportunity Tracking Status bleibt unabhängig; es gibt keine automatische Import-, Group- oder Status-Kopplung. Dokumentinhalte und Verschlüsselung sind nicht implementiert.
+
 Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
 
 Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.

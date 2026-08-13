@@ -42,7 +42,9 @@ Enthält:
 - Duplicate Cases
 - Change Summary
 
-Ein künftiges `ApplicationCaseView` bleibt Vocation-intern und privat. Es darf ApplicationCase-Lifecycle, historische Events und ApplicationMaterial-Metadaten zeigen, aber keine privaten Inhalte in öffentliche Read Models oder Published Contracts übernehmen.
+## 3A. ApplicationCaseView (implemented, Vocation-internal/private)
+
+Die View zeigt ApplicationCase-Lifecycle, append-only Lifecycle Events, aktive und terminale historische Cases sowie aktuelle ApplicationMaterial-Metadaten. Die aktuelle Material-Revision wird aus der unveränderlichen Revision-Historie rekonstruiert. Es gibt noch keinen Endpoint für die vollständige Material-Revision-Historie und keine Dokumentinhalte oder Storage-Metadaten in der View. ApplicationCase und ApplicationMaterial bleiben vollständig Vocation-intern/private und erscheinen in keinem Published Contract.
 
 ## 4. OpportunityComparisonView (implemented)
 
