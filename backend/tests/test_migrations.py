@@ -657,3 +657,147 @@ def test_availability_0008_upgrade_and_downgrade_preserves_research_and_personal
     with create_engine(f"sqlite:///{migrated.as_posix()}").connect() as connection:
         assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+
+def test_application_case_fresh_schema_has_four_tables_and_constraints(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-fresh.db"
+    migrate(database, "head")
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+
+    assert {
+        "application_cases",
+        "application_case_lifecycle_events",
+        "application_materials",
+        "application_material_revisions",
+    }.issubset(inspector.get_table_names())
+    assert "opportunity_id" in {column["name"] for column in inspector.get_columns("application_cases")}
+    assert "application_case_id" in {column["name"] for column in inspector.get_columns("application_case_lifecycle_events")}
+    assert "material_id" in {column["name"] for column in inspector.get_columns("application_material_revisions")}
+    assert "uq_application_cases_one_active_per_opportunity" in {index["name"] for index in inspector.get_indexes("application_cases")}
+    checks = {
+        check["name"]
+        for table in (
+            "application_cases",
+            "application_case_lifecycle_events",
+            "application_materials",
+            "application_material_revisions",
+        )
+        for check in inspector.get_check_constraints(table)
+    }
+    assert {
+        "ck_application_cases_lifecycle",
+        "ck_application_case_lifecycle_events_sequence",
+        "ck_application_case_lifecycle_events_previous_status",
+        "ck_application_case_lifecycle_events_resulting_status",
+        "ck_application_materials_kind",
+        "ck_application_material_revisions_revision",
+        "ck_application_material_revisions_display_name_nonempty",
+    }.issubset(checks)
+
+
+def test_application_case_0010_upgrade_preserves_existing_data(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-upgrade.db"
+    migrate(database, "0010")
+    seed_v020_data(database)
+    migrate(database, "head")
+
+    with create_engine(f"sqlite:///{database.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT canonical_title FROM opportunities WHERE id = 'opportunity-1'")) == "Junior Engineer"
+        assert connection.scalar(text("SELECT tracking_status FROM opportunities WHERE id = 'opportunity-1'")) == "shortlisted"
+        assert connection.scalar(text("SELECT value_json FROM personal_assessments WHERE id = 'assessment-1'")) == "5"
+        assert connection.scalar(text("SELECT resulting_status FROM opportunity_decisions WHERE id = 'decision-1'")) == "shortlisted"
+        assert connection.scalar(text("SELECT COUNT(*) FROM research_imports")) == 1
+
+
+def test_application_case_partial_unique_index_allows_only_one_active_case(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-active.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+                "VALUES ('case-1', 'opportunity-1', 'draft', '2026-08-13', '2026-08-13')"
+            )
+        )
+    with pytest.raises(IntegrityError):
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+                    "VALUES ('case-2', 'opportunity-1', 'submitted', '2026-08-14', '2026-08-14')"
+                )
+            )
+
+
+def test_application_case_terminal_history_can_coexist_with_active_case(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-terminal.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with engine.begin() as connection:
+        for case_id, lifecycle in (("case-terminal", "accepted"), ("case-active", "draft")):
+            connection.execute(
+                text(
+                    "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+                    "VALUES (:id, 'opportunity-1', :lifecycle, '2026-08-13', '2026-08-13')"
+                ),
+                {"id": case_id, "lifecycle": lifecycle},
+            )
+        assert connection.scalar(text("SELECT COUNT(*) FROM application_cases WHERE opportunity_id = 'opportunity-1'")) == 2
+
+
+def test_application_case_invalid_values_are_rejected(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-invalid.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    valid_case = "('case-valid', 'opportunity-1', 'draft', '2026-08-13', '2026-08-13')"
+
+    invalid_statements = [
+        "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+        "VALUES ('case-invalid', 'opportunity-1', 'unknown', '2026-08-13', '2026-08-13')",
+        "INSERT INTO application_case_lifecycle_events "
+        "(application_case_id, sequence, previous_status, resulting_status, occurred_at) "
+        "VALUES ('case-valid', 0, NULL, 'draft', '2026-08-13')",
+        "INSERT INTO application_materials (id, application_case_id, kind, created_at) "
+        "VALUES ('material-invalid', 'case-valid', 'pdf', '2026-08-13')",
+        "INSERT INTO application_material_revisions (material_id, revision, display_name, updated_at) "
+        "VALUES ('material-valid', 0, 'Name', '2026-08-13')",
+        "INSERT INTO application_material_revisions (material_id, revision, display_name, updated_at) "
+        "VALUES ('material-valid', 1, '   ', '2026-08-13')",
+    ]
+    with engine.begin() as connection:
+        connection.execute(
+            text(f"INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) VALUES {valid_case}")
+        )
+    for statement in invalid_statements:
+        with pytest.raises(IntegrityError):
+            with engine.begin() as connection:
+                connection.execute(text(statement))
+
+
+def test_application_case_downgrade_removes_only_new_structures(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-downgrade.db"
+    migrate(database, "0010")
+    seed_v020_data(database)
+    migrate(database, "head")
+    config = Config(str(Path(__file__).parents[2] / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
+    config.set_main_option("script_location", str(Path(__file__).parents[1] / "alembic"))
+    command.downgrade(config, "0010")
+
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+    assert not {
+        "application_cases",
+        "application_case_lifecycle_events",
+        "application_materials",
+        "application_material_revisions",
+    }.intersection(inspector.get_table_names())
+    with create_engine(f"sqlite:///{database.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT canonical_title FROM opportunities WHERE id = 'opportunity-1'")) == "Junior Engineer"
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1

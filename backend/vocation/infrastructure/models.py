@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -205,6 +205,99 @@ class OpportunityModel(Base):
         CheckConstraint("tracking_status IN ('new','to_review','interesting','shortlisted','deferred','excluded','archived')"),
     )
     group_memberships: Mapped[list[OpportunityGroupMembershipModel]] = relationship(back_populates="opportunity")
+    application_cases: Mapped[list[ApplicationCaseModel]] = relationship(back_populates="opportunity")
+
+
+class ApplicationCaseModel(Base):
+    __tablename__ = "application_cases"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    lifecycle: Mapped[str] = mapped_column(String(30), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    opportunity: Mapped[OpportunityModel] = relationship(back_populates="application_cases")
+    lifecycle_events: Mapped[list[ApplicationCaseLifecycleEventModel]] = relationship(
+        back_populates="application_case",
+        cascade="all, delete-orphan",
+        order_by="ApplicationCaseLifecycleEventModel.sequence",
+    )
+    materials: Mapped[list[ApplicationMaterialModel]] = relationship(
+        back_populates="application_case",
+        cascade="all, delete-orphan",
+    )
+    __table_args__ = (
+        CheckConstraint(
+            "lifecycle IN ('draft','ready','submitted','interviewing','offer','accepted','rejected','withdrawn')",
+            name="ck_application_cases_lifecycle",
+        ),
+        Index(
+            "uq_application_cases_one_active_per_opportunity",
+            "opportunity_id",
+            unique=True,
+            sqlite_where=text("lifecycle NOT IN ('accepted','rejected','withdrawn')"),
+        ),
+    )
+
+
+class ApplicationCaseLifecycleEventModel(Base):
+    __tablename__ = "application_case_lifecycle_events"
+
+    application_case_id: Mapped[str] = mapped_column(ForeignKey("application_cases.id", ondelete="CASCADE"), primary_key=True)
+    sequence: Mapped[int] = mapped_column(Integer, primary_key=True)
+    previous_status: Mapped[str | None] = mapped_column(String(30))
+    resulting_status: Mapped[str] = mapped_column(String(30), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    application_case: Mapped[ApplicationCaseModel] = relationship(back_populates="lifecycle_events")
+    __table_args__ = (
+        CheckConstraint("sequence >= 1", name="ck_application_case_lifecycle_events_sequence"),
+        CheckConstraint(
+            "previous_status IS NULL OR previous_status IN "
+            "('draft','ready','submitted','interviewing','offer','accepted','rejected','withdrawn')",
+            name="ck_application_case_lifecycle_events_previous_status",
+        ),
+        CheckConstraint(
+            "resulting_status IN ('draft','ready','submitted','interviewing','offer','accepted','rejected','withdrawn')",
+            name="ck_application_case_lifecycle_events_resulting_status",
+        ),
+    )
+
+
+class ApplicationMaterialModel(Base):
+    __tablename__ = "application_materials"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    application_case_id: Mapped[str] = mapped_column(ForeignKey("application_cases.id", ondelete="CASCADE"), nullable=False, index=True)
+    kind: Mapped[str] = mapped_column(String(30), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    application_case: Mapped[ApplicationCaseModel] = relationship(back_populates="materials")
+    revisions: Mapped[list[ApplicationMaterialRevisionModel]] = relationship(
+        back_populates="material",
+        cascade="all, delete-orphan",
+        order_by="ApplicationMaterialRevisionModel.revision",
+    )
+    __table_args__ = (CheckConstraint("kind IN ('cv','cover_letter','other')", name="ck_application_materials_kind"),)
+
+
+class ApplicationMaterialRevisionModel(Base):
+    __tablename__ = "application_material_revisions"
+
+    material_id: Mapped[str] = mapped_column(ForeignKey("application_materials.id", ondelete="CASCADE"), primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer, primary_key=True)
+    display_name: Mapped[str] = mapped_column(String(300), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    material: Mapped[ApplicationMaterialModel] = relationship(back_populates="revisions")
+    __table_args__ = (
+        CheckConstraint("revision >= 1", name="ck_application_material_revisions_revision"),
+        CheckConstraint(
+            "length(trim(display_name)) > 0",
+            name="ck_application_material_revisions_display_name_nonempty",
+        ),
+    )
 
 
 class WorkLocationModel(Base):
