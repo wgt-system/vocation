@@ -26,6 +26,10 @@ class ApplicationDocumentPayloadNotFoundError(ApplicationDocumentError):
     """The referenced document bytes are not available from the store."""
 
 
+class ApplicationDocumentPayloadConflictError(ApplicationDocumentError):
+    """The referenced storage location already contains immutable bytes."""
+
+
 class ApplicationDocumentNotFoundError(LookupError):
     """The requested document metadata does not exist."""
 

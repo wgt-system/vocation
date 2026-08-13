@@ -18,6 +18,7 @@ class Settings:
     initial_prompt_path: Path
     output_contract_path: Path
     update_prompt_dir: Path
+    application_document_store_dir: Path
     nominatim_base_url: str = "https://nominatim.openstreetmap.org"
 
 
@@ -35,5 +36,6 @@ def get_settings() -> Settings:
         initial_prompt_path=RESOURCE_ROOT / "prompts" / "initial-research.md",
         output_contract_path=RESOURCE_ROOT / "prompts" / "output-contract.md",
         update_prompt_dir=RESOURCE_ROOT / "prompts",
+        application_document_store_dir=Path(os.getenv("VOCATION_DOCUMENT_STORE_DIR", str(data_dir / "application-documents"))),
         nominatim_base_url=os.getenv("VOCATION_NOMINATIM_BASE_URL", "https://nominatim.openstreetmap.org"),
     )
