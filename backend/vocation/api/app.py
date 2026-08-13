@@ -9,6 +9,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from vocation import __version__
+from vocation.api.application_case_routes import router as application_case_router
 from vocation.api.availability_routes import router as availability_router
 from vocation.api.comparison_routes import router as comparison_router
 from vocation.api.criteria_routes import router as criteria_router
@@ -19,6 +20,7 @@ from vocation.api.map_routes import router as map_router
 from vocation.api.opportunity_routes import router as opportunity_router
 from vocation.api.prompt_routes import router as prompt_router
 from vocation.api.published_routes import router as published_router
+from vocation.application.application_cases import ApplicationCaseService
 from vocation.application.availability_imports import AvailabilityImportPlanner, AvailabilityImportService
 from vocation.application.availability_prompts import AvailabilityPromptService
 from vocation.application.comparison import OpportunityComparisonService
@@ -35,6 +37,7 @@ from vocation.application.prompts import PromptService
 from vocation.application.publication import MapProjectionPublicationService, OpportunityOverviewPublicationService
 from vocation.application.update_planning import UpdateImportPlanner
 from vocation.config import Settings, get_settings
+from vocation.infrastructure.application_case_repository import SqlAlchemyApplicationCaseRepository
 from vocation.infrastructure.availability_repository import SqlAlchemyAvailabilityImportRepository
 from vocation.infrastructure.browser_adapter import SystemBrowserAdapter
 from vocation.infrastructure.bundle_repository import SqlAlchemyImportRepository
@@ -99,6 +102,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
+    app.state.application_case_service = ApplicationCaseService(SqlAlchemyApplicationCaseRepository(database.session_factory))
     app.state.opportunity_group_service = OpportunityGroupService(SqlAlchemyOpportunityGroupRepository(database.session_factory))
     app.state.nominatim_geocoder = NominatimGeocoder(settings.nominatim_base_url)
     app.state.map_service = MapService(SqlAlchemyMapLocationResolutionRepository(database.session_factory), app.state.nominatim_geocoder)
@@ -150,6 +154,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         return {"status": "ok", "service": "vocation"}
 
     app.include_router(criteria_router)
+    app.include_router(application_case_router)
     app.include_router(comparison_router)
     app.include_router(external_link_router)
     app.include_router(availability_router)

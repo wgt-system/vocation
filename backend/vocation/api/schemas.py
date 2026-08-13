@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -20,6 +20,17 @@ ObservationType = Literal[
 ]
 BundleVersion = Literal["1.0", "2.0"]
 PublishedPrecision = Literal["exact_address", "site", "city", "region", "approximate", "unknown"]
+ApplicationLifecycle = Literal[
+    "draft",
+    "ready",
+    "submitted",
+    "interviewing",
+    "offer",
+    "accepted",
+    "rejected",
+    "withdrawn",
+]
+ApplicationMaterialKind = Literal["cv", "cover_letter", "other"]
 
 
 class CriterionPayload(BaseModel):
@@ -423,6 +434,50 @@ class OpportunityGroupSummaryResponse(BaseModel):
     group_id: str
     name: str
     group_type: GroupType
+
+
+class ApplicationLifecycleEventResponse(BaseModel):
+    previous_status: ApplicationLifecycle | None
+    resulting_status: ApplicationLifecycle
+    occurred_at: datetime
+
+
+class ApplicationCaseResponse(BaseModel):
+    id: str
+    opportunity_id: str
+    lifecycle: ApplicationLifecycle
+    created_at: datetime
+    updated_at: datetime
+    lifecycle_events: list[ApplicationLifecycleEventResponse]
+
+
+class ApplicationMaterialResponse(BaseModel):
+    id: str
+    application_case_id: str
+    kind: ApplicationMaterialKind
+    display_name: str
+    revision: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class ApplicationCaseLifecyclePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    lifecycle: ApplicationLifecycle
+
+
+class ApplicationMaterialPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: ApplicationMaterialKind
+    display_name: str = Field(min_length=1)
+
+
+class ApplicationMaterialRevisionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    display_name: str = Field(min_length=1)
 
 
 class MapResolutionResponse(BaseModel):
