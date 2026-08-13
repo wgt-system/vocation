@@ -104,6 +104,8 @@ Implementierte Queries und interne API:
 
 Der typed interne OpenAPI-/Frontend-Client und der Opportunity-Detail-Workflow sind implementiert.
 
+ApplicationDocument ist in dieser Slice nur als semantische private Content-Zuordnung spezifiziert. Ein zukünftiger expliziter Document-Store-Use-Case darf Payloads über `ApplicationDocumentStore` behandeln; File Picker, Rendering, Export und öffentliche Read Models sind nicht vorgesehen.
+
 ### AddPersonalAssessment
 
 Erzeugt ein Personal Assessment und überschreibt kein External Assessment.

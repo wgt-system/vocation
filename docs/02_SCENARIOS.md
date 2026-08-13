@@ -90,6 +90,10 @@ Wenn keine Remote-Publikation konfiguriert ist, bleiben lokale Prompting-, Impor
 
 Eine früher ausgeschlossene oder archivierte Position erscheint mit veränderten Anforderungen. Historische Decisions bleiben sichtbar, werden aber nicht blind übertragen.
 
+## S23 – Privates ApplicationDocument anhängen
+
+Eine ApplicationMaterial-Revision kann explizit null oder ein privates `ApplicationDocument` besitzen. Das Dokument ist unveränderlich an genau diese Revision gebunden; Ersatz erfolgt nur über eine neue Material-Revision. Vocation bewahrt Integritätsmetadaten, veröffentlicht aber weder Payload noch Dokument-Metadaten.
+
 ## S22 – ApplicationCase verwalten
 
 Der Nutzer erstellt für eine Opportunity explizit einen ApplicationCase und führt ihn durch `draft`, `ready`, `submitted`, `interviewing` und `offer` oder in einen terminalen Zustand `accepted`, `rejected` oder `withdrawn`. ApplicationCase-Lifecycle ist unabhängig vom Opportunity Tracking Status; jede Änderung bleibt als Historie sichtbar. Private ApplicationMaterial-Metadaten werden revisionsbezogen verwaltet, ohne Inhalte in Research, Publikationen oder öffentliche Fixtures zu übernehmen.

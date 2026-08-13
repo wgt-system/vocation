@@ -122,6 +122,14 @@ V1-Zustände: `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`
 
 Private, von einem ApplicationCase besessene Material-Metadaten mit stabilem Material ID, ApplicationCase ID, Kind `cv`, `cover_letter` oder `other`, Display Name, Revision sowie Created/Updated Timestamps. Revisionen werden explizit und historisch geführt; tatsächlicher Inhalt und seine Speicherung sind in dieser Slice nicht definiert.
 
+### ApplicationDocument
+
+Privater Vocation-owned Inhalt, der genau einer unveränderlichen ApplicationMaterial-Revision zugeordnet ist. Eine Revision kann null oder ein Dokument besitzen. Semantische Metadaten: stabile Document ID, Material ID, Material Revision, Original-Dateiname, Media Type, Byte Size, SHA-256 Content Digest und Created At. V1 erlaubt `application/pdf`, `text/plain` und `text/markdown`. Payload ist immutable; Ersatz erfordert eine neue Material-Revision.
+
+### ApplicationDocumentStore
+
+Provider-neutrale Infrastruktur-Port für private Payload bytes und opaque Vocation-owned Storage References. Domain/Application kennt keine Pfade, Verzeichnisse, Datenbank-BLOB-Layouts, Cloud- oder Conveyance-Transporte.
+
 ### Availability Observation
 
 Zeitbezogene Beobachtung über die Erreichbarkeit oder Aktivität eines Posting.

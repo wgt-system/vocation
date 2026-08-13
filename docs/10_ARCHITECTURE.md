@@ -169,6 +169,8 @@ ApplicationCases und private ApplicationMaterial-Metadaten gehören zur Vocation
 
 Die implementierte lokale Kette lautet: ApplicationCase-Domain → ApplicationCaseService → `SqlAlchemyApplicationCaseRepository` → SQLite/Alembic `0011` → internes FastAPI `/api/...` → typed React client → Opportunity-Detail-ApplicationCase-Panel. Persistiert werden `application_cases`, `application_case_lifecycle_events`, `application_materials` und `application_material_revisions`. Ein partieller Unique Index erzwingt höchstens einen nonterminalen Case je Opportunity. Lifecycle- und Material-Revision-Historie sind append-only; terminale Cases bleiben historisch. Opportunity Tracking Status bleibt unabhängig; es gibt keine automatische Import-, Group- oder Status-Kopplung. Dokumentinhalte und Verschlüsselung sind nicht implementiert.
 
+Slice 16 trennt semantische Ownership von physischer Dokumentablage: ApplicationCase/ApplicationMaterial besitzen ApplicationDocument semantisch; ein künftiger `ApplicationDocumentStore` hält Payloads über opaque Storage References. Domain/Application kennt keine Pfade, BLOB-Layouts oder Transportdetails. Dokumente werden weder publiziert noch in Research/Availability/Prompt Contexts aufgenommen. ApplicationCase-Lifecycle bleibt unabhängig und löscht keine historischen Dokumente automatisch.
+
 Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
 
 Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.

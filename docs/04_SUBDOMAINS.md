@@ -20,6 +20,8 @@ Modelliert Decisions, Exclusions, Prioritäten, Tracking Status, Shortlist und W
 
 Vocation-owned Supporting Subdomain für ApplicationCase-Lifecycle und private ApplicationMaterial-Metadaten. ApplicationCases sind an Opportunities gebunden, aber fachlich vom Opportunity Tracking Status getrennt.
 
+ApplicationDocument content bleibt semantisch bei Vocation und wird über einen `ApplicationDocumentStore` infrastrukturell gespeichert. Storage, Rendering und Verschlüsselung sind keine Domainentscheidungen dieser Slice.
+
 ## Supporting Subdomains
 
 ### Research Prompting

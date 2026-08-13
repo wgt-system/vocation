@@ -123,6 +123,12 @@ Invarianten:
 
 Private, von einem ApplicationCase besessene Metadaten-Entity mit `MaterialId`, `ApplicationCaseId`, Kind `cv`, `cover_letter` oder `other`, Display Name, Revision sowie Created/Updated Timestamps. Revisionen sind explizit und historisch. Inhalt, Dateiformat, Speicherort, Rendering und Verschlüsselung sind nicht Teil dieses Slice.
 
+### ApplicationDocument
+
+Private Content-Entity an genau einer immutable ApplicationMaterial-Revision. Felder: `DocumentId`, `MaterialId`, `MaterialRevision`, Original Display Filename, Media Type, Byte Size, SHA-256 Content Digest und `CreatedAt`. Pro Material-Revision gibt es null oder ein Dokument. Erlaubte Media Types sind `application/pdf`, `text/plain` und `text/markdown`. Payload ist nach dem Anhängen unveränderlich; Content-Ersatz erfordert eine neue Material-Revision. Fehlende gespeicherte Bytes sind ein expliziter Integrity Error.
+
+`ApplicationDocumentStore` ist ein Infrastruktur-Port mit opaque Storage Reference. Keine automatische Deduplication, keine gemeinsame Ownership und keine Löschung aufgrund gleicher SHA-256-Werte.
+
 ### OpportunityGroup
 
 Aggregate mit stabiler `GroupId`, nichtleerem Namen, optionaler Beschreibung, Type `general` oder `application_wave` und geordneten Memberships. `ApplicationWave` ist ausschließlich eine OpportunityGroup mit Type `application_wave`.

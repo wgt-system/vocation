@@ -182,3 +182,5 @@ Vocation ist erfolgreich, wenn:
 - Zeitpunkt für einen zentralen Kartendienst.
 
 Offen bleiben die konkrete Veröffentlichungstransport-/Authentisierungsausgestaltung, die finalen Felder der Opportunity Overview 1.0 und spätere Cross-device Write-Semantik. Vocation besitzt jedoch die ApplicationCase-Fachsemantik; Implementierungsdetails für private ApplicationMaterial bleiben offen.
+
+Private ApplicationDocument-Inhalte gehören semantisch zu Vocation und sind an immutable ApplicationMaterial-Revisions gebunden. Ihre physische Speicherung, Darstellung und Übertragung bleiben getrennte Infrastruktur-/Folgeslices.

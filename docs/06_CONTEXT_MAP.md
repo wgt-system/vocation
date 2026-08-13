@@ -10,13 +10,15 @@ Verantwortlich für Recherche, Quellenvergleich, Analyse und Erzeugung eines Res
 
 ### Vocation Context
 
-Besitzt Opportunities, Postings, Companies, Observations, Assessments, Decisions, Groups, ApplicationCases, private ApplicationMaterial-Metadaten, Prompt Runs, Imports und Vocation Read Models. Vocation bleibt lokale Autorität und besitzt die Publication-Adapter-Verantwortung.
+Besitzt Opportunities, Postings, Companies, Observations, Assessments, Decisions, Groups, ApplicationCases, private ApplicationMaterial-Metadaten, private ApplicationDocuments, Prompt Runs, Imports und Vocation Read Models. Vocation bleibt lokale Autorität und besitzt die Publication-Adapter-Verantwortung.
 
 ### Wiiii Got This Context
 
 Besitzt Geräte-, Plattform-, Service- und Integrationslogik.
 
 Ein späterer Zugriff auf private ApplicationMaterial erfolgt ausschließlich über eine separate explizite private Integrationsgrenze. WGT und Conveyance besitzen keine ApplicationCase-Fachsemantik.
+
+Private ApplicationDocument-Payloads bleiben außerhalb des Context Maps für Published Contracts; ein späterer privater Transport darf nur opaque protected payloads relayen.
 
 ### Conveyance Context
 

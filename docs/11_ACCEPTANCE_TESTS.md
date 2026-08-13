@@ -458,3 +458,11 @@ ApplicationMaterial-Metadaten verwenden die Arten `cv`, `cover_letter` und `othe
 ## AT-100 ApplicationCase API and UI
 
 Die internen ApplicationCase-/Material-Endpunkte, der typed Client und das Opportunity-Detail-React-Panel sind implementiert. Unterstützt werden Case-Liste/Detail, Lifecycle, Material-Metadaten und Material-Revisionen; ein vollständiger Material-History-Endpoint sowie Dokumentinhalte/Storage-Metadaten existieren nicht.
+
+## AT-101 ApplicationDocument Semantics
+
+Eine Material-Revision kann null oder ein immutable ApplicationDocument mit Document ID, Material Revision, Dateiname, erlaubtem Media Type, Byte Size, SHA-256 und Created At besitzen. Content-Ersatz erfolgt nur durch neue Material-Revision; eine Dokumentreferenz gehört genau einer Revision.
+
+## AT-102 Document Privacy and Integrity Boundary
+
+ApplicationDocument-Payload und identifizierende Metadaten erscheinen nicht in Published Contracts, Research-/Availability-Bundles, Prompt Contexts, Logs, Fixtures oder Publication Endpoints. Byte Size und Digest stammen aus den tatsächlichen Bytes; fehlende gespeicherte Bytes sind ein Integrity Error. Storage, Rendering, Encryption und Transport bleiben offen.

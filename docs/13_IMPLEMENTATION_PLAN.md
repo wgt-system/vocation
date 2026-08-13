@@ -142,6 +142,10 @@ Der client-neutrale, transport-unabhängige Contract `schemas/published-map-proj
 
 Vocation besitzt ApplicationCase-Fachsemantik als Aggregate pro Opportunity, getrennt vom Opportunity Tracking Status. Implementiert sind die eingefrorenen Lifecycle-Semantiken, das immutable Domain Model, Alembic `0011`, der DB-Invariant für einen aktiven Case, append-only Lifecycle-/Material-Revision-Historie, SQLAlchemy Repository, ApplicationCaseService, interne FastAPI-Endpunkte, typed OpenAPI-/Frontend-Client, Opportunity-Detail-React-UI sowie fokussierte Domain-/Migration-/Service-/API-/Frontend-Tests. Research/Availability, automatische Submission, E-Mail/Calendar-Übergänge, tatsächliche CV-/Cover-Letter-Inhalte, File Upload, PDF/LaTeX/Document Rendering, Storage-/Encryption-Implementierung, private Cross-device-Transporte, WGT und Conveyance bleiben ausgeschlossen. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben unverändert.
 
+## Slice 16 – Private Application Document Content (Semantik eingefroren, Implementierung folgt)
+
+Vocation besitzt die semantische `ApplicationDocument`-Zuordnung an genau einer immutable ApplicationMaterial-Revision. V1 definiert opaque lokale Payload plus Document ID, Material ID/Revision, Original-Dateiname, erlaubten Media Type (`application/pdf`, `text/plain`, `text/markdown`), Byte Size, SHA-256 Digest und Created At. Ein künftiger `ApplicationDocumentStore` trennt Domain Ownership von physischer Ablage über opaque Storage References. Es gibt keine Veröffentlichung, keine Inhalte in Fixtures, keine automatische Deduplication und keine Lifecycle-Löschung. Persistence, API, File Picker, Rendering, PDF/LaTeX, Encryption, Synchronization, WGT und Conveyance bleiben ausgeschlossen.
+
 - weitere client-neutrale Published Vocation Capabilities
 - WGT/iOS/Conveyance-Integration
 - read-only Contract Tests
