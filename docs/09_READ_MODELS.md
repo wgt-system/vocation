@@ -167,9 +167,9 @@ Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`,
 - publication metadata: `publication_ref`, `generated_at`
 - frozen opportunity overview payload
 
-## 11. Published Map Projection 1.0 (contract frozen, adapter planned)
+## 11. Published Map Projection 1.0 (implemented)
 
-Client-neutral, transport-independent Published Vocation Capability for map-capable consumers. The canonical contract is `schemas/published-map-projection-v1.schema.json`. It contains publication metadata and URL-free features for mapped WorkLocations only: opaque feature/opportunity/company refs, title, company, WorkLocation label/precision, and latitude/longitude. Empty features are valid and multiple mapped WorkLocations may produce multiple features for one Opportunity. Publication does not geocode, mutate, or resolve anything; it only reads existing explicit MapLocationResolutions. Ordering is deterministic. No personal, research, posting, source, availability, freshness, group, URL, provider, or internal-ID fields are included. The runtime publication adapter remains a later implementation slice.
+Client-neutral, transport-independent Published Vocation Capability for map-capable consumers. The canonical contract is `schemas/published-map-projection-v1.schema.json`, exposed at `GET /published/v1/map-projection` outside the internal React OpenAPI. A dedicated read-only publication repository/service reads only existing explicit MapLocationResolutions and emits URL-free features with opaque feature/opportunity/company refs, title, company, WorkLocation label/precision, and latitude/longitude. Empty features are valid and multiple mapped WorkLocations may produce multiple features for one Opportunity. Publication never geocodes, mutates, or resolves anything. Features are ordered deterministically by company name, opportunity title, WorkLocation label case-insensitively, then `feature_ref`. No personal, research, posting, source, availability, freshness, group, URL, provider, or internal-ID fields are included. Published Opportunity Overview 1.0 remains unchanged.
 
 ## 12. Availability/Freshness Integration (implemented on `dev`)
 

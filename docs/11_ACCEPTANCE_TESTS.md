@@ -438,3 +438,7 @@ Das kanonische Artefakt validiert gegen `schemas/published-map-projection-v1.sch
 ## AT-95 Published Map Projection Boundaries
 
 Jedes Feature enthält nur opaque Refs, Titel, Company, WorkLocation Label/Precision und Latitude/Longitude. Nur vorhandene explizite MapLocationResolutions erzeugen Features; mehrere mapped WorkLocations derselben Opportunity sind erlaubt. Es gibt keine URLs, Navigation, persönliche oder Research-Daten, Availability/Freshness, Groups/Waves, Provider-/Query-/Resolved-at-Metadaten oder Schreibbefehle.
+
+## AT-96 Published Map Projection Runtime
+
+`GET /published/v1/map-projection` liefert die implementierte Published Map Projection 1.0 außerhalb der internen React OpenAPI. Ein dedizierter read-only Publication Repository/Service veröffentlicht ausschließlich bestehende MapLocationResolutions, geocodiert und mutiert nie, akzeptiert eine leere Projection und ordnet Features deterministisch nach Company Name, Opportunity Title, WorkLocation Label case-insensitiv und `feature_ref`. Published Opportunity Overview 1.0 bleibt unverändert.

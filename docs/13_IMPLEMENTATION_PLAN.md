@@ -134,12 +134,12 @@ V1 definiert `OpportunityComparisonView` als internen, read-only und nicht persi
 
 ## Slice 14 – Client-neutral Published Capability expansion
 
-### Published Map Projection 1.0 (contract freeze)
+### Published Map Projection 1.0 (implementiert auf `dev`)
 
-Der client-neutrale, transport-unabhängige Contract `schemas/published-map-projection-v1.schema.json` ist eingefroren und durch ein fiktionales Beispiel sowie schema-only Contract Tests geschützt. Er publiziert ausschließlich bestehende explizite MapLocationResolutions als URL-freie, deterministisch geordnete Features mit opaque Refs, Titel, Company, WorkLocation Precision und Koordinaten. Publication geocodiert, mutiert oder resolved nichts. Empty Features sind gültig; mehrere mapped WorkLocations können mehrere Features je Opportunity erzeugen. Runtime Endpoint, Publication Adapter und WGT/iOS/Conveyance bleiben spätere Arbeiten.
+Der client-neutrale, transport-unabhängige Contract `schemas/published-map-projection-v1.schema.json` ist eingefroren und unter `GET /published/v1/map-projection` implementiert. Ein dedizierter read-only Publication Repository/Service publiziert ausschließlich bestehende explizite MapLocationResolutions als URL-freie Features mit opaque Refs, Titel, Company, WorkLocation Precision und Koordinaten. Publication geocodiert, mutiert oder resolved nichts. Features werden deterministisch nach Company Name, Opportunity Title, WorkLocation Label case-insensitiv und `feature_ref` geordnet. Empty Features sind gültig; mehrere mapped WorkLocations können mehrere Features je Opportunity erzeugen. Der Endpoint bleibt außerhalb der internen React OpenAPI; persönliche Zustände, Availability/Freshness, Groups/Waves, URLs, Provider-, Research-, Import-, Posting- und Source-Daten werden nicht exponiert. Published Opportunity Overview 1.0 bleibt unverändert.
 
 - weitere client-neutrale Published Vocation Capabilities
-- Runtime publication adapter
+- WGT/iOS/Conveyance-Integration
 - read-only Contract Tests
 - keine iOS-App in Vocation
 
