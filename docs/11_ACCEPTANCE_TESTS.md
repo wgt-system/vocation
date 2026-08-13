@@ -430,3 +430,11 @@ Die sechs festgelegten Research-Dimensionen verwenden nur Opportunity- und Posti
 ## AT-93 Assessment Comparison and State Isolation
 
 Opportunity-scoped Assessments werden criterion-keyed verglichen; Personal Assessments zeigen nur die aktuelle Revision, External Assessments mehrere Werte ohne automatische Auswahl. Die typed Clients und die Navigation zu bestehenden Vocation Details sind implementiert. Comparison verändert weder Tracking Status, Groups/Waves, Assessments noch Decisions. Risk bleibt ohne konkrete Read-Quelle außerhalb der V1-Ansicht.
+
+## AT-94 Published Map Projection 1.0 Contract
+
+Das kanonische Artefakt validiert gegen `schemas/published-map-projection-v1.schema.json` mit Capability `vocation.map_projection`, Contract Version `1.0`, Publication Metadata und geschlossenen Feature-Objekten. Leere `features` sind gültig.
+
+## AT-95 Published Map Projection Boundaries
+
+Jedes Feature enthält nur opaque Refs, Titel, Company, WorkLocation Label/Precision und Latitude/Longitude. Nur vorhandene explizite MapLocationResolutions erzeugen Features; mehrere mapped WorkLocations derselben Opportunity sind erlaubt. Es gibt keine URLs, Navigation, persönliche oder Research-Daten, Availability/Freshness, Groups/Waves, Provider-/Query-/Resolved-at-Metadaten oder Schreibbefehle.

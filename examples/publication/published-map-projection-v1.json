@@ -1,0 +1,44 @@
+{
+  "capability": "vocation.map_projection",
+  "contract_version": "1.0",
+  "publication": {
+    "publication_ref": "publication-map-fictional-001",
+    "generated_at": "2026-08-13T09:00:00Z"
+  },
+  "features": [
+    {
+      "feature_ref": "feature-lumen-hamburg",
+      "opportunity_ref": "opportunity-lumen",
+      "title": "Junior Platform Engineer",
+      "company": {
+        "company_ref": "company-lumen",
+        "name": "Lumen Example GmbH"
+      },
+      "work_location": {
+        "label": "Hamburg office",
+        "precision": "site"
+      },
+      "coordinates": {
+        "latitude": 53.5511,
+        "longitude": 9.9937
+      }
+    },
+    {
+      "feature_ref": "feature-lumen-remote",
+      "opportunity_ref": "opportunity-lumen",
+      "title": "Junior Platform Engineer",
+      "company": {
+        "company_ref": "company-lumen",
+        "name": "Lumen Example GmbH"
+      },
+      "work_location": {
+        "label": "Northern Germany region",
+        "precision": "region"
+      },
+      "coordinates": {
+        "latitude": 53.8,
+        "longitude": 10.2
+      }
+    }
+  ]
+}

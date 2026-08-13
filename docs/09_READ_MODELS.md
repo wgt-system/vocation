@@ -167,9 +167,9 @@ Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`,
 - publication metadata: `publication_ref`, `generated_at`
 - frozen opportunity overview payload
 
-## 11. Published Map Projection (future, client-neutral)
+## 11. Published Map Projection 1.0 (contract frozen, adapter planned)
 
-Future client-neutral projection for map-capable consumers. It is not a mobile-specific contract and does not change Vocation ownership of Work Locations.
+Client-neutral, transport-independent Published Vocation Capability for map-capable consumers. The canonical contract is `schemas/published-map-projection-v1.schema.json`. It contains publication metadata and URL-free features for mapped WorkLocations only: opaque feature/opportunity/company refs, title, company, WorkLocation label/precision, and latitude/longitude. Empty features are valid and multiple mapped WorkLocations may produce multiple features for one Opportunity. Publication does not geocode, mutate, or resolve anything; it only reads existing explicit MapLocationResolutions. Ordering is deterministic. No personal, research, posting, source, availability, freshness, group, URL, provider, or internal-ID fields are included. The runtime publication adapter remains a later implementation slice.
 
 ## 12. Availability/Freshness Integration (implemented on `dev`)
 

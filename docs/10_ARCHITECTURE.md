@@ -163,6 +163,8 @@ Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabi
 
 Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch eingefroren. Der implementierte lokale Veröffentlichungspfad ist `/published/v1/opportunity-overview`; er bleibt außerhalb der internen React OpenAPI, während das bestehende `/api/...` React API interne Presentation API bleibt. HTTP/OpenAPI ist nicht die Quelle der Cross-Context-Payload.
 
+`Published Map Projection` 1.0 ist als zweiter client-neutraler, transport-unabhängiger Published Contract durch `schemas/published-map-projection-v1.schema.json` eingefroren. Der Vertrag liest ausschließlich bereits vorhandene MapLocationResolutions und erzeugt keine Geocoding- oder Domain-Mutation; Runtime-Adapter und Veröffentlichung sind noch nicht implementiert. Der Contract bleibt URL-frei und enthält weder persönliche, Research-, Availability-, Gruppen- noch Providerdaten.
+
 Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
 
 Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.

@@ -134,7 +134,12 @@ V1 definiert `OpportunityComparisonView` als internen, read-only und nicht persi
 
 ## Slice 14 – Client-neutral Published Capability expansion
 
+### Published Map Projection 1.0 (contract freeze)
+
+Der client-neutrale, transport-unabhängige Contract `schemas/published-map-projection-v1.schema.json` ist eingefroren und durch ein fiktionales Beispiel sowie schema-only Contract Tests geschützt. Er publiziert ausschließlich bestehende explizite MapLocationResolutions als URL-freie, deterministisch geordnete Features mit opaque Refs, Titel, Company, WorkLocation Precision und Koordinaten. Publication geocodiert, mutiert oder resolved nichts. Empty Features sind gültig; mehrere mapped WorkLocations können mehrere Features je Opportunity erzeugen. Runtime Endpoint, Publication Adapter und WGT/iOS/Conveyance bleiben spätere Arbeiten.
+
 - weitere client-neutrale Published Vocation Capabilities
+- Runtime publication adapter
 - read-only Contract Tests
 - keine iOS-App in Vocation
 
