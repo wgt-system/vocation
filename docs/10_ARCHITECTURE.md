@@ -165,6 +165,8 @@ Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/publish
 
 `Published Map Projection` 1.0 ist als zweiter client-neutraler, transport-unabhängiger Published Contract durch `schemas/published-map-projection-v1.schema.json` eingefroren und unter `GET /published/v1/map-projection` implementiert. Ein dedizierter read-only Publication Repository/Service liest ausschließlich bereits vorhandene MapLocationResolutions. Publication geocodiert, mutiert oder resolved nichts; Features werden deterministisch nach Company Name, Opportunity Title, WorkLocation Label (jeweils case-insensitive) und `feature_ref` geordnet. Der Contract bleibt außerhalb der internen React OpenAPI, URL-frei und enthält weder persönliche, Research-, Availability-, Gruppen- noch Providerdaten. Published Opportunity Overview 1.0 bleibt unverändert.
 
+ApplicationCases und private ApplicationMaterial-Metadaten gehören zur Vocation-Domain. Sie werden niemals durch Research/Availability oder Groups/Waves erzeugt und nicht über öffentliche Publication Endpoints ausgegeben. Eine spätere WGT-/Conveyance-Anbindung darf nur über eine separate private Grenze und opaque protected payloads erfolgen; Conveyance besitzt keine Vocation-Semantik.
+
 Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
 
 Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.

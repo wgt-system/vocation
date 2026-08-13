@@ -110,6 +110,18 @@ Decision, eine Opportunity oder Company nicht weiterzuverfolgen. Sie löscht nic
 
 Position im persönlichen Sichtungsprozess: `new`, `to_review`, `interesting`, `shortlisted`, `deferred`, `excluded`, `archived`.
 
+### ApplicationCase
+
+Vocation-owned aggregate für die Bewerbung auf genau eine Opportunity. ApplicationCase-Lifecycle ist nicht Bestandteil des Opportunity Tracking Status.
+
+### ApplicationCase Lifecycle
+
+V1-Zustände: `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`, `rejected`, `withdrawn`. Die letzten drei sind terminal. Erstellung und jede Lifecycle-Änderung sind explizite Nutzeraktionen; Lifecycle Events bleiben historisch sichtbar. Pro Opportunity gibt es höchstens einen aktiven/nonterminal ApplicationCase; terminale Cases bleiben lesbar.
+
+### ApplicationMaterial
+
+Private, von einem ApplicationCase besessene Material-Metadaten mit stabilem Material ID, ApplicationCase ID, Kind `cv`, `cover_letter` oder `other`, Display Name, Revision sowie Created/Updated Timestamps. Revisionen werden explizit und historisch geführt; tatsächlicher Inhalt und seine Speicherung sind in dieser Slice nicht definiert.
+
 ### Availability Observation
 
 Zeitbezogene Beobachtung über die Erreichbarkeit oder Aktivität eines Posting.

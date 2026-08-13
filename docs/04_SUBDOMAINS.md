@@ -16,6 +16,10 @@ Modelliert externe und persönliche Assessments, Risiken, Dimensionen und Bewert
 
 Modelliert Decisions, Exclusions, Prioritäten, Tracking Status, Shortlist und Wiederaufnahme.
 
+### Application Cases
+
+Vocation-owned Supporting Subdomain für ApplicationCase-Lifecycle und private ApplicationMaterial-Metadaten. ApplicationCases sind an Opportunities gebunden, aber fachlich vom Opportunity Tracking Status getrennt.
+
 ## Supporting Subdomains
 
 ### Research Prompting
@@ -81,9 +85,11 @@ Muss enthalten sein:
 7. Groups
 8. Liste, Detail, Vergleich und Map Projection
 9. External Navigation
+10. Application Cases und private ApplicationMaterial-Semantik
 
 Später:
 
 - zentraler Map Context
 - automatische Verfügbarkeitsprüfung
 - weitergehende Bewerbungstracking-Domäne
+- Dokument-Rendering, Verschlüsselung und externe Bewerbungseinreichung

@@ -178,7 +178,7 @@ Vocation ist erfolgreich, wenn:
 - genaue Identitätsregeln für Opportunities und Postings,
 - automatische versus manuelle Zusammenführung,
 - Umfang persönlicher Änderungen,
-- Bewerbungsstatus innerhalb oder außerhalb Vocation,
+- konkrete Ausgestaltung der späteren ApplicationCase- und ApplicationMaterial-Implementierung,
 - Zeitpunkt für einen zentralen Kartendienst.
 
-Offen bleiben die konkrete Veröffentlichungstransport-/Authentisierungsausgestaltung, die finalen Felder der Opportunity Overview 1.0 und spätere Cross-device Write-Semantik.
+Offen bleiben die konkrete Veröffentlichungstransport-/Authentisierungsausgestaltung, die finalen Felder der Opportunity Overview 1.0 und spätere Cross-device Write-Semantik. Vocation besitzt jedoch die ApplicationCase-Fachsemantik; Implementierungsdetails für private ApplicationMaterial bleiben offen.

@@ -42,6 +42,8 @@ Enthält:
 - Duplicate Cases
 - Change Summary
 
+Ein künftiges `ApplicationCaseView` bleibt Vocation-intern und privat. Es darf ApplicationCase-Lifecycle, historische Events und ApplicationMaterial-Metadaten zeigen, aber keine privaten Inhalte in öffentliche Read Models oder Published Contracts übernehmen.
+
 ## 4. OpportunityComparisonView (implemented)
 
 Interner, nicht persistierter Read Model für eine temporäre Auswahl von mindestens 2 und höchstens 4 eindeutigen, existierenden Opportunities. Die Spaltenreihenfolge folgt exakt der angeforderten Opportunity-ID-Reihenfolge. Eine fehlende Opportunity oder ungültige Anzahl wird als Fehler gemeldet.

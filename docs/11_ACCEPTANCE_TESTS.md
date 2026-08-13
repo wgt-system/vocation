@@ -442,3 +442,15 @@ Jedes Feature enthält nur opaque Refs, Titel, Company, WorkLocation Label/Preci
 ## AT-96 Published Map Projection Runtime
 
 `GET /published/v1/map-projection` liefert die implementierte Published Map Projection 1.0 außerhalb der internen React OpenAPI. Ein dedizierter read-only Publication Repository/Service veröffentlicht ausschließlich bestehende MapLocationResolutions, geocodiert und mutiert nie, akzeptiert eine leere Projection und ordnet Features deterministisch nach Company Name, Opportunity Title, WorkLocation Label case-insensitiv und `feature_ref`. Published Opportunity Overview 1.0 bleibt unverändert.
+
+## AT-97 ApplicationCase Ownership and Lifecycle
+
+Ein ApplicationCase ist an genau eine Opportunity gebunden, wird ausschließlich explizit erstellt und verwendet die Zustände `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`, `rejected` und `withdrawn`; die letzten drei sind terminal. Lifecycle Events bleiben historisch lesbar und sind vom Opportunity Tracking Status getrennt.
+
+## AT-98 ApplicationCase Isolation
+
+Research-/Availability-Imports und Groups/Waves erzeugen oder ändern keine ApplicationCases. Es gibt keine automatische Submission oder Transition aus E-Mail, Kalender oder externen Quellen; eine Opportunity besitzt höchstens einen aktiven/nonterminal Case.
+
+## AT-99 Private ApplicationMaterial Boundary
+
+ApplicationMaterial-Metadaten verwenden die Arten `cv`, `cover_letter` und `other` sowie explizite historische Revisionen. Private Inhalte erscheinen weder in Published Contracts, öffentlichen Fixtures, Logs, Research-/Availability-Bundles noch Publication Endpoints. Opportunity Overview 1.0 und Map Projection 1.0 bleiben unverändert.

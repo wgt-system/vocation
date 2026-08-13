@@ -89,6 +89,10 @@ Output:
 
 Nur persönliche Aktion. External Imports dürfen diesen Command nicht auslösen.
 
+### ApplicationCase Commands (Spezifikation, Implementierung später)
+
+`CreateApplicationCase`, `ChangeApplicationCaseLifecycle` und explizite Material-Metadaten-Revisionen sind Vocation-eigene Nutzeraktionen. ApplicationCase-Lifecycle ist unabhängig vom Opportunity Tracking Status. Research-/Availability-Imports und Groups/Waves dürfen diese Commands nicht implizit auslösen. Dokumentinhalt, Submission, Rendering und externe Integrationen sind nicht Bestandteil dieser Slice.
+
 ### AddPersonalAssessment
 
 Erzeugt ein Personal Assessment und überschreibt kein External Assessment.
@@ -184,6 +188,8 @@ Liefert:
 - Groups
 - Duplicate Cases
 - History Summary
+
+Ein späterer ApplicationCase-Read-Workflow zeigt ApplicationCase-Lifecycle und private Material-Metadaten nur innerhalb der Vocation-Anwendung; diese Daten werden nicht in Published Read Projections aufgenommen.
 
 Group-Memberships werden in Liste und Detail angezeigt und können als Filter verwendet werden. Die implementierte API ist unter `/api/groups` verfügbar; die React Groups & Waves UI unterstützt Group CRUD sowie Add, Remove und Reorder Membership.
 

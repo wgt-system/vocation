@@ -90,6 +90,10 @@ Wenn keine Remote-Publikation konfiguriert ist, bleiben lokale Prompting-, Impor
 
 Eine früher ausgeschlossene oder archivierte Position erscheint mit veränderten Anforderungen. Historische Decisions bleiben sichtbar, werden aber nicht blind übertragen.
 
+## S22 – ApplicationCase verwalten
+
+Der Nutzer erstellt für eine Opportunity explizit einen ApplicationCase und führt ihn durch `draft`, `ready`, `submitted`, `interviewing` und `offer` oder in einen terminalen Zustand `accepted`, `rejected` oder `withdrawn`. ApplicationCase-Lifecycle ist unabhängig vom Opportunity Tracking Status; jede Änderung bleibt als Historie sichtbar. Private ApplicationMaterial-Metadaten werden revisionsbezogen verwaltet, ohne Inhalte in Research, Publikationen oder öffentliche Fixtures zu übernehmen.
+
 ## Übergreifende Regeln
 
 1. Herkunft und Zeitpunkt jeder externen Information bleiben erhalten.
@@ -99,3 +103,4 @@ Eine früher ausgeschlossene oder archivierte Position erscheint mit veränderte
 5. Externe Links werden nur nach Nutzeraktion geöffnet.
 6. Die Karte besitzt keine eigene fachliche Datenhoheit.
 7. WGT-Clients benötigen nicht denselben Funktionsumfang wie die Vocation-Desktop-Anwendung.
+8. Research, Availability und Groups/Waves erzeugen oder verändern keine ApplicationCases.

@@ -107,6 +107,22 @@ Nach dem ersten referenzierenden Assessment dürfen Value Type, Skala/Kategorien
 
 Bewusste persönliche Entscheidung mit Reason und möglicher Reversal-Beziehung.
 
+### ApplicationCase
+
+Vocation-owned Aggregate mit stabiler `ApplicationCaseId`, referenziert genau eine `OpportunityId` und besitzt einen ApplicationCase-Lifecycle sowie historische Lifecycle Events. V1-Lifecycle: `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`, `rejected`, `withdrawn`; `accepted`, `rejected` und `withdrawn` sind terminal.
+
+Invarianten:
+
+- Erstellung und Lifecycle-Änderungen erfolgen ausschließlich durch explizite Nutzeraktionen.
+- Eine Opportunity hat höchstens einen aktiven/nonterminal ApplicationCase; terminale Cases bleiben historisch lesbar.
+- `Opportunity.tracking_status` bleibt unabhängiger Triage-Zustand und wird nicht vom ApplicationCase überschrieben.
+- Research-/Availability-Imports und Groups/Application Waves erzeugen oder verändern keine ApplicationCases.
+- Keine automatische Submission oder Transition aus E-Mail, Kalender, Research, Availability oder externen Quellen.
+
+### ApplicationMaterial
+
+Private, von einem ApplicationCase besessene Metadaten-Entity mit `MaterialId`, `ApplicationCaseId`, Kind `cv`, `cover_letter` oder `other`, Display Name, Revision sowie Created/Updated Timestamps. Revisionen sind explizit und historisch. Inhalt, Dateiformat, Speicherort, Rendering und Verschlüsselung sind nicht Teil dieses Slice.
+
 ### OpportunityGroup
 
 Aggregate mit stabiler `GroupId`, nichtleerem Namen, optionaler Beschreibung, Type `general` oder `application_wave` und geordneten Memberships. `ApplicationWave` ist ausschließlich eine OpportunityGroup mit Type `application_wave`.
