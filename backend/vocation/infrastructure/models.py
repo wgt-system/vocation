@@ -304,7 +304,7 @@ class ApplicationMaterialRevisionModel(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     material: Mapped[ApplicationMaterialModel] = relationship(back_populates="revisions")
-    documents: Mapped[list[ApplicationDocumentModel]] = relationship(back_populates="material_revision")
+    documents: Mapped[list[ApplicationDocumentModel]] = relationship(back_populates="material_revision_record")
     __table_args__ = (
         CheckConstraint("revision >= 1", name="ck_application_material_revisions_revision"),
         CheckConstraint(
