@@ -461,6 +461,15 @@ export function ApplicationCasePanel({
                           Erstellt: {formatDate(document.created_at)} · Inhalt
                           für diese Revision unveränderlich.
                         </small>
+                        <p>
+                          <a
+                            href={`/api/application-documents/${encodeURIComponent(document.id)}/content`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Öffnen
+                          </a>
+                        </p>
                       </div>
                     )}
                     {!documentLoading[key] && !document && (

@@ -194,6 +194,9 @@ describe("ApplicationCasePanel", () => {
     expect(
       screen.getByRole("button", { name: "Datei hinterlegen" }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Öffnen" }),
+    ).not.toBeInTheDocument();
   });
 
   it("loads exact material and current revision and shows existing metadata only", async () => {
@@ -209,6 +212,13 @@ describe("ApplicationCasePanel", () => {
     expect(
       screen.getByText(/application\/pdf · 1234 Bytes/),
     ).toBeInTheDocument();
+    const openLink = screen.getByRole("link", { name: "Öffnen" });
+    expect(openLink).toHaveAttribute(
+      "href",
+      "/api/application-documents/document-1/content",
+    );
+    expect(openLink).toHaveAttribute("target", "_blank");
+    expect(openLink).toHaveAttribute("rel", "noopener noreferrer");
     expect(api.getApplicationDocumentForMaterialRevision).toHaveBeenCalledWith(
       "material-1",
       2,
@@ -224,6 +234,35 @@ describe("ApplicationCasePanel", () => {
     expect(screen.queryByText("secret-hash")).not.toBeInTheDocument();
   });
 
+  it.each([
+    ["application/pdf", "resume.pdf"],
+    ["text/plain", "notes.txt"],
+    ["text/markdown", "notes.md"],
+  ] as const)(
+    "opens %s through the same private content endpoint without rendering its body",
+    async (media_type, filename) => {
+      vi.mocked(api.listApplicationCases).mockResolvedValue([baseCase()]);
+      vi.mocked(api.listApplicationMaterials).mockResolvedValue([material()]);
+      vi.mocked(
+        api.getApplicationDocumentForMaterialRevision,
+      ).mockResolvedValue(
+        document({
+          id: `document/${media_type}`,
+          original_filename: filename,
+          media_type,
+        }),
+      );
+      render(<ApplicationCasePanel opportunityId="opp-1" />);
+      const openLink = await screen.findByRole("link", { name: "Öffnen" });
+      expect(openLink).toHaveAttribute(
+        "href",
+        `/api/application-documents/${encodeURIComponent(`document/${media_type}`)}/content`,
+      );
+      expect(openLink).toHaveAttribute("target", "_blank");
+      expect(openLink).toHaveAttribute("rel", "noopener noreferrer");
+      expect(screen.queryByText("# heading")).not.toBeInTheDocument();
+    },
+  );
   it("uploads PDF bytes with the original filename and semantic media type", async () => {
     const user = userEvent.setup();
     vi.mocked(api.listApplicationCases).mockResolvedValue([baseCase()]);
