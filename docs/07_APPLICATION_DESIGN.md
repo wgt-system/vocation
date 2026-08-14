@@ -104,7 +104,9 @@ Implementierte Queries und interne API:
 
 Der typed interne OpenAPI-/Frontend-Client und der Opportunity-Detail-Workflow sind implementiert.
 
-ApplicationDocument ist in dieser Slice nur als semantische private Content-Zuordnung spezifiziert. Ein zukünftiger expliziter Document-Store-Use-Case darf Payloads über `ApplicationDocumentStore` behandeln; File Picker, Rendering, Export und öffentliche Read Models sind nicht vorgesehen.
+ApplicationDocument ist als semantische private Content-Zuordnung implementiert. `ApplicationDocumentService` attach't bytes nur an die exakt aufgelöste immutable Material-Revision: bestehende Attachments werden abgelehnt, Domain-Metadaten werden aus den gelieferten Bytes erzeugt, ein opaque Storage Reference wird angelegt, der Payload wird geschrieben und zurückgelesen, Byte Size und SHA-256 werden geprüft und erst danach werden Metadata/Reference persistiert. Reads validieren die Backing-Payload; fehlende oder korrupte Bytes sind Integrity Errors. Storage Reference und Pfad verlassen den Service nicht.
+
+Interne Endpoints sind `GET/POST /api/application-materials/{material_id}/revisions/{material_revision}/document`, `GET /api/application-documents/{document_id}` und `GET /api/application-documents/{document_id}/content`. Uploads verwenden `multipart/form-data` mit Feld `file`, behalten den Original-Dateinamen als Präsentationsmetadatum und verwenden explizite Media-Type-Metadaten ohne MIME-Sniffing oder Extension-Inferenz. Die React Opportunity-Detail-Ansicht unterstützt `.pdf`, `.txt` und `.md`, zeigt Dateiname, Media Type, Byte Size und Created At und bietet für eine bereits belegte Revision keine weitere Attach-Aktion.
 
 ### AddPersonalAssessment
 

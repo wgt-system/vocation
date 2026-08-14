@@ -461,8 +461,12 @@ Die internen ApplicationCase-/Material-Endpunkte, der typed Client und das Oppor
 
 ## AT-101 ApplicationDocument Semantics
 
-Eine Material-Revision kann null oder ein immutable ApplicationDocument mit Document ID, Material Revision, Dateiname, erlaubtem Media Type, Byte Size, SHA-256 und Created At besitzen. Content-Ersatz erfolgt nur durch neue Material-Revision; eine Dokumentreferenz gehört genau einer Revision.
+Die implementierte Material-Revision kann null oder ein immutable ApplicationDocument mit Document ID, Material ID/Revision, Original-Dateiname, erlaubtem Media Type, Byte Size, SHA-256 und Created At besitzen. Creation berechnet Byte Size und SHA-256 aus den gelieferten Bytes; Content-Ersatz erfolgt nur durch neue Material-Revision. Die Datenbank erzwingt `UNIQUE(material_id, material_revision)`; historische Revisionen behalten eigene Dokumente und neue Revisionen erben keine Dokumentdaten.
 
 ## AT-102 Document Privacy and Integrity Boundary
 
-ApplicationDocument-Payload und identifizierende Metadaten erscheinen nicht in Published Contracts, Research-/Availability-Bundles, Prompt Contexts, Logs, Fixtures oder Publication Endpoints. Byte Size und Digest stammen aus den tatsächlichen Bytes; fehlende gespeicherte Bytes sind ein Integrity Error. Storage, Rendering, Encryption und Transport bleiben offen.
+ApplicationDocument-Payload und identifizierende Metadaten erscheinen nicht in Published Contracts, Research-/Availability-Bundles, Prompt Contexts, Logs, Fixtures oder Publication Endpoints. Die implementierte Store-/Service-Kette schreibt create-only und atomic, liest Payloads zurück und erkennt fehlende oder korrupte Bytes als Integrity Errors; `storage_ref`, Pfade und hashed physical filenames werden nicht geleakt. Storage, Rendering, Encryption und Transport bleiben außerhalb der Slice.
+
+## AT-103 Private Document API and React Upload
+
+Die internen Multipart-Endpunkte für revisionsgebundene Dokumente, der typed Client und der Opportunity-Detail-Upload-Workflow sind implementiert. Erlaubt sind PDF, Plain Text und Markdown mit explizitem Media Type; Dateiname, Type, Byte Size und Created At werden angezeigt. Preview, Open, Delete, Export/Download und In-place-Replacement sind nicht implementiert.

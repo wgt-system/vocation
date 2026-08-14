@@ -46,7 +46,7 @@ Enthält:
 
 Die View zeigt ApplicationCase-Lifecycle, append-only Lifecycle Events, aktive und terminale historische Cases sowie aktuelle ApplicationMaterial-Metadaten. Die aktuelle Material-Revision wird aus der unveränderlichen Revision-Historie rekonstruiert. Es gibt noch keinen Endpoint für die vollständige Material-Revision-Historie und keine Dokumentinhalte oder Storage-Metadaten in der View. ApplicationCase und ApplicationMaterial bleiben vollständig Vocation-intern/private und erscheinen in keinem Published Contract.
 
-Eine ApplicationMaterial-Revision kann semantisch null oder ein privates ApplicationDocument referenzieren. Normale Opportunity Read Models zeigen weder Payload noch Document Storage Metadata.
+Eine ApplicationMaterial-Revision kann semantisch null oder ein privates ApplicationDocument referenzieren. Normale Opportunity Read Models zeigen weder Payload noch Document Storage Metadata. Die implementierte Opportunity-Detail-Ansicht zeigt den revisionsgebundenen Dokumentstatus und die privaten Metadaten; Preview, Open, Export/Download und vollständige Revision-History sind nicht implementiert.
 
 ## 4. OpportunityComparisonView (implemented)
 
