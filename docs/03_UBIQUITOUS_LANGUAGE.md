@@ -196,7 +196,7 @@ Aktueller client-neutraler Begriff für eine veröffentlichte Read Projection. `
 
 ### Published Vocation Capability
 
-Versionierte Capability-/Vertragsgrenze für geeignete Vocation-Daten. Die erste geplante Capability ist `Opportunity Overview` 1.0.
+Versionierte Capability-/Vertragsgrenze für geeignete Vocation-Daten. `Opportunity Overview` 1.0 ist die akzeptierte und implementierte erste Published Capability; ihre Feldstruktur ist im Schema eingefroren.
 
 Der Published Contract 1.0 ist durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch definiert. `opportunity_ref` und `company_ref` sind stabile opaque, von Vocation ausgestellte Referenzen. Verbraucher dürfen sie speichern, vergleichen und zurückgeben, aber weder parsen noch Datenbankstrukturen daraus ableiten.
 

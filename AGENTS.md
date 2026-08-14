@@ -4,6 +4,12 @@
 
 Vocation ist eine eigenständig ausführbare, überwiegend lesende Desktop-Anwendung für einen persönlichen Stellenmarkt.
 
+## System Architecture
+
+Die systemweite Architektur-Quelle ist `wgt-system/architecture`. Vor neuen Cross-Context-, Synchronization-/Relay-, Shared-Infrastructure- oder generischen Capability-Entscheidungen sind dort `ARCHITECTURE_PRINCIPLES.md`, `CAPABILITY_CATALOG.md` und `INTEGRATION_POLICY.md` zu prüfen.
+
+Generische dauerhafte opaque Cross-Device-Zustellung gehört zum separaten akzeptierten Bounded Context Conveyance; der aktuelle akzeptierte Delivery Mode ist `Current Object`. Vocation bleibt Eigentümer seiner Publication-, Command-, Authority-, Merge-, Conflict- und Reconciliation-Semantik. WGT besitzt Integration und Presentation, nicht Vocation-Fachlogik. Wenn eine bestehende generische Capability konzeptionell passt, aber nicht ausreicht, geht die konkrete Anforderung an den System Architecture Control Plane zurück. Keine Runtime darf vom Architecture Repository abhängen.
+
 ## Verbindlicher Technologie-Stack für Version 1
 
 - Python 3.13, FastAPI, Pydantic, SQLAlchemy 2, Alembic, SQLite, jsonschema und pytest
@@ -47,7 +53,7 @@ Vocation ist eine eigenständig ausführbare, überwiegend lesende Desktop-Anwen
 14. Keine spekulative Service-Zerlegung innerhalb des Vocation Context.
 15. Keine automatische Bewerbungserstellung oder -versendung.
 16. Vocation bleibt lokale Autorität; Wiiii Got This liest nie die Vocation-Datenbank und besitzt keine Vocation-Fachlogik.
-17. Veröffentlichung ist optional und abgeleitet. Ein Relay/Storage bleibt domänenblind und ist kein neuer Bounded Context.
+17. Veröffentlichung ist optional und abgeleitet. Vocation baut keinen eigenen generischen Relay-/Storage-Stack; Conveyance besitzt generische dauerhafte opaque Delivery und versteht keine Vocation-Domainobjekte. Vocation bleibt Eigentümer der Publication-Semantik.
 
 ## Arbeitsweise für Codex
 

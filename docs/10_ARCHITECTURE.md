@@ -171,11 +171,11 @@ Die implementierte lokale Kette lautet: ApplicationCase-Domain → ApplicationCa
 
 Slice 16 trennt semantische Ownership von physischer Dokumentablage: ApplicationCase/ApplicationMaterial besitzen ApplicationDocument semantisch; ein künftiger `ApplicationDocumentStore` hält Payloads über opaque Storage References. Domain/Application kennt keine Pfade, BLOB-Layouts oder Transportdetails. Dokumente werden weder publiziert noch in Research/Availability/Prompt Contexts aufgenommen. ApplicationCase-Lifecycle bleibt unabhängig und löscht keine historischen Dokumente automatisch.
 
-Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Ein Relay/Storage darf später als domänenblinde Infrastruktur ergänzt werden, ohne den Published Contract zu ändern.
+Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Für dauerhafte opaque Cross-Device-Zustellung kann WGT die Vocation-owned Projection schützen und über Conveyance transportieren; der Published Contract bleibt unverändert, Conveyance bleibt domänenblind und Vocation baut keinen eigenen Relay-/Storage-Stack.
 
 Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.
 
-Cross-device Reads müssen mit der letzten Published Projection funktionieren, wenn der Windows-PC ausgeschaltet ist. Local-only-Nutzung ohne konfigurierte Remote-Publikation bleibt vollständig unterstützt. Ein Sync Bounded Context wird nicht eingeführt; Cross-device Writes bleiben unentschieden.
+Cross-device Reads müssen mit der letzten Published Projection funktionieren, wenn der Windows-PC ausgeschaltet ist. Local-only-Nutzung ohne konfigurierte Remote-Publikation bleibt vollständig unterstützt. Conveyance ist der separate akzeptierte generische Delivery-Bounded-Context; Vocation führt keinen eigenen Sync-Bounded-Context für Vocation-Semantik ein. Cross-device Writes bleiben unentschieden und benötigen ausdrücklich Vocation-owned Command-, Authority-, Merge-, Conflict- und Reconciliation-Semantik.
 
 WGT liest nie die Vocation-Datenbank, importiert keine Vocation-Domainklassen und führt keine Vocation-Fachlogik aus. Python/FastAPI läuft nicht im iPhone-WGT-Client.
 

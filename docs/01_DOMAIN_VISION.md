@@ -140,7 +140,7 @@ Erzeugt Research Bundles. Vocation übersetzt diese über eine Anticorruption La
 
 Ist die primäre cross-device Präsentation geeigneter Vocation Capabilities auf Windows und iPhone. Es liest nie die Vocation-Datenbank und besitzt keine Vocation-Fachlogik.
 
-Vocation veröffentlicht versionierte, client-neutrale Read Projections über einen Vocation-eigenen Publication Adapter. Eine optionale Relay-/Storage-Infrastruktur transportiert oder speichert nur abgeleitete Artefakte.
+Vocation veröffentlicht versionierte, client-neutrale Read Projections über einen Vocation-eigenen Publication Adapter. Eine optionale Conveyance-Zustellung transportiert nur opaque geschützte, abgeleitete Artefakte; Conveyance versteht keine Vocation-Domainobjekte.
 
 ### Illumination
 
@@ -181,6 +181,6 @@ Vocation ist erfolgreich, wenn:
 - konkrete Ausgestaltung der späteren ApplicationCase- und ApplicationMaterial-Implementierung,
 - Zeitpunkt für einen zentralen Kartendienst.
 
-Offen bleiben die konkrete Veröffentlichungstransport-/Authentisierungsausgestaltung, die finalen Felder der Opportunity Overview 1.0 und spätere Cross-device Write-Semantik. Vocation besitzt jedoch die ApplicationCase-Fachsemantik; Implementierungsdetails für private ApplicationMaterial bleiben offen.
+Offen bleiben die konkrete Veröffentlichungstransport-/Authentisierungsausgestaltung und spätere Cross-device Write-Semantik. Die finalen Felder der Opportunity Overview 1.0 sind im eingefrorenen Schema `schemas/published-opportunity-overview-v1.schema.json` festgelegt. Vocation besitzt jedoch die ApplicationCase-Fachsemantik; Implementierungsdetails für private ApplicationMaterial bleiben offen.
 
 Private ApplicationDocument-Inhalte gehören semantisch zu Vocation und sind an immutable ApplicationMaterial-Revisions gebunden. Ihre physische Speicherung, Darstellung und Übertragung bleiben getrennte Infrastruktur-/Folgeslices.
