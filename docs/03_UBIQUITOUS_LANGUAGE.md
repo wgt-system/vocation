@@ -230,3 +230,7 @@ Der **Tracking Status** ist genau einer von `new`, `to_review`, `interesting`, `
 Eine **Exclusion** ist eine eigene, begründete Operation mit nichtleerem Grund und unveränderlichem Decision-Eintrag, der den vorherigen Status speichert. **Restore** ist nur bei aktueller Exclusion zulässig, verweist auf genau diese aktive Exclusion und setzt standardmäßig deren gespeicherten vorherigen Status. Ein expliziter alternativer nicht ausgeschlossener Status ist erlaubt. Exclusion und Restore bleiben historisch erhalten; wiederholte Zyklen referenzieren jeweils die richtige aktive Exclusion.
 
 Research Bundle Imports verändern Tracking Status, Personal Assessments, deren Revisionen und Opportunity Decisions nicht.
+
+### ApplicationDocument Access
+
+Read-only retrieval of the immutable payload attached to one exact ApplicationMaterial revision after integrity validation. Dies ist weder Publication, Export, Synchronization noch Preview-Rendering und kein neues Aggregate oder Entity.

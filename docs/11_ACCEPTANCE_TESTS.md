@@ -470,3 +470,13 @@ ApplicationDocument-Payload und identifizierende Metadaten erscheinen nicht in P
 ## AT-103 Private Document API and React Upload
 
 Die internen Multipart-Endpunkte für revisionsgebundene Dokumente, der typed Client und der Opportunity-Detail-Upload-Workflow sind implementiert. Erlaubt sind PDF, Plain Text und Markdown mit explizitem Media Type; Dateiname, Type, Byte Size und Created At werden angezeigt. Preview, Open, Delete, Export/Download und In-place-Replacement sind nicht implementiert.
+
+## AT-104 Slice 17 ApplicationDocument Access
+
+Ein bereits angehängtes PDF kann nur nach expliziter Nutzeraktion `Öffnen` über `OpenApplicationDocument` gelesen werden. Der Zugriff verwendet genau `document_id` der aktuell angezeigten `(material_id, material_revision)` und liefert nach Byte-Size-/SHA-256-Prüfung die exakten Bytes mit dem persistierten Media Type. Es gibt keinen Fallback auf eine andere oder neueste Revision.
+
+Ein bereits angehängtes `text/plain` kann explizit gelesen werden. Ein angehängtes `text/markdown` liefert die exakt gespeicherten Bytes; Vocation führt keine Markdown-Transformation oder Rendering durch. Ohne angehängtes Dokument existiert keine Öffnen-Aktion.
+
+Fehlende Dokument-Metadaten ergeben `document metadata not found`. Fehlende Backing Bytes oder korrupte Bytes ergeben einen expliziten Integrity Error; es wird kein leeres oder synthetisches Dokument zurückgegeben.
+
+Öffnen verändert weder ApplicationCase-Lifecycle noch Opportunity Tracking Status und erzeugt keinen ApplicationMaterial- oder ApplicationDocument-Zustand. `storage_ref`, physische Pfade, hashed physical filenames und Store Root werden nie als Response ausgegeben. Payload und private Metadaten bleiben aus Published Opportunity Overview, Published Map Projection, Research-/Availability-Bundles, Prompt Contexts, öffentlichen Fixtures und Publication Endpoints ausgeschlossen.

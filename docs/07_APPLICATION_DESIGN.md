@@ -335,3 +335,11 @@ Application Errors enthalten:
 ## Persönliche Triage-Commands (v0.2.0)
 
 Die Anwendung bietet `CreatePersonalAssessment`, `RevisePersonalAssessment`, `ChangeTrackingStatus`, `ExcludeOpportunity` und `RestoreOpportunity`. Create und Revise sind getrennt; Create liefert einen Konflikt, wenn bereits ein aktuelles Assessment für Opportunity/Criterion existiert. Revise akzeptiert ausschließlich die aktuelle Revision. Restore verwendet ohne Zielstatus `active_exclusion.previous_status`; ein expliziter nicht ausgeschlossener Zielstatus ist optional. Die zugehörigen Queries liefern aktuelle und historische Personal Assessments sowie chronologische Decision History. Die Commands sind atomar; eine ungültige Eingabe erzeugt keinen Teilzustand. Die Services kennen nur `PersonalTriageRepository`- und `CriteriaRepository`-Ports.
+
+### OpenApplicationDocument (Slice 17, Semantik eingefroren)
+
+Input ist `document_id`. Der Use Case löst Dokument-Metadaten auf, liest den Payload über `ApplicationDocumentStore`, validiert Byte Size und SHA-256 und liefert erst danach die exakten unveränderlichen privaten Bytes mit dem persistierten semantischen Media Type. Fehler sind fehlende Dokument-Metadaten, fehlende Backing Bytes oder Integritätsfehler. Der Use Case ist read-only und erzeugt keinen Domain-Zustand.
+
+Die interne/private Vocation-API-Grenze für den Content ist `GET /api/application-documents/{document_id}/content`. Sie liefert ausschließlich Payload Bytes und den persistierten Media Type. `storage_ref`, physischer Pfad, physischer hashed filename und Store Root werden nicht exponiert. Dies ist kein Published Contract; Content-Disposition wird nicht spezifiziert.
+
+Für eine ApplicationMaterial-Revision mit angehängtem Dokument zeigt die Oberfläche die vorhandenen privaten Metadaten und genau eine explizite Aktion `Öffnen`. Ohne Dokument gibt es keine solche Aktion; automatisch geöffnet wird nie. Die Aktion zielt auf das Dokument der aktuell angezeigten exakten Material-Revision. PDF und `text/plain` dürfen browser-supported geöffnet bzw. angezeigt werden. `text/markdown` bleibt gespeicherter Text; Markdown wird nicht gerendert. Vocation parst oder transformiert den Inhalt nicht und friert weder eingebettetes Preview noch OS-native externe Anwendungen oder temporäre Dateien ein.
