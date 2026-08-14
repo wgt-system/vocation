@@ -56,6 +56,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/application-documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Document */
+        get: operations["get_document_api_application_documents__document_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/application-documents/{document_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Content */
+        get: operations["get_content_api_application_documents__document_id__content_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/application-materials/{material_id}/revisions": {
         parameters: {
             query?: never;
@@ -67,6 +101,24 @@ export interface paths {
         put?: never;
         /** Revise Material */
         post: operations["revise_material_api_application_materials__material_id__revisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/application-materials/{material_id}/revisions/{material_revision}/document": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get For Material Revision */
+        get: operations["get_for_material_revision_api_application_materials__material_id__revisions__material_revision__document_get"];
+        put?: never;
+        /** Attach Document */
+        post: operations["attach_document_api_application_materials__material_id__revisions__material_revision__document_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -750,6 +802,31 @@ export interface components {
              */
             updated_at: string;
         };
+        /** ApplicationDocumentResponse */
+        ApplicationDocumentResponse: {
+            /** Byte Size */
+            byte_size: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: string;
+            /** Material Id */
+            material_id: string;
+            /** Material Revision */
+            material_revision: number;
+            /**
+             * Media Type
+             * @enum {string}
+             */
+            media_type: "application/pdf" | "text/plain" | "text/markdown";
+            /** Original Filename */
+            original_filename: string;
+            /** Sha256 */
+            sha256: string;
+        };
         /** ApplicationLifecycleEventResponse */
         ApplicationLifecycleEventResponse: {
             /**
@@ -880,6 +957,11 @@ export interface components {
             as_of_date: string;
             /** Posting Ids */
             posting_ids: string[];
+        };
+        /** Body_attach_document_api_application_materials__material_id__revisions__material_revision__document_post */
+        Body_attach_document_api_application_materials__material_id__revisions__material_revision__document_post: {
+            /** File */
+            file: string;
         };
         /** Body_import_file_api_availability_imports_file_post */
         Body_import_file_api_availability_imports_file_post: {
@@ -1953,6 +2035,66 @@ export interface operations {
             };
         };
     };
+    get_document_api_application_documents__document_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDocumentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_content_api_application_documents__document_id__content_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     revise_material_api_application_materials__material_id__revisions_post: {
         parameters: {
             query?: never;
@@ -1975,6 +2117,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApplicationMaterialResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_for_material_revision_api_application_materials__material_id__revisions__material_revision__document_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                material_id: string;
+                material_revision: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDocumentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    attach_document_api_application_materials__material_id__revisions__material_revision__document_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                material_id: string;
+                material_revision: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_attach_document_api_application_materials__material_id__revisions__material_revision__document_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDocumentResponse"];
                 };
             };
             /** @description Validation Error */

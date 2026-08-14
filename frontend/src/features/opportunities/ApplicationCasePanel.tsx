@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   api,
   type ApplicationCase,
+  type ApplicationDocument,
   type ApplicationLifecycle,
   type ApplicationMaterial,
   type ApplicationMaterialKind,
@@ -23,14 +24,23 @@ const terminal = new Set<ApplicationLifecycle>([
   "rejected",
   "withdrawn",
 ]);
-const lifecycleLabel = (value: ApplicationLifecycle) =>
-  lifecycles.find((item) => item.value === value)?.label ?? value;
 const materialLabels: Record<ApplicationMaterialKind, string> = {
   cv: "Lebenslauf",
   cover_letter: "Anschreiben",
   other: "Sonstiges",
 };
+const mediaTypes = ["application/pdf", "text/plain", "text/markdown"] as const;
+type AllowedMediaType = (typeof mediaTypes)[number];
+const mediaTypeLabels: Record<AllowedMediaType, string> = {
+  "application/pdf": "PDF",
+  "text/plain": "Textdatei",
+  "text/markdown": "Markdown",
+};
 const formatDate = (value: string) => new Date(value).toLocaleString("de-DE");
+const lifecycleLabel = (value: ApplicationLifecycle) =>
+  lifecycles.find((item) => item.value === value)?.label ?? value;
+const documentKey = (material: ApplicationMaterial) =>
+  `${material.id}:${material.revision}`;
 
 export function ApplicationCasePanel({
   opportunityId,
@@ -40,6 +50,19 @@ export function ApplicationCasePanel({
   const [cases, setCases] = useState<ApplicationCase[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [materials, setMaterials] = useState<ApplicationMaterial[]>([]);
+  const [documents, setDocuments] = useState<
+    Record<string, ApplicationDocument | null>
+  >({});
+  const [documentLoading, setDocumentLoading] = useState<
+    Record<string, boolean>
+  >({});
+  const [documentErrors, setDocumentErrors] = useState<Record<string, string>>(
+    {},
+  );
+  const [files, setFiles] = useState<Record<string, File | undefined>>({});
+  const [selectedMediaTypes, setSelectedMediaTypes] = useState<
+    Record<string, AllowedMediaType | "">
+  >({});
   const [lifecycle, setLifecycle] = useState<ApplicationLifecycle>("draft");
   const [kind, setKind] = useState<ApplicationMaterialKind>("cv");
   const [displayName, setDisplayName] = useState("");
@@ -51,8 +74,45 @@ export function ApplicationCasePanel({
   const [success, setSuccess] = useState("");
 
   const selected = cases.find((item) => item.id === selectedId) ?? null;
+
+  async function loadDocuments(nextMaterials: ApplicationMaterial[]) {
+    const entries = await Promise.all(
+      nextMaterials.map(async (material) => {
+        const key = documentKey(material);
+        setDocumentLoading((current) => ({ ...current, [key]: true }));
+        setDocumentErrors((current) => ({ ...current, [key]: "" }));
+        try {
+          const document = await api.getApplicationDocumentForMaterialRevision(
+            material.id,
+            material.revision,
+          );
+          return { key, document };
+        } catch (reason) {
+          setDocumentErrors((current) => ({
+            ...current,
+            [key]:
+              reason instanceof Error
+                ? reason.message
+                : "Dokumentmetadaten konnten nicht geladen werden.",
+          }));
+          return { key, document: null };
+        } finally {
+          setDocumentLoading((current) => ({ ...current, [key]: false }));
+        }
+      }),
+    );
+    setDocuments((current) => ({
+      ...current,
+      ...Object.fromEntries(
+        entries.map(({ key, document }) => [key, document]),
+      ),
+    }));
+  }
+
   async function loadMaterials(caseId: string) {
-    setMaterials(await api.listApplicationMaterials(caseId));
+    const nextMaterials = await api.listApplicationMaterials(caseId);
+    setMaterials(nextMaterials);
+    await loadDocuments(nextMaterials);
   }
 
   async function loadCases(preferredId?: string) {
@@ -73,7 +133,9 @@ export function ApplicationCasePanel({
             ?.value ?? nextSelected.lifecycle,
         );
         await loadMaterials(nextSelected.id);
-      } else setMaterials([]);
+      } else {
+        setMaterials([]);
+      }
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -184,11 +246,71 @@ export function ApplicationCasePanel({
     }
   }
 
+  function selectFile(material: ApplicationMaterial, file: File | undefined) {
+    const key = documentKey(material);
+    setFiles((current) => ({ ...current, [key]: file }));
+    setDocumentErrors((current) => ({ ...current, [key]: "" }));
+    setSuccess("");
+    setSelectedMediaTypes((current) => ({
+      ...current,
+      [key]:
+        file && mediaTypes.includes(file.type as AllowedMediaType)
+          ? (file.type as AllowedMediaType)
+          : "",
+    }));
+  }
+
+  async function attachDocument(material: ApplicationMaterial) {
+    const key = documentKey(material);
+    const file = files[key];
+    const mediaType = selectedMediaTypes[key];
+    if (!file) {
+      setDocumentErrors((current) => ({
+        ...current,
+        [key]: "Bitte zuerst eine Datei auswählen.",
+      }));
+      return;
+    }
+    if (!mediaType) {
+      setDocumentErrors((current) => ({
+        ...current,
+        [key]: "Bitte einen Medientyp auswählen.",
+      }));
+      return;
+    }
+    setDocumentErrors((current) => ({ ...current, [key]: "" }));
+    setSuccess("");
+    try {
+      const confirmedFile = new File([file], file.name, {
+        type: mediaType,
+        lastModified: file.lastModified,
+      });
+      const document = await api.attachApplicationDocument(
+        material.id,
+        material.revision,
+        confirmedFile,
+      );
+      setDocuments((current) => ({ ...current, [key]: document }));
+      setFiles((current) => ({ ...current, [key]: undefined }));
+      setSelectedMediaTypes((current) => ({ ...current, [key]: "" }));
+      setSuccess("Datei hinterlegt.");
+    } catch (reason) {
+      setDocumentErrors((current) => ({
+        ...current,
+        [key]:
+          reason instanceof Error
+            ? reason.message
+            : "Datei konnte nicht hinterlegt werden.",
+      }));
+    }
+  }
+
   return (
     <section className="panel">
       <h2>Bewerbung</h2>
       <p className="application-case-help">
-        Bewerbungsunterlagen verwaltet Vocation derzeit als Metadaten.
+        Unterlagen-Metadaten bleiben revisionsbasiert; für die aktuelle Revision
+        kann optional ein privates lokales Dokument hinterlegt werden.
       </p>
       {loading && <p>Lade Bewerbungen …</p>}
       {error && (
@@ -276,8 +398,8 @@ export function ApplicationCasePanel({
               )}
               <h3>Bewerbungsunterlagen</h3>
               <p>
-                Hier werden nur Unterlagen-Metadaten verwaltet; keine Datei wird
-                hochgeladen.
+                Metadaten bleiben revisionsbasiert; Dokumentinhalte sind für die
+                jeweilige Materialrevision unveränderlich.
               </p>
               <div className="record">
                 <label>
@@ -308,36 +430,105 @@ export function ApplicationCasePanel({
                   Unterlage anlegen
                 </button>
               </div>
-              {materials.map((material) => (
-                <article className="record" key={material.id}>
-                  <strong>{materialLabels[material.kind]}</strong>
-                  <p>
-                    {material.display_name} · Revision {material.revision}
-                  </p>
-                  <small>Aktualisiert: {formatDate(material.updated_at)}</small>
-                  <label>
-                    Neuer Anzeigename
-                    <input
-                      aria-label={`Revision für ${material.display_name}`}
-                      value={
-                        revisionNames[material.id] ?? material.display_name
-                      }
-                      onChange={(event) =>
-                        setRevisionNames((current) => ({
-                          ...current,
-                          [material.id]: event.target.value,
-                        }))
-                      }
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => void reviseMaterial(material)}
-                  >
-                    Revision erstellen
-                  </button>
-                </article>
-              ))}
+              {materials.map((material) => {
+                const key = documentKey(material);
+                const document = documents[key];
+                const file = files[key];
+                const mediaType = selectedMediaTypes[key] ?? "";
+                return (
+                  <article className="record" key={key}>
+                    <strong>{materialLabels[material.kind]}</strong>
+                    <p>
+                      {material.display_name} · Revision {material.revision}
+                    </p>
+                    <small>
+                      Aktualisiert: {formatDate(material.updated_at)}
+                    </small>
+                    {documentLoading[key] && <p>Lade Dokumentmetadaten …</p>}
+                    {documentErrors[key] && (
+                      <p className="state state-error" role="alert">
+                        {documentErrors[key]}
+                      </p>
+                    )}
+                    {!documentLoading[key] && document && (
+                      <div>
+                        <p>Datei: {document.original_filename}</p>
+                        <p>
+                          Medientyp: {document.media_type} ·{" "}
+                          {document.byte_size} Bytes
+                        </p>
+                        <small>
+                          Erstellt: {formatDate(document.created_at)} · Inhalt
+                          für diese Revision unveränderlich.
+                        </small>
+                      </div>
+                    )}
+                    {!documentLoading[key] && !document && (
+                      <>
+                        {!documentErrors[key] && (
+                          <p>Noch keine Datei hinterlegt.</p>
+                        )}
+                        <input
+                          aria-label={`Datei für ${material.display_name}`}
+                          type="file"
+                          accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown"
+                          onChange={(event) =>
+                            selectFile(material, event.target.files?.[0])
+                          }
+                        />
+                        {file && <p>Ausgewählt: {file.name}</p>}
+                        <label>
+                          Medientyp
+                          <select
+                            aria-label={`Medientyp für ${material.display_name}`}
+                            value={mediaType}
+                            onChange={(event) =>
+                              setSelectedMediaTypes((current) => ({
+                                ...current,
+                                [key]: event.target.value as AllowedMediaType,
+                              }))
+                            }
+                          >
+                            <option value="">Bitte auswählen</option>
+                            {mediaTypes.map((type) => (
+                              <option key={type} value={type}>
+                                {mediaTypeLabels[type]} ({type})
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => void attachDocument(material)}
+                        >
+                          Datei hinterlegen
+                        </button>
+                      </>
+                    )}
+                    <label>
+                      Neuer Anzeigename
+                      <input
+                        aria-label={`Revision für ${material.display_name}`}
+                        value={
+                          revisionNames[material.id] ?? material.display_name
+                        }
+                        onChange={(event) =>
+                          setRevisionNames((current) => ({
+                            ...current,
+                            [material.id]: event.target.value,
+                          }))
+                        }
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => void reviseMaterial(material)}
+                    >
+                      Revision erstellen
+                    </button>
+                  </article>
+                );
+              })}
             </div>
           )}
         </>

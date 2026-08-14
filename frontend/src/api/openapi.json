@@ -92,6 +92,60 @@
         "title": "ApplicationCaseResponse",
         "type": "object"
       },
+      "ApplicationDocumentResponse": {
+        "properties": {
+          "byte_size": {
+            "title": "Byte Size",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "material_id": {
+            "title": "Material Id",
+            "type": "string"
+          },
+          "material_revision": {
+            "title": "Material Revision",
+            "type": "integer"
+          },
+          "media_type": {
+            "enum": [
+              "application/pdf",
+              "text/plain",
+              "text/markdown"
+            ],
+            "title": "Media Type",
+            "type": "string"
+          },
+          "original_filename": {
+            "title": "Original Filename",
+            "type": "string"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "material_id",
+          "material_revision",
+          "original_filename",
+          "media_type",
+          "byte_size",
+          "sha256",
+          "created_at"
+        ],
+        "title": "ApplicationDocumentResponse",
+        "type": "object"
+      },
       "ApplicationLifecycleEventResponse": {
         "properties": {
           "occurred_at": {
@@ -456,6 +510,20 @@
           "posting_ids"
         ],
         "title": "AvailabilityPromptPayload",
+        "type": "object"
+      },
+      "Body_attach_document_api_application_materials__material_id__revisions__material_revision__document_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_attach_document_api_application_materials__material_id__revisions__material_revision__document_post",
         "type": "object"
       },
       "Body_import_file_api_availability_imports_file_post": {
@@ -3399,6 +3467,83 @@
         ]
       }
     },
+    "/api/application-documents/{document_id}": {
+      "get": {
+        "operationId": "get_document_api_application_documents__document_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationDocumentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Document",
+        "tags": [
+          "application-documents"
+        ]
+      }
+    },
+    "/api/application-documents/{document_id}/content": {
+      "get": {
+        "operationId": "get_content_api_application_documents__document_id__content_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Content",
+        "tags": [
+          "application-documents"
+        ]
+      }
+    },
     "/api/application-materials/{material_id}/revisions": {
       "post": {
         "operationId": "revise_material_api_application_materials__material_id__revisions_post",
@@ -3448,6 +3593,116 @@
         "summary": "Revise Material",
         "tags": [
           "application-cases"
+        ]
+      }
+    },
+    "/api/application-materials/{material_id}/revisions/{material_revision}/document": {
+      "get": {
+        "operationId": "get_for_material_revision_api_application_materials__material_id__revisions__material_revision__document_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "material_id",
+            "required": true,
+            "schema": {
+              "title": "Material Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "material_revision",
+            "required": true,
+            "schema": {
+              "title": "Material Revision",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationDocumentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get For Material Revision",
+        "tags": [
+          "application-documents"
+        ]
+      },
+      "post": {
+        "operationId": "attach_document_api_application_materials__material_id__revisions__material_revision__document_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "material_id",
+            "required": true,
+            "schema": {
+              "title": "Material Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "material_revision",
+            "required": true,
+            "schema": {
+              "title": "Material Revision",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_attach_document_api_application_materials__material_id__revisions__material_revision__document_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationDocumentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Attach Document",
+        "tags": [
+          "application-documents"
         ]
       }
     },

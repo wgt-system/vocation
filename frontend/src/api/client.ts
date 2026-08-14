@@ -55,11 +55,16 @@ export type ApplicationMaterial =
   components["schemas"]["ApplicationMaterialResponse"];
 export type ApplicationMaterialKind =
   components["schemas"]["ApplicationMaterialResponse"]["kind"];
+export type ApplicationDocument =
+  components["schemas"]["ApplicationDocumentResponse"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const isMultipart = init?.body instanceof FormData;
   const response = await fetch(path, {
     ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    headers: isMultipart
+      ? init?.headers
+      : { "Content-Type": "application/json", ...init?.headers },
   });
   if (!response.ok) {
     const body = await response
@@ -72,6 +77,22 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     );
   }
   if (response.status === 204) return undefined as T;
+  return response.json() as Promise<T>;
+}
+
+async function requestNotFoundAsNull<T>(path: string): Promise<T | null> {
+  const response = await fetch(path);
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    const body = await response
+      .json()
+      .catch(() => ({ detail: response.statusText }));
+    throw new Error(
+      typeof body.detail === "string"
+        ? body.detail
+        : JSON.stringify(body.detail),
+    );
+  }
   return response.json() as Promise<T>;
 }
 
@@ -179,6 +200,27 @@ export const api = {
       `/api/application-materials/${materialId}/revisions`,
       { method: "POST", body: JSON.stringify({ display_name: displayName }) },
     ),
+  getApplicationDocumentForMaterialRevision: (
+    materialId: string,
+    revision: number,
+  ) =>
+    requestNotFoundAsNull<ApplicationDocument>(
+      `/api/application-materials/${materialId}/revisions/${revision}/document`,
+    ),
+  attachApplicationDocument: (
+    materialId: string,
+    revision: number,
+    file: File,
+  ) => {
+    const form = new FormData();
+    form.append("file", file);
+    return request<ApplicationDocument>(
+      `/api/application-materials/${materialId}/revisions/${revision}/document`,
+      { method: "POST", body: form },
+    );
+  },
+  getApplicationDocument: (documentId: string) =>
+    request<ApplicationDocument>(`/api/application-documents/${documentId}`),
   listExternalLinks: (opportunityId: string) =>
     request<ExternalLink[]>(
       `/api/external-links/opportunities/${opportunityId}`,

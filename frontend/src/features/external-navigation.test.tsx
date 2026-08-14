@@ -30,6 +30,8 @@ vi.mock("../api/client", () => ({
     listExternalLinks: vi.fn(),
     listApplicationCases: vi.fn(),
     listApplicationMaterials: vi.fn(),
+    getApplicationDocumentForMaterialRevision: vi.fn(),
+    attachApplicationDocument: vi.fn(),
     openExternalLink: vi.fn(),
     listMapLocations: vi.fn(),
     getMapProjection: vi.fn(),
@@ -132,6 +134,9 @@ beforeEach(() => {
   vi.mocked(api.listExternalLinks).mockResolvedValue(links);
   vi.mocked(api.listApplicationCases).mockResolvedValue([]);
   vi.mocked(api.listApplicationMaterials).mockResolvedValue([]);
+  vi.mocked(api.getApplicationDocumentForMaterialRevision).mockResolvedValue(
+    null,
+  );
   vi.mocked(api.openExternalLink).mockResolvedValue(links[0]);
   vi.mocked(api.listMapLocations).mockResolvedValue([]);
   vi.mocked(api.getMapProjection).mockResolvedValue([mapFeature]);

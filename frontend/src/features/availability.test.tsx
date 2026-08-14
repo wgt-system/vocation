@@ -23,6 +23,8 @@ vi.mock("../api/client", () => ({
     listExternalLinks: vi.fn(),
     listApplicationCases: vi.fn(),
     listApplicationMaterials: vi.fn(),
+    getApplicationDocumentForMaterialRevision: vi.fn(),
+    attachApplicationDocument: vi.fn(),
     openExternalLink: vi.fn(),
     listCriteria: vi.fn(),
   },
@@ -125,6 +127,9 @@ beforeEach(() => {
   vi.mocked(api.listExternalLinks).mockResolvedValue([]);
   vi.mocked(api.listApplicationCases).mockResolvedValue([]);
   vi.mocked(api.listApplicationMaterials).mockResolvedValue([]);
+  vi.mocked(api.getApplicationDocumentForMaterialRevision).mockResolvedValue(
+    null,
+  );
 });
 afterEach(() => {
   cleanup();
