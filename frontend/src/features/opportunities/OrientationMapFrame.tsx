@@ -188,14 +188,19 @@ export function OrientationMapFrame({
 
       if (envelope.type === "bridge.ready") {
         setBridgeReady(true);
+        onHostError("");
         return;
       }
       if (envelope.type === "bridge.error") {
         onHostError("Orientation hat den aktuellen Karteninhalt abgelehnt.");
         return;
       }
-      if (envelope.type === "map.status" && envelope.payload.status === "error") {
-        onHostError("Orientation-Kartenrendering ist nicht verfügbar.");
+      if (envelope.type === "map.status") {
+        if (envelope.payload.status === "ready") {
+          onHostError("");
+        } else if (envelope.payload.status === "error") {
+          onHostError("Orientation-Kartenrendering ist nicht verfügbar.");
+        }
         return;
       }
       if (envelope.type !== "action.activated") return;
