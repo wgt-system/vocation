@@ -51,8 +51,8 @@ from vocation.infrastructure.external_link_repository import SqlAlchemyExternalL
 from vocation.infrastructure.filesystem_application_document_store import FilesystemApplicationDocumentStore
 from vocation.infrastructure.group_repository import SqlAlchemyOpportunityGroupRepository
 from vocation.infrastructure.map_location_repository import SqlAlchemyMapLocationResolutionRepository
-from vocation.infrastructure.nominatim_geocoder import NominatimGeocoder
 from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
+from vocation.infrastructure.orientation_geocoder import OrientationGeocoder
 from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersonalTriageRepository
 from vocation.infrastructure.posting_identity_repository import SqlAlchemyPostingIdentityRepository
 from vocation.infrastructure.prompt_context_repository import SqlAlchemyPromptContextSnapshotRepository
@@ -79,7 +79,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         try:
             yield
         finally:
-            app.state.nominatim_geocoder.close()
+            app.state.orientation_geocoder.close()
             database.dispose()
 
     app = FastAPI(title="Vocation", version=__version__, lifespan=lifespan)
@@ -112,8 +112,10 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         FilesystemApplicationDocumentStore(settings.application_document_store_dir),
     )
     app.state.opportunity_group_service = OpportunityGroupService(SqlAlchemyOpportunityGroupRepository(database.session_factory))
-    app.state.nominatim_geocoder = NominatimGeocoder(settings.nominatim_base_url)
-    app.state.map_service = MapService(SqlAlchemyMapLocationResolutionRepository(database.session_factory), app.state.nominatim_geocoder)
+    app.state.orientation_geocoder = OrientationGeocoder(settings.orientation_base_url)
+    app.state.map_service = MapService(
+        SqlAlchemyMapLocationResolutionRepository(database.session_factory), app.state.orientation_geocoder
+    )
     app.state.external_navigation_service = ExternalNavigationService(
         SqlAlchemyExternalLinkRepository(database.session_factory), SystemBrowserAdapter()
     )
