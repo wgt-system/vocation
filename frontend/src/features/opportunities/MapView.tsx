@@ -1,7 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   api,
@@ -11,28 +8,19 @@ import {
   type OpportunityListItem,
 } from "../../api/client";
 import { EmptyState, ErrorState, Loading } from "../../components/AsyncState";
+import {
+  OrientationMapFrame,
+  type OrientationMapAction,
+} from "./OrientationMapFrame";
 
-const tileUrl =
-  import.meta.env.VITE_MAP_TILE_URL ??
-  "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-const markerIcon = L.divIcon({
-  className: "map-marker-icon",
-  html: "",
-  iconSize: [18, 18],
-  iconAnchor: [9, 9],
-});
 const precisionLabels: Record<string, string> = {
   exact_address: "Exakte Adresse",
+  site: "Standort",
   city: "Stadt",
   region: "Region",
   approximate: "Ungefähr",
-};
-const availabilityLabels = {
-  available: "Verfügbar",
-  unavailable: "Nicht verfügbar",
-  uncertain: "Unsicher",
   unknown: "Unbekannt",
-} as const;
+};
 
 type Draft = {
   query: string;
@@ -43,18 +31,6 @@ type Draft = {
 
 function precisionLabel(precision: string) {
   return precisionLabels[precision] ?? precision;
-}
-
-function FitBounds({ features }: { features: MapProjectionFeature[] }) {
-  const map = useMap();
-  useEffect(() => {
-    if (features.length === 0) return;
-    const bounds = L.latLngBounds(
-      features.map((feature) => [feature.latitude, feature.longitude]),
-    );
-    map.fitBounds(bounds, { padding: [24, 24] });
-  }, [features, map]);
-  return null;
 }
 
 function locationText(location: MapLocation) {
@@ -74,6 +50,7 @@ export function MapView({
   const [locations, setLocations] = useState<MapLocation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mapHostError, setMapHostError] = useState("");
   const [mutationError, setMutationError] = useState("");
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [externalLinksByOpportunity, setExternalLinksByOpportunity] = useState<
@@ -85,8 +62,6 @@ export function MapView({
   const [externalLinkErrors, setExternalLinkErrors] = useState<
     Record<string, string>
   >({});
-  const [selectedPostingByOpportunity, setSelectedPostingByOpportunity] =
-    useState<Record<string, string>>({});
   const [openingExternalLink, setOpeningExternalLink] = useState("");
   const externalLinkCache = useRef<Record<string, ExternalLink[]>>({});
   const externalLinkRequests = useRef(new Set<string>());
@@ -109,6 +84,7 @@ export function MapView({
     let active = true;
     setLoading(true);
     setError("");
+    setMapHostError("");
     setFeatures([]);
     Promise.all([
       api.listMapLocations(),
@@ -155,6 +131,7 @@ export function MapView({
             ...current,
             [id]: links,
           }));
+          setExternalLinkErrors((current) => ({ ...current, [id]: "" }));
         } catch (reason) {
           setExternalLinkErrors((current) => ({
             ...current,
@@ -255,24 +232,35 @@ export function MapView({
     );
   }
 
-  async function openExternalLink(opportunityId: string, postingId?: string) {
-    const key = `${opportunityId}:${postingId ?? "preferred"}`;
-    setOpeningExternalLink(key);
-    setExternalLinkErrors((current) => ({ ...current, [opportunityId]: "" }));
-    try {
-      await api.openExternalLink(opportunityId, postingId);
-    } catch (reason) {
+  const handleMapAction = useCallback(
+    async (action: OrientationMapAction) => {
+      if (action.kind === "details") {
+        onSelect(action.opportunityId);
+        return;
+      }
+
+      const key = `${action.opportunityId}:${action.postingId ?? "preferred"}`;
+      setOpeningExternalLink(key);
       setExternalLinkErrors((current) => ({
         ...current,
-        [opportunityId]:
-          reason instanceof Error
-            ? reason.message
-            : "Originalanzeige konnte nicht geöffnet werden.",
+        [action.opportunityId]: "",
       }));
-    } finally {
-      setOpeningExternalLink("");
-    }
-  }
+      try {
+        await api.openExternalLink(action.opportunityId, action.postingId);
+      } catch (reason) {
+        setExternalLinkErrors((current) => ({
+          ...current,
+          [action.opportunityId]:
+            reason instanceof Error
+              ? reason.message
+              : "Originalanzeige konnte nicht geöffnet werden.",
+        }));
+      } finally {
+        setOpeningExternalLink("");
+      }
+    },
+    [onSelect],
+  );
 
   return (
     <div className="map-workspace">
@@ -280,6 +268,16 @@ export function MapView({
       {mutationError && (
         <p className="state state-error" role="alert">
           {mutationError}
+        </p>
+      )}
+      {mapHostError && (
+        <p className="state state-error" role="alert">
+          {mapHostError}
+        </p>
+      )}
+      {openingExternalLink && (
+        <p className="state" role="status">
+          Originalanzeige wird geöffnet …
         </p>
       )}
       {loading && <Loading label="Karte wird geladen …" />}
@@ -293,132 +291,14 @@ export function MapView({
         </EmptyState>
       )}
       {features.length > 0 && (
-        <MapContainer
-          className="opportunity-map"
-          center={[51.1657, 10.4515]}
-          zoom={6}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url={tileUrl}
-          />
-          <FitBounds features={features} />
-          {features.map((feature) => (
-            <Marker
-              key={feature.feature_id}
-              position={[feature.latitude, feature.longitude]}
-              icon={markerIcon}
-            >
-              <Popup>
-                <div className="map-popup">
-                  <strong>{feature.title}</strong>
-                  <span>{feature.company_name}</span>
-                  <span>{feature.location_label}</span>
-                  <span>Precision: {precisionLabel(feature.precision)}</span>
-                  <span>Status: {feature.tracking_status}</span>
-                  <span>
-                    Availability: {availabilityLabels[feature.availability]}
-                  </span>
-                  {feature.groups.length > 0 && (
-                    <span>
-                      Groups/Waves:{" "}
-                      {feature.groups.map((group) => group.name).join(" · ")}
-                    </span>
-                  )}
-                  {!externalLinksLoaded.has(feature.opportunity_id) && (
-                    <small>Originalanzeigen werden geladen …</small>
-                  )}
-                  {externalLinksLoaded.has(feature.opportunity_id) &&
-                    (externalLinksByOpportunity[feature.opportunity_id]
-                      ?.length ?? 0) === 0 && (
-                      <small>Keine gültige Originalanzeige verfügbar</small>
-                    )}
-                  {(externalLinksByOpportunity[feature.opportunity_id]
-                    ?.length ?? 0) > 0 && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          void openExternalLink(feature.opportunity_id)
-                        }
-                        disabled={
-                          openingExternalLink ===
-                          `${feature.opportunity_id}:preferred`
-                        }
-                      >
-                        Originalanzeige öffnen
-                      </button>
-                      {(externalLinksByOpportunity[feature.opportunity_id]
-                        ?.length ?? 0) > 1 && (
-                        <>
-                          <select
-                            aria-label={`Originalanzeige für ${feature.title}`}
-                            value={
-                              selectedPostingByOpportunity[
-                                feature.opportunity_id
-                              ] ??
-                              externalLinksByOpportunity[
-                                feature.opportunity_id
-                              ]?.[0]?.posting_id ??
-                              ""
-                            }
-                            onChange={(event) =>
-                              setSelectedPostingByOpportunity((current) => ({
-                                ...current,
-                                [feature.opportunity_id]: event.target.value,
-                              }))
-                            }
-                          >
-                            {externalLinksByOpportunity[
-                              feature.opportunity_id
-                            ]?.map((link) => (
-                              <option
-                                key={link.posting_id}
-                                value={link.posting_id}
-                              >
-                                {link.source_name}
-                                {link.display_label
-                                  ? ` · ${link.display_label}`
-                                  : ""}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              void openExternalLink(
-                                feature.opportunity_id,
-                                selectedPostingByOpportunity[
-                                  feature.opportunity_id
-                                ] ??
-                                  externalLinksByOpportunity[
-                                    feature.opportunity_id
-                                  ]?.[0]?.posting_id,
-                              )
-                            }
-                          >
-                            Quelle öffnen
-                          </button>
-                        </>
-                      )}
-                    </>
-                  )}
-                  {externalLinkErrors[feature.opportunity_id] && (
-                    <small className="map-popup-error">
-                      {externalLinkErrors[feature.opportunity_id]}
-                    </small>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => onSelect(feature.opportunity_id)}
-                  >
-                    Details
-                  </button>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
+        <OrientationMapFrame
+          features={features}
+          externalLinksByOpportunity={externalLinksByOpportunity}
+          externalLinksLoaded={externalLinksLoaded}
+          externalLinkErrors={externalLinkErrors}
+          onAction={(action) => void handleMapAction(action)}
+          onHostError={setMapHostError}
+        />
       )}
 
       <section className="panel map-locations-panel">

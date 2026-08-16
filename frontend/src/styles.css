@@ -364,23 +364,6 @@ nav button.active {
   border-radius: 16px;
   z-index: 0;
 }
-.map-marker-icon {
-  width: 18px;
-  height: 18px;
-  border: 3px solid #fff;
-  border-radius: 50% 50% 50% 0;
-  background: #1e5b48;
-  box-shadow: 0 1px 5px rgb(0 0 0 / 35%);
-  transform: rotate(-45deg);
-}
-.map-popup {
-  display: grid;
-  gap: 0.3rem;
-  min-width: 180px;
-}
-.map-popup button {
-  margin-top: 0.25rem;
-}
 .map-locations-panel h2 {
   margin-top: 0;
 }
