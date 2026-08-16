@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-import httpx
+import json
+from urllib.parse import parse_qs, urlsplit
+
 import pytest
 from vocation.infrastructure.orientation_geocoder import (
     OrientationGeocoder,
@@ -9,19 +11,21 @@ from vocation.infrastructure.orientation_geocoder import (
 )
 
 
+def encode(payload) -> bytes:
+    return json.dumps(payload).encode("utf-8")
+
+
 def make_geocoder(handler):
-    client = httpx.Client(transport=httpx.MockTransport(handler), base_url="http://orientation.test")
-    return OrientationGeocoder("http://orientation.test", client=client)
+    return OrientationGeocoder("http://orientation.test", transport=handler)
 
 
 def test_successful_parsing_and_request_contract() -> None:
-    requests: list[httpx.Request] = []
+    requests: list[tuple[str, float]] = []
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        return httpx.Response(
-            200,
-            json={
+    def handler(url: str, timeout: float) -> bytes:
+        requests.append((url, timeout))
+        return encode(
+            {
                 "places": [
                     {
                         "providerReference": "photon:node:123",
@@ -42,7 +46,7 @@ def test_successful_parsing_and_request_contract() -> None:
                         },
                     }
                 ]
-            },
+            }
         )
 
     result = make_geocoder(handler).geocode(" Berlin, Germany ")
@@ -54,12 +58,14 @@ def test_successful_parsing_and_request_contract() -> None:
         "photon:node:123",
         "Berlin, Deutschland",
     )
-    assert requests[0].url.path == "/api/v1/places/search"
-    assert dict(requests[0].url.params) == {"q": "Berlin, Germany", "limit": "1"}
+    parsed = urlsplit(requests[0][0])
+    assert parsed.path == "/api/v1/places/search"
+    assert parse_qs(parsed.query) == {"q": ["Berlin, Germany"], "limit": ["1"]}
+    assert requests[0][1] == OrientationGeocoder.REQUEST_TIMEOUT_SECONDS
 
 
 def test_no_result() -> None:
-    assert make_geocoder(lambda _: httpx.Response(200, json={"places": []})).geocode("unknown") is None
+    assert make_geocoder(lambda _url, _timeout: encode({"places": []})).geocode("unknown") is None
 
 
 @pytest.mark.parametrize(
@@ -82,28 +88,36 @@ def test_no_result() -> None:
 )
 def test_malformed_response_is_rejected(payload) -> None:
     with pytest.raises(OrientationGeocoderResponseError):
-        make_geocoder(lambda _: httpx.Response(200, json=payload)).geocode("query")
+        make_geocoder(lambda _url, _timeout: encode(payload)).geocode("query")
+
+
+def test_invalid_json_is_rejected() -> None:
+    with pytest.raises(OrientationGeocoderResponseError):
+        make_geocoder(lambda _url, _timeout: b"not-json").geocode("query")
 
 
 def test_network_failure_is_deterministic() -> None:
-    def handler(_: httpx.Request) -> httpx.Response:
-        raise httpx.ConnectError("offline")
+    def handler(_url: str, _timeout: float) -> bytes:
+        raise OSError("offline")
 
     with pytest.raises(OrientationGeocoderUnavailableError):
         make_geocoder(handler).geocode("query")
 
 
-def test_non_success_response_is_unavailable() -> None:
+def test_transport_unavailable_failure_is_preserved() -> None:
+    def handler(_url: str, _timeout: float) -> bytes:
+        raise OrientationGeocoderUnavailableError("Orientation place search is unavailable.")
+
     with pytest.raises(OrientationGeocoderUnavailableError):
-        make_geocoder(lambda _: httpx.Response(503, json={"code": "provider.unavailable"})).geocode("query")
+        make_geocoder(handler).geocode("query")
 
 
 def test_blank_query_is_rejected_without_request() -> None:
-    requests: list[httpx.Request] = []
+    requests: list[str] = []
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        return httpx.Response(200, json={"places": []})
+    def handler(url: str, _timeout: float) -> bytes:
+        requests.append(url)
+        return encode({"places": []})
 
     with pytest.raises(ValueError):
         make_geocoder(handler).geocode("   ")
