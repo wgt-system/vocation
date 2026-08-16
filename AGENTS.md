@@ -8,6 +8,8 @@ Vocation ist eine eigenständig ausführbare, überwiegend lesende Desktop-Anwen
 
 Die systemweite Architektur-Quelle ist `wgt-system/architecture`. Vor neuen Cross-Context-, Synchronization-/Relay-, Shared-Infrastructure- oder generischen Capability-Entscheidungen sind dort `ARCHITECTURE_PRINCIPLES.md`, `CAPABILITY_CATALOG.md` und `INTEGRATION_POLICY.md` zu prüfen.
 
+Die systemweite Agent-/Git-/GitHub-Ausführungsrichtlinie in `wgt-system/architecture/AGENTS.md` gilt auch hier und wird nicht in normalen Worker-Prompts dupliziert.
+
 Generische dauerhafte opaque Cross-Device-Zustellung gehört zum separaten akzeptierten Bounded Context Conveyance; der aktuelle akzeptierte Delivery Mode ist `Current Object`. Vocation bleibt Eigentümer seiner Publication-, Command-, Authority-, Merge-, Conflict- und Reconciliation-Semantik. WGT besitzt Integration und Presentation, nicht Vocation-Fachlogik. Wenn eine bestehende generische Capability konzeptionell passt, aber nicht ausreicht, geht die konkrete Anforderung an den System Architecture Control Plane zurück. Keine Runtime darf vom Architecture Repository abhängen.
 
 ## Verbindlicher Technologie-Stack für Version 1
