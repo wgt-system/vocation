@@ -73,7 +73,10 @@ export function buildOrientationScene(
         { label: "Location", value: feature.location_label },
         { label: "Precision", value: precisionLabel(feature.precision) },
         { label: "Status", value: feature.tracking_status },
-        { label: "Availability", value: availabilityLabel(feature.availability) },
+        {
+          label: "Availability",
+          value: availabilityLabel(feature.availability),
+        },
         ...(feature.groups.length > 0
           ? [
               {
@@ -167,13 +170,23 @@ export function OrientationMapFrame({
         externalLinksLoaded,
         externalLinkErrors,
       ),
-    [features, externalLinksByOpportunity, externalLinksLoaded, externalLinkErrors],
+    [
+      features,
+      externalLinksByOpportunity,
+      externalLinksLoaded,
+      externalLinkErrors,
+    ],
   );
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
       const iframeWindow = iframeRef.current?.contentWindow;
-      if (!iframeWindow || event.source !== iframeWindow || typeof event.data !== "string") return;
+      if (
+        !iframeWindow ||
+        event.source !== iframeWindow ||
+        typeof event.data !== "string"
+      )
+        return;
 
       let parsed: unknown;
       try {
@@ -222,7 +235,10 @@ export function OrientationMapFrame({
       if (actionRef === DETAILS_ACTION) {
         onAction({ opportunityId: feature.opportunity_id, kind: "details" });
       } else if (actionRef === OPEN_PREFERRED_ACTION) {
-        onAction({ opportunityId: feature.opportunity_id, kind: "open-preferred" });
+        onAction({
+          opportunityId: feature.opportunity_id,
+          kind: "open-preferred",
+        });
       } else if (actionRef.startsWith(OPEN_POSTING_PREFIX)) {
         const postingId = actionRef.slice(OPEN_POSTING_PREFIX.length);
         if (postingId) {
