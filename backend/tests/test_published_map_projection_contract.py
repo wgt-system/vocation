@@ -43,9 +43,7 @@ def test_missing_required_property_rejects(validator: Draft202012Validator, fiel
     ("field", "value"),
     [("capability", "vocation.other"), ("contract_version", "2.0")],
 )
-def test_capability_and_version_are_frozen(
-    validator: Draft202012Validator, field: str, value: str
-) -> None:
+def test_capability_and_version_are_frozen(validator: Draft202012Validator, field: str, value: str) -> None:
     artifact = load(EXAMPLE)
     artifact[field] = value
     assert list(validator.iter_errors(artifact))
@@ -86,9 +84,7 @@ def test_unknown_property_rejects_at_each_object_level(validator: Draft202012Val
         ("availability", "available"),
     ],
 )
-def test_invalid_or_forbidden_fields_reject(
-    validator: Draft202012Validator, field: str, value: object
-) -> None:
+def test_invalid_or_forbidden_fields_reject(validator: Draft202012Validator, field: str, value: object) -> None:
     artifact = load(EXAMPLE)
     if field in {"latitude", "longitude"}:
         artifact["features"][0]["coordinates"][field] = value

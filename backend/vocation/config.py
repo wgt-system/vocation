@@ -19,7 +19,7 @@ class Settings:
     output_contract_path: Path
     update_prompt_dir: Path
     application_document_store_dir: Path
-    nominatim_base_url: str = "https://nominatim.openstreetmap.org"
+    orientation_base_url: str = "http://127.0.0.1:8080"
 
 
 def get_settings() -> Settings:
@@ -37,5 +37,5 @@ def get_settings() -> Settings:
         output_contract_path=RESOURCE_ROOT / "prompts" / "output-contract.md",
         update_prompt_dir=RESOURCE_ROOT / "prompts",
         application_document_store_dir=Path(os.getenv("VOCATION_DOCUMENT_STORE_DIR", str(data_dir / "application-documents"))),
-        nominatim_base_url=os.getenv("VOCATION_NOMINATIM_BASE_URL", "https://nominatim.openstreetmap.org"),
+        orientation_base_url=os.getenv("VOCATION_ORIENTATION_BASE_URL", "http://127.0.0.1:8080"),
     )
