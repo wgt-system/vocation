@@ -89,10 +89,12 @@ function emitBridgeMessage(
   iframe: HTMLIFrameElement,
   type: string,
   payload: Record<string, unknown>,
+  origin = window.location.origin,
 ) {
   window.dispatchEvent(
     new MessageEvent("message", {
       source: iframe.contentWindow,
+      origin,
       data: JSON.stringify({
         contract: "orientation.host-bridge",
         version: "1.0",
@@ -240,7 +242,7 @@ describe("Orientation map boundary", () => {
     ]);
   });
 
-  it("accepts bridge events only from its own Orientation iframe", async () => {
+  it("accepts bridge events only from its own same-origin Orientation iframe", async () => {
     const onAction = vi.fn();
     render(
       <OrientationMapFrame
@@ -259,6 +261,7 @@ describe("Orientation map boundary", () => {
     window.dispatchEvent(
       new MessageEvent("message", {
         source: window,
+        origin: window.location.origin,
         data: JSON.stringify({
           contract: "orientation.host-bridge",
           version: "1.0",
@@ -273,6 +276,18 @@ describe("Orientation map boundary", () => {
     );
     expect(onAction).not.toHaveBeenCalled();
 
+    emitBridgeMessage(
+      iframe,
+      "action.activated",
+      {
+        featureRef: "feature-1",
+        sourceRef: "vocation.map_projection",
+        actionRef: "details",
+      },
+      "https://attacker.invalid",
+    );
+    expect(onAction).not.toHaveBeenCalled();
+
     emitBridgeMessage(iframe, "action.activated", {
       featureRef: "feature-1",
       sourceRef: "vocation.map_projection",
@@ -284,5 +299,27 @@ describe("Orientation map boundary", () => {
         kind: "details",
       }),
     );
+  });
+
+  it("sends scene.replace only to the iframe's same origin", async () => {
+    render(
+      <OrientationMapFrame
+        features={[feature]}
+        externalLinksByOpportunity={{}}
+        externalLinksLoaded={new Set(["opp-1"])}
+        externalLinkErrors={{}}
+        onAction={vi.fn()}
+        onHostError={vi.fn()}
+      />,
+    );
+    const iframe = screen.getByTitle(
+      "Vocation Opportunities map",
+    ) as HTMLIFrameElement;
+    const postMessage = vi.spyOn(iframe.contentWindow!, "postMessage");
+
+    emitBridgeMessage(iframe, "bridge.ready", {});
+
+    await waitFor(() => expect(postMessage).toHaveBeenCalled());
+    expect(postMessage.mock.calls.at(-1)?.[1]).toBe(window.location.origin);
   });
 });
