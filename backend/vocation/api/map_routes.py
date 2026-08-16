@@ -21,7 +21,10 @@ from vocation.infrastructure.map_location_repository import (
     MapLocationResolutionValidationError,
     WorkLocationNotFoundError,
 )
-from vocation.infrastructure.nominatim_geocoder import NominatimResponseError, NominatimUnavailableError
+from vocation.infrastructure.orientation_geocoder import (
+    OrientationGeocoderResponseError,
+    OrientationGeocoderUnavailableError,
+)
 
 router = APIRouter(prefix="/api/map", tags=["map"])
 
@@ -118,9 +121,9 @@ def geocode_location(work_location_id: str, payload: GeocodeResolutionPayload, r
         if isinstance(error, GeocodingNoResultError):
             detail = "No geocoding result found."
         raise HTTPException(status_code=status, detail=detail) from error
-    except (GeocodingQueryError, NominatimResponseError) as error:
+    except (GeocodingQueryError, OrientationGeocoderResponseError) as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
-    except NominatimUnavailableError as error:
+    except OrientationGeocoderUnavailableError as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
 
 
