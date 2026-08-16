@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -91,18 +91,20 @@ function emitBridgeMessage(
   payload: Record<string, unknown>,
   origin = window.location.origin,
 ) {
-  window.dispatchEvent(
-    new MessageEvent("message", {
-      source: iframe.contentWindow,
-      origin,
-      data: JSON.stringify({
-        contract: "orientation.host-bridge",
-        version: "1.0",
-        type,
-        payload,
+  act(() => {
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        source: iframe.contentWindow,
+        origin,
+        data: JSON.stringify({
+          contract: "orientation.host-bridge",
+          version: "1.0",
+          type,
+          payload,
+        }),
       }),
-    }),
-  );
+    );
+  });
 }
 
 beforeEach(() => {
