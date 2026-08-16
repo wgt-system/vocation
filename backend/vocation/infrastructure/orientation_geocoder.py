@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import json
+from collections.abc import Callable
 from typing import Any
-
-import httpx
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 from vocation.application.map import Geocoder, GeocodingResult
+
+OrientationTransport = Callable[[str, float], bytes]
 
 
 class OrientationGeocoderError(RuntimeError):
@@ -20,31 +25,47 @@ class OrientationGeocoderResponseError(OrientationGeocoderError):
 
 
 class OrientationGeocoder(Geocoder):
-    def __init__(self, base_url: str, *, client: httpx.Client | None = None) -> None:
-        self._client = client or httpx.Client(
-            base_url=base_url.rstrip("/"),
-            timeout=httpx.Timeout(connect=5.0, read=10.0, write=5.0, pool=5.0),
-        )
-        self._owns_client = client is None
+    MAX_RESPONSE_BYTES = 1_048_576
+    REQUEST_TIMEOUT_SECONDS = 10.0
+
+    def __init__(self, base_url: str, *, transport: OrientationTransport | None = None) -> None:
+        self._base_url = base_url.rstrip("/")
+        self._transport = transport or self._fetch
 
     def geocode(self, query: str) -> GeocodingResult | None:
         query = query.strip()
         if not query:
             raise ValueError("Geocoding query must be nonempty.")
+
+        url = f"{self._base_url}/api/v1/places/search?{urlencode({'q': query, 'limit': 1})}"
         try:
-            response = self._client.get("/api/v1/places/search", params={"q": query, "limit": 1})
-            response.raise_for_status()
-        except httpx.HTTPError as error:
+            raw_payload = self._transport(url, self.REQUEST_TIMEOUT_SECONDS)
+        except OrientationGeocoderError:
+            raise
+        except (OSError, TimeoutError) as error:
             raise OrientationGeocoderUnavailableError("Orientation place search is unavailable.") from error
+
         try:
-            payload = response.json()
-        except ValueError as error:
+            payload = json.loads(raw_payload)
+        except (json.JSONDecodeError, UnicodeDecodeError) as error:
             raise OrientationGeocoderResponseError("Orientation place-search response is not valid JSON.") from error
         return self._parse(payload)
 
     def close(self) -> None:
-        if self._owns_client:
-            self._client.close()
+        """Keep application composition symmetric with replaceable HTTP adapters."""
+
+    @classmethod
+    def _fetch(cls, url: str, timeout_seconds: float) -> bytes:
+        request = Request(url, headers={"Accept": "application/json"})
+        try:
+            with urlopen(request, timeout=timeout_seconds) as response:  # noqa: S310 - trusted configured local Orientation URL
+                payload = response.read(cls.MAX_RESPONSE_BYTES + 1)
+        except (HTTPError, URLError, OSError, TimeoutError) as error:
+            raise OrientationGeocoderUnavailableError("Orientation place search is unavailable.") from error
+
+        if len(payload) > cls.MAX_RESPONSE_BYTES:
+            raise OrientationGeocoderResponseError("Orientation place-search response is too large.")
+        return payload
 
     @staticmethod
     def _parse(payload: Any) -> GeocodingResult | None:
