@@ -121,6 +121,7 @@ function emitOrientationAction(iframe: HTMLIFrameElement, actionRef: string) {
   window.dispatchEvent(
     new MessageEvent("message", {
       source: iframe.contentWindow,
+      origin: window.location.origin,
       data: JSON.stringify({
         contract: "orientation.host-bridge",
         version: "1.0",
