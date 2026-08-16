@@ -113,9 +113,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     )
     app.state.opportunity_group_service = OpportunityGroupService(SqlAlchemyOpportunityGroupRepository(database.session_factory))
     app.state.orientation_geocoder = OrientationGeocoder(settings.orientation_base_url)
-    app.state.map_service = MapService(
-        SqlAlchemyMapLocationResolutionRepository(database.session_factory), app.state.orientation_geocoder
-    )
+    app.state.map_service = MapService(SqlAlchemyMapLocationResolutionRepository(database.session_factory), app.state.orientation_geocoder)
     app.state.external_navigation_service = ExternalNavigationService(
         SqlAlchemyExternalLinkRepository(database.session_factory), SystemBrowserAdapter()
     )
