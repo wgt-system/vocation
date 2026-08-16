@@ -184,6 +184,7 @@ export function OrientationMapFrame({
       if (
         !iframeWindow ||
         event.source !== iframeWindow ||
+        event.origin !== window.location.origin ||
         typeof event.data !== "string"
       )
         return;
@@ -266,7 +267,7 @@ export function OrientationMapFrame({
         type: "scene.replace",
         payload: scene,
       }),
-      "*",
+      window.location.origin,
     );
   }, [bridgeReady, scene]);
 
