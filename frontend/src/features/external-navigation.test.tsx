@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -12,16 +11,6 @@ import {
 } from "../api/client";
 import { OpportunityDetailView } from "./opportunities/OpportunityDetailView";
 import { MapView } from "./opportunities/MapView";
-
-vi.mock("react-leaflet", () => ({
-  MapContainer: ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  ),
-  TileLayer: () => null,
-  Popup: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  Marker: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  useMap: () => ({ fitBounds: vi.fn() }),
-}));
 
 vi.mock("../api/client", () => ({
   api: {
@@ -128,6 +117,24 @@ const mapFeature: MapProjectionFeature = {
   groups: [],
 };
 
+function emitOrientationAction(iframe: HTMLIFrameElement, actionRef: string) {
+  window.dispatchEvent(
+    new MessageEvent("message", {
+      source: iframe.contentWindow,
+      data: JSON.stringify({
+        contract: "orientation.host-bridge",
+        version: "1.0",
+        type: "action.activated",
+        payload: {
+          featureRef: "feature-1",
+          sourceRef: "vocation.map_projection",
+          actionRef,
+        },
+      }),
+    }),
+  );
+}
+
 beforeEach(() => {
   vi.mocked(api.listCriteria).mockResolvedValue([]);
   vi.mocked(api.getOpportunity).mockResolvedValue(detail);
@@ -183,14 +190,26 @@ describe("External navigation UI", () => {
     ).toBeInTheDocument();
   });
 
-  it("uses External Links for map popup navigation instead of projection URLs", async () => {
-    const user = userEvent.setup();
+  it("uses Vocation External Links for Orientation map actions instead of projection URLs", async () => {
     render(<MapView visibleItems={[mapItem]} onSelect={vi.fn()} />);
-    await user.click(
-      await screen.findByRole("button", { name: "Originalanzeige öffnen" }),
+    const iframe = (await screen.findByTitle(
+      "Vocation Opportunities map",
+    )) as HTMLIFrameElement;
+
+    await waitFor(() =>
+      expect(api.listExternalLinks).toHaveBeenCalledWith("opp-1"),
     );
-    expect(api.listExternalLinks).toHaveBeenCalledWith("opp-1");
-    expect(api.openExternalLink).toHaveBeenCalledWith("opp-1", undefined);
+
+    emitOrientationAction(iframe, "open-preferred");
+    await waitFor(() =>
+      expect(api.openExternalLink).toHaveBeenCalledWith("opp-1", undefined),
+    );
+
+    emitOrientationAction(iframe, "open-posting:posting-2");
+    await waitFor(() =>
+      expect(api.openExternalLink).toHaveBeenCalledWith("opp-1", "posting-2"),
+    );
+
     expect(
       screen.queryByText("https://example.test/one"),
     ).not.toBeInTheDocument();
