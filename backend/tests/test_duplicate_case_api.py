@@ -100,6 +100,11 @@ def seed_duplicate_cases(client) -> dict[str, str]:
     }
 
 
+def _subject(case: dict, subject_id: str) -> dict:
+    subjects = (case["left_subject"], case["right_subject"])
+    return next(subject for subject in subjects if subject["subject_id"] == subject_id)
+
+
 def test_duplicate_case_review_api_lists_both_subject_types_with_context(client) -> None:
     seeded = seed_duplicate_cases(client)
 
@@ -110,10 +115,12 @@ def test_duplicate_case_review_api_lists_both_subject_types_with_context(client)
 
     opportunity_case = next(item for item in cases if item["subject_type"] == "opportunity")
     assert opportunity_case["id"] == seeded["opportunity_case_id"]
-    assert opportunity_case["left_subject"]["subject_type"] == "opportunity"
-    assert opportunity_case["left_subject"]["title"]
-    assert opportunity_case["left_subject"]["context"]
-    assert opportunity_case["right_subject"]["title"] == "Junior Software Engineer Alternative"
+    original_opportunity = _subject(opportunity_case, seeded["opportunity_id"])
+    alternative_opportunity = _subject(opportunity_case, "duplicate-api-opportunity-2")
+    assert original_opportunity["subject_type"] == "opportunity"
+    assert original_opportunity["title"]
+    assert original_opportunity["context"]
+    assert alternative_opportunity["title"] == "Junior Software Engineer Alternative"
     assert opportunity_case["source_references"][0]["source_name"]
     assert opportunity_case["source_references"][0]["url"].startswith("https://")
     assert opportunity_case["current_decision"] is None
@@ -123,10 +130,12 @@ def test_duplicate_case_review_api_lists_both_subject_types_with_context(client)
 
     posting_case = next(item for item in cases if item["subject_type"] == "posting")
     assert posting_case["id"] == seeded["posting_case_id"]
-    assert posting_case["left_subject"]["subject_type"] == "posting"
-    assert posting_case["left_subject"]["title"]
-    assert posting_case["left_subject"]["context"]
-    assert posting_case["right_subject"]["title"] == "Junior Software Engineer Alternative Posting"
+    original_posting = _subject(posting_case, seeded["posting_id"])
+    alternative_posting = _subject(posting_case, "duplicate-api-posting-2")
+    assert original_posting["subject_type"] == "posting"
+    assert original_posting["title"]
+    assert original_posting["context"]
+    assert alternative_posting["title"] == "Junior Software Engineer Alternative Posting"
     assert len(posting_case["source_references"]) == 2
 
     filtered = client.get(
