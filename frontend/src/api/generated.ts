@@ -262,6 +262,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/duplicate-cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Duplicate Cases */
+        get: operations["list_duplicate_cases_api_duplicate_cases_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/duplicate-cases/{case_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Duplicate Case */
+        get: operations["get_duplicate_case_api_duplicate_cases__case_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/duplicate-cases/{case_id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decide Duplicate Case */
+        post: operations["decide_duplicate_case_api_duplicate_cases__case_id__decisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/external-links/opportunities/{opportunity_id}": {
         parameters: {
             query?: never;
@@ -1190,6 +1241,97 @@ export interface components {
             resulting_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
             /** Reverses Decision Id */
             reverses_decision_id: string | null;
+        };
+        /** DuplicateCaseReviewResponse */
+        DuplicateCaseReviewResponse: {
+            /** Confidence */
+            confidence: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            current_decision: components["schemas"]["DuplicateDecisionResponse"] | null;
+            /** Decision History */
+            decision_history: components["schemas"]["DuplicateDecisionResponse"][];
+            /** Evidence Summary */
+            evidence_summary: string;
+            /** Id */
+            id: string;
+            /** Is Resolved */
+            is_resolved: boolean;
+            /** Is Reviewed */
+            is_reviewed: boolean;
+            left_subject: components["schemas"]["DuplicateSubjectSummaryResponse"];
+            right_subject: components["schemas"]["DuplicateSubjectSummaryResponse"];
+            /** Source References */
+            source_references: components["schemas"]["DuplicateSourceReferenceSummaryResponse"][];
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "opportunity" | "posting";
+        };
+        /** DuplicateDecisionPayload */
+        DuplicateDecisionPayload: {
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "confirmed_duplicate" | "confirmed_distinct" | "related_but_distinct" | "keep_unresolved";
+            /** Reason */
+            reason: string;
+        };
+        /** DuplicateDecisionResponse */
+        DuplicateDecisionResponse: {
+            /**
+             * Decided At
+             * Format: date-time
+             */
+            decided_at: string;
+            /** Duplicate Case Id */
+            duplicate_case_id: string;
+            /** Id */
+            id: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "confirmed_duplicate" | "confirmed_distinct" | "related_but_distinct" | "keep_unresolved";
+            /** Reason */
+            reason: string;
+            /** Sequence */
+            sequence: number;
+        };
+        /** DuplicateSourceReferenceSummaryResponse */
+        DuplicateSourceReferenceSummaryResponse: {
+            /** Display Label */
+            display_label: string | null;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Source Name */
+            source_name: string;
+            /** Source Reference Id */
+            source_reference_id: string;
+            /** Url */
+            url: string;
+        };
+        /** DuplicateSubjectSummaryResponse */
+        DuplicateSubjectSummaryResponse: {
+            /** Context */
+            context: string;
+            /** Subject Id */
+            subject_id: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "opportunity" | "posting";
+            /** Title */
+            title: string;
         };
         /** ExclusionPayload */
         ExclusionPayload: {
@@ -2471,6 +2613,104 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CriterionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_duplicate_cases_api_duplicate_cases_get: {
+        parameters: {
+            query?: {
+                subject_type?: ("opportunity" | "posting") | null;
+                subject_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DuplicateCaseReviewResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_duplicate_case_api_duplicate_cases__case_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DuplicateCaseReviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decide_duplicate_case_api_duplicate_cases__case_id__decisions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DuplicateDecisionPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DuplicateCaseReviewResponse"];
                 };
             };
             /** @description Validation Error */
