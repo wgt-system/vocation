@@ -53,7 +53,8 @@ const postingCase: DuplicateCaseReview = {
     title: "Developer Posting Mirror",
     context: "Company Careers",
   },
-  evidence_summary: "Beide Anzeigen beschreiben möglicherweise dieselbe Stelle.",
+  evidence_summary:
+    "Beide Anzeigen beschreiben möglicherweise dieselbe Stelle.",
   confidence: 0.6,
   source_references: [],
   created_at: "2026-08-17T01:00:00Z",
@@ -100,8 +101,13 @@ describe("DuplicateCasesView", () => {
     const evidenceUrl = screen.getByText("https://example.test/jobs/one");
     expect(evidenceUrl.closest("a")).toBeNull();
 
-    await user.selectOptions(screen.getByLabelText("Dubletten filtern"), "resolved");
-    expect(await screen.findByText("Developer Posting Mirror")).toBeInTheDocument();
+    await user.selectOptions(
+      screen.getByLabelText("Dubletten filtern"),
+      "resolved",
+    );
+    expect(
+      await screen.findByText("Developer Posting Mirror"),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Junior Developer")).not.toBeInTheDocument();
 
     await user.selectOptions(screen.getByLabelText("Dubletten filtern"), "all");
@@ -134,13 +140,17 @@ describe("DuplicateCasesView", () => {
       is_reviewed: true,
       is_resolved: true,
     };
-    const decide = vi.spyOn(api, "decideDuplicateCase").mockResolvedValue(decided);
+    const decide = vi
+      .spyOn(api, "decideDuplicateCase")
+      .mockResolvedValue(decided);
     const user = userEvent.setup();
 
     render(<DuplicateCasesView />);
     await screen.findByText("Junior Developer");
 
-    await user.click(screen.getByRole("button", { name: "Entscheidung speichern" }));
+    await user.click(
+      screen.getByRole("button", { name: "Entscheidung speichern" }),
+    );
     expect(
       screen.getByText("Bitte einen Entscheidungsgrund eingeben."),
     ).toBeInTheDocument();
@@ -150,7 +160,9 @@ describe("DuplicateCasesView", () => {
       screen.getByLabelText(`Entscheidungsgrund für ${opportunityCase.id}`),
       "Dieselbe zugrunde liegende Stelle.",
     );
-    await user.click(screen.getByRole("button", { name: "Entscheidung speichern" }));
+    await user.click(
+      screen.getByRole("button", { name: "Entscheidung speichern" }),
+    );
 
     await waitFor(() =>
       expect(decide).toHaveBeenCalledWith(opportunityCase.id, {
@@ -172,15 +184,23 @@ describe("DuplicateCasesView", () => {
     render(<DuplicateCasesView />);
     await screen.findByText("Junior Developer");
 
-    expect(screen.getByRole("option", { name: "Identisch" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Getrennt" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "Identisch" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "Getrennt" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("option", { name: "Verwandt, aber getrennt" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("option", { name: "Ungeklärt lassen" }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /merge/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /löschen/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /merge/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /löschen/i }),
+    ).not.toBeInTheDocument();
   });
 });
