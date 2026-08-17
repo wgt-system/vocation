@@ -21,6 +21,13 @@ PROTECTED_FIELDS = {
     "application_waves",
 }
 
+DUPLICATE_DECISION_OUTCOMES = (
+    "confirmed_duplicate",
+    "confirmed_distinct",
+    "related_but_distinct",
+    "keep_unresolved",
+)
+
 
 @dataclass(frozen=True)
 class ImportIssue:
@@ -142,6 +149,24 @@ class PostingIdentityConflictError(ValueError):
 
 
 @dataclass(frozen=True)
+class DuplicateDecision:
+    id: str
+    duplicate_case_id: str
+    sequence: int
+    outcome: str
+    reason: str
+    decided_at: datetime
+
+    def __post_init__(self) -> None:
+        if self.sequence < 1:
+            raise ValueError("Duplicate Decision sequence must be positive.")
+        if self.outcome not in DUPLICATE_DECISION_OUTCOMES:
+            raise ValueError("Duplicate Decision outcome is invalid.")
+        if not self.reason.strip():
+            raise ValueError("Duplicate Decision reason must be nonblank.")
+
+
+@dataclass(frozen=True)
 class DuplicateCase:
     id: str
     research_import_id: str
@@ -152,6 +177,20 @@ class DuplicateCase:
     confidence: float | None
     source_reference_ids: tuple[str, ...]
     created_at: datetime
+    decisions: tuple[DuplicateDecision, ...] = ()
+
+    @property
+    def current_decision(self) -> DuplicateDecision | None:
+        return self.decisions[-1] if self.decisions else None
+
+    @property
+    def is_resolved(self) -> bool:
+        current = self.current_decision
+        return current is not None and current.outcome != "keep_unresolved"
+
+    @property
+    def is_reviewed(self) -> bool:
+        return self.current_decision is not None
 
 
 def canonical_subject_pair(subject_type: str, left_subject_id: str, right_subject_id: str) -> tuple[str, str]:
