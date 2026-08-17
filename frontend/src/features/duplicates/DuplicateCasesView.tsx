@@ -204,7 +204,9 @@ export function DuplicateCasesView() {
                   <p key={source.source_reference_id}>
                     <small>
                       {source.source_name}
-                      {source.display_label ? ` · ${source.display_label}` : ""}
+                      {source.display_label
+                        ? ` · ${source.display_label}`
+                        : ""}
                       {` · ${formatDate(source.observed_at)}`}
                       <br />
                       <span>{source.url}</span>
