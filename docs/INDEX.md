@@ -16,3 +16,4 @@
 | 12_PROMPT_WORKFLOWS | einheitliche Rechercheprompts |
 | 13_IMPLEMENTATION_PLAN | vertikale Umsetzungsslices |
 | 14_REVIEW_CHECKLIST | v0.4.0 Release-Review und Scope-Abschluss |
+| 15_PERSONAL_SEARCH_CONTEXT | privates Kandidatenprofil, Suchprofile und Ownership-Grenze |

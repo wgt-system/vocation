@@ -1,0 +1,151 @@
+.profile-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding: 0.25rem;
+  border: 1px solid #cfc7b8;
+  border-radius: 10px;
+  background: #ebe7dc;
+  width: fit-content;
+}
+
+.profile-tabs button {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  background: transparent;
+}
+
+.profile-tabs button.active {
+  background: #1e5b48;
+  color: #fff;
+}
+
+.profile-workspace {
+  max-width: 1180px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.section-heading h2,
+.section-heading p {
+  margin-top: 0;
+}
+
+.profile-fieldset {
+  display: grid;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #ddd6c7;
+  border-radius: 12px;
+}
+
+.profile-fieldset legend {
+  padding: 0 0.35rem;
+  font-weight: 750;
+}
+
+.profile-fieldset > button,
+.profile-row button,
+.profile-card button,
+.search-profile-layout aside button,
+.section-heading > button {
+  justify-self: start;
+  border: 1px solid #cfc7b8;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  background: #fffdf8;
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(8rem, 0.55fr) minmax(
+      12rem,
+      1fr
+    ) auto;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.profile-row.compact {
+  grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) auto;
+}
+
+.profile-row-wide {
+  grid-template-columns: repeat(3, minmax(10rem, 1fr)) minmax(6rem, 0.45fr) auto;
+}
+
+.profile-card {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.85rem;
+  border: 1px solid #e4ded0;
+  border-radius: 10px;
+  background: #faf8f2;
+}
+
+.search-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 2fr);
+  gap: 1.25rem;
+}
+
+.search-profile-layout > .panel {
+  margin-bottom: 0;
+  box-shadow: none;
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.profile-form-grid.thirds {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.salary-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.inline-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.2rem;
+}
+
+.error-message,
+.success-message {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+}
+
+.error-message {
+  color: #8c2f2f;
+  background: #fff0ee;
+}
+
+.success-message {
+  color: #1e6745;
+  background: #e2f2e8;
+}
+
+@media (max-width: 900px) {
+  .search-profile-layout,
+  .profile-form-grid,
+  .profile-form-grid.thirds,
+  .salary-grid,
+  .profile-row,
+  .profile-row.compact,
+  .profile-row-wide {
+    grid-template-columns: 1fr;
+  }
+}
