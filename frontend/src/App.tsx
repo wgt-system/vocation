@@ -1,16 +1,24 @@
 import { useState } from "react";
 
 import { CriteriaView } from "./features/criteria/CriteriaView";
+import { DuplicateCasesView } from "./features/duplicates/DuplicateCasesView";
 import { GroupsView } from "./features/groups/GroupsView";
 import { ImportView } from "./features/imports/ImportView";
 import { OpportunityDetailView } from "./features/opportunities/OpportunityDetailView";
 import { OpportunityList } from "./features/opportunities/OpportunityList";
 import { PromptView } from "./features/prompts/PromptView";
 
-type View = "opportunities" | "groups" | "import" | "criteria" | "prompt";
+type View =
+  | "opportunities"
+  | "duplicates"
+  | "groups"
+  | "import"
+  | "criteria"
+  | "prompt";
 
 const labels: Record<View, string> = {
   opportunities: "Opportunities",
+  duplicates: "Dubletten",
   groups: "Groups & Waves",
   import: "Import",
   criteria: "Assessment-Kriterien",
@@ -65,6 +73,7 @@ export default function App() {
               onSelect={setSelectedOpportunity}
             />
           ))}
+        {view === "duplicates" && <DuplicateCasesView />}
         {view === "import" && (
           <ImportView
             onImported={() => setRefreshToken((value) => value + 1)}
