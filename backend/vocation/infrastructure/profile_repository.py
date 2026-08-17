@@ -13,7 +13,6 @@ from vocation.domain.profiles import (
     CandidateProfile,
     Education,
     Language,
-    ProfileValidationError,
     ProjectHighlight,
     SearchProfile,
     Skill,
