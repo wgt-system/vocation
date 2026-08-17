@@ -3,7 +3,8 @@ import type { ImportReport } from "../../api/client";
 
 export type GeneratedInitialResearchPrompt =
   components["schemas"]["GeneratedPromptResponse"];
-export type InitialPromptPayload = components["schemas"]["InitialPromptPayload"];
+export type InitialPromptPayload =
+  components["schemas"]["InitialPromptPayload"];
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {
   const response = await fetch(path, {
