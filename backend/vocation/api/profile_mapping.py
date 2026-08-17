@@ -66,7 +66,14 @@ def candidate_response(profile: CandidateProfile) -> CandidateProfileResponse:
         skills=[SkillPayload(**item.__dict__) for item in profile.skills],
         languages=[LanguagePayload(**item.__dict__) for item in profile.languages],
         experience_summary=profile.experience_summary,
-        projects=[ProjectHighlightPayload(name=item.name, summary=item.summary, technologies=list(item.technologies)) for item in profile.projects],
+        projects=[
+            ProjectHighlightPayload(
+                name=item.name,
+                summary=item.summary,
+                technologies=list(item.technologies),
+            )
+            for item in profile.projects
+        ],
         interests=list(profile.interests),
     )
 
