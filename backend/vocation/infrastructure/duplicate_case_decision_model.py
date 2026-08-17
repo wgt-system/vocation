@@ -12,9 +12,7 @@ class DuplicateCaseDecisionModel(Base):
     __tablename__ = "duplicate_case_decisions"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
-    duplicate_case_id: Mapped[str] = mapped_column(
-        ForeignKey("duplicate_cases.id", ondelete="CASCADE"), nullable=False, index=True
-    )
+    duplicate_case_id: Mapped[str] = mapped_column(ForeignKey("duplicate_cases.id", ondelete="CASCADE"), nullable=False, index=True)
     sequence: Mapped[int] = mapped_column(Integer, nullable=False)
     outcome: Mapped[str] = mapped_column(String(40), nullable=False)
     reason: Mapped[str] = mapped_column(Text, nullable=False)
