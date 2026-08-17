@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 
 import { fitApi, type OpportunityFit } from "./fitApi";
 
-const hardStatusLabels: Record<OpportunityFit["hard_constraint_status"], string> = {
+const hardStatusLabels: Record<
+  OpportunityFit["hard_constraint_status"],
+  string
+> = {
   pass: "Harte Kriterien erfüllt",
   fail: "Harte Kriterien nicht erfüllt",
   unknown: "Harte Kriterien teilweise offen",
@@ -86,7 +89,9 @@ export function OpportunityFitBreakdown({ fit }: { fit: OpportunityFit }) {
             ) : (
               <p>Status: {contribution.status}</p>
             )}
-            {contribution.origin && <small>Provenienz: {contribution.origin}</small>}
+            {contribution.origin && (
+              <small>Provenienz: {contribution.origin}</small>
+            )}
             <p>{contribution.explanation}</p>
           </article>
         ))}
