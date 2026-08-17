@@ -43,6 +43,16 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
         working-directory: frontend
+      - name: Generate internal API artifacts for Slice 18
+        run: pnpm api:generate
+        working-directory: frontend
+      - name: Upload generated internal API artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: slice18-generated-api
+          path: |
+            frontend/src/api/openapi.json
+            frontend/src/api/generated.ts
       - run: pnpm lint
         working-directory: frontend
       - run: pnpm format:check
