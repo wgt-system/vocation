@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from vocation.application.fit import OpportunityFitNotFoundError, OpportunityFitService, SearchProfileRequiredError
@@ -70,7 +70,7 @@ def _error(error: Exception) -> HTTPException:
 def list_opportunity_fit(
     request: Request,
     search_profile_id: str | None = None,
-    opportunity_id: list[str] | None = Query(default=None),
+    opportunity_id: list[str] | None = None,
 ) -> list[OpportunityFitResponse]:
     try:
         return [_response(item) for item in _service(request).list(search_profile_id, opportunity_id)]
