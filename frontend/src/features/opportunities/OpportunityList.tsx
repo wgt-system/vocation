@@ -24,7 +24,10 @@ const availabilityLabels: Record<Availability, string> = {
   unknown: "Unbekannt",
 };
 
-const hardStatusLabels: Record<OpportunityFit["hard_constraint_status"], string> = {
+const hardStatusLabels: Record<
+  OpportunityFit["hard_constraint_status"],
+  string
+> = {
   pass: "Harte Kriterien erfüllt",
   fail: "Harte Kriterien nicht erfüllt",
   unknown: "Harte Kriterien offen",
@@ -317,9 +320,7 @@ export function OpportunityList({
                 disabled={selectedItems.length < 2 || comparisonLoading}
                 onClick={() => void compareSelected()}
               >
-                {comparisonLoading
-                  ? "Vergleich wird geladen …"
-                  : "Vergleichen"}
+                {comparisonLoading ? "Vergleich wird geladen …" : "Vergleichen"}
               </button>
             </div>
           </div>
@@ -391,7 +392,9 @@ export function OpportunityList({
                         : `Fit ${fit.weighted_fit_score}%`}
                     </strong>
                     <span>Evidenz {fit.evidence_completeness}%</span>
-                    <small>{hardStatusLabels[fit.hard_constraint_status]}</small>
+                    <small>
+                      {hardStatusLabels[fit.hard_constraint_status]}
+                    </small>
                     <button
                       type="button"
                       onClick={() => setExpandedFitId(expanded ? "" : item.id)}
@@ -400,7 +403,9 @@ export function OpportunityList({
                     </button>
                   </div>
                 ) : (
-                  <small>{fitLoading ? "Fit wird geladen …" : "Fit nicht verfügbar"}</small>
+                  <small>
+                    {fitLoading ? "Fit wird geladen …" : "Fit nicht verfügbar"}
+                  </small>
                 )}
                 {expanded && fit && <OpportunityFitBreakdown fit={fit} />}
                 <div className="opportunity-card-actions">
