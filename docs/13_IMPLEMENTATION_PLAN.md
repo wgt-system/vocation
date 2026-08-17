@@ -1,6 +1,6 @@
 # Vocation – Implementation Plan
 
-**Status:** v0.3.0 released baseline; post-v0.3 development continues on `dev`.
+**Status:** v0.4.0 complete standalone baseline; Slices 1–18 implemented.
 
 ## Phase 0 – Spezifikationsprüfung
 
