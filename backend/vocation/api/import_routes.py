@@ -29,10 +29,10 @@ def _response(report: ImportReport) -> ImportReportResponse:
 def import_text(payload: ImportTextPayload, request: Request) -> ImportReportResponse:
     prompt_run_id = request.query_params.get("prompt_run_id")
     if prompt_run_id:
-        service: InitialResearchImportService = request.app.state.initial_research_import_service
-        return _response(service.import_text(payload.content, prompt_run_id=prompt_run_id))
-    service: ImportService = request.app.state.import_service
-    return _response(service.import_text(payload.content))
+        initial_service: InitialResearchImportService = request.app.state.initial_research_import_service
+        return _response(initial_service.import_text(payload.content, prompt_run_id=prompt_run_id))
+    import_service: ImportService = request.app.state.import_service
+    return _response(import_service.import_text(payload.content))
 
 
 @router.post("/file", response_model=ImportReportResponse)
