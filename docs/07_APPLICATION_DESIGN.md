@@ -241,9 +241,11 @@ Jedes Feature enthält:
 - Preview
 - Posting-Link-Verfügbarkeit (ohne URLs)
 
-Map Features enthalten zusätzlich WorkLocation Label, WorkLocation Precision, Availability und kompakte Group/Wave-Memberships. Ein Pin öffnet nur Vocation Preview/Detail; externe URLs werden in Slice 11 nicht geöffnet.
+Map Features enthalten zusätzlich WorkLocation Label, WorkLocation Precision, Availability und kompakte Group/Wave-Memberships. Vocation bleibt für diese fachlichen Werte und die Zuordnung zu Opportunities autoritativ.
 
-Die Map API ist unter `/api/map` implementiert. Explizite Geocodierung/Manuell-Auflösung und das Löschen einer Resolution sind Nutzeraktionen; der provider-neutrale Geocoder-Port ist mit einem konfigurierbaren Nominatim-Adapter hinterlegt. Leaflet/React Leaflet rendert die Karte mit OpenStreetMap-Tile-Attribution; Renderer und Provider bleiben austauschbare Infrastruktur.
+Die Map API ist unter `/api/map` implementiert. Explizite Geocodierung/Manuell-Auflösung und das Löschen einer Resolution sind Nutzeraktionen. Der Vocation-eigene `Geocoder`-Port wird durch `OrientationGeocoder` implementiert; dieser konsumiert Orientation Place Search über `GET /api/v1/places/search` und interpretiert das generische Ergebnis anschließend als Vocation `MapLocationResolution`. Vocation ruft keinen konkreten Geocoding-Provider direkt auf.
+
+Das generische Kartenrendering wird nicht mehr durch Leaflet/React Leaflet in Vocation implementiert. `OrientationMapFrame` adaptiert die Vocation-owned MapProjection sowie Vocation-owned Information/Actions in eine `orientation.host-bridge`-1.0 Spatial Scene und hostet den gepinnten Orientation Embed Host. Marker-/Feature-Aktionen werden über die Bridge an Vocation zurückgegeben; nur Vocation navigiert zu Opportunity Details oder führt `OpenPostingInBrowser` aus. Orientation entscheidet weder Work Location/Precision noch External-Link-Auswahl oder Tracking-/Availability-Semantik.
 
 ### GetPromptPreview
 
@@ -274,15 +276,15 @@ Der JSON-Vertrag ist in `schemas/published-opportunity-overview-v1.schema.json` 
 
 1. Filter setzen.
 2. Karte öffnen.
-3. Pin anklicken.
-4. Opportunity-Vorschau öffnen.
-5. Detailansicht öffnen.
+3. Orientation Embed Host rendert die von Vocation adaptierte Spatial Scene.
+4. Spatial Feature auswählen.
+5. über eine von Vocation definierte Host-Bridge-Aktion Details oder eine Originalanzeige öffnen.
 
-Eine manuelle oder provider-neutrale Geocoder-Auflösung einer WorkLocation wird nur durch explizite Nutzeraktion ausgelöst. Die Karte und Liste verwenden dasselbe Opportunity-Filterergebnis; Clustering bleibt Renderer-Präsentationslogik und ist kein Domain-Zustand.
+Eine manuelle oder Orientation-backed Geocoder-Auflösung einer WorkLocation wird nur durch explizite Nutzeraktion ausgelöst. Die Karte und Liste verwenden dasselbe Opportunity-Filterergebnis; Clustering, Hit Testing und generisches Rendering gehören zur Orientation-Präsentationscapability und sind kein Vocation-Domain-Zustand.
 
-Die UI bietet explizite Geocode-, Manual- und Delete-Resolution-Aktionen sowie Marker-Popups mit Navigation zu Vocation Details.
+Die UI bietet explizite Geocode-, Manual- und Delete-Resolution-Aktionen. Das eingebettete Orientation-Feature-Detail zeigt von Vocation gelieferte Informationen und Actions. ExternalLink-Kandidaten werden weiterhin von Vocation pro Opportunity geladen; `OrientationMapFrame` übergibt lediglich die daraus abgeleiteten Labels/Action References an die Spatial Scene. Eine aktivierte Action wird über `orientation.host-bridge` 1.0 an Vocation zurückgemeldet und dort fachlich ausgeführt.
 
-Die implementierten Marker-Popups laden ExternalLink-Kandidaten separat per Opportunity ID, deduplizieren das Laden pro Opportunity und bieten `Originalanzeige öffnen` oder Source-Auswahl an. URLs sind kein Bestandteil der MapProjection.
+Die geschlossene `Published Map Projection 1.0` bleibt unverändert und URL-frei. Die lokale UI-Komposition mit Orientation ist davon getrennt; ein späterer reichhaltiger Cross-Context-Nachfolger muss versioniert werden statt Contract 1.0 still zu verändern.
 
 ### Import Flow
 
