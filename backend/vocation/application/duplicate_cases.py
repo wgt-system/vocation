@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from vocation.application.duplicate_case_views import DuplicateCaseReview
 from vocation.application.ports import DuplicateCaseRepository
 from vocation.domain.research_bundle import (
     DUPLICATE_DECISION_OUTCOMES,
@@ -65,7 +66,14 @@ class DuplicateCaseService:
     def list(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCase]:
         return self.repository.list(subject_type=subject_type, subject_id=subject_id)
 
-    def decide(self, case_id: str, *, outcome: str, reason: str) -> DuplicateCase:
+    def review(self, case_id: str) -> DuplicateCaseReview | None:
+        case = self.repository.get(case_id)
+        return self._review(case) if case is not None else None
+
+    def reviews(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCaseReview]:
+        return [self._review(case) for case in self.repository.list(subject_type=subject_type, subject_id=subject_id)]
+
+    def decide(self, case_id: str, *, outcome: str, reason: str) -> DuplicateCaseReview:
         case = self.repository.get(case_id)
         if case is None:
             raise DuplicateCaseNotFoundError("Duplicate Case not found.")
@@ -85,4 +93,20 @@ class DuplicateCaseService:
             reason=normalized_reason,
             decided_at=datetime.now(UTC),
         )
-        return self.repository.append_decision(decision)
+        return self._review(self.repository.append_decision(decision))
+
+    def _review(self, case: DuplicateCase) -> DuplicateCaseReview:
+        return DuplicateCaseReview(
+            id=case.id,
+            subject_type=case.subject_type,
+            left_subject=self.repository.subject_summary(case.subject_type, case.left_subject_id),
+            right_subject=self.repository.subject_summary(case.subject_type, case.right_subject_id),
+            evidence_summary=case.evidence_summary,
+            confidence=case.confidence,
+            source_references=self.repository.source_reference_summaries(case.source_reference_ids),
+            created_at=case.created_at,
+            current_decision=case.current_decision,
+            decision_history=case.decisions,
+            is_reviewed=case.is_reviewed,
+            is_resolved=case.is_resolved,
+        )
