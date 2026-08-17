@@ -108,7 +108,7 @@ describe("Profil & Suche", () => {
       await screen.findByDisplayValue("Junior Softwareentwickler"),
     ).toBeInTheDocument();
     expect(screen.getByDisplayValue("B.Sc.")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Java")).toBeInTheDocument();
+    expect(screen.getByLabelText("Skill 1")).toHaveValue("Java");
     expect(screen.getByText(/Aktuelle Revision: 2/)).toBeInTheDocument();
 
     const headline = screen.getByLabelText("Profilüberschrift");
