@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 import { CandidateProfileForm } from "./CandidateProfileForm";
+import { EvaluationPolicyPanel } from "./EvaluationPolicyPanel";
 import { SearchProfilesPanel } from "./SearchProfilesPanel";
 
-type Tab = "candidate" | "search";
+type Tab = "candidate" | "search" | "evaluation";
 
 export function ProfileSearchView() {
   const [tab, setTab] = useState<Tab>("candidate");
@@ -18,7 +19,7 @@ export function ProfileSearchView() {
           <h1>Profil &amp; Suche</h1>
           <p className="muted">
             Vocation nutzt dein privates Qualifikationsprofil und deine
-            Suchstrategien als Grundlage für Recherche, Bewertung und spätere
+            Suchstrategien als Grundlage für Recherche und erklärbare
             Fit-Analyse. Diese Daten bleiben lokal und werden nicht publiziert.
           </p>
         </div>
@@ -43,14 +44,21 @@ export function ProfileSearchView() {
         >
           Suchprofile
         </button>
+        <button
+          className={tab === "evaluation" ? "active" : ""}
+          onClick={() => setTab("evaluation")}
+          role="tab"
+          aria-selected={tab === "evaluation"}
+          type="button"
+        >
+          Bewertung
+        </button>
       </div>
 
       <section className="panel profile-workspace">
-        {tab === "candidate" ? (
-          <CandidateProfileForm />
-        ) : (
-          <SearchProfilesPanel />
-        )}
+        {tab === "candidate" && <CandidateProfileForm />}
+        {tab === "search" && <SearchProfilesPanel />}
+        {tab === "evaluation" && <EvaluationPolicyPanel />}
       </section>
     </section>
   );
