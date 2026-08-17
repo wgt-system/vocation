@@ -152,7 +152,10 @@ def validate_candidate_profile(profile: CandidateProfile) -> None:
     for project in profile.projects:
         _require_text(project.name, "Project name")
         _require_text(project.summary, "Project summary")
-        _require_unique_nonempty(project.technologies, f"Technologies for project '{project.name}'")
+        _require_unique_nonempty(
+            project.technologies,
+            f"Technologies for project '{project.name}'",
+        )
         project_names.append(project.name.strip().casefold())
     if len(project_names) != len(set(project_names)):
         raise ProfileValidationError("Candidate Profile projects must have unique names.")
@@ -165,7 +168,9 @@ def validate_criterion_policy(policy: CriterionPolicy) -> None:
     if policy.numeric_direction not in {"higher_is_better", "lower_is_better"}:
         raise ProfileValidationError("Criterion policy numeric direction is invalid.")
     if policy.minimum_score is not None and not 0 <= policy.minimum_score <= 100:
-        raise ProfileValidationError("Criterion policy minimum score must be between 0 and 100.")
+        raise ProfileValidationError(
+            "Criterion policy minimum score must be between 0 and 100."
+        )
     category_values = [item.value.strip().casefold() for item in policy.category_scores]
     if any(not value for value in category_values):
         raise ProfileValidationError("Criterion category score values must be non-empty.")
@@ -180,7 +185,9 @@ def validate_criterion_policy_against_criterion(
     criterion: AssessmentCriterion,
 ) -> None:
     if policy.criterion_id != criterion.criterion_id:
-        raise ProfileValidationError("Criterion policy does not match its referenced criterion.")
+        raise ProfileValidationError(
+            "Criterion policy does not match its referenced criterion."
+        )
     if criterion.applicable_subject_type != "opportunity":
         raise ProfileValidationError(
             f"Criterion policy '{policy.criterion_id}' must reference an opportunity criterion."
@@ -214,20 +221,32 @@ def validate_criterion_policy_against_criterion(
         )
 
     if criterion.value_type == "numeric":
+        numeric_min = criterion.numeric_min
+        numeric_max = criterion.numeric_max
+        if numeric_min is None or numeric_max is None:
+            raise ProfileValidationError(
+                f"Numeric criterion '{policy.criterion_id}' requires configured bounds."
+            )
         if policy.minimum_numeric_value is not None and not (
-            criterion.numeric_min <= policy.minimum_numeric_value <= criterion.numeric_max
+            numeric_min <= policy.minimum_numeric_value <= numeric_max
         ):
             raise ProfileValidationError(
                 f"Minimum numeric value for criterion '{policy.criterion_id}' must stay within the criterion range."
             )
-        if policy.required and policy.minimum_numeric_value is None and policy.minimum_score is None:
+        if (
+            policy.required
+            and policy.minimum_numeric_value is None
+            and policy.minimum_score is None
+        ):
             raise ProfileValidationError(
                 f"Required numeric criterion '{policy.criterion_id}' needs a deterministic minimum value or score."
             )
         return
 
     if criterion.value_type == "boolean":
-        if (policy.weight > 0 or policy.minimum_score is not None or policy.required) and policy.preferred_boolean is None:
+        if (
+            policy.weight > 0 or policy.minimum_score is not None or policy.required
+        ) and policy.preferred_boolean is None:
             raise ProfileValidationError(
                 f"Boolean criterion '{policy.criterion_id}' needs a preferred value before it can be scored."
             )
@@ -289,22 +308,36 @@ def validate_search_profile(profile: SearchProfile) -> None:
         {value.casefold() for value in profile.acceptable_technologies},
         {value.casefold() for value in profile.avoided_technologies},
     ]
-    if technology_sets[0] & technology_sets[1] or technology_sets[0] & technology_sets[2] or technology_sets[1] & technology_sets[2]:
-        raise ProfileValidationError("A technology may belong to only one preference tier.")
+    if (
+        technology_sets[0] & technology_sets[1]
+        or technology_sets[0] & technology_sets[2]
+        or technology_sets[1] & technology_sets[2]
+    ):
+        raise ProfileValidationError(
+            "A technology may belong to only one preference tier."
+        )
 
     if profile.salary_floor is not None and profile.salary_floor < 0:
         raise ProfileValidationError("Salary floor must not be negative.")
     if profile.salary_target is not None and profile.salary_target < 0:
         raise ProfileValidationError("Salary target must not be negative.")
-    if profile.salary_floor is not None and profile.salary_target is not None and profile.salary_floor > profile.salary_target:
+    if (
+        profile.salary_floor is not None
+        and profile.salary_target is not None
+        and profile.salary_floor > profile.salary_target
+    ):
         raise ProfileValidationError("Salary floor must not exceed salary target.")
     if len(profile.salary_currency.strip()) != 3:
         raise ProfileValidationError("Salary currency must be a three-letter code.")
     if not 1 <= profile.result_limit <= 50:
-        raise ProfileValidationError("Search Profile result limit must be between 1 and 50.")
+        raise ProfileValidationError(
+            "Search Profile result limit must be between 1 and 50."
+        )
 
     criterion_ids = [policy.criterion_id for policy in profile.criterion_policies]
     if len(criterion_ids) != len(set(criterion_ids)):
-        raise ProfileValidationError("Search Profile criterion policies must use unique criterion IDs.")
+        raise ProfileValidationError(
+            "Search Profile criterion policies must use unique criterion IDs."
+        )
     for policy in profile.criterion_policies:
         validate_criterion_policy(policy)
