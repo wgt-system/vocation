@@ -5,29 +5,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  docs-closure:
-    if: github.event_name == 'push' && github.ref_name == 'slice18/duplicate-case-resolution'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: python scripts/close_slice18_docs.py
-      - name: Commit Slice 18 docs closure
-        shell: bash
-        run: |
-          if git diff --quiet -- docs/07_APPLICATION_DESIGN.md docs/09_READ_MODELS.md docs/10_ARCHITECTURE.md docs/11_ACCEPTANCE_TESTS.md docs/13_IMPLEMENTATION_PLAN.md; then
-            echo "Slice 18 docs already current."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/07_APPLICATION_DESIGN.md docs/09_READ_MODELS.md docs/10_ARCHITECTURE.md docs/11_ACCEPTANCE_TESTS.md docs/13_IMPLEMENTATION_PLAN.md
-          git commit -m "docs: complete duplicate case resolution [skip ci]"
-          git push origin HEAD:slice18/duplicate-case-resolution
-
   backend:
     runs-on: ubuntu-latest
     steps:
