@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Protocol
 
 from vocation.application.comparison import ComparisonCriterion, ComparisonOpportunity
+from vocation.application.duplicate_case_views import DuplicateSourceReferenceSummary, DuplicateSubjectSummary
 from vocation.domain.criteria import AssessmentCriterion
 from vocation.domain.external_links import ExternalLink
 from vocation.domain.research_bundle import DuplicateCase, DuplicateDecision, PostingIdentity
@@ -41,6 +42,8 @@ class DuplicateCaseRepository(Protocol):
     def create(self, case: DuplicateCase) -> DuplicateCase: ...
     def append_decision(self, decision: DuplicateDecision) -> DuplicateCase: ...
     def list(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCase]: ...
+    def subject_summary(self, subject_type: str, subject_id: str) -> DuplicateSubjectSummary: ...
+    def source_reference_summaries(self, source_reference_ids: tuple[str, ...]) -> tuple[DuplicateSourceReferenceSummary, ...]: ...
 
 
 class PromptContextSnapshotRepository(Protocol):
