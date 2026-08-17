@@ -145,9 +145,7 @@ class SqlAlchemyDuplicateCaseRepository:
                 )
             raise DuplicateCaseValidationError("Duplicate Case subject type must be opportunity or posting.")
 
-    def source_reference_summaries(
-        self, source_reference_ids: tuple[str, ...]
-    ) -> tuple[DuplicateSourceReferenceSummary, ...]:
+    def source_reference_summaries(self, source_reference_ids: tuple[str, ...]) -> tuple[DuplicateSourceReferenceSummary, ...]:
         with self.session_factory() as session:
             summaries: list[DuplicateSourceReferenceSummary] = []
             for reference_id in source_reference_ids:
@@ -160,11 +158,7 @@ class SqlAlchemyDuplicateCaseRepository:
                         source_name=reference.source.name,
                         display_label=reference.display_label,
                         url=reference.url,
-                        observed_at=(
-                            reference.observed_at
-                            if reference.observed_at.tzinfo
-                            else reference.observed_at.replace(tzinfo=UTC)
-                        ),
+                        observed_at=(reference.observed_at if reference.observed_at.tzinfo else reference.observed_at.replace(tzinfo=UTC)),
                     )
                 )
             return tuple(summaries)
