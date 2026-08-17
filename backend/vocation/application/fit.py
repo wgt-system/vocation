@@ -57,12 +57,11 @@ class OpportunityFitService:
         return profile
 
     def _evaluate(self, opportunity_id: str, profile: SearchProfile) -> OpportunityFit:
-        candidate = self.profiles.get_candidate_profile()
         criteria = {criterion.criterion_id: criterion for criterion in self.criteria.list()}
         return evaluate_opportunity_fit(
             opportunity_id=opportunity_id,
             search_profile=profile,
-            candidate_profile_revision=None if candidate is None else candidate.revision,
+            candidate_profile_revision=None,
             criteria=criteria,
             assessments=self.repository.effective_assessments(opportunity_id),
         )
