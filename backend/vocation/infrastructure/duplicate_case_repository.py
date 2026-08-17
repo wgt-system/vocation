@@ -3,10 +3,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from datetime import UTC
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from vocation.domain.research_bundle import DuplicateCase, canonical_subject_pair
+from vocation.domain.research_bundle import DuplicateCase, DuplicateDecision, canonical_subject_pair
+from vocation.infrastructure.duplicate_case_decision_model import DuplicateCaseDecisionModel
 from vocation.infrastructure.models import (
     DuplicateCaseModel,
     DuplicateCaseSourceReferenceModel,
@@ -75,6 +76,32 @@ class SqlAlchemyDuplicateCaseRepository:
                 )
             return self._required_domain(model, session)
 
+    def append_decision(self, decision: DuplicateDecision) -> DuplicateCase:
+        with self.session_factory.begin() as session:
+            case_model = session.get(DuplicateCaseModel, decision.duplicate_case_id)
+            if case_model is None:
+                raise DuplicateCaseValidationError("Duplicate Case does not exist.")
+            latest_sequence = session.scalar(
+                select(func.max(DuplicateCaseDecisionModel.sequence)).where(
+                    DuplicateCaseDecisionModel.duplicate_case_id == decision.duplicate_case_id
+                )
+            )
+            expected_sequence = (latest_sequence or 0) + 1
+            if decision.sequence != expected_sequence:
+                raise DuplicateCaseValidationError("Duplicate Decision sequence is stale.")
+            session.add(
+                DuplicateCaseDecisionModel(
+                    id=decision.id,
+                    duplicate_case_id=decision.duplicate_case_id,
+                    sequence=decision.sequence,
+                    outcome=decision.outcome,
+                    reason=decision.reason,
+                    decided_at=decision.decided_at,
+                )
+            )
+            session.flush()
+            return self._required_domain(case_model, session)
+
     def list(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCase]:
         with self.session_factory() as session:
             statement = select(DuplicateCaseModel).order_by(DuplicateCaseModel.created_at, DuplicateCaseModel.id)
@@ -116,6 +143,22 @@ class SqlAlchemyDuplicateCaseRepository:
             .where(DuplicateCaseSourceReferenceModel.duplicate_case_id == model.id)
             .order_by(DuplicateCaseSourceReferenceModel.source_reference_id)
         ).all()
+        decision_models = session.scalars(
+            select(DuplicateCaseDecisionModel)
+            .where(DuplicateCaseDecisionModel.duplicate_case_id == model.id)
+            .order_by(DuplicateCaseDecisionModel.sequence)
+        ).all()
+        decisions = tuple(
+            DuplicateDecision(
+                id=decision.id,
+                duplicate_case_id=decision.duplicate_case_id,
+                sequence=decision.sequence,
+                outcome=decision.outcome,
+                reason=decision.reason,
+                decided_at=decision.decided_at if decision.decided_at.tzinfo else decision.decided_at.replace(tzinfo=UTC),
+            )
+            for decision in decision_models
+        )
         return DuplicateCase(
             id=model.id,
             research_import_id=model.research_import_id,
@@ -126,4 +169,5 @@ class SqlAlchemyDuplicateCaseRepository:
             confidence=model.confidence,
             source_reference_ids=tuple(links),
             created_at=model.created_at if model.created_at.tzinfo else model.created_at.replace(tzinfo=UTC),
+            decisions=decisions,
         )
