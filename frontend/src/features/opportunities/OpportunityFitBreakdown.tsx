@@ -76,7 +76,7 @@ export function OpportunityFitBreakdown({ fit }: { fit: OpportunityFit }) {
             <h3>{contribution.criterion_name}</h3>
             <p>
               Wert: <strong>{displayValue(contribution.value)}</strong> · Gewicht{" "}
-              {contribution.weight:g}
+              {contribution.weight}
             </p>
             {contribution.score !== null ? (
               <p>
