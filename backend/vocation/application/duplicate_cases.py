@@ -93,7 +93,10 @@ class DuplicateCaseService:
             reason=normalized_reason,
             decided_at=datetime.now(UTC),
         )
-        return self.repository.append_decision(decision)
+        try:
+            return self.repository.append_decision(decision)
+        except ValueError as error:
+            raise DuplicateDecisionConflictError(str(error)) from error
 
     def _review(self, case: DuplicateCase) -> DuplicateCaseReview:
         return DuplicateCaseReview(
