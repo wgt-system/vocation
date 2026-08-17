@@ -170,12 +170,20 @@ describe("DuplicateCasesView", () => {
         reason: "Dieselbe zugrunde liegende Stelle.",
       }),
     );
+    await waitFor(() =>
+      expect(screen.queryByText("Junior Developer")).not.toBeInTheDocument(),
+    );
+
+    await user.selectOptions(
+      screen.getByLabelText("Dubletten filtern"),
+      "resolved",
+    );
     expect(
       await screen.findByText("Entschieden · Identisch"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Dieselbe zugrunde liegende Stelle\./),
-    ).toBeInTheDocument();
+      screen.getAllByText(/Dieselbe zugrunde liegende Stelle\./).length,
+    ).toBeGreaterThan(0);
   });
 
   it("offers classification only and never exposes merge or delete controls", async () => {
