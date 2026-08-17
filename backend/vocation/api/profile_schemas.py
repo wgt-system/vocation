@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 SkillLevel = Literal["learning", "basic", "working", "strong", "expert"]
 WorkModel = Literal["remote", "hybrid", "on_site"]
+NumericDirection = Literal["higher_is_better", "lower_is_better"]
 
 
 class EducationPayload(BaseModel):
@@ -48,6 +49,22 @@ class CandidateProfileResponse(CandidateProfilePayload):
     revision: int
 
 
+class CategoryScorePayload(BaseModel):
+    value: str
+    score: float
+
+
+class CriterionPolicyPayload(BaseModel):
+    criterion_id: str
+    weight: float = 1.0
+    required: bool = False
+    numeric_direction: NumericDirection = "higher_is_better"
+    minimum_numeric_value: float | None = None
+    minimum_score: float | None = None
+    preferred_boolean: bool | None = None
+    category_scores: list[CategoryScorePayload] = Field(default_factory=list)
+
+
 class SearchProfilePayload(BaseModel):
     name: str
     description: str
@@ -70,6 +87,7 @@ class SearchProfilePayload(BaseModel):
     must_haves: list[str] = Field(default_factory=list)
     must_not_haves: list[str] = Field(default_factory=list)
     result_limit: int = 12
+    criterion_policies: list[CriterionPolicyPayload] = Field(default_factory=list)
 
 
 class SearchProfileResponse(SearchProfilePayload):
