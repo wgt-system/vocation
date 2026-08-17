@@ -70,10 +70,7 @@ def seed_duplicate_case(database: Path) -> None:
             )
         )
         connection.execute(
-            text(
-                "INSERT INTO duplicate_case_source_references (duplicate_case_id, source_reference_id) "
-                "VALUES ('case-1', 'ref-1')"
-            )
+            text("INSERT INTO duplicate_case_source_references (duplicate_case_id, source_reference_id) VALUES ('case-1', 'ref-1')")
         )
 
 
