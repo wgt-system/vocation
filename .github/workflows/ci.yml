@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -46,13 +49,19 @@ jobs:
       - name: Generate internal API artifacts for Slice 18
         run: pnpm api:generate
         working-directory: frontend
-      - name: Upload generated internal API artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: slice18-generated-api
-          path: |
-            frontend/src/api/openapi.json
-            frontend/src/api/generated.ts
+      - name: Commit generated internal API artifacts on branch push
+        if: github.event_name == 'push' && github.ref_name == 'slice18/duplicate-case-resolution'
+        shell: bash
+        run: |
+          if git diff --quiet -- frontend/src/api/openapi.json frontend/src/api/generated.ts; then
+            echo "Generated API artifacts already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/src/api/openapi.json frontend/src/api/generated.ts
+          git commit -m "chore: regenerate internal API types [skip ci]"
+          git push origin HEAD:slice18/duplicate-case-resolution
       - run: pnpm lint
         working-directory: frontend
       - run: pnpm format:check
