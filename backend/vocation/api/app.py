@@ -35,6 +35,8 @@ from vocation.application.external_navigation import ExternalNavigationService
 from vocation.application.fit import OpportunityFitService
 from vocation.application.groups import OpportunityGroupService
 from vocation.application.imports import ImportService
+from vocation.application.initial_research import InitialResearchService
+from vocation.application.initial_research_imports import InitialResearchImportService
 from vocation.application.map import MapService
 from vocation.application.opportunities import OpportunityQueryService
 from vocation.application.personal_triage import PersonalTriageService
@@ -56,6 +58,7 @@ from vocation.infrastructure.external_link_repository import SqlAlchemyExternalL
 from vocation.infrastructure.filesystem_application_document_store import FilesystemApplicationDocumentStore
 from vocation.infrastructure.fit_repository import SqlAlchemyFitRepository
 from vocation.infrastructure.group_repository import SqlAlchemyOpportunityGroupRepository
+from vocation.infrastructure.initial_research_repository import SqlAlchemyInitialResearchRepository
 from vocation.infrastructure.map_location_repository import SqlAlchemyMapLocationResolutionRepository
 from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
 from vocation.infrastructure.orientation_geocoder import OrientationGeocoder
@@ -104,6 +107,15 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         profile_repository,
         app.state.criteria_service,
     )
+    initial_research_repository = SqlAlchemyInitialResearchRepository(database.session_factory)
+    prompt_context_repository = SqlAlchemyPromptContextSnapshotRepository(database.session_factory)
+    app.state.initial_research_service = InitialResearchService(
+        app.state.criteria_service,
+        profile_repository,
+        initial_research_repository,
+        settings.initial_prompt_path,
+        settings.output_contract_path,
+    )
     app.state.prompt_service = PromptService(
         app.state.criteria_service,
         SqlAlchemyPromptRunRepository(database.session_factory),
@@ -137,23 +149,29 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.posting_identity_resolver = PostingIdentityResolver(SqlAlchemyPostingIdentityRepository(database.session_factory))
     app.state.duplicate_case_service = DuplicateCaseService(SqlAlchemyDuplicateCaseRepository(database.session_factory))
     app.state.update_import_planner = UpdateImportPlanner(
-        SqlAlchemyPromptContextSnapshotRepository(database.session_factory),
+        prompt_context_repository,
         SqlAlchemyUpdateSubjectRepository(database.session_factory),
         app.state.criteria_service,
         app.state.posting_identity_resolver,
         SqlAlchemyDuplicateCaseRepository(database.session_factory),
     )
+    import_repository = SqlAlchemyImportRepository(database.session_factory)
     app.state.import_service = ImportService(
-        SqlAlchemyImportRepository(database.session_factory),
+        import_repository,
         app.state.criteria_service,
         settings.schema_path,
         settings.update_schema_path,
         app.state.update_import_planner,
     )
+    app.state.initial_research_import_service = InitialResearchImportService(
+        app.state.import_service,
+        prompt_context_repository,
+        initial_research_repository,
+    )
     app.state.availability_import_service = AvailabilityImportService(
         SqlAlchemyAvailabilityImportRepository(database.session_factory),
         AvailabilityImportPlanner(
-            SqlAlchemyPromptContextSnapshotRepository(database.session_factory),
+            prompt_context_repository,
             SqlAlchemyUpdateSubjectRepository(database.session_factory),
         ),
         settings.schema_path.parent / "availability-check-bundle-v1.schema.json",
