@@ -127,8 +127,8 @@ export function DuplicateCasesView() {
           <p className="eyebrow">Review</p>
           <h2>Dubletten</h2>
           <p>
-            Mögliche Opportunity- und Posting-Dubletten prüfen. Eine Entscheidung
-            klassifiziert den Fall nur; sie führt keinen Merge aus.
+            Mögliche Opportunity- und Posting-Dubletten prüfen. Eine
+            Entscheidung klassifiziert den Fall nur; sie führt keinen Merge aus.
           </p>
         </div>
         <label>
@@ -204,9 +204,7 @@ export function DuplicateCasesView() {
                   <p key={source.source_reference_id}>
                     <small>
                       {source.source_name}
-                      {source.display_label
-                        ? ` · ${source.display_label}`
-                        : ""}
+                      {source.display_label ? ` · ${source.display_label}` : ""}
                       {` · ${formatDate(source.observed_at)}`}
                       <br />
                       <span>{source.url}</span>
@@ -220,7 +218,7 @@ export function DuplicateCasesView() {
               <div>
                 <strong>Aktuelle Entscheidung</strong>
                 <p>
-                  {outcomeLabels[item.current_decision.outcome]} · {" "}
+                  {outcomeLabels[item.current_decision.outcome]} ·{" "}
                   {item.current_decision.reason}
                 </p>
                 <small>{formatDate(item.current_decision.decided_at)}</small>
@@ -235,7 +233,7 @@ export function DuplicateCasesView() {
                 {item.decision_history.map((decision) => (
                   <p key={decision.id}>
                     <small>
-                      #{decision.sequence} · {outcomeLabels[decision.outcome]} · {" "}
+                      #{decision.sequence} · {outcomeLabels[decision.outcome]} ·{" "}
                       {decision.reason} · {formatDate(decision.decided_at)}
                     </small>
                   </p>
@@ -258,8 +256,7 @@ export function DuplicateCasesView() {
                 >
                   {outcomes
                     .filter(
-                      (outcome) =>
-                        outcome !== item.current_decision?.outcome,
+                      (outcome) => outcome !== item.current_decision?.outcome,
                     )
                     .map((outcome) => (
                       <option key={outcome} value={outcome}>
@@ -286,9 +283,7 @@ export function DuplicateCasesView() {
                 disabled={saving[item.id]}
                 onClick={() => void saveDecision(item)}
               >
-                {saving[item.id]
-                  ? "Speichere …"
-                  : "Entscheidung speichern"}
+                {saving[item.id] ? "Speichere …" : "Entscheidung speichern"}
               </button>
             </div>
             {errors[item.id] && (
