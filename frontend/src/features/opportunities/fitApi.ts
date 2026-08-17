@@ -20,8 +20,9 @@ async function read<T>(path: string): Promise<T> {
 }
 
 export const fitApi = {
-  list: (searchProfileId: string, opportunityIds: string[]) => {
-    const params = new URLSearchParams({ search_profile_id: searchProfileId });
+  list: (opportunityIds: string[], searchProfileId?: string) => {
+    const params = new URLSearchParams();
+    if (searchProfileId) params.set("search_profile_id", searchProfileId);
     for (const opportunityId of opportunityIds) {
       params.append("opportunity_id", opportunityId);
     }
