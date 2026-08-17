@@ -744,6 +744,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/profiles/candidate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Candidate Profile */
+        get: operations["get_candidate_profile_api_profiles_candidate_get"];
+        /** Save Candidate Profile */
+        put: operations["save_candidate_profile_api_profiles_candidate_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profiles/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Search Profiles */
+        get: operations["list_search_profiles_api_profiles_search_get"];
+        put?: never;
+        /** Create Search Profile */
+        post: operations["create_search_profile_api_profiles_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profiles/search/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Default Search Profile */
+        get: operations["get_default_search_profile_api_profiles_search_default_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profiles/search/{profile_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Search Profile */
+        get: operations["get_search_profile_api_profiles_search__profile_id__get"];
+        /** Revise Search Profile */
+        put: operations["revise_search_profile_api_profiles_search__profile_id__put"];
+        post?: never;
+        /** Delete Search Profile */
+        delete: operations["delete_search_profile_api_profiles_search__profile_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profiles/search/{profile_id}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set Default Search Profile */
+        post: operations["set_default_search_profile_api_profiles_search__profile_id__default_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/prompts/availability-check": {
         parameters: {
             query?: never;
@@ -1023,6 +1112,52 @@ export interface components {
         Body_import_file_api_imports_file_post: {
             /** File */
             file: string;
+        };
+        /** CandidateProfilePayload */
+        CandidateProfilePayload: {
+            /** Education */
+            education?: components["schemas"]["EducationPayload"][];
+            /**
+             * Experience Summary
+             * @default
+             */
+            experience_summary: string;
+            /** Headline */
+            headline: string;
+            /** Interests */
+            interests?: string[];
+            /** Languages */
+            languages?: components["schemas"]["LanguagePayload"][];
+            /** Projects */
+            projects?: components["schemas"]["ProjectHighlightPayload"][];
+            /** Skills */
+            skills?: components["schemas"]["SkillPayload"][];
+            /** Summary */
+            summary: string;
+        };
+        /** CandidateProfileResponse */
+        CandidateProfileResponse: {
+            /** Education */
+            education?: components["schemas"]["EducationPayload"][];
+            /**
+             * Experience Summary
+             * @default
+             */
+            experience_summary: string;
+            /** Headline */
+            headline: string;
+            /** Interests */
+            interests?: string[];
+            /** Languages */
+            languages?: components["schemas"]["LanguagePayload"][];
+            /** Projects */
+            projects?: components["schemas"]["ProjectHighlightPayload"][];
+            /** Revision */
+            revision: number;
+            /** Skills */
+            skills?: components["schemas"]["SkillPayload"][];
+            /** Summary */
+            summary: string;
         };
         /** CompanyOptionResponse */
         CompanyOptionResponse: {
@@ -1333,6 +1468,22 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** EducationPayload */
+        EducationPayload: {
+            /** Degree */
+            degree: string;
+            /** Field */
+            field: string;
+            /** Graduation Year */
+            graduation_year?: number | null;
+            /** Institution */
+            institution: string;
+            /**
+             * Status
+             * @default completed
+             */
+            status: string;
+        };
         /** ExclusionPayload */
         ExclusionPayload: {
             /** Reason */
@@ -1595,6 +1746,13 @@ export interface components {
             constraints?: string[];
             /** Search Profile */
             search_profile: string;
+        };
+        /** LanguagePayload */
+        LanguagePayload: {
+            /** Level */
+            level: string;
+            /** Name */
+            name: string;
         };
         /** LocationResponse */
         LocationResponse: {
@@ -1939,6 +2097,15 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** ProjectHighlightPayload */
+        ProjectHighlightPayload: {
+            /** Name */
+            name: string;
+            /** Summary */
+            summary: string;
+            /** Technologies */
+            technologies?: string[];
+        };
         /** ReorderPayload */
         ReorderPayload: {
             /** Criterion Ids */
@@ -1951,6 +2118,120 @@ export interface components {
             /** Target Status */
             target_status?: ("new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived") | null;
         };
+        /** SearchProfilePayload */
+        SearchProfilePayload: {
+            /** Acceptable Technologies */
+            acceptable_technologies?: string[];
+            /** Avoided Company Characteristics */
+            avoided_company_characteristics?: string[];
+            /** Avoided Industries */
+            avoided_industries?: string[];
+            /** Avoided Technologies */
+            avoided_technologies?: string[];
+            /** Description */
+            description: string;
+            /** Employment Types */
+            employment_types?: string[];
+            /** Must Haves */
+            must_haves?: string[];
+            /** Must Not Haves */
+            must_not_haves?: string[];
+            /** Name */
+            name: string;
+            /** Preferred Company Characteristics */
+            preferred_company_characteristics?: string[];
+            /** Preferred Industries */
+            preferred_industries?: string[];
+            /** Preferred Technologies */
+            preferred_technologies?: string[];
+            /**
+             * Relocation Willing
+             * @default false
+             */
+            relocation_willing: boolean;
+            /**
+             * Result Limit
+             * @default 12
+             */
+            result_limit: number;
+            /**
+             * Salary Currency
+             * @default EUR
+             */
+            salary_currency: string;
+            /** Salary Floor */
+            salary_floor?: number | null;
+            /** Salary Target */
+            salary_target?: number | null;
+            /** Seniority Targets */
+            seniority_targets?: string[];
+            /** Target Locations */
+            target_locations?: string[];
+            /** Target Roles */
+            target_roles: string[];
+            /** Work Models */
+            work_models?: ("remote" | "hybrid" | "on_site")[];
+        };
+        /** SearchProfileResponse */
+        SearchProfileResponse: {
+            /** Acceptable Technologies */
+            acceptable_technologies?: string[];
+            /** Avoided Company Characteristics */
+            avoided_company_characteristics?: string[];
+            /** Avoided Industries */
+            avoided_industries?: string[];
+            /** Avoided Technologies */
+            avoided_technologies?: string[];
+            /** Description */
+            description: string;
+            /** Employment Types */
+            employment_types?: string[];
+            /** Id */
+            id: string;
+            /** Is Default */
+            is_default: boolean;
+            /** Must Haves */
+            must_haves?: string[];
+            /** Must Not Haves */
+            must_not_haves?: string[];
+            /** Name */
+            name: string;
+            /** Preferred Company Characteristics */
+            preferred_company_characteristics?: string[];
+            /** Preferred Industries */
+            preferred_industries?: string[];
+            /** Preferred Technologies */
+            preferred_technologies?: string[];
+            /**
+             * Relocation Willing
+             * @default false
+             */
+            relocation_willing: boolean;
+            /**
+             * Result Limit
+             * @default 12
+             */
+            result_limit: number;
+            /** Revision */
+            revision: number;
+            /**
+             * Salary Currency
+             * @default EUR
+             */
+            salary_currency: string;
+            /** Salary Floor */
+            salary_floor?: number | null;
+            /** Salary Target */
+            salary_target?: number | null;
+            /** Seniority Targets */
+            seniority_targets?: string[];
+            /** Target Locations */
+            target_locations?: string[];
+            /** Target Roles */
+            target_roles: string[];
+            /** Work Models */
+            work_models?: ("remote" | "hybrid" | "on_site")[];
+        };
         /** SelectedResearchScope */
         SelectedResearchScope: {
             /** As Of Date */
@@ -1962,6 +2243,18 @@ export interface components {
              * @enum {string}
              */
             type: "company_update" | "opportunity_update";
+        };
+        /** SkillPayload */
+        SkillPayload: {
+            /**
+             * Level
+             * @enum {string}
+             */
+            level: "learning" | "basic" | "working" | "strong" | "expert";
+            /** Name */
+            name: string;
+            /** Notes */
+            notes?: string | null;
         };
         /** SourceReferenceResponse */
         SourceReferenceResponse: {
@@ -3691,6 +3984,258 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DecisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_candidate_profile_api_profiles_candidate_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateProfileResponse"] | null;
+                };
+            };
+        };
+    };
+    save_candidate_profile_api_profiles_candidate_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CandidateProfilePayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_search_profiles_api_profiles_search_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileResponse"][];
+                };
+            };
+        };
+    };
+    create_search_profile_api_profiles_search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchProfilePayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_default_search_profile_api_profiles_search_default_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileResponse"] | null;
+                };
+            };
+        };
+    };
+    get_search_profile_api_profiles_search__profile_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revise_search_profile_api_profiles_search__profile_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchProfilePayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_search_profile_api_profiles_search__profile_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_default_search_profile_api_profiles_search__profile_id__default_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchProfileResponse"];
                 };
             };
             /** @description Validation Error */

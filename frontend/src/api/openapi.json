@@ -554,6 +554,127 @@
         "title": "Body_import_file_api_imports_file_post",
         "type": "object"
       },
+      "CandidateProfilePayload": {
+        "properties": {
+          "education": {
+            "items": {
+              "$ref": "#/components/schemas/EducationPayload"
+            },
+            "title": "Education",
+            "type": "array"
+          },
+          "experience_summary": {
+            "default": "",
+            "title": "Experience Summary",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "interests": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Interests",
+            "type": "array"
+          },
+          "languages": {
+            "items": {
+              "$ref": "#/components/schemas/LanguagePayload"
+            },
+            "title": "Languages",
+            "type": "array"
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectHighlightPayload"
+            },
+            "title": "Projects",
+            "type": "array"
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/SkillPayload"
+            },
+            "title": "Skills",
+            "type": "array"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "headline",
+          "summary"
+        ],
+        "title": "CandidateProfilePayload",
+        "type": "object"
+      },
+      "CandidateProfileResponse": {
+        "properties": {
+          "education": {
+            "items": {
+              "$ref": "#/components/schemas/EducationPayload"
+            },
+            "title": "Education",
+            "type": "array"
+          },
+          "experience_summary": {
+            "default": "",
+            "title": "Experience Summary",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "interests": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Interests",
+            "type": "array"
+          },
+          "languages": {
+            "items": {
+              "$ref": "#/components/schemas/LanguagePayload"
+            },
+            "title": "Languages",
+            "type": "array"
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectHighlightPayload"
+            },
+            "title": "Projects",
+            "type": "array"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/SkillPayload"
+            },
+            "title": "Skills",
+            "type": "array"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "headline",
+          "summary",
+          "revision"
+        ],
+        "title": "CandidateProfileResponse",
+        "type": "object"
+      },
       "CompanyOptionResponse": {
         "properties": {
           "id": {
@@ -1381,6 +1502,45 @@
         "title": "DuplicateSubjectSummaryResponse",
         "type": "object"
       },
+      "EducationPayload": {
+        "properties": {
+          "degree": {
+            "title": "Degree",
+            "type": "string"
+          },
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "graduation_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Graduation Year"
+          },
+          "institution": {
+            "title": "Institution",
+            "type": "string"
+          },
+          "status": {
+            "default": "completed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "degree",
+          "field",
+          "institution"
+        ],
+        "title": "EducationPayload",
+        "type": "object"
+      },
       "ExclusionPayload": {
         "additionalProperties": false,
         "properties": {
@@ -2086,6 +2246,24 @@
           "as_of_date"
         ],
         "title": "InitialPromptPayload",
+        "type": "object"
+      },
+      "LanguagePayload": {
+        "properties": {
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "level"
+        ],
+        "title": "LanguagePayload",
         "type": "object"
       },
       "LocationResponse": {
@@ -3187,6 +3365,31 @@
         "title": "PostingResponse",
         "type": "object"
       },
+      "ProjectHighlightPayload": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "technologies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Technologies",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "summary"
+        ],
+        "title": "ProjectHighlightPayload",
+        "type": "object"
+      },
       "ReorderPayload": {
         "additionalProperties": false,
         "properties": {
@@ -3242,6 +3445,339 @@
         "title": "RestorePayload",
         "type": "object"
       },
+      "SearchProfilePayload": {
+        "properties": {
+          "acceptable_technologies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Acceptable Technologies",
+            "type": "array"
+          },
+          "avoided_company_characteristics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Avoided Company Characteristics",
+            "type": "array"
+          },
+          "avoided_industries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Avoided Industries",
+            "type": "array"
+          },
+          "avoided_technologies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Avoided Technologies",
+            "type": "array"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "employment_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Employment Types",
+            "type": "array"
+          },
+          "must_haves": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Must Haves",
+            "type": "array"
+          },
+          "must_not_haves": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Must Not Haves",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "preferred_company_characteristics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Preferred Company Characteristics",
+            "type": "array"
+          },
+          "preferred_industries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Preferred Industries",
+            "type": "array"
+          },
+          "preferred_technologies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Preferred Technologies",
+            "type": "array"
+          },
+          "relocation_willing": {
+            "default": false,
+            "title": "Relocation Willing",
+            "type": "boolean"
+          },
+          "result_limit": {
+            "default": 12,
+            "title": "Result Limit",
+            "type": "integer"
+          },
+          "salary_currency": {
+            "default": "EUR",
+            "title": "Salary Currency",
+            "type": "string"
+          },
+          "salary_floor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Floor"
+          },
+          "salary_target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Target"
+          },
+          "seniority_targets": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Seniority Targets",
+            "type": "array"
+          },
+          "target_locations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Locations",
+            "type": "array"
+          },
+          "target_roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Roles",
+            "type": "array"
+          },
+          "work_models": {
+            "items": {
+              "enum": [
+                "remote",
+                "hybrid",
+                "on_site"
+              ],
+              "type": "string"
+            },
+            "title": "Work Models",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "target_roles"
+        ],
+        "title": "SearchProfilePayload",
+        "type": "object"
+      },
+      "SearchProfileResponse": {
+        "properties": {
+          "acceptable_technologies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Acceptable Technologies",
+            "type": "array"
+          },
+          "avoided_company_characteristics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Avoided Company Characteristics",
+            "type": "array"
+          },
+          "avoided_industries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Avoided Industries",
+            "type": "array"
+          },
+          "avoided_technologies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Avoided Technologies",
+            "type": "array"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "employment_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Employment Types",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "is_default": {
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "must_haves": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Must Haves",
+            "type": "array"
+          },
+          "must_not_haves": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Must Not Haves",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "preferred_company_characteristics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Preferred Company Characteristics",
+            "type": "array"
+          },
+          "preferred_industries": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Preferred Industries",
+            "type": "array"
+          },
+          "preferred_technologies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Preferred Technologies",
+            "type": "array"
+          },
+          "relocation_willing": {
+            "default": false,
+            "title": "Relocation Willing",
+            "type": "boolean"
+          },
+          "result_limit": {
+            "default": 12,
+            "title": "Result Limit",
+            "type": "integer"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "salary_currency": {
+            "default": "EUR",
+            "title": "Salary Currency",
+            "type": "string"
+          },
+          "salary_floor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Floor"
+          },
+          "salary_target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Target"
+          },
+          "seniority_targets": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Seniority Targets",
+            "type": "array"
+          },
+          "target_locations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Locations",
+            "type": "array"
+          },
+          "target_roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Roles",
+            "type": "array"
+          },
+          "work_models": {
+            "items": {
+              "enum": [
+                "remote",
+                "hybrid",
+                "on_site"
+              ],
+              "type": "string"
+            },
+            "title": "Work Models",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "target_roles",
+          "id",
+          "revision",
+          "is_default"
+        ],
+        "title": "SearchProfileResponse",
+        "type": "object"
+      },
       "SelectedResearchScope": {
         "properties": {
           "as_of_date": {
@@ -3270,6 +3806,42 @@
           "selected_correlation_refs"
         ],
         "title": "SelectedResearchScope",
+        "type": "object"
+      },
+      "SkillPayload": {
+        "properties": {
+          "level": {
+            "enum": [
+              "learning",
+              "basic",
+              "working",
+              "strong",
+              "expert"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "required": [
+          "name",
+          "level"
+        ],
+        "title": "SkillPayload",
         "type": "object"
       },
       "SourceReferenceResponse": {
@@ -5863,6 +6435,334 @@
         "summary": "Change Status",
         "tags": [
           "opportunities"
+        ]
+      }
+    },
+    "/api/profiles/candidate": {
+      "get": {
+        "operationId": "get_candidate_profile_api_profiles_candidate_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CandidateProfileResponse"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Candidate Profile Api Profiles Candidate Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Candidate Profile",
+        "tags": [
+          "profiles"
+        ]
+      },
+      "put": {
+        "operationId": "save_candidate_profile_api_profiles_candidate_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateProfilePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Candidate Profile",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
+    "/api/profiles/search": {
+      "get": {
+        "operationId": "list_search_profiles_api_profiles_search_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SearchProfileResponse"
+                  },
+                  "title": "Response List Search Profiles Api Profiles Search Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Search Profiles",
+        "tags": [
+          "profiles"
+        ]
+      },
+      "post": {
+        "operationId": "create_search_profile_api_profiles_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchProfilePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Search Profile",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
+    "/api/profiles/search/default": {
+      "get": {
+        "operationId": "get_default_search_profile_api_profiles_search_default_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SearchProfileResponse"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Default Search Profile Api Profiles Search Default Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Default Search Profile",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
+    "/api/profiles/search/{profile_id}": {
+      "delete": {
+        "operationId": "delete_search_profile_api_profiles_search__profile_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Search Profile",
+        "tags": [
+          "profiles"
+        ]
+      },
+      "get": {
+        "operationId": "get_search_profile_api_profiles_search__profile_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Search Profile",
+        "tags": [
+          "profiles"
+        ]
+      },
+      "put": {
+        "operationId": "revise_search_profile_api_profiles_search__profile_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchProfilePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revise Search Profile",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
+    "/api/profiles/search/{profile_id}/default": {
+      "post": {
+        "operationId": "set_default_search_profile_api_profiles_search__profile_id__default_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Default Search Profile",
+        "tags": [
+          "profiles"
         ]
       }
     },
