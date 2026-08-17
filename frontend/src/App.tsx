@@ -5,6 +5,7 @@ import { DuplicateCasesView } from "./features/duplicates/DuplicateCasesView";
 import { GroupsView } from "./features/groups/GroupsView";
 import { ImportView } from "./features/imports/ImportView";
 import { OpportunityDetailView } from "./features/opportunities/OpportunityDetailView";
+import { OpportunityDetailFitPanel } from "./features/opportunities/OpportunityFitBreakdown";
 import { OpportunityList } from "./features/opportunities/OpportunityList";
 import { ProfileSearchView } from "./features/profiles/ProfileSearchView";
 import { PromptView } from "./features/prompts/PromptView";
@@ -66,10 +67,13 @@ export default function App() {
       <main className="content">
         {view === "opportunities" &&
           (selectedOpportunity ? (
-            <OpportunityDetailView
-              opportunityId={selectedOpportunity}
-              onBack={() => setSelectedOpportunity(null)}
-            />
+            <>
+              <OpportunityDetailFitPanel opportunityId={selectedOpportunity} />
+              <OpportunityDetailView
+                opportunityId={selectedOpportunity}
+                onBack={() => setSelectedOpportunity(null)}
+              />
+            </>
           ) : (
             <OpportunityList
               refreshToken={refreshToken}
