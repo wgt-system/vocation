@@ -5,6 +5,7 @@ from typing import Literal
 
 SkillLevel = Literal["learning", "basic", "working", "strong", "expert"]
 WorkModel = Literal["remote", "hybrid", "on_site"]
+NumericDirection = Literal["higher_is_better", "lower_is_better"]
 
 
 class ProfileValidationError(ValueError):
@@ -54,6 +55,24 @@ class CandidateProfile:
 
 
 @dataclass(frozen=True)
+class CategoryScore:
+    value: str
+    score: float
+
+
+@dataclass(frozen=True)
+class CriterionPolicy:
+    criterion_id: str
+    weight: float = 1.0
+    required: bool = False
+    numeric_direction: NumericDirection = "higher_is_better"
+    minimum_numeric_value: float | None = None
+    minimum_score: float | None = None
+    preferred_boolean: bool | None = None
+    category_scores: tuple[CategoryScore, ...] = ()
+
+
+@dataclass(frozen=True)
 class SearchProfile:
     id: str
     revision: int
@@ -78,6 +97,7 @@ class SearchProfile:
     must_haves: tuple[str, ...] = ()
     must_not_haves: tuple[str, ...] = ()
     result_limit: int = 12
+    criterion_policies: tuple[CriterionPolicy, ...] = ()
     is_default: bool = False
 
 
@@ -136,6 +156,23 @@ def validate_candidate_profile(profile: CandidateProfile) -> None:
         raise ProfileValidationError("Candidate Profile projects must have unique names.")
 
 
+def validate_criterion_policy(policy: CriterionPolicy) -> None:
+    _require_text(policy.criterion_id, "Criterion policy criterion ID")
+    if not 0 <= policy.weight <= 10:
+        raise ProfileValidationError("Criterion policy weight must be between 0 and 10.")
+    if policy.numeric_direction not in {"higher_is_better", "lower_is_better"}:
+        raise ProfileValidationError("Criterion policy numeric direction is invalid.")
+    if policy.minimum_score is not None and not 0 <= policy.minimum_score <= 100:
+        raise ProfileValidationError("Criterion policy minimum score must be between 0 and 100.")
+    category_values = [item.value.strip().casefold() for item in policy.category_scores]
+    if any(not value for value in category_values):
+        raise ProfileValidationError("Criterion category score values must be non-empty.")
+    if len(category_values) != len(set(category_values)):
+        raise ProfileValidationError("Criterion category score values must be unique.")
+    if any(not 0 <= item.score <= 100 for item in policy.category_scores):
+        raise ProfileValidationError("Criterion category scores must be between 0 and 100.")
+
+
 def validate_search_profile(profile: SearchProfile) -> None:
     if profile.revision < 1:
         raise ProfileValidationError("Search Profile revision must be at least 1.")
@@ -184,3 +221,9 @@ def validate_search_profile(profile: SearchProfile) -> None:
         raise ProfileValidationError("Salary currency must be a three-letter code.")
     if not 1 <= profile.result_limit <= 50:
         raise ProfileValidationError("Search Profile result limit must be between 1 and 50.")
+
+    criterion_ids = [policy.criterion_id for policy in profile.criterion_policies]
+    if len(criterion_ids) != len(set(criterion_ids)):
+        raise ProfileValidationError("Search Profile criterion policies must use unique criterion IDs.")
+    for policy in profile.criterion_policies:
+        validate_criterion_policy(policy)
