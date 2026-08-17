@@ -200,3 +200,10 @@ Opportunity-Liste und Detail enthalten den Tracking Status und unterstützen Sta
 Für Slice 9 zeigen interne Read Models Posting-/Opportunity-Availability sowie availability-evidence Freshness (`last_checked_at`, `age_days`). Freshness hat keine Schwellenkategorie und ändert Availability nicht automatisch.
 
 Die Desktop-Read-Workflow-Integration ist implementiert: Listenfilter und Availability-Badges sowie Detailansicht und append-only Availability-Historie sind verfügbar. Diese post-v0.3-Funktion bleibt außerhalb des Published Opportunity Overview 1.0 Contracts.
+
+## 14. DuplicateCaseReview (implemented)
+
+Interner, nicht persistierter Review-Read-Model für bestehende Opportunity- und Posting-`DuplicateCase`s. Er enthält die stabile Case-ID, Subject Type, je Subject eine lesbare Summary, Evidence Summary, optionale Import-Confidence, Source-Reference-Summaries, Created At, aktuelle Duplicate Decision, vollständige append-only Decision History sowie `is_reviewed` und `is_resolved`.
+
+Ohne Decision ist ein Case ungeprüft und unresolved. `keep_unresolved` ist geprüft, aber unresolved; die anderen drei Outcomes sind für den Review resolved. Source URLs werden in der `Dubletten`-Ansicht nur als Review-Kontext angezeigt und nicht als direkte Navigation verwendet. Das Read Model besitzt keine Merge-, Delete- oder Published-Contract-Semantik.
+

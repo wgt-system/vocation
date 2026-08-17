@@ -230,3 +230,10 @@ Nicht erlaubt:
 - Orientation/Map-Renderer entscheidet Vocation Work Location oder Precision,
 - Vocation implementiert konkurrierendes generisches Geocoding/Map Rendering, wenn Orientation die benötigte Capability bereitstellt,
 - Browseradapter oder Orientation wählt Preferred Posting.
+
+## 15. Duplicate Case Resolution
+
+Slice 18 ergänzt die bestehende DuplicateCase-Evidence um eine getrennte append-only `DuplicateDecision`-Historie. Alembic `0013` persistiert Entscheidungen mit einer eindeutigen monotonen Sequence pro Case und geschlossenem Outcome-Vokabular. Domain/Application leiten aktuelle Review-Sicht ausschließlich aus der letzten Decision ab; bestehende DuplicateCase-Evidence bleibt unverändert.
+
+Die interne Kette lautet: `DuplicateCaseService` → `SqlAlchemyDuplicateCaseRepository` → `duplicate_case_decisions` → interne `/api/duplicate-cases`-Read-/Decision-Routen → typed React client → `Dubletten`-Ansicht. Subject-/Source-Summaries sind reine Read-Model-Daten. Es gibt keine Merge-Engine und keine Mutation der beteiligten Opportunity-/Posting-Identitäten oder ihrer Assessments, Decisions, Groups, ApplicationCases, Documents oder Published References.
+

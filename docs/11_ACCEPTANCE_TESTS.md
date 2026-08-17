@@ -488,3 +488,12 @@ Eine explizite Vocation-Geocode-Aktion nutzt den Vocation `Geocoder`-Port mit `O
 Die Vocation-Kartenansicht nutzt den gepinnten Orientation Embed Host über `orientation.host-bridge` 1.0. Vocation erzeugt/adaptiert die fachliche MapProjection, Information Rows und opaque Action References; Orientation rendert generisch und meldet Action-Aktivierungen zurück. Orientation liest keine Vocation-Datenbank und entscheidet nicht über Work Location, Precision, Opportunity, Availability, Preferred Posting oder Browsernavigation.
 
 Die lokale Orientation-Komposition verändert weder Published Opportunity Overview 1.0 noch Published Map Projection 1.0. Weitere Orientation-Capabilities wie Routing werden nicht allein durch ihre Verfügbarkeit Bestandteil von Vocation, sondern benötigen einen konkreten Vocation-Nutzerfall und eine eigene Semantikentscheidung.
+
+## AT-106 Duplicate Decision History and Isolation
+
+Ein bestehender Opportunity- oder Posting-DuplicateCase kann nur durch explizite Nutzeraktion mit `confirmed_duplicate`, `confirmed_distinct`, `related_but_distinct` oder `keep_unresolved` und nichtleerem Grund entschieden werden. Jede Decision wird mit fortlaufender Sequence append-only gespeichert; eine abweichende spätere Decision wird aktuell, ohne ältere Decisions zu verändern. Dasselbe aktuelle Outcome wird als Konflikt abgelehnt. Research-/Availability-Imports sowie persönliche Opportunity-Zustände bleiben davon unverändert.
+
+## AT-107 Duplicate Review API and UI Without Merge
+
+Die internen `/api/duplicate-cases`-Routen liefern Opportunity- und Posting-Cases mit lesbaren Subject-/Source-Summaries, aktueller Decision und Historie. Die React-Ansicht `Dubletten` filtert offen/entschieden/alle, verlangt einen Entscheidungsgrund und zeigt Evidence-URLs nur als nicht klickbaren Review-Kontext. `confirmed_duplicate` erzeugt weder Merge, Delete, Re-Parenting noch sonstige Identitätsmutation; es gibt keine Merge-/Delete-Controls und keine Änderung an Published Opportunity Overview 1.0 oder Published Map Projection 1.0.
+
