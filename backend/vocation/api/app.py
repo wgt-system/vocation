@@ -14,6 +14,7 @@ from vocation.api.application_document_routes import router as application_docum
 from vocation.api.availability_routes import router as availability_router
 from vocation.api.comparison_routes import router as comparison_router
 from vocation.api.criteria_routes import router as criteria_router
+from vocation.api.duplicate_case_routes import router as duplicate_case_router
 from vocation.api.external_link_routes import router as external_link_router
 from vocation.api.group_routes import router as group_router
 from vocation.api.import_routes import router as import_router
@@ -165,6 +166,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.include_router(application_case_router)
     app.include_router(application_document_router)
     app.include_router(comparison_router)
+    app.include_router(duplicate_case_router)
     app.include_router(external_link_router)
     app.include_router(availability_router)
     app.include_router(prompt_router)
