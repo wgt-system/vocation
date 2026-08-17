@@ -1,0 +1,33 @@
+name: Refresh release lock
+
+on:
+  push:
+    branches:
+      - release/v0.4.0
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: uv lock
+      - name: Commit updated lockfile
+        shell: bash
+        run: |
+          if git diff --quiet -- uv.lock; then
+            echo "uv.lock already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add uv.lock
+          git commit -m "chore: refresh uv lock for v0.4.0 [skip ci]"
+          git push origin HEAD:release/v0.4.0
