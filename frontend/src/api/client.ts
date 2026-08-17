@@ -57,6 +57,11 @@ export type ApplicationMaterialKind =
   components["schemas"]["ApplicationMaterialResponse"]["kind"];
 export type ApplicationDocument =
   components["schemas"]["ApplicationDocumentResponse"];
+export type DuplicateCaseReview =
+  components["schemas"]["DuplicateCaseReviewResponse"];
+export type DuplicateDecisionPayload =
+  components["schemas"]["DuplicateDecisionPayload"];
+export type DuplicateDecisionOutcome = DuplicateDecisionPayload["outcome"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const isMultipart = init?.body instanceof FormData;
@@ -221,6 +226,17 @@ export const api = {
   },
   getApplicationDocument: (documentId: string) =>
     request<ApplicationDocument>(`/api/application-documents/${documentId}`),
+  listDuplicateCases: () =>
+    request<DuplicateCaseReview[]>("/api/duplicate-cases"),
+  getDuplicateCase: (caseId: string) =>
+    request<DuplicateCaseReview>(
+      `/api/duplicate-cases/${encodeURIComponent(caseId)}`,
+    ),
+  decideDuplicateCase: (caseId: string, payload: DuplicateDecisionPayload) =>
+    request<DuplicateCaseReview>(
+      `/api/duplicate-cases/${encodeURIComponent(caseId)}/decisions`,
+      { method: "POST", body: JSON.stringify(payload) },
+    ),
   listExternalLinks: (opportunityId: string) =>
     request<ExternalLink[]>(
       `/api/external-links/opportunities/${opportunityId}`,

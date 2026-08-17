@@ -148,11 +148,11 @@ In Slice 9 ausschließlich Freshness der Availability-Evidenz. `last_checked_at`
 
 ### Possible Duplicate
 
-Dokumentierte Vermutung einer möglichen Identität.
+Dokumentierte Vermutung einer möglichen Identität. Sie ist Evidenz und keine Identitätsentscheidung.
 
 ### Duplicate Decision
 
-Explizite Entscheidung: identisch, getrennt, verwandt oder ungeklärt.
+Explizite, persönliche Review-Entscheidung für genau einen Duplicate Case. Erlaubte Outcomes sind `confirmed_duplicate`, `confirmed_distinct`, `related_but_distinct` und `keep_unresolved`. Jede Duplicate Decision besitzt eine stabile Decision ID, die Duplicate Case ID, eine monoton steigende Sequence, einen nichtleeren Grund und `decided_at` und wird append-only gespeichert. Die neueste Decision ist die aktuelle Sicht; `keep_unresolved` bedeutet geprüft, aber weiterhin ungeklärt. `confirmed_duplicate` klassifiziert nur und führt keinen Merge oder andere Identitätsmutation aus.
 
 ### Opportunity Group
 
@@ -221,6 +221,7 @@ Eine veröffentlichte, abgeleitete Momentaufnahme einer Read Projection mit Publ
 - Ein Posting-Link ist nicht die Opportunity.
 - Ein Karten-Pin ist eine Projektion, kein Domänenobjekt.
 - Das Öffnen eines Links ist eine Nutzeraktion, keine automatische Navigation.
+- Ein `confirmed_duplicate` ist kein Merge und keine automatische Änderung der beteiligten Subjects.
 ## Persönliche Triage (v0.2.0)
 
 Eine **Personal Assessment** gehört Vocation und ist von einem **External Assessment** getrennt. Pro Opportunity und Criterion existiert genau ein aktuelles Personal Assessment. `CreatePersonalAssessment` legt die erste unveränderliche Revision an; `RevisePersonalAssessment` legt eine neue Revision mit Vorgängerreferenz an. Nur die aktuelle Revision darf revidiert werden, ältere Revisionen bleiben sichtbar. Numeric-, Categorical-, Boolean- und Text-Werte werden gegen das Vocation-Kriterium validiert. Create und Revise benötigen ein aktives Opportunity-Kriterium. Sobald ein Criterion durch ein External oder Personal Assessment referenziert wird, sind semantische Änderungen geschützt; Name und Beschreibung dürfen weiter gepflegt werden.

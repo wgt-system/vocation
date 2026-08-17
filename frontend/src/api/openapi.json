@@ -1147,6 +1147,240 @@
         "title": "DecisionResponse",
         "type": "object"
       },
+      "DuplicateCaseReviewResponse": {
+        "properties": {
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DuplicateDecisionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_history": {
+            "items": {
+              "$ref": "#/components/schemas/DuplicateDecisionResponse"
+            },
+            "title": "Decision History",
+            "type": "array"
+          },
+          "evidence_summary": {
+            "title": "Evidence Summary",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "is_resolved": {
+            "title": "Is Resolved",
+            "type": "boolean"
+          },
+          "is_reviewed": {
+            "title": "Is Reviewed",
+            "type": "boolean"
+          },
+          "left_subject": {
+            "$ref": "#/components/schemas/DuplicateSubjectSummaryResponse"
+          },
+          "right_subject": {
+            "$ref": "#/components/schemas/DuplicateSubjectSummaryResponse"
+          },
+          "source_references": {
+            "items": {
+              "$ref": "#/components/schemas/DuplicateSourceReferenceSummaryResponse"
+            },
+            "title": "Source References",
+            "type": "array"
+          },
+          "subject_type": {
+            "enum": [
+              "opportunity",
+              "posting"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "subject_type",
+          "left_subject",
+          "right_subject",
+          "evidence_summary",
+          "confidence",
+          "source_references",
+          "created_at",
+          "current_decision",
+          "decision_history",
+          "is_reviewed",
+          "is_resolved"
+        ],
+        "title": "DuplicateCaseReviewResponse",
+        "type": "object"
+      },
+      "DuplicateDecisionPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "outcome": {
+            "enum": [
+              "confirmed_duplicate",
+              "confirmed_distinct",
+              "related_but_distinct",
+              "keep_unresolved"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome",
+          "reason"
+        ],
+        "title": "DuplicateDecisionPayload",
+        "type": "object"
+      },
+      "DuplicateDecisionResponse": {
+        "properties": {
+          "decided_at": {
+            "format": "date-time",
+            "title": "Decided At",
+            "type": "string"
+          },
+          "duplicate_case_id": {
+            "title": "Duplicate Case Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "confirmed_duplicate",
+              "confirmed_distinct",
+              "related_but_distinct",
+              "keep_unresolved"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "duplicate_case_id",
+          "sequence",
+          "outcome",
+          "reason",
+          "decided_at"
+        ],
+        "title": "DuplicateDecisionResponse",
+        "type": "object"
+      },
+      "DuplicateSourceReferenceSummaryResponse": {
+        "properties": {
+          "display_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Label"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "source_name": {
+            "title": "Source Name",
+            "type": "string"
+          },
+          "source_reference_id": {
+            "title": "Source Reference Id",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_reference_id",
+          "source_name",
+          "display_label",
+          "url",
+          "observed_at"
+        ],
+        "title": "DuplicateSourceReferenceSummaryResponse",
+        "type": "object"
+      },
+      "DuplicateSubjectSummaryResponse": {
+        "properties": {
+          "context": {
+            "title": "Context",
+            "type": "string"
+          },
+          "subject_id": {
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "opportunity",
+              "posting"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_type",
+          "subject_id",
+          "title",
+          "context"
+        ],
+        "title": "DuplicateSubjectSummaryResponse",
+        "type": "object"
+      },
       "ExclusionPayload": {
         "additionalProperties": false,
         "properties": {
@@ -4081,6 +4315,173 @@
         "summary": "Activate Criterion",
         "tags": [
           "assessment criteria"
+        ]
+      }
+    },
+    "/api/duplicate-cases": {
+      "get": {
+        "operationId": "list_duplicate_cases_api_duplicate_cases_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "subject_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "opportunity",
+                    "posting"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subject_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DuplicateCaseReviewResponse"
+                  },
+                  "title": "Response List Duplicate Cases Api Duplicate Cases Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Duplicate Cases",
+        "tags": [
+          "duplicate-cases"
+        ]
+      }
+    },
+    "/api/duplicate-cases/{case_id}": {
+      "get": {
+        "operationId": "get_duplicate_case_api_duplicate_cases__case_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DuplicateCaseReviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Duplicate Case",
+        "tags": [
+          "duplicate-cases"
+        ]
+      }
+    },
+    "/api/duplicate-cases/{case_id}/decisions": {
+      "post": {
+        "operationId": "decide_duplicate_case_api_duplicate_cases__case_id__decisions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DuplicateDecisionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DuplicateCaseReviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Decide Duplicate Case",
+        "tags": [
+          "duplicate-cases"
         ]
       }
     },

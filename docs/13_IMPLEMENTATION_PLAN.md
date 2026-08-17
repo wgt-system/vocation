@@ -151,6 +151,13 @@ Slice 17 ist auf `dev` implementiert. Der read-only Use Case `OpenApplicationDoc
 
 Die React ApplicationCasePanel-Oberfläche bietet für ein vorhandenes Dokument der aktuell angezeigten Revision die explizite Aktion `Öffnen` und verwendet exakt das geladene `document.id` in einem neuen Browsing-Kontext (`target="_blank"`, `rel="noopener noreferrer"`). Browser-supported PDF-/Text-Handhabung ist zulässig; eingebettetes Preview/Rendering, Export/Save-as, Edit/Delete/Replace, Cross-device Integration, WGT/Conveyance-Zugriff und neue Lifecycle-/Tracking-Zustände gehören nicht zu Slice 17. Die Implementierung folgt der autoritativen `wgt-system/architecture` für künftigen privaten Cross-device-Zugriff.
 
+
+## Slice 18 – Duplicate Case Resolution (implementiert auf `dev`)
+
+Vocation kann bestehende Opportunity- und Posting-DuplicateCases jetzt explizit und historisiert reviewen. Implementiert sind `DuplicateDecision` mit den vier eingefrorenen Outcomes und nichtleerem Grund, Alembic `0013`, append-only SQLAlchemy-Persistenz, aktuelle Review-Sicht aus der letzten Decision, interne `/api/duplicate-cases`-Read-/Decision-Routen, generierte TypeScript-API-Typen sowie die React-Ansicht `Dubletten` mit offenen/entschiedenen/allen Fällen und vollständiger Decision History.
+
+`confirmed_duplicate` bleibt reine Klassifikation. Slice 18 führt keinen Merge, keine Löschung, kein Canonical-Survivor-Modell, kein Re-Parenting und keine Übertragung von Assessments, Decisions, Groups/Waves, ApplicationCases, ApplicationMaterials oder ApplicationDocuments aus. Research-/Availability-Imports verändern Duplicate Decisions nicht. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben unverändert. Eine spätere Merge-Capability benötigt eine eigene explizit eingefrorene Semantik.
+
 ## Cross-cutting Migration – Orientation Integration (implementiert auf `dev`)
 
 Nach Annahme von Orientation als generischem Geospatial-Bounded-Context wurden die entsprechenden Vocation-Duplikate entfernt bzw. ersetzt:
