@@ -179,14 +179,20 @@ def test_duplicate_case_decision_api_appends_history_without_merging_subjects(cl
         json={"outcome": "keep_unresolved", "reason": "Repeated."},
     )
     assert repeated.status_code == 409
-    assert client.post(
-        f"/api/duplicate-cases/{case_id}/decisions",
-        json={"outcome": "confirmed_distinct", "reason": "   "},
-    ).status_code == 422
-    assert client.post(
-        "/api/duplicate-cases/missing-case/decisions",
-        json={"outcome": "confirmed_distinct", "reason": "Different roles."},
-    ).status_code == 404
+    assert (
+        client.post(
+            f"/api/duplicate-cases/{case_id}/decisions",
+            json={"outcome": "confirmed_distinct", "reason": "   "},
+        ).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            "/api/duplicate-cases/missing-case/decisions",
+            json={"outcome": "confirmed_distinct", "reason": "Different roles."},
+        ).status_code
+        == 404
+    )
 
     with client.app.state.database.session_factory() as session:
         assert session.scalar(select(func.count()).select_from(OpportunityModel)) == 2
