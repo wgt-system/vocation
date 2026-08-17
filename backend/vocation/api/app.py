@@ -16,6 +16,7 @@ from vocation.api.comparison_routes import router as comparison_router
 from vocation.api.criteria_routes import router as criteria_router
 from vocation.api.duplicate_case_routes import router as duplicate_case_router
 from vocation.api.external_link_routes import router as external_link_router
+from vocation.api.fit_routes import router as fit_router
 from vocation.api.group_routes import router as group_router
 from vocation.api.import_routes import router as import_router
 from vocation.api.map_routes import router as map_router
@@ -31,6 +32,7 @@ from vocation.application.comparison import OpportunityComparisonService
 from vocation.application.criteria import CriteriaService
 from vocation.application.duplicate_cases import DuplicateCaseService
 from vocation.application.external_navigation import ExternalNavigationService
+from vocation.application.fit import OpportunityFitService
 from vocation.application.groups import OpportunityGroupService
 from vocation.application.imports import ImportService
 from vocation.application.map import MapService
@@ -52,6 +54,7 @@ from vocation.infrastructure.database import Database
 from vocation.infrastructure.duplicate_case_repository import SqlAlchemyDuplicateCaseRepository
 from vocation.infrastructure.external_link_repository import SqlAlchemyExternalLinkRepository
 from vocation.infrastructure.filesystem_application_document_store import FilesystemApplicationDocumentStore
+from vocation.infrastructure.fit_repository import SqlAlchemyFitRepository
 from vocation.infrastructure.group_repository import SqlAlchemyOpportunityGroupRepository
 from vocation.infrastructure.map_location_repository import SqlAlchemyMapLocationResolutionRepository
 from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
@@ -91,7 +94,16 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.settings = settings
     criteria_repository = SqlAlchemyCriteriaRepository(database.session_factory)
     app.state.criteria_service = CriteriaService(criteria_repository)
-    app.state.profile_service = ProfileService(SqlAlchemyProfileRepository(database.session_factory))
+    profile_repository = SqlAlchemyProfileRepository(database.session_factory)
+    app.state.profile_service = ProfileService(
+        profile_repository,
+        criteria=app.state.criteria_service,
+    )
+    app.state.opportunity_fit_service = OpportunityFitService(
+        SqlAlchemyFitRepository(database.session_factory),
+        profile_repository,
+        app.state.criteria_service,
+    )
     app.state.prompt_service = PromptService(
         app.state.criteria_service,
         SqlAlchemyPromptRunRepository(database.session_factory),
@@ -168,6 +180,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
 
     app.include_router(criteria_router)
     app.include_router(profile_router)
+    app.include_router(fit_router)
     app.include_router(application_case_router)
     app.include_router(application_document_router)
     app.include_router(comparison_router)

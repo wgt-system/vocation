@@ -710,6 +710,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/opportunities/{opportunity_id}/fit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Opportunity Fit */
+        get: operations["get_opportunity_fit_api_opportunities__opportunity_id__fit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/opportunities/{opportunity_id}/restore": {
         parameters: {
             query?: never;
@@ -738,6 +755,23 @@ export interface paths {
         put?: never;
         /** Change Status */
         post: operations["change_status_api_opportunities__opportunity_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/opportunity-fit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Opportunity Fit */
+        get: operations["list_opportunity_fit_api_opportunity_fit_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1159,6 +1193,13 @@ export interface components {
             /** Summary */
             summary: string;
         };
+        /** CategoryScorePayload */
+        CategoryScorePayload: {
+            /** Score */
+            score: number;
+            /** Value */
+            value: string;
+        };
         /** CompanyOptionResponse */
         CompanyOptionResponse: {
             /** Id */
@@ -1274,6 +1315,32 @@ export interface components {
             /** Precision */
             precision: string;
         };
+        /** CriterionContributionResponse */
+        CriterionContributionResponse: {
+            /** Criterion Id */
+            criterion_id: string;
+            /** Criterion Name */
+            criterion_name: string;
+            /** Explanation */
+            explanation: string;
+            /** Origin */
+            origin: string | null;
+            /** Required */
+            required: boolean;
+            /** Score */
+            score: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "scored" | "missing" | "unscorable";
+            /** Value */
+            value: unknown | null;
+            /** Weight */
+            weight: number;
+            /** Weighted Points */
+            weighted_points: number | null;
+        };
         /** CriterionPayload */
         CriterionPayload: {
             /**
@@ -1311,6 +1378,35 @@ export interface components {
              * @enum {string}
              */
             value_type: "numeric" | "boolean" | "categorical" | "text";
+        };
+        /** CriterionPolicyPayload */
+        CriterionPolicyPayload: {
+            /** Category Scores */
+            category_scores?: components["schemas"]["CategoryScorePayload"][];
+            /** Criterion Id */
+            criterion_id: string;
+            /** Minimum Numeric Value */
+            minimum_numeric_value?: number | null;
+            /** Minimum Score */
+            minimum_score?: number | null;
+            /**
+             * Numeric Direction
+             * @default higher_is_better
+             * @enum {string}
+             */
+            numeric_direction: "higher_is_better" | "lower_is_better";
+            /** Preferred Boolean */
+            preferred_boolean?: boolean | null;
+            /**
+             * Required
+             * @default false
+             */
+            required: boolean;
+            /**
+             * Weight
+             * @default 1
+             */
+            weight: number;
         };
         /** CriterionResponse */
         CriterionResponse: {
@@ -1935,6 +2031,34 @@ export interface components {
              */
             tracking_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
         };
+        /** OpportunityFitResponse */
+        OpportunityFitResponse: {
+            /** Candidate Profile Revision */
+            candidate_profile_revision: number | null;
+            /** Contributions */
+            contributions: components["schemas"]["CriterionContributionResponse"][];
+            /** Evidence Completeness */
+            evidence_completeness: number;
+            /**
+             * Hard Constraint Status
+             * @enum {string}
+             */
+            hard_constraint_status: "pass" | "fail" | "unknown";
+            /** Hard Failures */
+            hard_failures: string[];
+            /** Hard Unknowns */
+            hard_unknowns: string[];
+            /** Missing Evidence */
+            missing_evidence: string[];
+            /** Opportunity Id */
+            opportunity_id: string;
+            /** Search Profile Id */
+            search_profile_id: string;
+            /** Search Profile Revision */
+            search_profile_revision: number;
+            /** Weighted Fit Score */
+            weighted_fit_score: number | null;
+        };
         /** OpportunityGroupMembershipPayload */
         OpportunityGroupMembershipPayload: {
             /** Opportunity Id */
@@ -2128,6 +2252,8 @@ export interface components {
             avoided_industries?: string[];
             /** Avoided Technologies */
             avoided_technologies?: string[];
+            /** Criterion Policies */
+            criterion_policies?: components["schemas"]["CriterionPolicyPayload"][];
             /** Description */
             description: string;
             /** Employment Types */
@@ -2182,6 +2308,8 @@ export interface components {
             avoided_industries?: string[];
             /** Avoided Technologies */
             avoided_technologies?: string[];
+            /** Criterion Policies */
+            criterion_policies?: components["schemas"]["CriterionPolicyPayload"][];
             /** Description */
             description: string;
             /** Employment Types */
@@ -3927,6 +4055,39 @@ export interface operations {
             };
         };
     };
+    get_opportunity_fit_api_opportunities__opportunity_id__fit_get: {
+        parameters: {
+            query?: {
+                search_profile_id?: string | null;
+            };
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityFitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     restore_api_opportunities__opportunity_id__restore_post: {
         parameters: {
             query?: never;
@@ -3984,6 +4145,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DecisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_opportunity_fit_api_opportunity_fit_get: {
+        parameters: {
+            query?: {
+                search_profile_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": string[] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityFitResponse"][];
                 };
             };
             /** @description Validation Error */

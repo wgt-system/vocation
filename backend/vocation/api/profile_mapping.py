@@ -3,6 +3,8 @@ from __future__ import annotations
 from vocation.api.profile_schemas import (
     CandidateProfilePayload,
     CandidateProfileResponse,
+    CategoryScorePayload,
+    CriterionPolicyPayload,
     EducationPayload,
     LanguagePayload,
     ProjectHighlightPayload,
@@ -10,7 +12,16 @@ from vocation.api.profile_schemas import (
     SearchProfileResponse,
     SkillPayload,
 )
-from vocation.domain.profiles import CandidateProfile, Education, Language, ProjectHighlight, SearchProfile, Skill
+from vocation.domain.profiles import (
+    CandidateProfile,
+    CategoryScore,
+    CriterionPolicy,
+    Education,
+    Language,
+    ProjectHighlight,
+    SearchProfile,
+    Skill,
+)
 
 
 def candidate_from_payload(payload: CandidateProfilePayload) -> CandidateProfile:
@@ -26,6 +37,19 @@ def candidate_from_payload(payload: CandidateProfilePayload) -> CandidateProfile
             ProjectHighlight(name=item.name, summary=item.summary, technologies=tuple(item.technologies)) for item in payload.projects
         ),
         interests=tuple(payload.interests),
+    )
+
+
+def _criterion_policy_from_payload(payload: CriterionPolicyPayload) -> CriterionPolicy:
+    return CriterionPolicy(
+        criterion_id=payload.criterion_id,
+        weight=payload.weight,
+        required=payload.required,
+        numeric_direction=payload.numeric_direction,
+        minimum_numeric_value=payload.minimum_numeric_value,
+        minimum_score=payload.minimum_score,
+        preferred_boolean=payload.preferred_boolean,
+        category_scores=tuple(CategoryScore(value=item.value, score=item.score) for item in payload.category_scores),
     )
 
 
@@ -54,6 +78,7 @@ def search_from_payload(payload: SearchProfilePayload) -> SearchProfile:
         must_haves=tuple(payload.must_haves),
         must_not_haves=tuple(payload.must_not_haves),
         result_limit=payload.result_limit,
+        criterion_policies=tuple(_criterion_policy_from_payload(item) for item in payload.criterion_policies),
     )
 
 
@@ -75,6 +100,19 @@ def candidate_response(profile: CandidateProfile) -> CandidateProfileResponse:
             for item in profile.projects
         ],
         interests=list(profile.interests),
+    )
+
+
+def _criterion_policy_response(policy: CriterionPolicy) -> CriterionPolicyPayload:
+    return CriterionPolicyPayload(
+        criterion_id=policy.criterion_id,
+        weight=policy.weight,
+        required=policy.required,
+        numeric_direction=policy.numeric_direction,
+        minimum_numeric_value=policy.minimum_numeric_value,
+        minimum_score=policy.minimum_score,
+        preferred_boolean=policy.preferred_boolean,
+        category_scores=[CategoryScorePayload(value=item.value, score=item.score) for item in policy.category_scores],
     )
 
 
@@ -104,4 +142,5 @@ def search_response(profile: SearchProfile) -> SearchProfileResponse:
         must_haves=list(profile.must_haves),
         must_not_haves=list(profile.must_not_haves),
         result_limit=profile.result_limit,
+        criterion_policies=[_criterion_policy_response(item) for item in profile.criterion_policies],
     )

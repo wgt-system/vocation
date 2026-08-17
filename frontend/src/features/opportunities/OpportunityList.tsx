@@ -10,14 +10,27 @@ import {
 import { EmptyState, ErrorState, Loading } from "../../components/AsyncState";
 import { MapView } from "./MapView";
 import { OpportunityComparisonView } from "./OpportunityComparisonView";
+import { OpportunityFitBreakdown } from "./OpportunityFitBreakdown";
+import { fitApi, type OpportunityFit } from "./fitApi";
 
 type Availability = NonNullable<OpportunityListItem["availability"]>;
 type DisplayMode = "list" | "map";
+type FitSort = "default" | "fit_desc";
+
 const availabilityLabels: Record<Availability, string> = {
   available: "Verfügbar",
   unavailable: "Nicht verfügbar",
   uncertain: "Unsicher",
   unknown: "Unbekannt",
+};
+
+const hardStatusLabels: Record<
+  OpportunityFit["hard_constraint_status"],
+  string
+> = {
+  pass: "Harte Kriterien erfüllt",
+  fail: "Harte Kriterien nicht erfüllt",
+  unknown: "Harte Kriterien offen",
 };
 
 function availabilityOf(item: OpportunityListItem): Availability {
@@ -57,6 +70,11 @@ export function OpportunityList({
   );
   const [comparisonLoading, setComparisonLoading] = useState(false);
   const [comparisonError, setComparisonError] = useState("");
+  const [fits, setFits] = useState<Record<string, OpportunityFit>>({});
+  const [fitLoading, setFitLoading] = useState(false);
+  const [fitError, setFitError] = useState("");
+  const [fitSort, setFitSort] = useState<FitSort>("default");
+  const [expandedFitId, setExpandedFitId] = useState("");
   const statuses: { value: TrackingStatus; label: string }[] = [
     { value: "new", label: "Neu" },
     { value: "to_review", label: "Zu prüfen" },
@@ -66,13 +84,26 @@ export function OpportunityList({
     { value: "excluded", label: "Ausgeschlossen" },
     { value: "archived", label: "Archiviert" },
   ];
-  const visibleItems = items.filter(
+  const filteredItems = items.filter(
     (item) =>
       (statusFilter.length === 0 ||
         statusFilter.includes(item.tracking_status)) &&
       (availabilityFilter === "all" ||
         availabilityOf(item) === availabilityFilter),
   );
+  const visibleItems =
+    fitSort === "fit_desc"
+      ? [...filteredItems].sort((left, right) => {
+          const leftScore = fits[left.id]?.weighted_fit_score;
+          const rightScore = fits[right.id]?.weighted_fit_score;
+          if (leftScore === null || leftScore === undefined) {
+            return rightScore === null || rightScore === undefined ? 0 : 1;
+          }
+          if (rightScore === null || rightScore === undefined) return -1;
+          return rightScore - leftScore;
+        })
+      : filteredItems;
+
   function toggleStatus(status: TrackingStatus) {
     setStatusFilter((current) =>
       current.includes(status)
@@ -80,8 +111,10 @@ export function OpportunityList({
         : [...current, status],
     );
   }
+
   useEffect(() => {
     setLoading(true);
+    setError("");
     api
       .listOpportunities(groupFilter || undefined)
       .then(setItems)
@@ -94,12 +127,50 @@ export function OpportunityList({
       )
       .finally(() => setLoading(false));
   }, [groupFilter, refreshToken]);
+
   useEffect(() => {
     api
       .listGroups()
       .then(setGroups)
       .catch(() => setGroups([]));
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (items.length === 0) {
+      setFits({});
+      setFitError("");
+      setFitLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+    setFitLoading(true);
+    setFitError("");
+    fitApi
+      .list(items.map((item) => item.id))
+      .then((nextFits) => {
+        if (!active) return;
+        setFits(
+          Object.fromEntries(nextFits.map((fit) => [fit.opportunity_id, fit])),
+        );
+      })
+      .catch((reason) => {
+        if (!active) return;
+        setFits({});
+        setFitError(
+          reason instanceof Error
+            ? reason.message
+            : "Opportunity-Fit konnte nicht geladen werden.",
+        );
+      })
+      .finally(() => {
+        if (active) setFitLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [items]);
 
   function toggleComparison(item: OpportunityListItem) {
     setComparisonError("");
@@ -199,6 +270,17 @@ export function OpportunityList({
             ))}
           </select>
         </label>
+        <label>
+          Sortierung
+          <select
+            aria-label="Opportunities sortieren"
+            value={fitSort}
+            onChange={(event) => setFitSort(event.target.value as FitSort)}
+          >
+            <option value="default">Standard</option>
+            <option value="fit_desc">Bester Fit zuerst</option>
+          </select>
+        </label>
         <div className="view-toggle" aria-label="Opportunity Ansicht">
           <button
             type="button"
@@ -216,6 +298,11 @@ export function OpportunityList({
           </button>
         </div>
       </header>
+      {fitError && (
+        <p className="muted" role="status">
+          Fit nicht verfügbar: {fitError}
+        </p>
+      )}
       {selectedItems.length > 0 && (
         <section className="panel comparison-selection">
           <div className="comparison-selection-header">
@@ -269,54 +356,82 @@ export function OpportunityList({
       )}
       {displayMode === "list" ? (
         <div className="opportunity-grid">
-          {visibleItems.map((item) => (
-            <article
-              className={`opportunity-card status-${item.tracking_status}`}
-              key={item.id}
-            >
-              <span className="eyebrow">{item.company_name}</span>
-              <strong>{item.title}</strong>
-              <span>
-                {item.locations.join(" · ") || "Arbeitsort unbekannt"}
-              </span>
-              <small>
-                {item.posting_count} Posting · {item.assessment_count}{" "}
-                Assessment · Status: {item.tracking_status}
-              </small>
-              <span
-                className={`availability-badge availability-${availabilityOf(item)}`}
+          {visibleItems.map((item) => {
+            const fit = fits[item.id];
+            const expanded = expandedFitId === item.id;
+            return (
+              <article
+                className={`opportunity-card status-${item.tracking_status}`}
+                key={item.id}
               >
-                {availabilityLabels[availabilityOf(item)]}
-              </span>
-              <small>{freshnessLabel(item)}</small>
-              {item.groups && item.groups.length > 0 && (
-                <small className="group-membership-summary">
-                  {item.groups.map((group) => group.name).join(" · ")}
+                <span className="eyebrow">{item.company_name}</span>
+                <strong>{item.title}</strong>
+                <span>
+                  {item.locations.join(" · ") || "Arbeitsort unbekannt"}
+                </span>
+                <small>
+                  {item.posting_count} Posting · {item.assessment_count}{" "}
+                  Assessment · Status: {item.tracking_status}
                 </small>
-              )}
-              <div className="opportunity-card-actions">
-                <label className="comparison-checkbox">
-                  <input
-                    type="checkbox"
-                    aria-label={`Für Vergleich auswählen: ${item.company_name} – ${item.title}`}
-                    checked={selectedItems.some(
-                      (selected) => selected.id === item.id,
-                    )}
-                    disabled={
-                      !selectedItems.some(
+                <span
+                  className={`availability-badge availability-${availabilityOf(item)}`}
+                >
+                  {availabilityLabels[availabilityOf(item)]}
+                </span>
+                <small>{freshnessLabel(item)}</small>
+                {item.groups && item.groups.length > 0 && (
+                  <small className="group-membership-summary">
+                    {item.groups.map((group) => group.name).join(" · ")}
+                  </small>
+                )}
+                {fit ? (
+                  <div className="record fit-card-summary">
+                    <strong>
+                      {fit.weighted_fit_score === null
+                        ? "Fit offen"
+                        : `Fit ${fit.weighted_fit_score}%`}
+                    </strong>
+                    <span>Evidenz {fit.evidence_completeness}%</span>
+                    <small>
+                      {hardStatusLabels[fit.hard_constraint_status]}
+                    </small>
+                    <button
+                      type="button"
+                      onClick={() => setExpandedFitId(expanded ? "" : item.id)}
+                    >
+                      {expanded ? "Fit-Erklärung schließen" : "Fit erklären"}
+                    </button>
+                  </div>
+                ) : (
+                  <small>
+                    {fitLoading ? "Fit wird geladen …" : "Fit nicht verfügbar"}
+                  </small>
+                )}
+                {expanded && fit && <OpportunityFitBreakdown fit={fit} />}
+                <div className="opportunity-card-actions">
+                  <label className="comparison-checkbox">
+                    <input
+                      type="checkbox"
+                      aria-label={`Für Vergleich auswählen: ${item.company_name} – ${item.title}`}
+                      checked={selectedItems.some(
                         (selected) => selected.id === item.id,
-                      ) && selectedItems.length >= 4
-                    }
-                    onChange={() => toggleComparison(item)}
-                  />
-                  Vergleich
-                </label>
-                <button type="button" onClick={() => onSelect(item.id)}>
-                  Details
-                </button>
-              </div>
-            </article>
-          ))}
+                      )}
+                      disabled={
+                        !selectedItems.some(
+                          (selected) => selected.id === item.id,
+                        ) && selectedItems.length >= 4
+                      }
+                      onChange={() => toggleComparison(item)}
+                    />
+                    Vergleich
+                  </label>
+                  <button type="button" onClick={() => onSelect(item.id)}>
+                    Details
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       ) : (
         <MapView visibleItems={visibleItems} onSelect={onSelect} />

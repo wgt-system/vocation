@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 
 from vocation.domain.profiles import (
     CandidateProfile,
+    CategoryScore,
+    CriterionPolicy,
     Education,
     Language,
     ProjectHighlight,
@@ -59,6 +61,21 @@ def _candidate_from_payload(payload: dict) -> CandidateProfile:
     )
 
 
+def _criterion_policy_from_payload(payload: dict) -> CriterionPolicy:
+    return CriterionPolicy(
+        criterion_id=str(payload["criterion_id"]),
+        weight=float(payload.get("weight", 1.0)),
+        required=bool(payload.get("required", False)),
+        numeric_direction=payload.get("numeric_direction", "higher_is_better"),
+        minimum_numeric_value=payload.get("minimum_numeric_value"),
+        minimum_score=payload.get("minimum_score"),
+        preferred_boolean=payload.get("preferred_boolean"),
+        category_scores=tuple(
+            CategoryScore(value=str(item["value"]), score=float(item["score"])) for item in payload.get("category_scores", [])
+        ),
+    )
+
+
 def _search_from_payload(payload: dict, *, is_default: bool | None = None) -> SearchProfile:
     return SearchProfile(
         id=str(payload["id"]),
@@ -84,6 +101,7 @@ def _search_from_payload(payload: dict, *, is_default: bool | None = None) -> Se
         must_haves=tuple(payload.get("must_haves", [])),
         must_not_haves=tuple(payload.get("must_not_haves", [])),
         result_limit=int(payload.get("result_limit", 12)),
+        criterion_policies=tuple(_criterion_policy_from_payload(item) for item in payload.get("criterion_policies", [])),
         is_default=bool(payload.get("is_default", False) if is_default is None else is_default),
     )
 

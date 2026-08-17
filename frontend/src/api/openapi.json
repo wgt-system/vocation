@@ -675,6 +675,24 @@
         "title": "CandidateProfileResponse",
         "type": "object"
       },
+      "CategoryScorePayload": {
+        "properties": {
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "score"
+        ],
+        "title": "CategoryScorePayload",
+        "type": "object"
+      },
       "CompanyOptionResponse": {
         "properties": {
           "id": {
@@ -1005,6 +1023,95 @@
         "title": "ComparisonWorkLocationResponse",
         "type": "object"
       },
+      "CriterionContributionResponse": {
+        "properties": {
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "criterion_name": {
+            "title": "Criterion Name",
+            "type": "string"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "status": {
+            "enum": [
+              "scored",
+              "missing",
+              "unscorable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "weight": {
+            "title": "Weight",
+            "type": "number"
+          },
+          "weighted_points": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weighted Points"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "criterion_name",
+          "weight",
+          "required",
+          "status",
+          "value",
+          "origin",
+          "score",
+          "weighted_points",
+          "explanation"
+        ],
+        "title": "CriterionContributionResponse",
+        "type": "object"
+      },
       "CriterionPayload": {
         "additionalProperties": false,
         "properties": {
@@ -1092,6 +1199,78 @@
           "applicable_subject_type"
         ],
         "title": "CriterionPayload",
+        "type": "object"
+      },
+      "CriterionPolicyPayload": {
+        "properties": {
+          "category_scores": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryScorePayload"
+            },
+            "title": "Category Scores",
+            "type": "array"
+          },
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "minimum_numeric_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum Numeric Value"
+          },
+          "minimum_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum Score"
+          },
+          "numeric_direction": {
+            "default": "higher_is_better",
+            "enum": [
+              "higher_is_better",
+              "lower_is_better"
+            ],
+            "title": "Numeric Direction",
+            "type": "string"
+          },
+          "preferred_boolean": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Boolean"
+          },
+          "required": {
+            "default": false,
+            "title": "Required",
+            "type": "boolean"
+          },
+          "weight": {
+            "default": 1.0,
+            "title": "Weight",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criterion_id"
+        ],
+        "title": "CriterionPolicyPayload",
         "type": "object"
       },
       "CriterionResponse": {
@@ -2847,6 +3026,100 @@
         "title": "OpportunityDetailResponse",
         "type": "object"
       },
+      "OpportunityFitResponse": {
+        "properties": {
+          "candidate_profile_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Profile Revision"
+          },
+          "contributions": {
+            "items": {
+              "$ref": "#/components/schemas/CriterionContributionResponse"
+            },
+            "title": "Contributions",
+            "type": "array"
+          },
+          "evidence_completeness": {
+            "title": "Evidence Completeness",
+            "type": "number"
+          },
+          "hard_constraint_status": {
+            "enum": [
+              "pass",
+              "fail",
+              "unknown"
+            ],
+            "title": "Hard Constraint Status",
+            "type": "string"
+          },
+          "hard_failures": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hard Failures",
+            "type": "array"
+          },
+          "hard_unknowns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hard Unknowns",
+            "type": "array"
+          },
+          "missing_evidence": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Evidence",
+            "type": "array"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "search_profile_id": {
+            "title": "Search Profile Id",
+            "type": "string"
+          },
+          "search_profile_revision": {
+            "title": "Search Profile Revision",
+            "type": "integer"
+          },
+          "weighted_fit_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weighted Fit Score"
+          }
+        },
+        "required": [
+          "opportunity_id",
+          "search_profile_id",
+          "search_profile_revision",
+          "candidate_profile_revision",
+          "hard_constraint_status",
+          "weighted_fit_score",
+          "evidence_completeness",
+          "contributions",
+          "hard_failures",
+          "hard_unknowns",
+          "missing_evidence"
+        ],
+        "title": "OpportunityFitResponse",
+        "type": "object"
+      },
       "OpportunityGroupMembershipPayload": {
         "additionalProperties": false,
         "properties": {
@@ -3475,6 +3748,13 @@
             "title": "Avoided Technologies",
             "type": "array"
           },
+          "criterion_policies": {
+            "items": {
+              "$ref": "#/components/schemas/CriterionPolicyPayload"
+            },
+            "title": "Criterion Policies",
+            "type": "array"
+          },
           "description": {
             "title": "Description",
             "type": "string"
@@ -3632,6 +3912,13 @@
               "type": "string"
             },
             "title": "Avoided Technologies",
+            "type": "array"
+          },
+          "criterion_policies": {
+            "items": {
+              "$ref": "#/components/schemas/CriterionPolicyPayload"
+            },
+            "title": "Criterion Policies",
             "type": "array"
           },
           "description": {
@@ -6334,6 +6621,64 @@
         ]
       }
     },
+    "/api/opportunities/{opportunity_id}/fit": {
+      "get": {
+        "operationId": "get_opportunity_fit_api_opportunities__opportunity_id__fit_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search_profile_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search Profile Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityFitResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Opportunity Fit",
+        "tags": [
+          "opportunity-fit"
+        ]
+      }
+    },
     "/api/opportunities/{opportunity_id}/restore": {
       "post": {
         "operationId": "restore_api_opportunities__opportunity_id__restore_post",
@@ -6435,6 +6780,79 @@
         "summary": "Change Status",
         "tags": [
           "opportunities"
+        ]
+      }
+    },
+    "/api/opportunity-fit": {
+      "get": {
+        "operationId": "list_opportunity_fit_api_opportunity_fit_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search_profile_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search Profile Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Opportunity Id"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OpportunityFitResponse"
+                  },
+                  "title": "Response List Opportunity Fit Api Opportunity Fit Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Opportunity Fit",
+        "tags": [
+          "opportunity-fit"
         ]
       }
     },
