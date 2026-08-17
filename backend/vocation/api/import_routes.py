@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Request, UploadFile
 
 from vocation.api.schemas import ImportIssueResponse, ImportReportResponse, ImportTextPayload
 from vocation.application.imports import MAX_IMPORT_BYTES, ImportService
+from vocation.application.initial_research_imports import InitialResearchImportService
 from vocation.domain.research_bundle import ImportReport
 
 router = APIRouter(prefix="/api/imports", tags=["research imports"])
@@ -26,6 +27,10 @@ def _response(report: ImportReport) -> ImportReportResponse:
 
 @router.post("/text", response_model=ImportReportResponse)
 def import_text(payload: ImportTextPayload, request: Request) -> ImportReportResponse:
+    prompt_run_id = request.query_params.get("prompt_run_id")
+    if prompt_run_id:
+        service: InitialResearchImportService = request.app.state.initial_research_import_service
+        return _response(service.import_text(payload.content, prompt_run_id=prompt_run_id))
     service: ImportService = request.app.state.import_service
     return _response(service.import_text(payload.content))
 
