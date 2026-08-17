@@ -6,23 +6,26 @@ import { GroupsView } from "./features/groups/GroupsView";
 import { ImportView } from "./features/imports/ImportView";
 import { OpportunityDetailView } from "./features/opportunities/OpportunityDetailView";
 import { OpportunityList } from "./features/opportunities/OpportunityList";
+import { ProfileSearchView } from "./features/profiles/ProfileSearchView";
 import { PromptView } from "./features/prompts/PromptView";
 
 type View =
   | "opportunities"
-  | "duplicates"
-  | "groups"
+  | "profile"
+  | "prompt"
   | "import"
-  | "criteria"
-  | "prompt";
+  | "groups"
+  | "duplicates"
+  | "criteria";
 
 const labels: Record<View, string> = {
   opportunities: "Opportunities",
-  duplicates: "Dubletten",
-  groups: "Groups & Waves",
+  profile: "Profil & Suche",
+  prompt: "Recherche",
   import: "Import",
+  groups: "Groups & Waves",
+  duplicates: "Dubletten",
   criteria: "Assessment-Kriterien",
-  prompt: "Research Prompt",
 };
 
 export default function App() {
@@ -44,7 +47,7 @@ export default function App() {
           <span>V</span>
           <div>
             <strong>Vocation</strong>
-            <small>Local job market</small>
+            <small>Qualitative Jobsuche</small>
           </div>
         </div>
         <nav>
@@ -58,7 +61,7 @@ export default function App() {
             </button>
           ))}
         </nav>
-        <p className="local-note">Lokal · eigenständig · keine LLM-API</p>
+        <p className="local-note">Lokal · privat · nachvollziehbar</p>
       </aside>
       <main className="content">
         {view === "opportunities" &&
@@ -73,6 +76,7 @@ export default function App() {
               onSelect={setSelectedOpportunity}
             />
           ))}
+        {view === "profile" && <ProfileSearchView />}
         {view === "duplicates" && <DuplicateCasesView />}
         {view === "import" && (
           <ImportView
