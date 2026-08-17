@@ -12,6 +12,9 @@ export type ProjectHighlightPayload =
 export type SearchProfile = components["schemas"]["SearchProfileResponse"];
 export type SearchProfilePayload =
   components["schemas"]["SearchProfilePayload"];
+export type CriterionPolicyPayload =
+  components["schemas"]["CriterionPolicyPayload"];
+export type CriterionResponse = components["schemas"]["CriterionResponse"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -60,4 +63,5 @@ export const profileApi = {
     request<void>(`/api/profiles/search/${encodeURIComponent(id)}`, {
       method: "DELETE",
     }),
+  listCriteria: () => request<CriterionResponse[]>("/api/criteria"),
 };
