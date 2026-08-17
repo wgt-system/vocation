@@ -95,14 +95,18 @@ export function EvaluationPolicyPanel() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    void Promise.all([profileApi.listSearchProfiles(), profileApi.listCriteria()])
+    void Promise.all([
+      profileApi.listSearchProfiles(),
+      profileApi.listCriteria(),
+    ])
       .then(([nextProfiles, nextCriteria]) => {
         setProfiles(nextProfiles);
         setCriteria(
           nextCriteria
             .filter(
               (criterion) =>
-                criterion.active && criterion.applicable_subject_type === "opportunity",
+                criterion.active &&
+                criterion.applicable_subject_type === "opportunity",
             )
             .sort((left, right) => left.display_order - right.display_order),
         );
@@ -139,8 +143,7 @@ export function EvaluationPolicyPanel() {
       const index = next.findIndex(
         (item) => item.criterion_id === criterion.criterion_id,
       );
-      const base =
-        index >= 0 ? next[index] : blankPolicy(criterion);
+      const base = index >= 0 ? next[index] : blankPolicy(criterion);
       const updated = { ...base, ...patch };
       if (index >= 0) next[index] = updated;
       else next.push(updated);
@@ -219,7 +222,9 @@ export function EvaluationPolicyPanel() {
         </p>
       )}
       {error && <p className="error-message">{error}</p>}
-      {saved && <p className="success-message">Bewertungsregeln gespeichert.</p>}
+      {saved && (
+        <p className="success-message">Bewertungsregeln gespeichert.</p>
+      )}
 
       {criteria.length === 0 && (
         <p className="muted">Keine aktiven Opportunity-Kriterien vorhanden.</p>
@@ -316,7 +321,9 @@ function CriterionPolicyCard({
               <input
                 type="checkbox"
                 checked={policy.required}
-                onChange={(event) => onChange({ required: event.target.checked })}
+                onChange={(event) =>
+                  onChange({ required: event.target.checked })
+                }
               />
               Harte Schwelle
             </label>
@@ -359,7 +366,8 @@ function CriterionPolicyCard({
                 />
               </label>
               <p className="muted policy-scale">
-                Skala {criterion.numeric_min ?? "?"}–{criterion.numeric_max ?? "?"}
+                Skala {criterion.numeric_min ?? "?"}–
+                {criterion.numeric_max ?? "?"}
               </p>
             </div>
           )}
@@ -410,7 +418,10 @@ function CriterionPolicyCard({
                         const index = scores.findIndex(
                           (item) => item.value === value,
                         );
-                        const next = { value, score: Number(event.target.value) };
+                        const next = {
+                          value,
+                          score: Number(event.target.value),
+                        };
                         if (index >= 0) scores[index] = next;
                         else scores.push(next);
                         onChange({ category_scores: scores });
