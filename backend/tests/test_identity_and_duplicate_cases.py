@@ -6,7 +6,9 @@ from pathlib import Path
 
 import pytest
 from sqlalchemy import func, select
+from vocation.application.duplicate_cases import DuplicateDecisionConflictError
 from vocation.domain.research_bundle import PostingIdentityConflictError, PostingIdentityInput, canonical_subject_pair
+from vocation.infrastructure.duplicate_case_decision_model import DuplicateCaseDecisionModel
 from vocation.infrastructure.models import (
     DuplicateCaseModel,
     OpportunityModel,
@@ -97,7 +99,7 @@ def test_posting_identity_conflicts_and_resolver_are_read_only(client) -> None:
         assert session.scalar(select(func.count()).select_from(PostingModel)) == 2
 
 
-def test_duplicate_case_canonicalization_and_validation(client) -> None:
+def test_duplicate_case_canonicalization_validation_and_decision_history(client) -> None:
     assert canonical_subject_pair("opportunity", "B", "A") == ("A", "B")
     with pytest.raises(ValueError):
         canonical_subject_pair("opportunity", "A", "A")
@@ -154,8 +156,31 @@ def test_duplicate_case_canonicalization_and_validation(client) -> None:
     assert reversed_case == case
     assert service.get(case.id) == case
     assert len(service.list(subject_type="opportunity", subject_id=opportunity.id)) == 1
+
+    decided = service.decide(case.id, outcome="confirmed_duplicate", reason="Same role and evidence.")
+    assert decided.is_reviewed
+    assert decided.is_resolved
+    assert decided.current_decision is not None
+    assert decided.current_decision.sequence == 1
+    assert decided.current_decision.outcome == "confirmed_duplicate"
+    assert decided.current_decision.reason == "Same role and evidence."
+
+    corrected = service.decide(case.id, outcome="keep_unresolved", reason="Need stronger identity evidence.")
+    assert corrected.is_reviewed
+    assert not corrected.is_resolved
+    assert [decision.sequence for decision in corrected.decisions] == [1, 2]
+    assert [decision.outcome for decision in corrected.decisions] == ["confirmed_duplicate", "keep_unresolved"]
+
+    with pytest.raises(DuplicateDecisionConflictError):
+        service.decide(case.id, outcome="keep_unresolved", reason="Repeated current outcome.")
+    with pytest.raises(ValueError):
+        service.decide(case.id, outcome="invalid", reason="Invalid outcome.")
+    with pytest.raises(ValueError):
+        service.decide(case.id, outcome="confirmed_distinct", reason="   ")
+
     with client.app.state.database.session_factory() as session:
         assert session.scalar(select(func.count()).select_from(DuplicateCaseModel)) == 1
+        assert session.scalar(select(func.count()).select_from(DuplicateCaseDecisionModel)) == 2
         assert session.get(PersonalAssessmentModel, assessment["id"]).value_json == "4"
         assert session.get(OpportunityModel, opportunity.id).tracking_status == "shortlisted"
         assert assessment_before is None
