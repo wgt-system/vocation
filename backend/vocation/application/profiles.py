@@ -92,7 +92,5 @@ class ProfileService:
         for policy in profile.criterion_policies:
             criterion = self.criteria.get(policy.criterion_id)
             if criterion is None:
-                raise ProfileValidationError(
-                    f"Criterion policy references unknown criterion '{policy.criterion_id}'."
-                )
+                raise ProfileValidationError(f"Criterion policy references unknown criterion '{policy.criterion_id}'.")
             validate_criterion_policy_against_criterion(policy, criterion)
