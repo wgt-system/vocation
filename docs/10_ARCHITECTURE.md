@@ -6,11 +6,12 @@
 
 - eigenständig startbare Desktop-Anwendung,
 - klare Domain/Application/Infrastructure-Grenzen,
-- keine Abhängigkeit von Wiiii Got This,
+- keine Abhängigkeit von Wiiii Got This für Vocation-Fachsemantik oder Persistenz,
 - versionierte Import- und Read Contracts,
 - read-heavy Nutzung,
 - lokale Datenhoheit,
 - client-neutrale Published Read Projections für Wiiii Got This auf Windows und iPhone,
+- Wiederverwendung akzeptierter systemweiter generischer Capabilities statt eigener Duplikate,
 - geringe Betriebs- und Wartungskosten.
 
 ## 2. Laufzeitbild Version 1
@@ -27,19 +28,19 @@ Repositories / Query Services
 Local Database
 ```
 
-Zusätzliche Adapter:
+Zusätzliche Adapter/Grenzen:
 
 - File Picker
 - Clipboard
 - Browser Launcher
-- Map Renderer
-- optional Geocoder
+- Orientation Host Bridge für generisches Map Rendering
+- OrientationGeocoder für explizite Geocodierung
 
-Vocation kann intern einen lokalen HTTP-Server verwenden, muss aber als ein eigenständig startbares Produkt erscheinen.
+Vocation kann intern einen lokalen HTTP-Server verwenden, muss aber als ein eigenständig nutzbares Vocation-Produkt erscheinen. Fachliche Autorität und lokale Persistenz bleiben in Vocation. Generic geospatial capability ist systemweit Orientation zugeordnet und wird über explizite Grenzen konsumiert.
 
 ## 3. Technologieentscheidung Version 1
 
-ADR-0007 legt verbindlich fest:
+ADR-0007 legt für die Vocation-eigene Runtime verbindlich fest:
 
 - Backend/Application: Python 3.13, FastAPI und Pydantic
 - Persistenz: SQLAlchemy 2, Alembic und SQLite
@@ -47,11 +48,12 @@ ADR-0007 legt verbindlich fest:
 - Backend-Tests: pytest
 - Frontend: React, TypeScript und Vite
 - Frontend-Tests: Vitest und React Testing Library
-- spätere Karte: Leaflet und OpenStreetMap
 
 FastAPI stellt im Produktionsmodus die gebauten Frontend-Dateien bereit. Ein Python-Startvorgang startet den lokalen HTTP-Dienst und darf anschließend die lokale Vocation-URL über den Standardbrowser öffnen. Frontend und Backend müssen in der Produktion nicht separat gestartet werden.
 
-Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit PyInstaller möglich bleibt. Docker, Cloud-Infrastruktur und externe fachliche Laufzeitabhängigkeiten sind nicht Teil von Version 1.
+Die generische Karte ist nach der systemweiten Orientation-Ownership-Entscheidung keine Vocation-Technologieentscheidung mehr. Vocation bündelt einen gepinnten Orientation Embed Host und adaptiert Vocation-owned MapProjection-Daten über `orientation.host-bridge` 1.0. Explizite Geocodierung nutzt einen Vocation-Application-Port mit `OrientationGeocoder` als Infrastrukturadapter gegen die konfigurierte Orientation-Backend-Grenze. Vocation kennt weder MapLibre- noch Photon-Semantik als eigene Domain-/Application-Semantik.
+
+Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit PyInstaller möglich bleibt. Docker, Cloud-Infrastruktur und externe fachliche Datenautorität sind nicht Teil von Version 1. Die konkrete lokale/remote Topologie einer konsumierten Orientation-Capability bleibt eine Deployment-Frage und transferiert keine Vocation-Fachsemantik.
 
 ## 4. Schichten
 
@@ -68,6 +70,7 @@ Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit P
 - Use-Case-Orchestrierung
 - Transaktionen
 - Berechtigungen und Plattform-Capability-Prüfung
+- generische Ports wie `Geocoder`, ohne Orientation-/Provider-DTOs in der Domain
 
 ### Infrastructure
 
@@ -76,7 +79,7 @@ Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit P
 - Files
 - Clipboard
 - Browser
-- Map
+- Orientation-Adapter
 - Logging
 
 ### Presentation
@@ -84,6 +87,7 @@ Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit P
 - Desktop UI
 - internes HTTP API bleibt eine Presentation API und ist kein automatischer Published WGT Contract
 - Vocation-owned Publication Adapter für client-neutrale Published Capabilities
+- Vocation-to-Orientation Scene Adapter/Host für die lokale Kartenansicht
 
 ## 5. Datenhaltung
 
@@ -131,14 +135,18 @@ Research Bundle `1.0` und Research Update Bundle `2.0` werden explizit getrennt 
 
 ## 8. Map Architecture
 
-Version 1 darf eine lokale Kartenbibliothek verwenden.
+Die generische Geospatial-Capability ist systemweit Orientation zugeordnet. Die implementierte Trennung lautet:
 
-Trennung:
+- Vocation besitzt Work Location, Precision, `MapLocationResolution`, interne `MapProjection`, Opportunity-/Company-/Availability-/External-Link-Semantik und alle fachlichen Actions.
+- Der Vocation-Application-Layer besitzt den provider-neutralen `Geocoder`-Port.
+- `OrientationGeocoder` konsumiert `GET /api/v1/places/search` und übersetzt genau das benötigte generische Resultat in den Vocation-Application-Wert `GeocodingResult`.
+- `OrientationMapFrame` adaptiert Vocation-owned Features, Informationen und Action References in eine Orientation Spatial Scene.
+- Der gepinnte Orientation Embed Host rendert die Szene über `orientation.host-bridge` 1.0.
+- Bridge-Aktionen werden an Vocation zurückgegeben; Vocation navigiert zu Details oder führt External-Link-Commands aus.
 
-- Vocation erzeugt MapProjection.
-- Renderer zeichnet Features.
-- Browserlinks werden über Application Command geöffnet.
-- später kann dieselbe Projection an einen Shared Map Context geliefert werden.
+Damit entscheidet der Renderer weder Work Location/Precision noch Preferred Posting, Availability oder Tracking Status. Orientation liest keine Vocation-Datenbank und erhält keine Vocation-Domainklassen.
+
+Die geschlossene `Published Map Projection 1.0` bleibt ein separater, Vocation-owned, URL-freier Published Contract und wird durch die lokale Orientation-Komposition nicht verändert. Eine spätere reichhaltige Cross-Context-Map-Publication muss als versionierter Nachfolger eingeführt werden statt Contract 1.0 still zu erweitern.
 
 ## 9. External Browser Navigation
 
@@ -157,6 +165,8 @@ Sicherheitsregeln:
 - Fehler sichtbar,
 - kein automatisches Öffnen während Import oder Kartenrendering.
 
+Orientation-Map-Actions sind nur Host-Events. Die eigentliche Auswahl und Ausführung externer Vocation-Links bleibt hinter `ExternalLinkPolicy` und dem Vocation Browser Adapter.
+
 ## 10. Cross-device Publication
 
 Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabilities.
@@ -167,7 +177,7 @@ Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/publish
 
 ApplicationCases und private ApplicationMaterial-Metadaten gehören zur Vocation-Domain. Sie werden niemals durch Research/Availability oder Groups/Waves erzeugt und nicht über öffentliche Publication Endpoints ausgegeben. Eine spätere WGT-/Conveyance-Anbindung darf nur über eine separate private Grenze und opaque protected payloads erfolgen; Conveyance besitzt keine Vocation-Semantik.
 
-Die implementierte lokale Kette lautet: ApplicationCase-Domain → ApplicationCaseService → `SqlAlchemyApplicationCaseRepository` → SQLite/Alembic `0011` → internes FastAPI `/api/...` → typed React client → Opportunity-Detail-ApplicationCase-Panel. Persistiert werden `application_cases`, `application_case_lifecycle_events`, `application_materials` und `application_material_revisions`. Ein partieller Unique Index erzwingt höchstens einen nonterminalen Case je Opportunity. Lifecycle- und Material-Revision-Historie sind append-only; terminale Cases bleiben historisch. Opportunity Tracking Status bleibt unabhängig; es gibt keine automatische Import-, Group- oder Status-Kopplung. Dokumentinhalte und Verschlüsselung sind nicht implementiert.
+Die implementierte lokale ApplicationCase-Kette lautet: ApplicationCase-Domain → ApplicationCaseService → `SqlAlchemyApplicationCaseRepository` → SQLite/Alembic `0011` → internes FastAPI `/api/...` → typed React client → Opportunity-Detail-ApplicationCase-Panel. Persistiert werden `application_cases`, `application_case_lifecycle_events`, `application_materials` und `application_material_revisions`. Ein partieller Unique Index erzwingt höchstens einen nonterminalen Case je Opportunity. Lifecycle- und Material-Revision-Historie sind append-only; terminale Cases bleiben historisch. Opportunity Tracking Status bleibt unabhängig; es gibt keine automatische Import-, Group- oder Status-Kopplung.
 
 Slice 16 trennt semantische Ownership von physischer Dokumentablage. Implementiert ist die Kette: ApplicationDocument-Domain → Alembic `0012` Metadata-Persistence in `application_documents` → `ApplicationDocumentStore`-Port → `FilesystemApplicationDocumentStore` → SQLAlchemy Repository → ApplicationDocumentService → private interne FastAPI-Endpunkte → typed Frontend Client → ApplicationCasePanel Upload-Workflow. Persistiert werden Metadata plus opaque `storage_ref`; Payload bytes liegen nicht in relationalen Tabellen. Der Composite FK `(material_id, material_revision)` verweist auf `application_material_revisions(material_id, revision)`; `UNIQUE(material_id, material_revision)` erzwingt ein Dokument pro Revision. Writes sind create-only und atomic, nutzen keinen rohen Storage Reference oder Original-Dateinamen als Pfad und besitzen keine Delete-Operation. Physische Details bleiben Infrastruktur und nicht Domainsemantik.
 
@@ -183,9 +193,13 @@ WGT liest nie die Vocation-Datenbank, importiert keine Vocation-Domainklassen un
 
 ## 11. Packaging
 
-Desktop-Version soll mit einem einfachen Startvorgang ausgeliefert werden. Separate manuelle Starts von Frontend und Backend sind für den Nutzer nicht das Ziel.
+Desktop-Version soll mit einem einfachen Startvorgang ausgeliefert werden. Separate manuelle Starts von Vocation-Frontend und Vocation-Backend sind für den Nutzer nicht das Ziel.
 
 Für die Entwicklung existiert ein Windows-Startskript. Im Produktionsmodus wird das mit Vite gebaute Frontend durch FastAPI ausgeliefert. Die Browseröffnung beim Anwendungsstart betrifft ausschließlich die lokale Vocation-URL; Import oder Darstellung fachlicher Daten öffnen niemals externe Links.
+
+Der Orientation Embed Host ist als statisches, auf eine konkrete Orientation-Source-SHA gepinntes Artefakt im Vocation-Frontend enthalten. Geocoding ist dagegen eine explizite Runtime-Integration mit dem konfigurierten Orientation Backend (`VOCATION_ORIENTATION_BASE_URL`, Default `http://127.0.0.1:8080`). Ist diese Capability nicht verfügbar, schlägt die explizite Geocode-Aktion sichtbar fehl; Vocation-Fachdaten, manuelle Resolution und bereits persistierte MapLocationResolutions bleiben lokal nutzbar.
+
+Eine spätere Distribution kann Orientation-Capabilities lokal hosten oder anders topologisch bereitstellen. Diese Packaging-Entscheidung ändert weder die Bounded-Context-Ownership noch berechtigt Vocation, generisches Geocoding/Rendering erneut selbst zu implementieren.
 
 ## 12. Observability
 
@@ -203,6 +217,7 @@ Für die Entwicklung existiert ein Windows-Startskript. Im Produktionsmodus wird
 - MapProjection Contract Tests
 - Prompt Output Contract Tests
 - Published Opportunity Overview 1.0 Contract Tests
+- Orientation-Adapter-/Host-Bridge-Integrationstests an den Vocation-Grenzen
 
 ## 14. Architekturgrenzen
 
@@ -212,5 +227,6 @@ Nicht erlaubt:
 - direkte Cross-Context Imports von Domain Classes,
 - UI schreibt direkt in Datenbank,
 - Importparser enthält Merge-Entscheidungslogik,
-- Map-Renderer entscheidet Work Location,
-- Browseradapter wählt Preferred Posting.
+- Orientation/Map-Renderer entscheidet Vocation Work Location oder Precision,
+- Vocation implementiert konkurrierendes generisches Geocoding/Map Rendering, wenn Orientation die benötigte Capability bereitstellt,
+- Browseradapter oder Orientation wählt Preferred Posting.
