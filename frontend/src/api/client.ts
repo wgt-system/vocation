@@ -336,7 +336,7 @@ export const api = {
   exclude: (id: string, reason: string) =>
     request<components["schemas"]["DecisionResponse"]>(
       `/api/opportunities/${id}/exclude`,
-      { method: "POST", body: JSON.stringify({ status: "excluded", reason }) },
+      { method: "POST", body: JSON.stringify({ reason }) },
     ),
   restore: (id: string, target_status?: TrackingStatus, reason?: string) =>
     request<components["schemas"]["DecisionResponse"]>(
