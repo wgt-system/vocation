@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from vocation.infrastructure.prompt_context_repository import SqlAlchemyPromptContextSnapshotRepository
 from vocation.infrastructure.models import PromptRunModel
+from vocation.infrastructure.prompt_context_repository import SqlAlchemyPromptContextSnapshotRepository
 
 ROOT = Path(__file__).resolve().parents[2]
 
