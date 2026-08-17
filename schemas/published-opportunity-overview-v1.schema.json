@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vocation.local/contracts/published-opportunity-overview-v1.schema.json",
+  "title": "Vocation Published Opportunity Overview 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["capability", "contract_version", "publication", "opportunities"],
+  "properties": {
+    "capability": {"const": "vocation.opportunity_overview"},
+    "contract_version": {"const": "1.0"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "opportunities": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/opportunity"}
+    }
+  },
+  "$defs": {
+    "opaque_ref": {"type": "string", "minLength": 1, "maxLength": 200},
+    "nonempty_string": {"type": "string", "minLength": 1},
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["publication_ref", "generated_at"],
+      "properties": {
+        "publication_ref": {"$ref": "#/$defs/opaque_ref"},
+        "generated_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "company": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["company_ref", "name"],
+      "properties": {
+        "company_ref": {"$ref": "#/$defs/opaque_ref"},
+        "name": {"$ref": "#/$defs/nonempty_string"}
+      }
+    },
+    "work_location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "city", "region", "country_code", "precision"],
+      "properties": {
+        "label": {"$ref": "#/$defs/nonempty_string"},
+        "city": {"type": ["string", "null"]},
+        "region": {"type": ["string", "null"]},
+        "country_code": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Z]{2}$"
+        },
+        "precision": {
+          "enum": ["exact_address", "site", "city", "region", "approximate", "unknown"]
+        }
+      }
+    },
+    "opportunity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["opportunity_ref", "title", "company", "work_locations", "posting_count"],
+      "properties": {
+        "opportunity_ref": {"$ref": "#/$defs/opaque_ref"},
+        "title": {"$ref": "#/$defs/nonempty_string"},
+        "company": {"$ref": "#/$defs/company"},
+        "work_locations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/work_location"}
+        },
+        "posting_count": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

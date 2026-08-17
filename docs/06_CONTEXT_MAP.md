@@ -10,19 +10,31 @@ Verantwortlich für Recherche, Quellenvergleich, Analyse und Erzeugung eines Res
 
 ### Vocation Context
 
-Besitzt Opportunities, Postings, Companies, Observations, Assessments, Decisions, Groups, Prompt Runs, Imports und Vocation Read Models. Vocation bleibt lokale Autorität und besitzt die Publication-Adapter-Verantwortung.
+Besitzt Opportunities, Postings, Companies, Observations, Assessments, Decisions, Groups, ApplicationCases, private ApplicationMaterial-Metadaten, private ApplicationDocuments, Prompt Runs, Imports und Vocation Read Models. Vocation bleibt lokale Autorität und besitzt die Publication-Adapter-Verantwortung.
 
 ### Wiiii Got This Context
 
 Besitzt Geräte-, Plattform-, Service- und Integrationslogik.
 
+Ein späterer Zugriff auf private ApplicationMaterial erfolgt ausschließlich über eine separate explizite private Integrationsgrenze. WGT und Conveyance besitzen keine ApplicationCase-Fachsemantik.
+
+Private ApplicationDocument-Payloads bleiben außerhalb des Context Maps für Published Contracts; ein späterer privater Transport darf nur opaque protected payloads relayen.
+
+### Conveyance Context
+
+Besitzt generische langlebige Zustellung und Relay-Semantik, opaque Channels und Envelopes sowie die dafür akzeptierten technischen Trust- und Security-Mechanismen.
+
+Conveyance versteht keine Vocation-Fachsemantik und ist keine Autorität für Vocation-Daten.
+
 ### Illumination Context
 
 Besitzt Fragen, Lösungen, Übungen und Lernfortschritt.
 
-### möglicher Shared Map Context
+### Orientation Context
 
-Kann später serviceübergreifende Map Contributions rendern und kombinieren.
+Besitzt die systemweit akzeptierte generische Geospatial-Capability: Spatial Scenes und Map Rendering, Place Search/Geocoding/Reverse Geocoding, Routing sowie generische Current-Location-Repräsentation.
+
+Orientation besitzt keine Vocation-Fachsemantik und keine autoritativen Vocation-Daten. Insbesondere bleiben Work Location, Precision, Opportunity, Company, Posting, External Links, Availability und Vocation Map Projection im Vocation Context.
 
 ## Research → Vocation
 
@@ -50,18 +62,10 @@ Muster:
 ```text
 Vocation
   → Vocation Publication Adapter
-  → optional generic Relay/Storage
-  → Wiiii Got This
-  → Windows / iPhone
+  → Wiiii Got This Windows
+  → Conveyance (opaque protected delivery)
+  → Wiiii Got This iPhone
 ```
-
-Muster:
-
-- Open Host Service
-- Published Read Contracts
-- Customer/Supplier
-
-Vocation entscheidet fachliche Inhalte und erzeugt die versionierte client-neutrale Published Read Projection. WGT entscheidet Geräte- und Plattformdarstellung. Relay/Storage ist Infrastruktur und kein neuer Bounded Context.
 
 ## Vocation ↔ Illumination
 
@@ -69,20 +73,24 @@ Version 1: `Separate Ways`.
 
 Später optional: Published Language für Learning References.
 
-## Vocation → Shared Map Context
+## Vocation → Orientation
 
-Später optional:
+Vocation konsumiert Orientation nur für generische geospatial Ergebnisse und Darstellung und interpretiert diese anschließend in eigener Fachsemantik.
 
-- Published Language: Map Contribution
-- Customer/Supplier
+Aktuell implementiert:
 
-Vocation besitzt Work Location und Map Projection. Ein Map Context besitzt Rendering und serviceübergreifende Komposition.
+- explizite Work-Location-Geocodierung über den Vocation `Geocoder`-Port und den `OrientationGeocoder`-Adapter gegen Orientation Place Search;
+- generisches Kartenrendering über den eingebetteten Orientation Embed Host und `orientation.host-bridge` 1.0;
+- Vocation adaptiert seine interne Map Projection in eine Orientation Spatial Scene;
+- Orientation-Actions werden zurück an Vocation vermittelt; Vocation entscheidet über Opportunity-Details und External-Link-Aktionen.
+
+Vocation bleibt für Work Location und Precision autoritativ. Orientation erzeugt oder verändert keine Opportunities, MapLocationResolutions, Tracking-Zustände oder External Links.
 
 ## Externe Provider
 
-- Geocoder: Anticorruption Layer
-- Map Tiles: technische Infrastruktur
-- Browser/Operating System: technischer Adapter
+- Place-/Geocoding-Provider: Orientation-Infrastruktur hinter Orientation-owned Ports; Vocation ruft keinen konkreten Provider direkt auf.
+- Map Style/Tiles: Orientation-Infrastruktur bzw. Map-Surface-Providerintegration.
+- Browser/Operating System: technischer Vocation-Adapter für explizite externe Navigation.
 
 ## Verbotene Kopplungen
 
@@ -91,5 +99,8 @@ Vocation besitzt Work Location und Map Projection. Ein Map Context besitzt Rende
 - gemeinsame Fachlogikbibliotheken,
 - WGT liest nie die Vocation-Datenbank und importiert keine Vocation-Domainklassen,
 - WGT modelliert keine Vocation-Business-Semantik,
-- Map Context liest Vocation-Tabellen,
+- Orientation liest keine Vocation-Tabellen und interpretiert keine Vocation-Business-Semantik,
+- Vocation implementiert keinen konkurrierenden generischen Map-/Geocoding-/Routing-Stack, wenn die akzeptierte Orientation-Capability den konkreten Bedarf abdeckt,
 - Research Bundle wird direkt persistiert als Domain Model.
+
+Die systemweite Ownership und Cross-Context-Policy werden durch `wgt-system/architecture` festgelegt; dieses Dokument konkretisiert nur die Vocation-Seite dieser Beziehungen.

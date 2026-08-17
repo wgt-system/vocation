@@ -2,8 +2,11 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from vocation.application.comparison import ComparisonCriterion, ComparisonOpportunity
+from vocation.application.duplicate_case_views import DuplicateSourceReferenceSummary, DuplicateSubjectSummary
 from vocation.domain.criteria import AssessmentCriterion
-from vocation.domain.research_bundle import DuplicateCase, PostingIdentity
+from vocation.domain.external_links import ExternalLink
+from vocation.domain.research_bundle import DuplicateCase, DuplicateDecision, PostingIdentity
 from vocation.domain.update_import import ExistingSubject, PromptContextSnapshot, SubjectType
 
 
@@ -23,11 +26,24 @@ class PostingIdentityRepository(Protocol):
     def find_by_normalized_canonical_url(self, normalized_url: str) -> PostingIdentity | None: ...
 
 
+class ExternalLinkRepository(Protocol):
+    def links_for_opportunity(self, opportunity_id: str) -> list[ExternalLink] | None: ...
+    def links_for_posting(self, opportunity_id: str, posting_id: str) -> list[ExternalLink] | None: ...
+
+
+class ComparisonRepository(Protocol):
+    def get_many(self, opportunity_ids: list[str]) -> list[ComparisonOpportunity]: ...
+    def criteria(self, criterion_ids: list[str]) -> list[ComparisonCriterion]: ...
+
+
 class DuplicateCaseRepository(Protocol):
     def get(self, case_id: str) -> DuplicateCase | None: ...
     def find_by_pair(self, subject_type: str, left_subject_id: str, right_subject_id: str) -> DuplicateCase | None: ...
     def create(self, case: DuplicateCase) -> DuplicateCase: ...
+    def append_decision(self, decision: DuplicateDecision) -> DuplicateCase: ...
     def list(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCase]: ...
+    def subject_summary(self, subject_type: str, subject_id: str) -> DuplicateSubjectSummary: ...
+    def source_reference_summaries(self, source_reference_ids: tuple[str, ...]) -> tuple[DuplicateSourceReferenceSummary, ...]: ...
 
 
 class PromptContextSnapshotRepository(Protocol):
@@ -77,5 +93,15 @@ class PromptRunRepository(Protocol):
         prompt_context_ref: str,
         subject_mappings: list[dict],
         criteria_snapshot: list[dict],
+        prompt_text: str,
+    ) -> tuple[str, str]: ...
+
+    def save_availability(
+        self,
+        *,
+        as_of_date: str,
+        research_scope: dict,
+        prompt_context_ref: str,
+        subject_mappings: list[dict],
         prompt_text: str,
     ) -> tuple[str, str]: ...

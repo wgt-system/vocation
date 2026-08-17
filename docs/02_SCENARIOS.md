@@ -32,7 +32,7 @@ Zwei Postings sind ähnlich, aber nicht sicher identisch. Vocation erzeugt einen
 
 ## S07 – Nicht mehr erreichbare Anzeige
 
-Ein Update meldet eine entfernte Source Reference. Vocation speichert die Availability Observation, behält historische Inhalte und unterscheidet Posting-Unavailability von Opportunity-Closure.
+Ein Availability Check meldet das Ergebnis für ein bekanntes Posting. Vocation speichert die Availability Observation append-only, behält historische Inhalte und unterscheidet Posting-Unavailability von Opportunity-Closure. Temporäre oder unzuverlässige Ergebnisse führen zu `uncertain`, nicht definitiv zu `unavailable`.
 
 ## S08 – Widersprüchliche Quellen
 
@@ -44,23 +44,23 @@ Der Nutzer schließt eine Opportunity mit Grund aus. Ein späterer Import darf d
 
 ## S10 – Opportunity Group oder Application Wave
 
-Der Nutzer gruppiert Opportunities. Gruppen verändern weder Identität noch Historie der Opportunities.
+Der Nutzer erstellt eine `OpportunityGroup` vom Typ `general` oder `application_wave`, fügt Opportunities in expliziter Reihenfolge hinzu, entfernt oder ordnet sie neu. Eine Application Wave ist dabei keine eigene Aggregate-Klasse. Gruppen verändern weder Identität noch Historie der Opportunities und lösen keine Bewerbungs- oder Statusautomatik aus.
 
 ## S11 – Vergleich
 
-Mehrere Opportunities werden anhand von Technologien, Aufgaben, Standort, Freshness, Assessments und Risks verglichen. Fehlende Werte bleiben fehlend und werden nicht als negativ interpretiert.
+Der Nutzer wählt 2 bis 4 bestehende Opportunities in expliziter Reihenfolge und öffnet `Vergleichen`. Die implementierte read-only Ansicht zeigt Technologien, Aufgaben, Seniorität, Erfahrung, Arbeitsmodell, Gehalt, WorkLocations, Availability-/Evidence-Freshness, Assessments und Groups/Waves spaltenweise. Fehlende Werte bleiben explizit fehlend; mehrere Evidenzwerte bleiben sichtbar und werden nicht automatisch als widersprüchlich, bewertet oder gerankt. Risk-Vergleich bleibt bis zu einer konkreten Risk-Read-Quelle später.
 
 ## S12 – Kartenansicht
 
-Die Karte zeigt gefilterte Opportunities an ihren Work Locations. Precision und approximierte Positionen sind erkennbar. Ein Pin öffnet zunächst eine kompakte Vorschau oder Detailansicht.
+Die Karte zeigt die aktuell gefilterte Menge an Opportunities an aufgelösten Work Locations. Eine explizite Nutzeraktion kann für eine WorkLocation eine manuelle oder geocoderbasierte MapLocationResolution anlegen oder ersetzen. Precision und approximierte Positionen bleiben die der WorkLocation. Ein Pin öffnet ausschließlich eine Vocation-Vorschau oder Detailansicht; externe Navigation gehört zu Slice 12.
 
 ## S13 – Originalanzeige aus Karten-Pin öffnen
 
-Der Nutzer klickt auf einen Company- oder Opportunity-Pin. Die Vorschau zeigt verfügbare Postings. Durch eine explizite Aktion öffnet Vocation die ausgewählte Originalanzeige im Standardbrowser. Vocation darf den Browser nicht ohne Nutzeraktion öffnen.
+Der Nutzer klickt auf einen Company- oder Opportunity-Pin. Die Vorschau zeigt gültige ExternalLink-Kandidaten und Posting Availability. Durch eine explizite Aktion öffnet Vocation die ausgewählte Originalanzeige im Standardbrowser. Vocation darf den Browser nicht ohne Nutzeraktion öffnen.
 
 ## S14 – Mehrere Postings an einem Pin
 
-Eine Opportunity besitzt mehrere erreichbare Postings. Der Pin zeigt die verfügbaren Quellen. Der Nutzer wählt die gewünschte Originalanzeige.
+Eine Opportunity besitzt mehrere Posting-Link-Kandidaten. Der Pin zeigt Quellen und Availability. Der Nutzer wählt die gewünschte Originalanzeige oder verwendet den deterministisch bevorzugten Link.
 
 ## S15 – Ungültige externe URL
 
@@ -90,6 +90,14 @@ Wenn keine Remote-Publikation konfiguriert ist, bleiben lokale Prompting-, Impor
 
 Eine früher ausgeschlossene oder archivierte Position erscheint mit veränderten Anforderungen. Historische Decisions bleiben sichtbar, werden aber nicht blind übertragen.
 
+## S23 – Privates ApplicationDocument anhängen
+
+Eine ApplicationMaterial-Revision kann explizit null oder ein privates `ApplicationDocument` besitzen. Das Dokument ist unveränderlich an genau diese Revision gebunden; Ersatz erfolgt nur über eine neue Material-Revision. Vocation bewahrt Integritätsmetadaten, veröffentlicht aber weder Payload noch Dokument-Metadaten.
+
+## S22 – ApplicationCase verwalten
+
+Der Nutzer erstellt für eine Opportunity explizit einen ApplicationCase und führt ihn durch `draft`, `ready`, `submitted`, `interviewing` und `offer` oder in einen terminalen Zustand `accepted`, `rejected` oder `withdrawn`. ApplicationCase-Lifecycle ist unabhängig vom Opportunity Tracking Status; jede Änderung bleibt als Historie sichtbar. Private ApplicationMaterial-Metadaten werden revisionsbezogen verwaltet, ohne Inhalte in Research, Publikationen oder öffentliche Fixtures zu übernehmen.
+
 ## Übergreifende Regeln
 
 1. Herkunft und Zeitpunkt jeder externen Information bleiben erhalten.
@@ -99,3 +107,13 @@ Eine früher ausgeschlossene oder archivierte Position erscheint mit veränderte
 5. Externe Links werden nur nach Nutzeraktion geöffnet.
 6. Die Karte besitzt keine eigene fachliche Datenhoheit.
 7. WGT-Clients benötigen nicht denselben Funktionsumfang wie die Vocation-Desktop-Anwendung.
+8. Research, Availability und Groups/Waves erzeugen oder verändern keine ApplicationCases.
+9. Research-Imports erzeugen mögliche Duplicate Cases, aber niemals persönliche Duplicate Decisions oder Identitäts-Merges.
+
+## S24 – Privates ApplicationDocument explizit öffnen
+
+Der Nutzer wählt für eine ApplicationMaterial-Revision die explizite Aktion `Öffnen`. Vocation löst genau das für `(material_id, material_revision)` angezeigte `ApplicationDocument` auf, validiert Byte Size und SHA-256 gegen die persistierten Metadaten und gibt erst danach die unveränderlichen privaten Bytes mit dem persistierten Media Type zurück. Nur ein bereits angehängtes Dokument kann geöffnet werden; es gibt keinen Fallback auf eine andere oder neueste Revision.
+
+## S25 – Mögliche Dublette manuell entscheiden
+
+Der Nutzer öffnet die Vocation-Ansicht `Dubletten` und prüft einen bestehenden Opportunity- oder Posting-DuplicateCase anhand der beiden Subjects, der gespeicherten Evidence und der Source References. Er entscheidet explizit `confirmed_duplicate`, `confirmed_distinct`, `related_but_distinct` oder `keep_unresolved` und gibt einen Grund an. Jede Entscheidung wird append-only historisiert; eine spätere abweichende Entscheidung korrigiert nur den aktuellen Review-Zustand und löscht keine Historie. `confirmed_duplicate` klassifiziert den Fall ausschließlich und führt keinen Merge, keine Löschung und keine Referenzumschreibung aus.

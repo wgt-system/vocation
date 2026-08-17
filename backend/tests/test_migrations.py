@@ -616,3 +616,389 @@ def test_prompt_context_links_downgrade_to_0006_preserves_preexisting_data(tmp_p
         assert connection.scalar(text("SELECT COUNT(*) FROM prompt_context_subjects WHERE prompt_context_ref = 'context-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
         assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+
+def test_availability_0008_upgrade_and_downgrade_preserves_research_and_personal_state(tmp_path: Path) -> None:
+    fresh = tmp_path / "availability-fresh.db"
+    migrate(fresh, "head")
+    fresh_inspector = inspect(create_engine(f"sqlite:///{fresh.as_posix()}"))
+    assert "availability_observations" in fresh_inspector.get_table_names()
+    assert {column["name"] for column in fresh_inspector.get_columns("availability_observations")} == {
+        "id",
+        "import_id",
+        "bundle_local_id",
+        "posting_id",
+        "result",
+        "observed_at",
+        "evidence_summary",
+        "recorded_at",
+    }
+    import_columns = {column["name"]: column for column in fresh_inspector.get_columns("research_imports")}
+    assert import_columns["import_kind"]["nullable"] is False
+    assert any("availability_check" in check["sqltext"] for check in fresh_inspector.get_check_constraints("research_imports"))
+
+    migrated = tmp_path / "availability-from-0007.db"
+    migrate(migrated, "0007")
+    seed_v020_data(migrated)
+    migrate(migrated, "head")
+    engine = create_engine(f"sqlite:///{migrated.as_posix()}")
+    with engine.connect() as connection:
+        assert connection.scalar(text("SELECT import_kind FROM research_imports WHERE id = 'import-1'")) == "research"
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+    config = Config(str(Path(__file__).parents[2] / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{migrated.as_posix()}")
+    config.set_main_option("script_location", str(Path(__file__).parents[1] / "alembic"))
+    command.downgrade(config, "0007")
+    downgraded = inspect(create_engine(f"sqlite:///{migrated.as_posix()}"))
+    assert "availability_observations" not in downgraded.get_table_names()
+    assert "import_kind" not in {column["name"] for column in downgraded.get_columns("research_imports")}
+    with create_engine(f"sqlite:///{migrated.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+
+def test_application_case_fresh_schema_has_four_tables_and_constraints(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-fresh.db"
+    migrate(database, "head")
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+
+    assert {
+        "application_cases",
+        "application_case_lifecycle_events",
+        "application_materials",
+        "application_material_revisions",
+    }.issubset(inspector.get_table_names())
+    assert "opportunity_id" in {column["name"] for column in inspector.get_columns("application_cases")}
+    assert "application_case_id" in {column["name"] for column in inspector.get_columns("application_case_lifecycle_events")}
+    assert "material_id" in {column["name"] for column in inspector.get_columns("application_material_revisions")}
+    assert "uq_application_cases_one_active_per_opportunity" in {index["name"] for index in inspector.get_indexes("application_cases")}
+    checks = {
+        check["name"]
+        for table in (
+            "application_cases",
+            "application_case_lifecycle_events",
+            "application_materials",
+            "application_material_revisions",
+        )
+        for check in inspector.get_check_constraints(table)
+    }
+    assert {
+        "ck_application_cases_lifecycle",
+        "ck_application_case_lifecycle_events_sequence",
+        "ck_application_case_lifecycle_events_previous_status",
+        "ck_application_case_lifecycle_events_resulting_status",
+        "ck_application_materials_kind",
+        "ck_application_material_revisions_revision",
+        "ck_application_material_revisions_display_name_nonempty",
+    }.issubset(checks)
+
+
+def test_application_case_0010_upgrade_preserves_existing_data(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-upgrade.db"
+    migrate(database, "0010")
+    seed_v020_data(database)
+    migrate(database, "head")
+
+    with create_engine(f"sqlite:///{database.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT canonical_title FROM opportunities WHERE id = 'opportunity-1'")) == "Junior Engineer"
+        assert connection.scalar(text("SELECT tracking_status FROM opportunities WHERE id = 'opportunity-1'")) == "shortlisted"
+        assert connection.scalar(text("SELECT value_json FROM personal_assessments WHERE id = 'assessment-1'")) == "5"
+        assert connection.scalar(text("SELECT resulting_status FROM opportunity_decisions WHERE id = 'decision-1'")) == "shortlisted"
+        assert connection.scalar(text("SELECT COUNT(*) FROM research_imports")) == 1
+
+
+def test_application_case_partial_unique_index_allows_only_one_active_case(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-active.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+                "VALUES ('case-1', 'opportunity-1', 'draft', '2026-08-13', '2026-08-13')"
+            )
+        )
+    with pytest.raises(IntegrityError):
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+                    "VALUES ('case-2', 'opportunity-1', 'submitted', '2026-08-14', '2026-08-14')"
+                )
+            )
+
+
+def test_application_case_terminal_history_can_coexist_with_active_case(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-terminal.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with engine.begin() as connection:
+        for case_id, lifecycle in (("case-terminal", "accepted"), ("case-active", "draft")):
+            connection.execute(
+                text(
+                    "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+                    "VALUES (:id, 'opportunity-1', :lifecycle, '2026-08-13', '2026-08-13')"
+                ),
+                {"id": case_id, "lifecycle": lifecycle},
+            )
+        assert connection.scalar(text("SELECT COUNT(*) FROM application_cases WHERE opportunity_id = 'opportunity-1'")) == 2
+
+
+def test_application_case_invalid_values_are_rejected(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-invalid.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    valid_case = "('case-valid', 'opportunity-1', 'draft', '2026-08-13', '2026-08-13')"
+
+    invalid_statements = [
+        "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+        "VALUES ('case-invalid', 'opportunity-1', 'unknown', '2026-08-13', '2026-08-13')",
+        "INSERT INTO application_case_lifecycle_events "
+        "(application_case_id, sequence, previous_status, resulting_status, occurred_at) "
+        "VALUES ('case-valid', 0, NULL, 'draft', '2026-08-13')",
+        "INSERT INTO application_materials (id, application_case_id, kind, created_at) "
+        "VALUES ('material-invalid', 'case-valid', 'pdf', '2026-08-13')",
+        "INSERT INTO application_material_revisions (material_id, revision, display_name, updated_at) "
+        "VALUES ('material-valid', 0, 'Name', '2026-08-13')",
+        "INSERT INTO application_material_revisions (material_id, revision, display_name, updated_at) "
+        "VALUES ('material-valid', 1, '   ', '2026-08-13')",
+    ]
+    with engine.begin() as connection:
+        connection.execute(
+            text(f"INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) VALUES {valid_case}")
+        )
+    for statement in invalid_statements:
+        with pytest.raises(IntegrityError):
+            with engine.begin() as connection:
+                connection.execute(text(statement))
+
+
+def test_application_case_downgrade_removes_only_new_structures(tmp_path: Path) -> None:
+    database = tmp_path / "application-case-downgrade.db"
+    migrate(database, "0010")
+    seed_v020_data(database)
+    migrate(database, "head")
+    config = Config(str(Path(__file__).parents[2] / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
+    config.set_main_option("script_location", str(Path(__file__).parents[1] / "alembic"))
+    command.downgrade(config, "0010")
+
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+    assert not {
+        "application_cases",
+        "application_case_lifecycle_events",
+        "application_materials",
+        "application_material_revisions",
+    }.intersection(inspector.get_table_names())
+    with create_engine(f"sqlite:///{database.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT canonical_title FROM opportunities WHERE id = 'opportunity-1'")) == "Junior Engineer"
+        assert connection.scalar(text("SELECT COUNT(*) FROM personal_assessments WHERE id = 'assessment-1'")) == 1
+        assert connection.scalar(text("SELECT COUNT(*) FROM opportunity_decisions WHERE id = 'decision-1'")) == 1
+
+
+def seed_application_document_data(database: Path) -> None:
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    with engine.begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        connection.execute(
+            text(
+                "INSERT INTO application_cases (id, opportunity_id, lifecycle, created_at, updated_at) "
+                "VALUES ('case-document', 'opportunity-1', 'draft', '2026-08-13', '2026-08-13')"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO application_case_lifecycle_events "
+                "(application_case_id, sequence, previous_status, resulting_status, occurred_at) "
+                "VALUES ('case-document', 1, NULL, 'draft', '2026-08-13')"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO application_materials (id, application_case_id, kind, created_at) "
+                "VALUES ('material-document', 'case-document', 'cv', '2026-08-13')"
+            )
+        )
+        for revision, name in ((1, "Resume"), (2, "Resume revised")):
+            connection.execute(
+                text(
+                    "INSERT INTO application_material_revisions "
+                    "(material_id, revision, display_name, updated_at) "
+                    "VALUES ('material-document', :revision, :name, '2026-08-13')"
+                ),
+                {"revision": revision, "name": name},
+            )
+
+
+def insert_application_document(connection, *, document_id: str = "document-1", material_revision: int = 1, **overrides) -> None:
+    values = {
+        "id": document_id,
+        "material_id": "material-document",
+        "material_revision": material_revision,
+        "original_filename": "Resume.pdf",
+        "media_type": "application/pdf",
+        "byte_size": 10,
+        "sha256": "a" * 64,
+        "storage_ref": f"opaque-{document_id}",
+        "created_at": "2026-08-13",
+    }
+    values.update(overrides)
+    connection.execute(
+        text(
+            "INSERT INTO application_documents "
+            "(id, material_id, material_revision, original_filename, media_type, byte_size, sha256, storage_ref, created_at) "
+            "VALUES (:id, :material_id, :material_revision, :original_filename, :media_type, :byte_size, "
+            ":sha256, :storage_ref, :created_at)"
+        ),
+        values,
+    )
+
+
+def test_application_document_fresh_schema_has_expected_shape(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-fresh.db"
+    migrate(database, "head")
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+
+    assert "application_documents" in inspector.get_table_names()
+    assert {column["name"] for column in inspector.get_columns("application_documents")} == {
+        "id",
+        "material_id",
+        "material_revision",
+        "original_filename",
+        "media_type",
+        "byte_size",
+        "sha256",
+        "storage_ref",
+        "created_at",
+    }
+    assert "uq_application_documents_material_revision" in {
+        unique["name"] for unique in inspector.get_unique_constraints("application_documents")
+    }
+    assert {
+        "ck_application_documents_material_revision",
+        "ck_application_documents_byte_size",
+        "ck_application_documents_filename_nonempty",
+        "ck_application_documents_storage_ref_nonempty",
+        "ck_application_documents_media_type",
+        "ck_application_documents_sha256",
+    }.issubset({check["name"] for check in inspector.get_check_constraints("application_documents")})
+
+
+def test_application_document_0011_upgrade_preserves_application_data(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-upgrade.db"
+    migrate(database, "0011")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    migrate(database, "head")
+
+    with create_engine(f"sqlite:///{database.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT lifecycle FROM application_cases WHERE id = 'case-document'")) == "draft"
+        assert (
+            connection.scalar(
+                text("SELECT display_name FROM application_material_revisions WHERE material_id = 'material-document' AND revision = 2")
+            )
+            == "Resume revised"
+        )
+        assert connection.scalar(text("SELECT tracking_status FROM opportunities WHERE id = 'opportunity-1'")) == "shortlisted"
+
+
+def test_application_document_valid_reference_and_unique_revision_constraint(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-reference.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with engine.begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        insert_application_document(connection)
+        with pytest.raises(IntegrityError):
+            insert_application_document(connection, document_id="document-duplicate")
+        insert_application_document(connection, document_id="document-revision-2", material_revision=2, storage_ref="opaque-revision-2")
+        assert connection.scalar(text("SELECT COUNT(*) FROM application_documents")) == 2
+
+
+def test_application_document_missing_revision_fk_is_rejected(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-fk.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with pytest.raises(IntegrityError):
+        with engine.begin() as connection:
+            connection.execute(text("PRAGMA foreign_keys = ON"))
+            insert_application_document(connection, material_revision=99)
+
+
+def test_application_document_invalid_values_are_rejected(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-invalid.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+    invalid_values = [
+        {"media_type": "application/octet-stream"},
+        {"byte_size": -1},
+        {"material_revision": 0},
+        {"original_filename": "   "},
+        {"storage_ref": "   "},
+        {"sha256": "A" * 64},
+        {"sha256": "g" * 64},
+        {"sha256": "a" * 63},
+    ]
+
+    for index, overrides in enumerate(invalid_values):
+        with pytest.raises(IntegrityError):
+            with engine.begin() as connection:
+                connection.execute(text("PRAGMA foreign_keys = ON"))
+                insert_application_document(connection, document_id=f"invalid-{index}", **overrides)
+
+
+def test_application_document_equal_sha256_is_allowed_for_different_revisions(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-digest.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    engine = create_engine(f"sqlite:///{database.as_posix()}")
+
+    with engine.begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        insert_application_document(connection, material_revision=1)
+        insert_application_document(
+            connection, document_id="document-same-digest-revision", material_revision=2, storage_ref="opaque-other"
+        )
+        assert connection.scalar(text("SELECT COUNT(*) FROM application_documents WHERE sha256 = :sha256"), {"sha256": "a" * 64}) == 2
+
+
+def test_application_document_downgrade_removes_only_document_metadata(tmp_path: Path) -> None:
+    database = tmp_path / "application-document-downgrade.db"
+    migrate(database, "head")
+    seed_v020_data(database)
+    seed_application_document_data(database)
+    with create_engine(f"sqlite:///{database.as_posix()}").begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys = ON"))
+        insert_application_document(connection)
+
+    config = Config(str(Path(__file__).parents[2] / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
+    config.set_main_option("script_location", str(Path(__file__).parents[1] / "alembic"))
+    command.downgrade(config, "0011")
+
+    inspector = inspect(create_engine(f"sqlite:///{database.as_posix()}"))
+    assert "application_documents" not in inspector.get_table_names()
+    with create_engine(f"sqlite:///{database.as_posix()}").connect() as connection:
+        assert connection.scalar(text("SELECT lifecycle FROM application_cases WHERE id = 'case-document'")) == "draft"
+        assert (
+            connection.scalar(
+                text("SELECT display_name FROM application_material_revisions WHERE material_id = 'material-document' AND revision = 2")
+            )
+            == "Resume revised"
+        )

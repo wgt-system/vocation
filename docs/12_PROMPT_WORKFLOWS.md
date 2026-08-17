@@ -52,7 +52,7 @@ Scope: vom Nutzer ausgewählte Opportunities; deren Postings sind als Nachfahren
 
 Scope: fehlende Felder, Widersprüche oder offene Risiken.
 
-### Availability Check (späteres Slice, außerhalb v0.3)
+### Availability Check (implementiert auf `dev`, post-v0.3)
 
 Scope: nur Erreichbarkeit und Verfügbarkeitsbeobachtungen.
 
@@ -139,7 +139,7 @@ Verbindliche Vorlagen:
 - `prompts/company-update.md`
 - `prompts/opportunity-update.md`
 - `prompts/gap-filling.md`
-- `prompts/availability-check.md` (späteres Slice, nicht v0.3)
+- `prompts/availability-check.md` (implementierter post-v0.3 Workflow)
 - `prompts/output-contract.md`
 
 ## 10. Datenschutz und Sicherheit

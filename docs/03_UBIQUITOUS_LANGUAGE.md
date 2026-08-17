@@ -96,6 +96,8 @@ Vom Nutzer vorgenommene oder bestätigte Bewertung.
 
 Klärungsbedürftiger oder negativer Aspekt; noch keine Exclusion.
 
+Für Slice 13 existiert keine konkrete implementierte Risk-Read-Quelle. Risk ist daher kein Bestandteil der V1-OpportunityComparisonView und bleibt spätere Arbeit.
+
 ### Decision
 
 Bewusste persönliche Festlegung.
@@ -108,33 +110,57 @@ Decision, eine Opportunity oder Company nicht weiterzuverfolgen. Sie löscht nic
 
 Position im persönlichen Sichtungsprozess: `new`, `to_review`, `interesting`, `shortlisted`, `deferred`, `excluded`, `archived`.
 
+### ApplicationCase
+
+Vocation-owned aggregate für die Bewerbung auf genau eine Opportunity. ApplicationCase-Lifecycle ist nicht Bestandteil des Opportunity Tracking Status.
+
+### ApplicationCase Lifecycle
+
+V1-Zustände: `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`, `rejected`, `withdrawn`. Die letzten drei sind terminal. Erstellung und jede Lifecycle-Änderung sind explizite Nutzeraktionen; Lifecycle Events bleiben historisch sichtbar. Pro Opportunity gibt es höchstens einen aktiven/nonterminal ApplicationCase; terminale Cases bleiben lesbar.
+
+### ApplicationMaterial
+
+Private, von einem ApplicationCase besessene Material-Metadaten mit stabilem Material ID, ApplicationCase ID, Kind `cv`, `cover_letter` oder `other`, Display Name, Revision sowie Created/Updated Timestamps. Revisionen werden explizit und historisch geführt; tatsächlicher Inhalt und seine Speicherung sind in dieser Slice nicht definiert.
+
+### ApplicationDocument
+
+Privater Vocation-owned Inhalt, der genau einer unveränderlichen ApplicationMaterial-Revision zugeordnet ist. Eine Revision kann null oder ein Dokument besitzen. Semantische Metadaten: stabile Document ID, Material ID, Material Revision, Original-Dateiname, Media Type, Byte Size, SHA-256 Content Digest und Created At. V1 erlaubt `application/pdf`, `text/plain` und `text/markdown`. Payload ist immutable; Ersatz erfordert eine neue Material-Revision.
+
+### ApplicationDocumentStore
+
+Provider-neutrale Infrastruktur-Port für private Payload bytes und opaque Vocation-owned Storage References. Domain/Application kennt keine Pfade, Verzeichnisse, Datenbank-BLOB-Layouts, Cloud- oder Conveyance-Transporte.
+
 ### Availability Observation
 
 Zeitbezogene Beobachtung über die Erreichbarkeit oder Aktivität eines Posting.
+
+Availability Check Bundle 1.0 verwendet ausschließlich `explicitly_available`, `explicitly_unavailable`, `temporarily_unreachable`, `not_found` und `indeterminate`. Die letzten drei Ergebnisse sind unzuverlässige Evidenz und führen zu `uncertain`, niemals automatisch zu `unavailable`.
 
 ### Availability
 
 Abgeleitete aktuelle Einschätzung: `available`, `unavailable`, `uncertain`, `unknown`.
 
+Die Ableitung verwendet die neueste Availability Observation: explizit verfügbar → `available`, explizit nicht verfügbar → `unavailable`, temporär unerreichbar/nicht gefunden/indeterminiert → `uncertain`, keine Observation → `unknown`. Opportunity Availability aggregiert ihre Postings, ohne einen permanenten Opportunity-Closed-Zustand zu erzeugen.
+
 ### Freshness
 
-Aktualität des vorhandenen Informationsstands, nicht der realen Stelle.
+In Slice 9 ausschließlich Freshness der Availability-Evidenz. `last_checked_at` ist der Zeitstempel der neuesten Availability Observation; `age_days` sind ganze verstrichene UTC-24-Stundenperioden aus einer injizierten Uhr. Es gibt keine Schwellenkategorien oder automatische Ablaufregel. Dies ist nicht Freshness von Gehalt, Technologien, Aufgaben, Arbeitsmodell, Assessments oder allgemeinen Observations.
 
 ### Possible Duplicate
 
-Dokumentierte Vermutung einer möglichen Identität.
+Dokumentierte Vermutung einer möglichen Identität. Sie ist Evidenz und keine Identitätsentscheidung.
 
 ### Duplicate Decision
 
-Explizite Entscheidung: identisch, getrennt, verwandt oder ungeklärt.
+Explizite, persönliche Review-Entscheidung für genau einen Duplicate Case. Erlaubte Outcomes sind `confirmed_duplicate`, `confirmed_distinct`, `related_but_distinct` und `keep_unresolved`. Jede Duplicate Decision besitzt eine stabile Decision ID, die Duplicate Case ID, eine monoton steigende Sequence, einen nichtleeren Grund und `decided_at` und wird append-only gespeichert. Die neueste Decision ist die aktuelle Sicht; `keep_unresolved` bedeutet geprüft, aber weiterhin ungeklärt. `confirmed_duplicate` klassifiziert nur und führt keinen Merge oder andere Identitätsmutation aus.
 
 ### Opportunity Group
 
-Benannte Sammlung für einen organisatorischen Zweck.
+Benannte Sammlung für einen organisatorischen Zweck mit stabiler Group ID, nichtleerem Namen, optionaler Beschreibung und Typ `general` oder `application_wave`. Memberships referenzieren Group ID und Opportunity ID sowie eine explizite Position. `(group_id, opportunity_id)` ist eindeutig; eine Opportunity darf mehreren Groups angehören.
 
 ### Application Wave
 
-Spezielle Opportunity Group für eine gemeinsame Bewerbungsphase.
+Spezielle `OpportunityGroup` für eine gemeinsame Bewerbungsphase. Sie ist in V1 kein separates Aggregate und bringt keine impliziten Bewerbungs-, Fristen- oder Statussemantiken mit.
 
 ### Read Model
 
@@ -142,15 +168,27 @@ Für einen konkreten Lesezweck aufbereitete Sicht ohne eigene fachliche Datenhoh
 
 ### Map Projection
 
-Read Model, das Vocation-Daten in kartendarstellbare Features übersetzt.
+Internes Vocation-Read-Model mit genau einem Feature pro aufgelöster WorkLocation. Die Projektion wird aus einer expliziten Menge von Opportunity IDs gebildet und verwendet damit dasselbe Filterergebnis wie die Opportunity-Liste.
+
+### MapLocationResolution
+
+Vocation-owned supporting data für genau eine WorkLocation: `work_location_id`, Latitude, Longitude, `resolution_source` (`manual` oder `geocoder`), optionaler `provider_key`, `resolved_at` und die für die Auflösung verwendete Query oder das Label. Latitude liegt zwischen -90 und 90, Longitude zwischen -180 und 180. Es gibt höchstens eine aktuelle Resolution pro WorkLocation. Eine erfolgreiche explizite Neuauflösung darf die bisherige abgeleitete Resolution ersetzen.
+
+MapLocationResolution ist weder Research Evidence noch Decision History. Ohne Resolution ist eine WorkLocation `unmapped`, nicht ungültig. Geocoding darf die WorkLocation Precision nie erhöhen; die angezeigte Precision bleibt die der WorkLocation. Provider bleiben hinter einem provider-neutralen Port und sind kein Domain- oder Published-Contract-Bestandteil.
 
 ### External Link
 
-Validierte Source Reference, die nach expliziter Nutzeraktion im Standardbrowser geöffnet werden kann.
+Abgeleiteter Application-/Read-Wert aus einem bestehenden Posting, einer Source und Source Reference. Er enthält Posting ID, Source ID/Name/Type, URL, Display Label, Posting Availability, Observed At und `preferred`; es gibt keine eigene ExternalLink-Persistenz.
+
+Die ExternalLinkPolicy akzeptiert ausschließlich absolute `https`-URLs mit nichtleerem Host. `http`, `file`, `javascript`, `data`, proprietäre/unbekannte Schemes sowie malformed oder relative URLs werden lokal strukturell abgelehnt. Es findet kein Fetch, HEAD-Check, Crawling oder sonstiges URL-Probing statt. Ungültige Links erreichen niemals den Browser Adapter.
 
 ### Preferred Posting Link
 
-Für eine konkrete Ansicht bevorzugte, aktuell nutzbare Source Reference. Sie bleibt eine Auswahlregel und keine neue fachliche Wahrheit.
+Für eine konkrete Ansicht deterministisch bevorzugter ExternalLink. Explizite Posting-/Source-Auswahl überschreibt die automatische Auswahl nur für den aktuellen Open-Vorgang und wird nicht gespeichert. Ohne explizite Auswahl gilt: Availability `available > unknown > uncertain > unavailable`, Source Type `company_careers > job_board > professional_network > other`, neuestes `observed_at`, dann Posting ID als Tie-Break. Es gibt keine persistierte persönliche Posting-Präferenz.
+
+### Opportunity Comparison
+
+Read-only interner Vocation-Vergleich einer temporär ausgewählten, explizit geordneten Menge von 2 bis 4 bestehenden Opportunities. Die Auswahl wird nicht persistiert und die Ansicht besitzt keine eigene fachliche Datenhoheit.
 
 ### Published Read Projection
 
@@ -158,7 +196,9 @@ Aktueller client-neutraler Begriff für eine veröffentlichte Read Projection. `
 
 ### Published Vocation Capability
 
-Versionierte Capability-/Vertragsgrenze für geeignete Vocation-Daten. Die erste geplante Capability ist `Opportunity Overview` 1.0.
+Versionierte Capability-/Vertragsgrenze für geeignete Vocation-Daten. `Opportunity Overview` 1.0 ist die akzeptierte und implementierte erste Published Capability; ihre Feldstruktur ist im Schema eingefroren.
+
+Der Published Contract 1.0 ist durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch definiert. `opportunity_ref` und `company_ref` sind stabile opaque, von Vocation ausgestellte Referenzen. Verbraucher dürfen sie speichern, vergleichen und zurückgeben, aber weder parsen noch Datenbankstrukturen daraus ableiten.
 
 ### Publication Snapshot
 
@@ -181,6 +221,7 @@ Eine veröffentlichte, abgeleitete Momentaufnahme einer Read Projection mit Publ
 - Ein Posting-Link ist nicht die Opportunity.
 - Ein Karten-Pin ist eine Projektion, kein Domänenobjekt.
 - Das Öffnen eines Links ist eine Nutzeraktion, keine automatische Navigation.
+- Ein `confirmed_duplicate` ist kein Merge und keine automatische Änderung der beteiligten Subjects.
 ## Persönliche Triage (v0.2.0)
 
 Eine **Personal Assessment** gehört Vocation und ist von einem **External Assessment** getrennt. Pro Opportunity und Criterion existiert genau ein aktuelles Personal Assessment. `CreatePersonalAssessment` legt die erste unveränderliche Revision an; `RevisePersonalAssessment` legt eine neue Revision mit Vorgängerreferenz an. Nur die aktuelle Revision darf revidiert werden, ältere Revisionen bleiben sichtbar. Numeric-, Categorical-, Boolean- und Text-Werte werden gegen das Vocation-Kriterium validiert. Create und Revise benötigen ein aktives Opportunity-Kriterium. Sobald ein Criterion durch ein External oder Personal Assessment referenziert wird, sind semantische Änderungen geschützt; Name und Beschreibung dürfen weiter gepflegt werden.
@@ -190,3 +231,7 @@ Der **Tracking Status** ist genau einer von `new`, `to_review`, `interesting`, `
 Eine **Exclusion** ist eine eigene, begründete Operation mit nichtleerem Grund und unveränderlichem Decision-Eintrag, der den vorherigen Status speichert. **Restore** ist nur bei aktueller Exclusion zulässig, verweist auf genau diese aktive Exclusion und setzt standardmäßig deren gespeicherten vorherigen Status. Ein expliziter alternativer nicht ausgeschlossener Status ist erlaubt. Exclusion und Restore bleiben historisch erhalten; wiederholte Zyklen referenzieren jeweils die richtige aktive Exclusion.
 
 Research Bundle Imports verändern Tracking Status, Personal Assessments, deren Revisionen und Opportunity Decisions nicht.
+
+### ApplicationDocument Access
+
+Read-only retrieval of the immutable payload attached to one exact ApplicationMaterial revision after integrity validation. Dies ist weder Publication, Export, Synchronization noch Preview-Rendering und kein neues Aggregate oder Entity.

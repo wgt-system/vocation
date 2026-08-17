@@ -42,7 +42,25 @@ Enthält:
 - Duplicate Cases
 - Change Summary
 
-## 4. OpportunityComparisonView
+## 3A. ApplicationCaseView (implemented, Vocation-internal/private)
+
+Die View zeigt ApplicationCase-Lifecycle, append-only Lifecycle Events, aktive und terminale historische Cases sowie aktuelle ApplicationMaterial-Metadaten. Die aktuelle Material-Revision wird aus der unveränderlichen Revision-Historie rekonstruiert. Es gibt noch keinen Endpoint für die vollständige Material-Revision-Historie und keine Dokument-Payloads oder Storage-Referenzen im normalen Opportunity Read Model. ApplicationCase und ApplicationMaterial bleiben vollständig Vocation-intern/private und erscheinen in keinem Published Contract.
+
+Eine ApplicationMaterial-Revision kann semantisch null oder ein privates ApplicationDocument referenzieren. Normale Opportunity Read Models zeigen weder Payload noch Document Storage Metadata. Die implementierte Opportunity-Detail-Ansicht zeigt den revisionsgebundenen Dokumentstatus und die privaten Metadaten; Preview, Export/Download und vollständige Revision-History sind nicht implementiert; der private Slice-17-Zugriff `OpenApplicationDocument` ist implementiert und separat beschrieben.
+
+Slice 17 ergänzt den expliziten privaten `Öffnen`-Zugriff für das exakt angezeigte Dokument der aktuellen Material-Revision. Es gibt keinen Fallback auf eine andere/latest Revision. Die UI öffnet nicht automatisch; bei fehlendem Dokument gibt es keine Aktion. Content bleibt Vocation-intern/private und wird vor Rückgabe integritätsvalidiert. Die React-Integration bietet `Öffnen` nur für ein angehängtes Dokument und verwendet exakt dessen Dokument-ID; PDF, `text/plain` und `text/markdown` verhalten sich identisch. Es gibt keinen Fallback auf eine neuere oder andere Revision und keine Preview-/Download-/Save-as-Aktion.
+
+## 4. OpportunityComparisonView (implemented)
+
+Interner, nicht persistierter Read Model für eine temporäre Auswahl von mindestens 2 und höchstens 4 eindeutigen, existierenden Opportunities. Die Spaltenreihenfolge folgt exakt der angeforderten Opportunity-ID-Reihenfolge. Eine fehlende Opportunity oder ungültige Anzahl wird als Fehler gemeldet.
+
+Jede Spalte enthält mindestens:
+
+- Opportunity ID, Title, Company ID und Company Name
+- WorkLocations mit Label und Precision
+- Tracking Status
+- Availability sowie Availability `last_checked_at` und `age_days`
+- kompakte Group/Wave-Memberships
 
 Zeilen oder Dimensionen:
 
@@ -56,12 +74,13 @@ Zeilen oder Dimensionen:
 - Locations
 - Salary
 - Assessments
-- Risks
 - Availability
 - Freshness
-- Personal Status
+- Opportunity-scoped Assessments
 
-Fehlende und widersprüchliche Werte werden explizit dargestellt.
+Research-Zellen verwenden ausschließlich Opportunity- und Posting-scoped Observations der sechs festgelegten Dimensionen. Keine Observations bedeutet `missing`; mehrere distinct Werte werden deterministisch, vorzugsweise neuestes Evidence zuerst mit stabilem ID-Tie-Break, als mehrere Werte dargestellt. Unterschiedliche Werte sind nicht automatisch contradictory. Personal Assessments zeigen nur die aktuelle Revision criterion-keyed, External Assessments nur Opportunity-scoped und ebenfalls ohne automatische Auswahl. Company-scoped Daten werden nicht kopiert. Risk bleibt mangels konkreter Read-Quelle außerhalb dieses V1-Read-Models.
+
+Comparison ist implementiert, besitzt keine Persistenz, keine URLs/Browseraktionen und keine eigene Datenhoheit. Der Read Repository und der interne `POST /api/comparison/opportunities`-Endpoint liefern das Modell; die Desktop-Ansicht ist für 2–4 Spalten horizontal scrollbar und verlinkt in bestehende Vocation Details. Published Opportunity Overview 1.0 bleibt unverändert.
 
 ## 5. CompanyOverviewView
 
@@ -74,13 +93,14 @@ Fehlende und widersprüchliche Werte werden explizit dargestellt.
 
 ## 6. GroupView / ApplicationWaveView
 
-- Group Metadata
-- Opportunity Items
-- Reihenfolge
+- Group Metadata: stable Group ID, name, optional description, type
+- ordered Opportunity Items with explicit positions
 - Statusverteilung
 - Freshness und Availability Summary
 
-## 7. MapProjection
+`ApplicationWaveView` ist dieselbe Group-Sicht für Type `application_wave`; es gibt kein separates Wave-Aggregat. Opportunity List/Detail zeigen Memberships und unterstützen Group/Wave-Filter. Diese Read Models und die Group/Wave-Filter sind implementiert; die API ist unter `/api/groups` verfügbar.
+
+## 7. MapProjection (implemented)
 
 ```json
 {
@@ -101,26 +121,31 @@ Fehlende und widersprüchliche Werte werden explizit dargestellt.
         "assessment": "7/10",
         "risk_count": 1
       },
-      "posting_links": [
-        {
-          "posting_id": "posting-id",
-          "source_name": "Company Careers",
-          "url": "https://example.com/job",
-          "preferred": true
-        }
-      ]
+      "groups": ["group-id"]
     }
   ]
 }
 ```
 
+Die interne Projection enthält pro aufgelöster WorkLocation mindestens `feature_id`, `work_location_id`, `opportunity_id`, `company_id`, Titel, Company Name, Location Label, Coordinates, WorkLocation Precision, Tracking Status, Availability und kompakte Group/Wave-Memberships. Nicht aufgelöste WorkLocations (`unmapped`) erzeugen kein Feature. Die Projection wird aus einer expliziten Opportunity-ID-Menge erzeugt, damit Karte und Liste filterkonsistent bleiben.
+
+`/api/map` und die gemeinsamen List/Map-Filter bleiben Vocation-owned. Die lokale React-Karte rendert die Projection nicht selbst mit Leaflet. `OrientationMapFrame` adaptiert die Vocation-owned Features, Information Rows und Action References in eine Orientation Spatial Scene und übergibt sie über `orientation.host-bridge` 1.0 an den gepinnten Orientation Embed Host. Generisches Rendering, Clustering und Hit Testing liegen damit bei Orientation; die fachliche Bedeutung der Features bleibt bei Vocation.
+
 Regeln:
 
 - nur explizit kartierbare Locations,
 - approximierte Features klar kennzeichnen,
-- mehrere Opportunities an einem Standort dürfen geclustert werden,
-- Browserlinks bleiben Source References,
-- Pin-Klick öffnet keine externe URL automatisch.
+- mehrere Opportunities an einem Standort dürfen generisch geclustert werden,
+- Browserlinks bleiben Source References und werden nicht Teil der MapProjection,
+- Auswahl eines Spatial Features öffnet keine externe URL automatisch,
+- Vocation interpretiert zurückgemeldete Action References und entscheidet über Detailnavigation oder explizite External-Link-Aktionen,
+- Orientation verändert weder Work Location/Precision noch Opportunity-/Availability-/Tracking-Zustand.
+
+Die MapProjection bleibt damit URL-frei. Slice 12 leitet ExternalLink-Kandidaten separat aus einer Opportunity ID ab; sie sind kein Projection-Feld. Die lokale Orientation-Komposition ändert auch den separaten Published Map Projection 1.0 Contract nicht.
+
+## 8. ExternalLinkView (implemented)
+
+ExternalLink-Kandidaten werden aus bestehenden Posting-, Source- und SourceReference-Daten gelesen und enthalten Source, URL, Display Label, Posting Availability, Observed At und den Preferred-Marker. `/api/external-links` liefert die Read-/Open-Funktionen; es gibt keine ExternalLink-Tabelle. Opportunity Detail zeigt die Kandidaten und lokale No-Link/Browser-Fehlerzustände. Für die Kartenansicht lädt Vocation diese Kandidaten separat und dedupliziert pro Opportunity; daraus abgeleitete Action References können in die Orientation Spatial Scene eingehen, die URLs selbst bleiben außerhalb der MapProjection. Eine aktivierte Action wird von Vocation fachlich interpretiert und über die bestehende External Navigation ausgeführt.
 
 ## 8. ImportReportView
 
@@ -143,27 +168,42 @@ Regeln:
 - Prompt Context Ref bei Updates
 - rendered Prompt
 
-## 10. PublishedOpportunityOverview (planned, client-neutral)
+## 10. PublishedOpportunityOverview (implemented, client-neutral)
 
-Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. The first contract slice defines the boundary and tests without freezing the final JSON field schema.
+Vocation-owned, versioned read projection for Wiiii Got This and other explicit clients. Contract 1.0 is frozen by `schemas/published-opportunity-overview-v1.schema.json`; the projection and local adapter are implemented and remain outside the internal React OpenAPI.
 
-- Publication Snapshot Metadata
-- projection version
-- client-neutral opportunity overview data
-- explicit publication age
+Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`, `publication` und `opportunities`. Die geschlossenen Opportunity-Objekte enthalten ausschließlich opaque Opportunity-/Company-Referenzen, Titel, Company, Work Locations und Posting Count. Es gibt keine URLs, Navigation, Personal-/Import-/Provenance-Daten, Availability/Freshness oder Schreibinformationen. Der lokale Adapter ist unter `/published/v1/opportunity-overview` implementiert und bleibt außerhalb der internen React OpenAPI.
 
-## 11. Published Map Projection (future, client-neutral)
+- `contract_version`
+- publication metadata: `publication_ref`, `generated_at`
+- frozen opportunity overview payload
 
-Future client-neutral projection for map-capable consumers. It is not a mobile-specific contract and does not change Vocation ownership of Work Locations.
+## 11. Published Map Projection 1.0 (implemented)
 
-## 12. DataSnapshotMetadata
+Client-neutral, transport-independent Published Vocation Capability for map-capable consumers. The canonical contract is `schemas/published-map-projection-v1.schema.json`, exposed at `GET /published/v1/map-projection` outside the internal React OpenAPI. A dedicated read-only publication repository/service reads only existing explicit MapLocationResolutions and emits URL-free features with opaque feature/opportunity/company refs, title, company, WorkLocation label/precision, and latitude/longitude. Empty features are valid and multiple mapped WorkLocations may produce multiple features for one Opportunity. Publication never geocodes, mutates, or resolves anything. Features are ordered deterministically by company name, opportunity title, WorkLocation label case-insensitively, then `feature_ref`. No personal, research, posting, source, availability, freshness, group, URL, provider, or internal-ID fields are included. Published Opportunity Overview 1.0 remains unchanged.
 
-- Snapshot ID
-- generated at
-- Vocation data version
-- latest import time
-- stale indicator
-- supported contracts
+The local Vocation→Orientation map composition is a separate presentation/integration path and does not mutate this frozen Published Contract. Any richer cross-context successor requires a new version and a concrete consumer scenario.
+
+## 12. Availability/Freshness Integration (implemented on `dev`)
+
+Interne Read Models exponieren abgeleitete Availability und die Freshness der Availability-Evidenz aus append-only Availability Observations. Diese Felder gehören nicht zum Published Opportunity Overview 1.0 Contract.
+
+## 13. Publication Metadata
+
+For the frozen Published Opportunity Overview 1.0 contract, current publication metadata
+contains only `publication_ref` and `generated_at`. It does not define publication age,
+data freshness, import time, or a stale indicator.
 ## Opportunity-Triage-Read-Model (v0.2.0)
 
 Opportunity-Liste und Detail enthalten den Tracking Status und unterstützen Statusfilter. Die Detailansicht trennt `external_assessments`, aktuelle `personal_assessments`, `personal_assessment_history` und chronologische `decision_history`. Die historische Darstellung ist append-only und stammt aus Vocation-eigenen Tabellen; Research-Bundle-Daten bleiben externe Beobachtungen. Mutation-Fehler dürfen bereits geladene Read Models nicht leeren.
+
+Für Slice 9 zeigen interne Read Models Posting-/Opportunity-Availability sowie availability-evidence Freshness (`last_checked_at`, `age_days`). Freshness hat keine Schwellenkategorie und ändert Availability nicht automatisch.
+
+Die Desktop-Read-Workflow-Integration ist implementiert: Listenfilter und Availability-Badges sowie Detailansicht und append-only Availability-Historie sind verfügbar. Diese post-v0.3-Funktion bleibt außerhalb des Published Opportunity Overview 1.0 Contracts.
+
+## 14. DuplicateCaseReview (implemented)
+
+Interner, nicht persistierter Review-Read-Model für bestehende Opportunity- und Posting-`DuplicateCase`s. Er enthält die stabile Case-ID, Subject Type, je Subject eine lesbare Summary, Evidence Summary, optionale Import-Confidence, Source-Reference-Summaries, Created At, aktuelle Duplicate Decision, vollständige append-only Decision History sowie `is_reviewed` und `is_resolved`.
+
+Ohne Decision ist ein Case ungeprüft und unresolved. `keep_unresolved` ist geprüft, aber unresolved; die anderen drei Outcomes sind für den Review resolved. Source URLs werden in der `Dubletten`-Ansicht nur als Review-Kontext angezeigt und nicht als direkte Navigation verwendet. Das Read Model besitzt keine Merge-, Delete- oder Published-Contract-Semantik.
+

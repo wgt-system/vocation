@@ -116,6 +116,7 @@ class ImportService:
                 duplicate_of_import_id=previous.import_id,
                 bundle_version=previous.bundle_version,
                 prompt_context_ref=previous.prompt_context_ref,
+                import_kind=previous.import_kind,
             )
 
         version = bundle.get("bundle_version")

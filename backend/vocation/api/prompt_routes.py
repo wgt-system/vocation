@@ -3,12 +3,15 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 
 from vocation.api.schemas import (
+    AvailabilityPromptPayload,
+    GeneratedAvailabilityPromptResponse,
     GeneratedPromptResponse,
     GeneratedUpdatePromptResponse,
     InitialPromptPayload,
     UpdatePromptOptionsResponse,
     UpdatePromptPayload,
 )
+from vocation.application.availability_prompts import AvailabilityPromptService
 from vocation.application.prompts import PromptService
 
 router = APIRouter(prefix="/api/prompts", tags=["research prompts"])
@@ -45,5 +48,15 @@ def generate_update_prompt(payload: UpdatePromptPayload, request: Request) -> Ge
             gap_requests=[item.model_dump(exclude_none=True) for item in payload.gap_requests],
         )
         return GeneratedUpdatePromptResponse(**generated.__dict__)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@router.post("/availability-check", response_model=GeneratedAvailabilityPromptResponse)
+def generate_availability_prompt(payload: AvailabilityPromptPayload, request: Request) -> GeneratedAvailabilityPromptResponse:
+    service: AvailabilityPromptService = request.app.state.availability_prompt_service
+    try:
+        generated = service.generate(as_of_date=payload.as_of_date.isoformat(), posting_ids=payload.posting_ids)
+        return GeneratedAvailabilityPromptResponse(**generated.__dict__)
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error

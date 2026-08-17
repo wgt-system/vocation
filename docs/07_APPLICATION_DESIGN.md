@@ -76,7 +76,7 @@ Ablauf:
 
 Research Bundle `1.0` bleibt initial-only und wird ausdrücklich getrennt von Research Update Bundle `2.0` behandelt. Beim Update werden bestehende Company-, Opportunity- und Posting-Zeilen sicher wiederverwendet, ohne kanonische Zustände umzuschreiben; externe Evidence ist append-only. Blocker werden vor Domain-Mutation erkannt, danach wird das akzeptierte Update atomar angewendet. Identische Bundles werden nicht erneut angewendet.
 
-Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. GenerateResearchPrompt ist für Initial Research und alle vier Update-Modi implementiert. Updates persistieren Prompt Run, Prompt Context Ref, expliziten Scope, Prompt Version und Bundle Version `2.0`.
+Für v0.3 bleibt Research Bundle `1.0` unverändert und initial-only. Kontrollierte Updates verwenden Research Update Bundle `2.0` mit `prompt_context_ref`, opaque Correlation References und den Scopes `full_update`, `company_update`, `opportunity_update` oder `gap_filling`. GenerateResearchPrompt ist für Initial Research und alle vier Update-Modi implementiert. Availability Check Prompt-Erzeugung und der dedizierte Availability-Import sind ebenfalls implementiert; Availability/Freshness ist in den internen Opportunity-Read-Models und der API abgeleitet sichtbar. Updates persistieren Prompt Run, Prompt Context Ref, expliziten Scope, Prompt Version und Bundle Version `2.0`.
 
 Output:
 
@@ -88,6 +88,25 @@ Output:
 ### ChangeTrackingStatus
 
 Nur persönliche Aktion. External Imports dürfen diesen Command nicht auslösen.
+
+### ApplicationCase Commands (implementiert)
+
+`CreateApplicationCase`, `ChangeApplicationCaseLifecycle`, `CreateApplicationMaterial` und `ReviseApplicationMaterial` sind implementierte Vocation-eigene Nutzeraktionen. ApplicationCase-Lifecycle ist unabhängig vom Opportunity Tracking Status. Research-/Availability-Imports und Groups/Waves dürfen diese Commands nicht implizit auslösen. Dokumentinhalt, Submission, Rendering und externe Integrationen sind nicht Bestandteil dieser Slice.
+
+Implementierte Queries und interne API:
+
+- ApplicationCases für eine Opportunity auflisten: `GET /api/opportunities/{opportunity_id}/application-cases`
+- ApplicationCase anlegen: `POST /api/opportunities/{opportunity_id}/application-cases`
+- ApplicationCase laden: `GET /api/application-cases/{case_id}`
+- Lifecycle ändern: `POST /api/application-cases/{case_id}/lifecycle`
+- Material-Metadaten auflisten/anlegen: `GET/POST /api/application-cases/{case_id}/materials`
+- Material-Revision anlegen: `POST /api/application-materials/{material_id}/revisions`
+
+Der typed interne OpenAPI-/Frontend-Client und der Opportunity-Detail-Workflow sind implementiert.
+
+ApplicationDocument ist als semantische private Content-Zuordnung implementiert. `ApplicationDocumentService` attach't bytes nur an die exakt aufgelöste immutable Material-Revision: bestehende Attachments werden abgelehnt, Domain-Metadaten werden aus den gelieferten Bytes erzeugt, ein opaque Storage Reference wird angelegt, der Payload wird geschrieben und zurückgelesen, Byte Size und SHA-256 werden geprüft und erst danach werden Metadata/Reference persistiert. Reads validieren die Backing-Payload; fehlende oder korrupte Bytes sind Integrity Errors. Storage Reference und Pfad verlassen den Service nicht.
+
+Interne Endpoints sind `GET/POST /api/application-materials/{material_id}/revisions/{material_revision}/document`, `GET /api/application-documents/{document_id}` und `GET /api/application-documents/{document_id}/content`. Uploads verwenden `multipart/form-data` mit Feld `file`, behalten den Original-Dateinamen als Präsentationsmetadatum und verwenden explizite Media-Type-Metadaten ohne MIME-Sniffing oder Extension-Inferenz. Die React Opportunity-Detail-Ansicht unterstützt `.pdf`, `.txt` und `.md`, zeigt Dateiname, Media Type, Byte Size und Created At und bietet für eine bereits belegte Revision keine weitere Attach-Aktion.
 
 ### AddPersonalAssessment
 
@@ -103,13 +122,21 @@ Erfordert mindestens einen Exclusion Reason.
 
 Hebt eine frühere Einschränkung nachvollziehbar auf.
 
-### CreateOpportunityGroup
+### CreateOpportunityGroup (implemented)
 
-Erzeugt allgemeine Group oder Application Wave.
+Erzeugt eine OpportunityGroup mit stabiler Group ID, nichtleerem Namen, optionaler Beschreibung und Type `general` oder `application_wave`; es entstehen keine Opportunity-Zustandsänderungen.
 
-### AddOpportunityToGroup / RemoveOpportunityFromGroup
+### EditOpportunityGroup / DeleteOpportunityGroup (implemented)
 
-Verändert keine Opportunity-Identität.
+Edit ändert nur die Gruppenmetadaten. Delete entfernt die Memberships der Group, aber niemals Opportunities oder deren Zustand.
+
+### AddOpportunityToGroup / RemoveOpportunityFromGroup (implemented)
+
+Add fügt eine Membership am Ende ein; Remove entfernt nur die Membership. `(group_id, opportunity_id)` ist eindeutig.
+
+### ReorderOpportunityGroup (implemented)
+
+Erhält den vollständigen geordneten Member-Satz und normalisiert die Positionen deterministisch.
 
 ### ResolveDuplicateCase
 
@@ -120,7 +147,7 @@ Im v0.3 erzeugt oder verwendet der Update-Plan ausschließlich ungelöste Duplic
 - related but distinct,
 - keep unresolved.
 
-### OpenPostingInBrowser
+### OpenPostingInBrowser (implementiert)
 
 Input:
 
@@ -128,12 +155,11 @@ Input:
 
 Ablauf:
 
-1. Preferred Posting bestimmen oder Auswahl anzeigen.
-2. ExternalLinkPolicy anwenden.
-3. explizite Nutzeraktion bestätigen.
-4. OS Browser Adapter aufrufen.
-5. Ergebnis oder Fehler anzeigen.
-6. optional Audit Event speichern.
+1. gültige ExternalLink-Kandidaten ableiten.
+2. explizite Posting-Auswahl verwenden oder PreferredPostingSelector anwenden.
+3. ExternalLinkPolicy anwenden.
+4. nur die validierte URL an den Browser Adapter übergeben.
+5. Erfolg oder Fehler anzeigen.
 
 Fehler:
 
@@ -141,6 +167,10 @@ Fehler:
 - Link ungültig,
 - Scheme nicht erlaubt,
 - Browserstart fehlgeschlagen.
+
+Es gibt in V1 keine Navigation beim Laden von Details, der Karte, eines Markers oder beim Ändern von Filtern und keine Navigation-Audit-/Event-Persistenz.
+
+Die Read-/Open-Endpunkte sind unter `/api/external-links` verfügbar; typed internes OpenAPI und Frontend-Client sind implementiert. Opportunity Detail zeigt Source, Availability, Observed At und den Preferred-Marker, unterstützt Default-/Preferred- sowie explizites Posting-Öffnen und zeigt No-Link- und lokale Browser-Fehlerzustände.
 
 ## 4. Queries
 
@@ -174,13 +204,30 @@ Liefert:
 - Duplicate Cases
 - History Summary
 
-### CompareOpportunities
+Der Opportunity-Detail-Workflow zeigt ApplicationCase-Lifecycle und private Material-Metadaten nur innerhalb der Vocation-Anwendung; diese Daten werden nicht in Published Read Projections aufgenommen.
 
-Vergleicht ausgewählte Opportunities und zeigt fehlende oder widersprüchliche Daten explizit.
+Group-Memberships werden in Liste und Detail angezeigt und können als Filter verwendet werden. Die implementierte API ist unter `/api/groups` verfügbar; die React Groups & Waves UI unterstützt Group CRUD sowie Add, Remove und Reorder Membership.
 
-### GetMapProjection
+### Group Queries (implemented)
 
-Liefert generische Map Features für den aktuell gesetzten Filter.
+- Group list
+- Group detail with ordered Opportunities
+- Opportunity list/detail memberships
+- Opportunity filtering by Group/Wave
+
+### CompareOpportunities (implementiert)
+
+Input ist eine temporäre, explizit geordnete Liste von 2 bis 4 eindeutigen Opportunity IDs. Alle IDs müssen existieren; Duplikate oder eine andere Anzahl werden abgelehnt. Die Ausgabe verwendet exakt diese Spaltenreihenfolge und zeigt pro Opportunity ID, Title, Company, WorkLocations mit Label/Precision, Tracking Status, Availability, Availability `last_checked_at`/`age_days` sowie kompakte Group/Wave-Memberships.
+
+Verglichen werden die Research-Dimensionen `technology_requirement`, `task`, `seniority`, `experience_requirement`, `work_model` und `salary` aus Opportunity- und Posting-scoped Observations. Fehlende Werte sind explizit `missing`; mehrere distinct Werte bleiben sichtbar und werden nicht automatisch als widersprüchlich bewertet. Opportunity-scoped Assessments werden nach bestehendem Criterion dargestellt; Personal Assessments nur mit aktueller Revision, External Assessments als mehrere Werte ohne automatische Auswahl. Company- und Posting-scoped Assessments werden nicht in Opportunity-Zellen zusammengeführt.
+
+Die Auswahl ist temporärer UI-Zustand. Comparison ist read-only, verändert weder Tracking Status, Groups/Waves, Assessments noch Decisions und enthält weder URLs noch Browser-Aktionen. Risk bleibt mangels konkreter Risk-Read-Quelle außerhalb der V1-Ansicht.
+
+Der interne Endpoint `POST /api/comparison/opportunities`, das SQLAlchemy Comparison Read Repository, der typed OpenAPI-/Frontend-Client und die Desktop-UI sind implementiert. Die UI hält eine temporäre Auswahl, zeigt 2–4 Spalten horizontal scrollbar und bietet die Navigation zur bestehenden Vocation Detailansicht.
+
+### GetMapProjection (implemented)
+
+Liefert generische Map Features für eine explizite Menge von Opportunity IDs, typischerweise die aktuell gefilterte Opportunity-Menge. Es gibt ein Feature pro aufgelöster WorkLocation.
 
 Jedes Feature enthält:
 
@@ -192,7 +239,13 @@ Jedes Feature enthält:
 - Precision
 - Status
 - Preview
-- verfügbare Posting Links
+- Posting-Link-Verfügbarkeit (ohne URLs)
+
+Map Features enthalten zusätzlich WorkLocation Label, WorkLocation Precision, Availability und kompakte Group/Wave-Memberships. Vocation bleibt für diese fachlichen Werte und die Zuordnung zu Opportunities autoritativ.
+
+Die Map API ist unter `/api/map` implementiert. Explizite Geocodierung/Manuell-Auflösung und das Löschen einer Resolution sind Nutzeraktionen. Der Vocation-eigene `Geocoder`-Port wird durch `OrientationGeocoder` implementiert; dieser konsumiert Orientation Place Search über `GET /api/v1/places/search` und interpretiert das generische Ergebnis anschließend als Vocation `MapLocationResolution`. Vocation ruft keinen konkreten Geocoding-Provider direkt auf.
+
+Das generische Kartenrendering wird nicht mehr durch Leaflet/React Leaflet in Vocation implementiert. `OrientationMapFrame` adaptiert die Vocation-owned MapProjection sowie Vocation-owned Information/Actions in eine `orientation.host-bridge`-1.0 Spatial Scene und hostet den gepinnten Orientation Embed Host. Marker-/Feature-Aktionen werden über die Bridge an Vocation zurückgegeben; nur Vocation navigiert zu Opportunity Details oder führt `OpenPostingInBrowser` aus. Orientation entscheidet weder Work Location/Precision noch External-Link-Auswahl oder Tracking-/Availability-Semantik.
 
 ### GetPromptPreview
 
@@ -204,7 +257,9 @@ Zeigt pro Entry Ergebnis, Warnungen, Fehler und betroffene Objekte.
 
 ### Publish/Get Opportunity Overview
 
-Read-only capability boundary owned by Vocation Data Publication. The Publication Adapter builds a versioned, client-neutral `Opportunity Overview` projection and its Publication Metadata. The final JSON field schema is intentionally deferred to the first contract-test slice. Publication never becomes a second domain authority.
+Read-only capability boundary owned by Vocation Data Publication. The Publication Adapter builds a versioned, client-neutral `Opportunity Overview` projection and its Publication Metadata. The 1.0 JSON field schema is now frozen by `schemas/published-opportunity-overview-v1.schema.json`. Publication never becomes a second domain authority.
+
+Der JSON-Vertrag ist in `schemas/published-opportunity-overview-v1.schema.json` eingefroren. Der lokale Adapterpfad `/published/v1/opportunity-overview` ist implementiert, unabhängig von `/api/opportunities`, schreibfrei und darf das Artefakt nicht umdeuten. Eine spätere Conveyance-Zustellung transportiert dasselbe Artefakt unverändert und bleibt außerhalb der Vocation-Domainsemantik.
 
 ## 5. Desktop UI-Flows
 
@@ -217,14 +272,19 @@ Read-only capability boundary owned by Vocation Data Publication. The Publicatio
 5. zurückgegebenes JSON inline importieren.
 6. Import Report prüfen.
 
-### Map Flow
+### Map Flow (implementiert)
 
 1. Filter setzen.
 2. Karte öffnen.
-3. Pin anklicken.
-4. Opportunity-Vorschau öffnen.
-5. Detailansicht oder Posting-Quelle auswählen.
-6. Originalanzeige im Browser öffnen.
+3. Orientation Embed Host rendert die von Vocation adaptierte Spatial Scene.
+4. Spatial Feature auswählen.
+5. über eine von Vocation definierte Host-Bridge-Aktion Details oder eine Originalanzeige öffnen.
+
+Eine manuelle oder Orientation-backed Geocoder-Auflösung einer WorkLocation wird nur durch explizite Nutzeraktion ausgelöst. Die Karte und Liste verwenden dasselbe Opportunity-Filterergebnis; Clustering, Hit Testing und generisches Rendering gehören zur Orientation-Präsentationscapability und sind kein Vocation-Domain-Zustand.
+
+Die UI bietet explizite Geocode-, Manual- und Delete-Resolution-Aktionen. Das eingebettete Orientation-Feature-Detail zeigt von Vocation gelieferte Informationen und Actions. ExternalLink-Kandidaten werden weiterhin von Vocation pro Opportunity geladen; `OrientationMapFrame` übergibt lediglich die daraus abgeleiteten Labels/Action References an die Spatial Scene. Eine aktivierte Action wird über `orientation.host-bridge` 1.0 an Vocation zurückgemeldet und dort fachlich ausgeführt.
+
+Die geschlossene `Published Map Projection 1.0` bleibt unverändert und URL-frei. Die lokale UI-Komposition mit Orientation ist davon getrennt; ein späterer reichhaltiger Cross-Context-Nachfolger muss versioniert werden statt Contract 1.0 still zu verändern.
 
 ### Import Flow
 
@@ -247,7 +307,7 @@ Nicht erforderlich:
 - Duplicate Resolution
 - komplexe Pflege
 
-Vocation bleibt Eigentümer von Data Publication; ein Relay/Storage ist optional und domänenblind.
+Vocation bleibt Eigentümer von Data Publication. Für dauerhafte opaque Cross-Device-Zustellung kann Vocation-owned Publication über Conveyance transportiert werden; Conveyance bleibt domänenblind und Vocation baut keinen eigenen generischen Relay-/Storage-Stack.
 
 ## 7. Transaktionsgrenzen
 
@@ -277,3 +337,18 @@ Application Errors enthalten:
 ## Persönliche Triage-Commands (v0.2.0)
 
 Die Anwendung bietet `CreatePersonalAssessment`, `RevisePersonalAssessment`, `ChangeTrackingStatus`, `ExcludeOpportunity` und `RestoreOpportunity`. Create und Revise sind getrennt; Create liefert einen Konflikt, wenn bereits ein aktuelles Assessment für Opportunity/Criterion existiert. Revise akzeptiert ausschließlich die aktuelle Revision. Restore verwendet ohne Zielstatus `active_exclusion.previous_status`; ein expliziter nicht ausgeschlossener Zielstatus ist optional. Die zugehörigen Queries liefern aktuelle und historische Personal Assessments sowie chronologische Decision History. Die Commands sind atomar; eine ungültige Eingabe erzeugt keinen Teilzustand. Die Services kennen nur `PersonalTriageRepository`- und `CriteriaRepository`-Ports.
+
+### OpenApplicationDocument (Slice 17, implementiert auf `dev`)
+
+Input ist `document_id`. Der Use Case löst Dokument-Metadaten auf, liest den Payload über `ApplicationDocumentStore`, validiert Byte Size und SHA-256 und liefert erst danach die exakten unveränderlichen privaten Bytes mit dem persistierten semantischen Media Type. Fehler sind fehlende Dokument-Metadaten, fehlende Backing Bytes oder Integritätsfehler. Der Use Case ist read-only und erzeugt keinen Domain-Zustand.
+
+Die interne/private Vocation-API-Grenze für den Content ist `GET /api/application-documents/{document_id}/content`. Sie liefert ausschließlich Payload Bytes und den persistierten Media Type. `storage_ref`, physischer Pfad, physischer hashed filename und Store Root werden nicht exponiert. Dies ist kein Published Contract; Content-Disposition wird nicht spezifiziert.
+
+Für eine ApplicationMaterial-Revision mit angehängtem Dokument zeigt die Oberfläche die vorhandenen privaten Metadaten und genau eine implementierte, explizite Aktion `Öffnen`. Ohne Dokument gibt es keine solche Aktion; automatisch geöffnet wird nie. Die Aktion zielt mit dem exakt geladenen `document.id` auf `/api/application-documents/{encoded document_id}/content`, öffnet einen neuen Browsing-Kontext mit `target="_blank"` und `rel="noopener noreferrer"` und verwendet keine Revision-Fallbacks. PDF, `text/plain` und `text/markdown` nutzen dieselbe private Content-Grenze; Markdown bleibt gespeicherter Text und wird nicht gerendert. Vocation parst oder transformiert den Inhalt nicht und implementiert weder eingebettetes Preview noch Blob URLs, temporäre Dateien, Download/Save-as, Edit, Delete oder Replace.
+
+## Slice 18 – DuplicateCase Resolution (implementiert auf `dev`)
+
+`ResolveDuplicateCase` ist als explizite Vocation-Nutzeraktion implementiert. Ein bestehender Opportunity- oder Posting-`DuplicateCase` wird über einen internen Review-Read-Path mit Subject-Summaries, Evidence und Source-Reference-Summaries dargestellt. `POST /api/duplicate-cases/{case_id}/decisions` erzeugt genau eine append-only `DuplicateDecision` mit Outcome `confirmed_duplicate`, `confirmed_distinct`, `related_but_distinct` oder `keep_unresolved`, nichtleerem Grund, Sequenz und Entscheidungszeitpunkt. Die neueste Decision ist die aktuelle Review-Sicht; eine abweichende spätere Decision korrigiert diese Sicht, ohne Historie zu überschreiben. Dasselbe aktuelle Outcome wird als Konflikt abgelehnt.
+
+`confirmed_duplicate` ist ausschließlich eine Klassifikation. Slice 18 führt keinen Merge, keine Löschung, kein Re-Parenting und keine Referenzumschreibung aus. Research-/Availability-Imports, Groups/Waves, ApplicationCase-Lifecycle und Published Contracts erzeugen oder verändern keine Duplicate Decisions.
+

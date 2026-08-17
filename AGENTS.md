@@ -4,13 +4,22 @@
 
 Vocation ist eine eigenständig ausführbare, überwiegend lesende Desktop-Anwendung für einen persönlichen Stellenmarkt.
 
+## System Architecture
+
+Die systemweite Architektur-Quelle ist `wgt-system/architecture`. Vor neuen Cross-Context-, Synchronization-/Relay-, Shared-Infrastructure- oder generischen Capability-Entscheidungen sind dort `ARCHITECTURE_PRINCIPLES.md`, `CAPABILITY_CATALOG.md` und `INTEGRATION_POLICY.md` zu prüfen.
+
+Die systemweite Agent-/Git-/GitHub-Ausführungsrichtlinie in `wgt-system/architecture/AGENTS.md` gilt auch hier und wird nicht in normalen Arbeitsaufträgen dupliziert.
+
+Generische dauerhafte opaque Cross-Device-Zustellung gehört zum separaten akzeptierten Bounded Context Conveyance; der aktuelle akzeptierte Delivery Mode ist `Current Object`. Generische Geospatial-Capability gehört zum akzeptierten Bounded Context Orientation, einschließlich generischem Map Rendering, Place Search/Geocoding/Reverse Geocoding, Routing und generischer Current-Location-Repräsentation. Vocation bleibt Eigentümer seiner Work-Location-/Precision-, Opportunity-, Publication-, Command-, Authority-, Merge-, Conflict- und Reconciliation-Semantik. WGT besitzt Integration und Presentation, nicht Vocation-Fachlogik. Wenn eine bestehende generische Capability konzeptionell passt, aber nicht ausreicht, geht die konkrete Anforderung an den System Architecture Control Plane zurück. Keine Runtime darf vom Architecture Repository abhängen.
+
 ## Verbindlicher Technologie-Stack für Version 1
 
 - Python 3.13, FastAPI, Pydantic, SQLAlchemy 2, Alembic, SQLite, jsonschema und pytest
 - React, TypeScript, Vite, Vitest und React Testing Library
 - FastAPI stellt im Produktionsmodus das gebaute Frontend bereit.
-- Vocation startet als eigener lokaler Dienst und benötigt weder Wiiii Got This noch einen anderen fachlichen Kontext.
-- Die Entscheidung ist in `docs/adr/0007-version-1-technology-stack.md` dokumentiert.
+- Vocation startet als eigener lokaler Dienst und benötigt weder Wiiii Got This noch einen anderen fachlichen Kontext für Vocation-Fachsemantik oder Persistenz.
+- Generic Geospatial wird nicht als konkurrierender Vocation-Stack implementiert; die aktuelle Map Surface und explizite Geocodierung nutzen Orientation über definierte Adapter-/Host-Grenzen.
+- Die ursprüngliche Vocation-Technologieentscheidung ist in `docs/adr/0007-version-1-technology-stack.md` dokumentiert; systemweite Capability-Ownership kann spätere generische Infrastruktur daraus superseden, ohne Vocation-Domainownership zu ändern.
 
 ## Maßgebliche Quellen
 
@@ -31,7 +40,7 @@ Vocation ist eine eigenständig ausführbare, überwiegend lesende Desktop-Anwen
 
 ## Verbindliche Regeln
 
-1. Vocation bleibt ohne Wiiii Got This eigenständig ausführbar und nutzbar.
+1. Vocation bleibt ohne Wiiii Got This eigenständig ausführbar und fachlich autoritativ; optionale/generische System-Capabilities dürfen über explizite Grenzen konsumiert werden.
 2. Recherche findet außerhalb von Vocation statt.
 3. Vocation kann vorbereitete Prompts erzeugen und JSON-Bundles importieren.
 4. Vocation ruft keine kostenpflichtige LLM-API auf.
@@ -41,15 +50,22 @@ Vocation ist eine eigenständig ausführbare, überwiegend lesende Desktop-Anwen
 8. Historische Informationen werden nicht stillschweigend gelöscht oder überschrieben.
 9. Externe Links dürfen nur über explizite Nutzeraktionen im Standardbrowser geöffnet werden.
 10. Cross-device Nutzung erfolgt zunächst read-only über client-neutrale Published Vocation Capabilities; Wiiii Got This kann sie auf Windows und iPhone darstellen.
-11. Keine direkte Datenbanknutzung durch Wiiii Got This, Illumination oder einen späteren Map Service.
+11. Keine direkte Datenbanknutzung durch Wiiii Got This, Illumination, Orientation oder Conveyance.
 12. Öffentliche Verträge werden versioniert und durch Contract Tests geschützt.
 13. Neue Architekturentscheidungen werden als ADR dokumentiert.
 14. Keine spekulative Service-Zerlegung innerhalb des Vocation Context.
 15. Keine automatische Bewerbungserstellung oder -versendung.
 16. Vocation bleibt lokale Autorität; Wiiii Got This liest nie die Vocation-Datenbank und besitzt keine Vocation-Fachlogik.
-17. Veröffentlichung ist optional und abgeleitet. Ein Relay/Storage bleibt domänenblind und ist kein neuer Bounded Context.
+17. Veröffentlichung ist optional und abgeleitet. Vocation baut keinen eigenen generischen Relay-/Storage-Stack; Conveyance besitzt generische dauerhafte opaque Delivery und versteht keine Vocation-Domainobjekte. Vocation bleibt Eigentümer der Publication-Semantik.
+18. Vocation baut keinen konkurrierenden generischen Geocoding-/Map-/Routing-Stack, wenn Orientation die konkrete benötigte Capability bereitstellt. Orientation besitzt keine Vocation Work-Location-/Precision-/Opportunity-/External-Link-Semantik.
 
-## Arbeitsweise für Codex
+## Arbeitsweise für Codex/Control Plane
+
+Remote GitHub-Arbeit wird standardmäßig direkt über den verfügbaren GitHub-Connector ausgeführt. Repository lesen, Dateien ändern, Branches/PRs/Issues pflegen und Remote-Zustand verifizieren werden nicht an einen lokalen Worker delegiert, wenn der Connector die Aufgabe vollständig und sicher ausführen kann.
+
+Lokale Worker/Subagents werden nur eingesetzt, wenn die Aufgabe tatsächlich lokalen Dateisystem-, Build-, Runtime-, Geräte- oder Umgebungszugriff benötigt, den der Connector nicht bereitstellt. Sie sind Ausführungshilfen, keine Architektur- oder Produktentscheidungsinstanz.
+
+Lokale Installationen oder Änderungen an der lokalen Toolchain/Umgebung benötigen vor Ausführung die ausdrückliche Zustimmung des Nutzers.
 
 Vor einer Implementierung:
 
@@ -61,7 +77,7 @@ Vor einer Implementierung:
 
 Nach einer Implementierung:
 
-1. relevante Tests ausführen,
-2. Dokumentationsabweichungen melden,
+1. relevante verfügbare Tests/Checks ausführen oder den nicht verfügbaren lokalen Check transparent benennen,
+2. Dokumentationsabweichungen korrigieren oder melden,
 3. Domain- oder Vertragsänderungen dokumentieren,
 4. keine stillen Schemaänderungen vornehmen.

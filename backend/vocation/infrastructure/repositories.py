@@ -200,3 +200,57 @@ class SqlAlchemyPromptRunRepository:
                 )
             )
         return prompt_run_id, prompt_context_ref
+
+    def save_availability(
+        self,
+        *,
+        as_of_date: str,
+        research_scope: dict,
+        prompt_context_ref: str,
+        subject_mappings: list[dict],
+        prompt_text: str,
+    ) -> tuple[str, str]:
+        prompt_run_id = str(uuid4())
+        sorted_mappings = sorted(subject_mappings, key=lambda item: (item["subject_type"], item["subject_id"]))
+        fingerprint = canonical_fingerprint(
+            {
+                "prompt_context_ref": prompt_context_ref,
+                "research_scope": research_scope,
+                "subject_mappings": sorted_mappings,
+            }
+        )
+        with self.session_factory.begin() as session:
+            session.add(
+                PromptContextSnapshotModel(
+                    prompt_context_ref=prompt_context_ref,
+                    scope_type="availability_check",
+                    as_of_date=as_of_date,
+                    scope_json=canonical_json(research_scope),
+                    fingerprint=fingerprint,
+                )
+            )
+            for mapping in sorted_mappings:
+                session.add(
+                    PromptContextSubjectModel(
+                        prompt_context_ref=prompt_context_ref,
+                        correlation_ref=mapping["correlation_ref"],
+                        subject_type=mapping["subject_type"],
+                        subject_id=mapping["subject_id"],
+                        is_target=mapping["is_target"],
+                    )
+                )
+            session.add(
+                PromptRunModel(
+                    id=prompt_run_id,
+                    prompt_type="availability_check",
+                    prompt_version="1.0",
+                    bundle_version="1.0",
+                    search_profile=None,
+                    prompt_context_ref=prompt_context_ref,
+                    constraints_json="[]",
+                    as_of_date=as_of_date,
+                    criteria_snapshot_json="[]",
+                    prompt_text=prompt_text,
+                )
+            )
+        return prompt_run_id, prompt_context_ref

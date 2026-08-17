@@ -15,6 +15,7 @@ def app(tmp_path: Path):
         get_settings(),
         database_url=f"sqlite:///{(tmp_path / 'vocation-test.db').as_posix()}",
         frontend_dist=tmp_path / "no-frontend",
+        application_document_store_dir=tmp_path / "application-documents",
     )
     return create_app(settings)
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from vocation.api.schemas import (
     DecisionResponse,
@@ -21,9 +21,9 @@ router = APIRouter(prefix="/api/opportunities", tags=["opportunities"])
 
 
 @router.get("", response_model=list[OpportunityListItemResponse])
-def list_opportunities(request: Request) -> list[OpportunityListItemResponse]:
+def list_opportunities(request: Request, group_id: str | None = Query(default=None)) -> list[OpportunityListItemResponse]:
     service: OpportunityQueryService = request.app.state.opportunity_service
-    return [OpportunityListItemResponse.model_validate(item) for item in service.list()]
+    return [OpportunityListItemResponse.model_validate(item) for item in service.list(group_id=group_id)]
 
 
 @router.get("/{opportunity_id}", response_model=OpportunityDetailResponse)
