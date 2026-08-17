@@ -36,9 +36,7 @@ class SearchProfileModel(Base):
 class SearchProfileRevisionModel(Base):
     __tablename__ = "search_profile_revisions"
 
-    search_profile_id: Mapped[str] = mapped_column(
-        ForeignKey("search_profiles.id", ondelete="CASCADE"), primary_key=True
-    )
+    search_profile_id: Mapped[str] = mapped_column(ForeignKey("search_profiles.id", ondelete="CASCADE"), primary_key=True)
     revision: Mapped[int] = mapped_column(Integer, primary_key=True)
     payload_json: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
