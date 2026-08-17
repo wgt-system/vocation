@@ -15,15 +15,15 @@ The first usable Research Bundle workflow is implemented:
 
 The v0.2.0 personal triage baseline additionally includes immutable personal assessment revisions, tracking status, exclusion/restore decisions, decision history, and desktop triage controls. Vocation v0.3.0 is the controlled research-update release: Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots and opaque Correlation References, deterministic Posting identity, unresolved Duplicate Cases without automatic merge, read-only planning and atomic Update apply, PromptRun/ResearchImport traceability, and the complete desktop Research Prompt preview/copy/save/import workflow. Initial Research Bundle 1.0 compatibility is retained.
 
-Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains independently runnable without Wiiii Got This, Illumination, or a future map service. Wiiii Got This is the primary cross-device presentation for suitable published Vocation capabilities on Windows and iPhone; Vocation remains the local authority.
+Vocation does not call a paid LLM API, submit applications, or open external links automatically. It remains an independently owned, locally authoritative bounded context and does not depend on Wiiii Got This or Illumination for its business semantics or persistence. Generic geospatial capability is delegated to Orientation: Vocation owns Work Location, Precision, Map Projection and all job-market actions; Orientation owns generic geocoding and map rendering. The browser map surface is bundled as a pinned Orientation Embed Host artifact. Explicit geocoding uses the configured Orientation backend and fails visibly when that optional capability is unavailable; manual location resolution and existing local Vocation data remain Vocation-owned.
 
-The post-v0.3 Availability/Freshness slice is implemented on `dev`: controlled Availability Check prompting and import, append-only evidence-derived Posting/Opportunity Availability and availability-evidence Freshness, list filters/badges, and detail/history views. Groups/Waves and the Map slice are also implemented on `dev`: persistent typed groups, ordered memberships, MapLocationResolution, internal MapProjection, filtering, and the React workflows. These remain outside the released v0.3.0 baseline.
+The post-v0.3 Availability/Freshness slice is implemented on `dev`: controlled Availability Check prompting and import, append-only evidence-derived Posting/Opportunity Availability and availability-evidence Freshness, list filters/badges, and detail/history views. Groups/Waves and the Map slice are also implemented on `dev`: persistent typed groups, ordered memberships, Vocation-owned MapLocationResolution and internal MapProjection, filtering, explicit Orientation-backed geocoding, and the Orientation Embed Host map workflow. These remain outside the released v0.3.0 baseline.
 
 Published Opportunity Overview 1.0 is implemented on `dev`. Its canonical contract remains `schemas/published-opportunity-overview-v1.schema.json`; the local read-only endpoint is `/published/v1/opportunity-overview` and remains outside the internal React OpenAPI. No relay, WGT client, authentication, remote persistence, or cross-device writes are implemented.
 
 ## Technology stack
 
-Python 3.13, FastAPI, Pydantic, SQLAlchemy, Alembic, SQLite, JSON Schema, pytest, Ruff, and mypy; React, TypeScript, Vite, Vitest, Testing Library, Biome, and pnpm. API types are generated from the FastAPI OpenAPI contract.
+Python 3.13, FastAPI, Pydantic, SQLAlchemy, Alembic, SQLite, JSON Schema, pytest, Ruff, and mypy; React, TypeScript, Vite, Vitest, Testing Library, Biome, and pnpm. API types are generated from the FastAPI OpenAPI contract. Generic geospatial rendering/geocoding is consumed through explicit Orientation boundaries rather than duplicated in the Vocation stack.
 
 ## Local development
 
@@ -48,11 +48,17 @@ pnpm --dir frontend build
 .\.venv\Scripts\python -m vocation
 ```
 
+The Orientation Embed Host used by the map is retained under `frontend/public/orientation-map/` together with `ORIENTATION_SOURCE_SHA.txt`, which records the exact Orientation source revision used for that artifact. The host bridge remains the versioned `orientation.host-bridge` 1.0 boundary.
+
+Explicit geocoding calls an Orientation backend. The default local base URL is `http://127.0.0.1:8080`; it can be overridden with `VOCATION_ORIENTATION_BASE_URL`. Vocation does not call Photon or another geocoding provider directly. Starting or deploying Orientation is a separate runtime/topology concern and does not transfer Vocation domain ownership.
+
 The application uses local SQLite data. Local databases, imported job data, generated personal prompts, logs, credentials, and other private data must remain untracked.
 
 ## Boundaries and limitations
 
-Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Fuzzy identity resolution, crawling, authentication, and cloud hosting remain outside v0.3. Availability/Freshness, Groups/Waves, Map, and Comparison are post-v0.3 development implemented on `dev`; Published Opportunity Overview 1.0 remains unchanged and contains none of these capabilities. Published Opportunity Overview 1.0 is implemented locally, without relay, WGT client, authentication, remote persistence, or cross-device writes.
+Research is external and import is initially a desktop capability. Cross-device use is read-only publication consumed by Wiiii Got This and is optional; local-only operation remains supported. Fuzzy identity resolution, crawling, authentication, and cloud hosting remain outside v0.3. Availability/Freshness, Groups/Waves, Map, Comparison, private Application Documents and document access are post-v0.3 development implemented on `dev`; Published Opportunity Overview 1.0 remains unchanged and contains none of these capabilities.
+
+Orientation integration does not transfer job-market semantics. Vocation remains authoritative for Work Locations, Precision, Opportunities, Companies, Postings, External Links, Availability, Groups/Waves, Application Cases and private documents. Orientation is authoritative only for the generic geospatial capability accepted by the system architecture control plane.
 
 ## Repository structure
 
