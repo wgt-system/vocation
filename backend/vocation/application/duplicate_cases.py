@@ -4,7 +4,20 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 from vocation.application.ports import DuplicateCaseRepository
-from vocation.domain.research_bundle import DuplicateCase, canonical_subject_pair
+from vocation.domain.research_bundle import (
+    DUPLICATE_DECISION_OUTCOMES,
+    DuplicateCase,
+    DuplicateDecision,
+    canonical_subject_pair,
+)
+
+
+class DuplicateCaseNotFoundError(LookupError):
+    pass
+
+
+class DuplicateDecisionConflictError(ValueError):
+    pass
 
 
 class DuplicateCaseService:
@@ -51,3 +64,25 @@ class DuplicateCaseService:
 
     def list(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCase]:
         return self.repository.list(subject_type=subject_type, subject_id=subject_id)
+
+    def decide(self, case_id: str, *, outcome: str, reason: str) -> DuplicateCase:
+        case = self.repository.get(case_id)
+        if case is None:
+            raise DuplicateCaseNotFoundError("Duplicate Case not found.")
+        if outcome not in DUPLICATE_DECISION_OUTCOMES:
+            raise ValueError("Duplicate Decision outcome is invalid.")
+        normalized_reason = reason.strip()
+        if not normalized_reason:
+            raise ValueError("Duplicate Decision reason must be nonblank.")
+        current = case.current_decision
+        if current is not None and current.outcome == outcome:
+            raise DuplicateDecisionConflictError("Duplicate Case already has this current decision outcome.")
+        decision = DuplicateDecision(
+            id=str(uuid4()),
+            duplicate_case_id=case.id,
+            sequence=len(case.decisions) + 1,
+            outcome=outcome,
+            reason=normalized_reason,
+            decided_at=datetime.now(UTC),
+        )
+        return self.repository.append_decision(decision)
