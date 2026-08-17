@@ -95,7 +95,10 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     criteria_repository = SqlAlchemyCriteriaRepository(database.session_factory)
     app.state.criteria_service = CriteriaService(criteria_repository)
     profile_repository = SqlAlchemyProfileRepository(database.session_factory)
-    app.state.profile_service = ProfileService(profile_repository)
+    app.state.profile_service = ProfileService(
+        profile_repository,
+        criteria=app.state.criteria_service,
+    )
     app.state.opportunity_fit_service = OpportunityFitService(
         SqlAlchemyFitRepository(database.session_factory),
         profile_repository,
