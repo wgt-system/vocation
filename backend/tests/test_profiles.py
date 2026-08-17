@@ -110,6 +110,55 @@ def test_search_profile_validation_rejects_ambiguous_technology_tiers(client) ->
     assert "only one preference tier" in response.json()["detail"]
 
 
+def test_search_profile_rejects_required_numeric_policy_without_deterministic_threshold(client) -> None:
+    payload = search_payload()
+    payload["criterion_policies"] = [
+        {
+            "criterion_id": "junior_suitability",
+            "weight": 2,
+            "required": True,
+        }
+    ]
+
+    response = client.post("/api/profiles/search", json=payload)
+
+    assert response.status_code == 422
+    assert "needs a deterministic minimum value or score" in response.json()["detail"]
+
+
+def test_search_profile_rejects_numeric_threshold_outside_criterion_range(client) -> None:
+    payload = search_payload()
+    payload["criterion_policies"] = [
+        {
+            "criterion_id": "junior_suitability",
+            "weight": 2,
+            "required": True,
+            "minimum_numeric_value": 99,
+        }
+    ]
+
+    response = client.post("/api/profiles/search", json=payload)
+
+    assert response.status_code == 422
+    assert "must stay within the criterion range" in response.json()["detail"]
+
+
+def test_search_profile_rejects_incomplete_categorical_scoring_policy(client) -> None:
+    payload = search_payload()
+    payload["criterion_policies"] = [
+        {
+            "criterion_id": "work_model_fit",
+            "weight": 2,
+            "category_scores": [{"value": "good", "score": 100}],
+        }
+    ]
+
+    response = client.post("/api/profiles/search", json=payload)
+
+    assert response.status_code == 422
+    assert "needs an explicit score for every allowed value" in response.json()["detail"]
+
+
 def test_search_profile_name_conflict_and_delete_are_explicit(client) -> None:
     first = client.post("/api/profiles/search", json=search_payload())
     assert first.status_code == 201
