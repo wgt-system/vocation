@@ -232,10 +232,7 @@ export const api = {
     request<DuplicateCaseReview>(
       `/api/duplicate-cases/${encodeURIComponent(caseId)}`,
     ),
-  decideDuplicateCase: (
-    caseId: string,
-    payload: DuplicateDecisionPayload,
-  ) =>
+  decideDuplicateCase: (caseId: string, payload: DuplicateDecisionPayload) =>
     request<DuplicateCaseReview>(
       `/api/duplicate-cases/${encodeURIComponent(caseId)}/decisions`,
       { method: "POST", body: JSON.stringify(payload) },
