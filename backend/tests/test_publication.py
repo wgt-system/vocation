@@ -134,7 +134,7 @@ def test_published_endpoint_validates_and_isolated_from_internal_state(client) -
                 yield from keys(child)
 
     assert not forbidden.intersection(keys(artifact))
-    assert vocation.__version__ == "0.3.0"
+    assert vocation.__version__ == "0.4.0"
     assert client.app.version == vocation.__version__
 
 
