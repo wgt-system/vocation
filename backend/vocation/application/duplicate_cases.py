@@ -73,7 +73,7 @@ class DuplicateCaseService:
     def reviews(self, *, subject_type: str | None = None, subject_id: str | None = None) -> list[DuplicateCaseReview]:
         return [self._review(case) for case in self.repository.list(subject_type=subject_type, subject_id=subject_id)]
 
-    def decide(self, case_id: str, *, outcome: str, reason: str) -> DuplicateCaseReview:
+    def decide(self, case_id: str, *, outcome: str, reason: str) -> DuplicateCase:
         case = self.repository.get(case_id)
         if case is None:
             raise DuplicateCaseNotFoundError("Duplicate Case not found.")
@@ -93,7 +93,7 @@ class DuplicateCaseService:
             reason=normalized_reason,
             decided_at=datetime.now(UTC),
         )
-        return self._review(self.repository.append_decision(decision))
+        return self.repository.append_decision(decision)
 
     def _review(self, case: DuplicateCase) -> DuplicateCaseReview:
         return DuplicateCaseReview(
