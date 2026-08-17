@@ -106,8 +106,9 @@ export function ResearchPromptView({
 
   const selectedSearchProfile = useMemo(
     () =>
-      searchProfiles.find((profile) => profile.id === selectedSearchProfileId) ??
-      null,
+      searchProfiles.find(
+        (profile) => profile.id === selectedSearchProfileId,
+      ) ?? null,
     [searchProfiles, selectedSearchProfileId],
   );
 
@@ -144,7 +145,8 @@ export function ResearchPromptView({
         setCandidateProfile(candidate);
         setIncludeCandidateProfile(candidate !== null);
         setSelectedSearchProfileId((current) => {
-          if (profiles.some((profile) => profile.id === current)) return current;
+          if (profiles.some((profile) => profile.id === current))
+            return current;
           return (
             profiles.find((profile) => profile.is_default)?.id ??
             profiles[0]?.id ??
@@ -528,7 +530,8 @@ export function ResearchPromptView({
               </label>
               {candidateProfile ? (
                 <p className="muted">
-                  Revision {candidateProfile.revision} · {candidateProfile.headline}
+                  Revision {candidateProfile.revision} ·{" "}
+                  {candidateProfile.headline}
                 </p>
               ) : (
                 <p className="muted">
