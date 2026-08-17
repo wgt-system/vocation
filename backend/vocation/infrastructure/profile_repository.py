@@ -94,9 +94,7 @@ class SqlAlchemyProfileRepository:
 
     def get_candidate_profile(self) -> CandidateProfile | None:
         with self.session_factory() as session:
-            model = session.scalar(
-                select(CandidateProfileRevisionModel).order_by(CandidateProfileRevisionModel.revision.desc()).limit(1)
-            )
+            model = session.scalar(select(CandidateProfileRevisionModel).order_by(CandidateProfileRevisionModel.revision.desc()).limit(1))
             return None if model is None else _candidate_from_payload(json.loads(model.payload_json))
 
     def save_candidate_profile(self, profile: CandidateProfile) -> CandidateProfile:
