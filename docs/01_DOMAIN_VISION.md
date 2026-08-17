@@ -77,7 +77,10 @@ Sie umfasst insbesondere:
 - Tabellen-, Detail-, Vergleichs- und Kartenansichten
 - Filter, Sortierung und Suche
 - Öffnen externer Originalanzeigen
+- ApplicationCase- und private ApplicationDocument-Verwaltung
 - client-neutrale Published Vocation Capabilities für Wiiii Got This auf Windows und iPhone
+
+Die räumliche Fachsicht bleibt Vocation-owned: Work Location, Precision, MapLocationResolution, Map Projection und job-spezifische Informationen/Aktionen gehören zu Vocation. Generisches Geocoding und Map Rendering werden über die systemweit akzeptierte Orientation-Capability konsumiert und sind keine Vocation-Domainsemantik.
 
 ## 7. Nutzungsaublauf
 
@@ -102,6 +105,7 @@ Desktop:
 - komplexe Filter und Vergleiche
 - Kartenansicht
 - Originalanzeigen öffnen
+- ApplicationCase-/Dokument-Pflege
 - fachliche Pflege
 
 Cross-device Nutzung über Wiiii Got This:
@@ -128,7 +132,8 @@ Vocation ist nicht verantwortlich für:
 - vollständiges Crawling aller Stellenportale,
 - eigene LLM-Recherche,
 - kostenpflichtige LLM-API-Aufrufe,
-- Verwaltung anderer Services.
+- Verwaltung anderer Services,
+- generische Map-/Geocoding-/Routing-Semantik.
 
 ## 10. Beziehungen
 
@@ -141,6 +146,12 @@ Erzeugt Research Bundles. Vocation übersetzt diese über eine Anticorruption La
 Ist die primäre cross-device Präsentation geeigneter Vocation Capabilities auf Windows und iPhone. Es liest nie die Vocation-Datenbank und besitzt keine Vocation-Fachlogik.
 
 Vocation veröffentlicht versionierte, client-neutrale Read Projections über einen Vocation-eigenen Publication Adapter. Eine optionale Conveyance-Zustellung transportiert nur opaque geschützte, abgeleitete Artefakte; Conveyance versteht keine Vocation-Domainobjekte.
+
+### Orientation
+
+Ist der systemweit akzeptierte generische Geospatial-Bounded-Context. Vocation konsumiert Orientation für generisches Place Search/Geocoding und Map Rendering über explizite Adapter-/Host-Grenzen. Vocation bleibt autoritativ für Work Location, Precision, MapLocationResolution, Opportunity, Company, Availability, External Links und alle daraus abgeleiteten fachlichen Aktionen.
+
+Orientation liest keine Vocation-Datenbank und wird nicht zur Autorität für Job-Market-Daten. Routing oder weitere Orientation-Capabilities werden nur bei einem konkreten Vocation-Nutzerfall eingeführt, nicht allein weil die Capability existiert.
 
 ### Illumination
 
@@ -156,7 +167,8 @@ Eigenständiger Kontext für Lernen. Eine spätere Referenzierung von Lernbedarf
 - Externe Links werden nur nach Nutzeraktion geöffnet.
 - Prompt-Ausgaben und Importverträge sind versioniert.
 - Persönliche Relevanz ist wichtiger als allgemeine Markt-Vollständigkeit.
-- Vocation bleibt eigenständig.
+- Vocation bleibt eigenständig und lokal autoritativ.
+- Akzeptierte generische System-Capabilities werden nicht unnötig dupliziert.
 - Automatisierung muss mehr Zeit sparen als sie kostet.
 
 ## 12. Erfolgskriterien
@@ -169,18 +181,20 @@ Vocation ist erfolgreich, wenn:
 - Herkunft und Aktualität nachvollziehbar bleiben,
 - Dubletten und historische Änderungen kontrolliert behandelt werden,
 - Stellen auf korrekten oder gekennzeichnet approximierten Positionen erscheinen,
-- ein Karten-Pin direkt zur Vocation-Detailansicht und von dort zur Originalanzeige führen kann,
+- ein Karten-Feature direkt zur Vocation-Detailansicht und von dort zur Originalanzeige führen kann,
 - der Nutzer den Bestand ohne Chat-Rekonstruktion versteht,
 - neue Importe den Bestand kontrolliert ergänzen.
 
 ## 13. Offene Fachfragen
 
-- genaue Identitätsregeln für Opportunities und Postings,
-- automatische versus manuelle Zusammenführung,
-- Umfang persönlicher Änderungen,
-- konkrete Ausgestaltung der späteren ApplicationCase- und ApplicationMaterial-Implementierung,
-- Zeitpunkt für einen zentralen Kartendienst.
+- weitere Präzisierung der Identitätsregeln für schwierige Opportunity-/Posting-Fälle,
+- zukünftige manuelle Auflösung bestätigter Duplicate Cases und mögliche Merge-Regeln,
+- Umfang weiterer persönlicher Änderungen/Notizen,
+- private ApplicationDocument-Folgesemantik wie Retention/Delete, Edit/Generation, Preview/Export und Verschlüsselung,
+- konkrete Veröffentlichungstransport-/Authentisierungsausgestaltung,
+- spätere Cross-device Write-Semantik,
+- ein reichhaltiger Nachfolger von Published Map Projection 1.0 nur bei einem konkreten Consumer-Szenario.
 
-Offen bleiben die konkrete Veröffentlichungstransport-/Authentisierungsausgestaltung und spätere Cross-device Write-Semantik. Die finalen Felder der Opportunity Overview 1.0 sind im eingefrorenen Schema `schemas/published-opportunity-overview-v1.schema.json` festgelegt. Vocation besitzt jedoch die ApplicationCase-Fachsemantik; Implementierungsdetails für private ApplicationMaterial bleiben offen.
+Die finalen Felder von Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben in ihren eingefrorenen Vocation-Schemas festgelegt und werden nicht still erweitert.
 
-Private ApplicationDocument-Inhalte gehören semantisch zu Vocation und sind an immutable ApplicationMaterial-Revisions gebunden. Ihre physische Speicherung, Darstellung und Übertragung bleiben getrennte Infrastruktur-/Folgeslices.
+Vocation besitzt ApplicationCase-, ApplicationMaterial- und private ApplicationDocument-Semantik. Document-Metadaten, lokale Payload-Speicherung, Integritätsprüfung, Upload und expliziter read-only Zugriff sind implementiert. Weiterhin offen sind nur bewusst nicht entschiedene Folgesemantiken wie Delete/Retention, Editing/Generation, Preview/Export, Encryption sowie private Cross-device-Übertragung.

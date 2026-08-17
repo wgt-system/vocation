@@ -44,7 +44,7 @@ Enthält:
 
 ## 3A. ApplicationCaseView (implemented, Vocation-internal/private)
 
-Die View zeigt ApplicationCase-Lifecycle, append-only Lifecycle Events, aktive und terminale historische Cases sowie aktuelle ApplicationMaterial-Metadaten. Die aktuelle Material-Revision wird aus der unveränderlichen Revision-Historie rekonstruiert. Es gibt noch keinen Endpoint für die vollständige Material-Revision-Historie und keine Dokumentinhalte oder Storage-Metadaten in der View. ApplicationCase und ApplicationMaterial bleiben vollständig Vocation-intern/private und erscheinen in keinem Published Contract.
+Die View zeigt ApplicationCase-Lifecycle, append-only Lifecycle Events, aktive und terminale historische Cases sowie aktuelle ApplicationMaterial-Metadaten. Die aktuelle Material-Revision wird aus der unveränderlichen Revision-Historie rekonstruiert. Es gibt noch keinen Endpoint für die vollständige Material-Revision-Historie und keine Dokument-Payloads oder Storage-Referenzen im normalen Opportunity Read Model. ApplicationCase und ApplicationMaterial bleiben vollständig Vocation-intern/private und erscheinen in keinem Published Contract.
 
 Eine ApplicationMaterial-Revision kann semantisch null oder ein privates ApplicationDocument referenzieren. Normale Opportunity Read Models zeigen weder Payload noch Document Storage Metadata. Die implementierte Opportunity-Detail-Ansicht zeigt den revisionsgebundenen Dokumentstatus und die privaten Metadaten; Preview, Export/Download und vollständige Revision-History sind nicht implementiert; der private Slice-17-Zugriff `OpenApplicationDocument` ist implementiert und separat beschrieben.
 
@@ -127,22 +127,25 @@ Comparison ist implementiert, besitzt keine Persistenz, keine URLs/Browseraktion
 }
 ```
 
-Die interne Projection enthält pro aufgelöster WorkLocation mindestens `feature_id`, `work_location_id`, `opportunity_id`, `company_id`, Titel, Company Name, Location Label, Coordinates, WorkLocation Precision, Tracking Status, Availability und kompakte Group/Wave-Memberships. Nicht aufgelöste WorkLocations (`unmapped`) erzeugen kein Feature. Die Projection wird aus einer expliziten Opportunity-ID-Menge erzeugt, damit Karte und Liste filterkonsistent bleiben. `/api/map`, Leaflet/React Leaflet, Marker-Popups und die gemeinsamen List/Map-Filter sind implementiert. Clustering ist Renderer-Logik; OpenStreetMap-Tile-Attribution wird angezeigt.
+Die interne Projection enthält pro aufgelöster WorkLocation mindestens `feature_id`, `work_location_id`, `opportunity_id`, `company_id`, Titel, Company Name, Location Label, Coordinates, WorkLocation Precision, Tracking Status, Availability und kompakte Group/Wave-Memberships. Nicht aufgelöste WorkLocations (`unmapped`) erzeugen kein Feature. Die Projection wird aus einer expliziten Opportunity-ID-Menge erzeugt, damit Karte und Liste filterkonsistent bleiben.
+
+`/api/map` und die gemeinsamen List/Map-Filter bleiben Vocation-owned. Die lokale React-Karte rendert die Projection nicht selbst mit Leaflet. `OrientationMapFrame` adaptiert die Vocation-owned Features, Information Rows und Action References in eine Orientation Spatial Scene und übergibt sie über `orientation.host-bridge` 1.0 an den gepinnten Orientation Embed Host. Generisches Rendering, Clustering und Hit Testing liegen damit bei Orientation; die fachliche Bedeutung der Features bleibt bei Vocation.
 
 Regeln:
 
 - nur explizit kartierbare Locations,
 - approximierte Features klar kennzeichnen,
-- mehrere Opportunities an einem Standort dürfen geclustert werden,
-- Browserlinks bleiben Source References,
-- Pin-Klick öffnet keine externe URL automatisch.
-- Pin-Klick öffnet in Slice 11 nur Vocation Preview/Detail; Browser-Navigation gehört zu Slice 12.
+- mehrere Opportunities an einem Standort dürfen generisch geclustert werden,
+- Browserlinks bleiben Source References und werden nicht Teil der MapProjection,
+- Auswahl eines Spatial Features öffnet keine externe URL automatisch,
+- Vocation interpretiert zurückgemeldete Action References und entscheidet über Detailnavigation oder explizite External-Link-Aktionen,
+- Orientation verändert weder Work Location/Precision noch Opportunity-/Availability-/Tracking-Zustand.
 
-Die MapProjection bleibt damit URL-frei. Slice 12 leitet ExternalLink-Kandidaten separat aus einer Opportunity ID ab; sie sind kein Projection-Feld.
+Die MapProjection bleibt damit URL-frei. Slice 12 leitet ExternalLink-Kandidaten separat aus einer Opportunity ID ab; sie sind kein Projection-Feld. Die lokale Orientation-Komposition ändert auch den separaten Published Map Projection 1.0 Contract nicht.
 
 ## 8. ExternalLinkView (implemented)
 
-ExternalLink-Kandidaten werden aus bestehenden Posting-, Source- und SourceReference-Daten gelesen und enthalten Source, URL, Display Label, Posting Availability, Observed At und den Preferred-Marker. `/api/external-links` liefert die Read-/Open-Funktionen; es gibt keine ExternalLink-Tabelle. Opportunity Detail zeigt die Kandidaten und lokale No-Link/Browser-Fehlerzustände. Map-Popups laden diese Kandidaten separat und dedupliziert pro Opportunity; die MapProjection bleibt URL-frei.
+ExternalLink-Kandidaten werden aus bestehenden Posting-, Source- und SourceReference-Daten gelesen und enthalten Source, URL, Display Label, Posting Availability, Observed At und den Preferred-Marker. `/api/external-links` liefert die Read-/Open-Funktionen; es gibt keine ExternalLink-Tabelle. Opportunity Detail zeigt die Kandidaten und lokale No-Link/Browser-Fehlerzustände. Für die Kartenansicht lädt Vocation diese Kandidaten separat und dedupliziert pro Opportunity; daraus abgeleitete Action References können in die Orientation Spatial Scene eingehen, die URLs selbst bleiben außerhalb der MapProjection. Eine aktivierte Action wird von Vocation fachlich interpretiert und über die bestehende External Navigation ausgeführt.
 
 ## 8. ImportReportView
 
@@ -178,6 +181,8 @@ Der finale Contract 1.0 ist jetzt eingefroren: `capability`, `contract_version`,
 ## 11. Published Map Projection 1.0 (implemented)
 
 Client-neutral, transport-independent Published Vocation Capability for map-capable consumers. The canonical contract is `schemas/published-map-projection-v1.schema.json`, exposed at `GET /published/v1/map-projection` outside the internal React OpenAPI. A dedicated read-only publication repository/service reads only existing explicit MapLocationResolutions and emits URL-free features with opaque feature/opportunity/company refs, title, company, WorkLocation label/precision, and latitude/longitude. Empty features are valid and multiple mapped WorkLocations may produce multiple features for one Opportunity. Publication never geocodes, mutates, or resolves anything. Features are ordered deterministically by company name, opportunity title, WorkLocation label case-insensitively, then `feature_ref`. No personal, research, posting, source, availability, freshness, group, URL, provider, or internal-ID fields are included. Published Opportunity Overview 1.0 remains unchanged.
+
+The local Vocation→Orientation map composition is a separate presentation/integration path and does not mutate this frozen Published Contract. Any richer cross-context successor requires a new version and a concrete consumer scenario.
 
 ## 12. Availability/Freshness Integration (implemented on `dev`)
 
