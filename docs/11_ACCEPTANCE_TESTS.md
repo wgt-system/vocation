@@ -85,12 +85,12 @@ Und er kann nicht geöffnet werden.
 ## AT-14 Karte zeigt Precision
 
 Wenn eine Location nur `approximate` ist  
-Dann ist dies in der Karte erkennbar.
+Dann ist dies in der Kartenansicht erkennbar; Vocation liefert die Precision als fachliche Information an die generische Orientation-Darstellung.
 
-## AT-15 Pin öffnet Detail
+## AT-15 Spatial Feature öffnet Detail
 
-Wenn der Nutzer einen Pin anklickt  
-Dann wird eine Vocation-Vorschau oder Detailansicht geöffnet  
+Wenn der Nutzer ein räumliches Feature auswählt und die von Vocation bereitgestellte Detail-Aktion aktiviert  
+Dann wird die Vocation-Vorschau oder Detailansicht geöffnet  
 Und noch keine externe URL.
 
 ## AT-16 Originalanzeige öffnen
@@ -393,7 +393,7 @@ Die implementierte interne MapProjection erzeugt ein Feature pro aufgelöster Wo
 
 ## AT-84 Desktop Map Boundary
 
-Die implementierte Leaflet/React Leaflet-Karte zeigt OpenStreetMap-Tile-Attribution; Marker-Popups navigieren zu Vocation Details. Es gibt keine automatische oder periodische Geocodierung, keine externe URL-Navigation und keine Mutation von Opportunity-, Personal-, Research- oder Availability-Zustand. Published Opportunity Overview 1.0 bleibt unverändert.
+Die implementierte Kartenansicht nutzt `OrientationMapFrame` und den gepinnten Orientation Embed Host über `orientation.host-bridge` 1.0 statt eines Vocation-eigenen Leaflet-Renderers. Vocation liefert die fachliche MapProjection, Information Rows und opaque Action References; Orientation besitzt generisches Rendering, Clustering und Hit Testing. Aktivierte Actions werden an Vocation zurückgegeben und dort fachlich interpretiert. Es gibt keine automatische oder periodische Geocodierung, keine automatische externe URL-Navigation und keine Mutation von Opportunity-, Personal-, Research- oder Availability-Zustand. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben unverändert.
 
 ## AT-85 ExternalLinkPolicy
 
@@ -405,15 +405,15 @@ Gültige Links werden deterministisch nach Availability, Source Type, neuestem `
 
 ## AT-87 Explicit Navigation
 
-`OpenPostingInBrowser` öffnet ausschließlich nach expliziter Nutzeraktion über einen austauschbaren Browser Adapter. Laden, Filtern, Detail- oder Map-Marker-Aktionen öffnen keinen Browser; Availability und persönlicher Zustand bleiben unverändert.
+`OpenPostingInBrowser` öffnet ausschließlich nach expliziter Nutzeraktion über einen austauschbaren Browser Adapter. Laden, Filtern, Detail- oder reine Spatial-Feature-Auswahl öffnen keinen Browser; erst eine von Vocation definierte External-Link-Action darf den bestehenden Vocation-Command auslösen. Availability und persönlicher Zustand bleiben unverändert.
 
 ## AT-88 URL-Free MapProjection
 
-Die MapProjection enthält keine URLs oder `posting_links`. Map-Popup-Linkkandidaten werden separat über Opportunity ID ermittelt; Published Opportunity Overview 1.0 bleibt URL-frei.
+Die MapProjection enthält keine URLs oder `posting_links`. Vocation ermittelt ExternalLink-Kandidaten separat über Opportunity ID und kann daraus opaque Action References für die lokale Orientation Spatial Scene ableiten; URLs werden nicht Teil der Projection. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben URL-frei.
 
 ## AT-89 External Navigation Workflow
 
-Die implementierten `/api/external-links`-Read-/Open-Endpunkte, typed Clients und Opportunity-Detail-UI zeigen Source, Availability, Observed At und Preferred-Marker. Default-/Preferred- sowie explizites Posting-Öffnen, No-Link- und lokale Browser-Fehlerzustände sind abgedeckt; Map-Popups laden Kandidaten separat und dedupliziert pro Opportunity.
+Die implementierten `/api/external-links`-Read-/Open-Endpunkte, typed Clients und Opportunity-Detail-UI zeigen Source, Availability, Observed At und Preferred-Marker. Default-/Preferred- sowie explizites Posting-Öffnen, No-Link- und lokale Browser-Fehlerzustände sind abgedeckt. Für die Kartenansicht lädt Vocation Kandidaten separat und dedupliziert pro Opportunity; die Orientation-Darstellung erhält nur Vocation-definierte Informationen/Action References und eine Action-Aktivierung wird anschließend von Vocation ausgeführt.
 
 ## AT-90 Comparison Selection
 
@@ -457,7 +457,7 @@ ApplicationMaterial-Metadaten verwenden die Arten `cv`, `cover_letter` und `othe
 
 ## AT-100 ApplicationCase API and UI
 
-Die internen ApplicationCase-/Material-Endpunkte, der typed Client und das Opportunity-Detail-React-Panel sind implementiert. Unterstützt werden Case-Liste/Detail, Lifecycle, Material-Metadaten und Material-Revisionen; ein vollständiger Material-History-Endpoint sowie Dokumentinhalte/Storage-Metadaten existieren nicht.
+Die internen ApplicationCase-/Material-Endpunkte, der typed Client und das Opportunity-Detail-React-Panel sind implementiert. Unterstützt werden Case-Liste/Detail, Lifecycle, Material-Metadaten und Material-Revisionen. Ein vollständiger Material-History-Endpoint existiert weiterhin nicht. Dokument-Payloads und Storage-Referenzen werden nicht in das normale ApplicationCase Read Model eingebettet; die separaten privaten ApplicationDocument-Endpunkte aus Slice 16/17 existieren daneben ausdrücklich.
 
 ## AT-101 ApplicationDocument Semantics
 
@@ -465,7 +465,7 @@ Die implementierte Material-Revision kann null oder ein immutable ApplicationDoc
 
 ## AT-102 Document Privacy and Integrity Boundary
 
-ApplicationDocument-Payload und identifizierende Metadaten erscheinen nicht in Published Contracts, Research-/Availability-Bundles, Prompt Contexts, Logs, Fixtures oder Publication Endpoints. Die implementierte Store-/Service-Kette schreibt create-only und atomic, liest Payloads zurück und erkennt fehlende oder korrupte Bytes als Integrity Errors; `storage_ref`, Pfade und hashed physical filenames werden nicht geleakt. Storage, Rendering, Encryption und Transport bleiben außerhalb der Slice.
+ApplicationDocument-Payload und identifizierende Metadaten erscheinen nicht in Published Contracts, Research-/Availability-Bundles, Prompt Contexts, Logs, Fixtures oder Publication Endpoints. Die implementierte Store-/Service-Kette schreibt create-only und atomic, liest Payloads zurück und erkennt fehlende oder korrupte Bytes als Integrity Errors; `storage_ref`, Pfade und hashed physical filenames werden nicht geleakt. Rendering, Editing/Generation, Encryption, Retention/Delete und Transport bleiben außerhalb der implementierten Dokument-Baseline bzw. benötigen eigene spätere Semantik.
 
 ## AT-103 Private Document API and React Upload
 
@@ -480,3 +480,11 @@ Ein bereits angehängtes `text/plain` kann explizit gelesen werden; dasselbe gil
 Fehlende Dokument-Metadaten ergeben `document metadata not found`. Fehlende Backing Bytes oder korrupte Bytes ergeben einen expliziten Integrity Error; es wird kein leeres oder synthetisches Dokument zurückgegeben.
 
 Öffnen verändert weder ApplicationCase-Lifecycle noch Opportunity Tracking Status und erzeugt keinen ApplicationMaterial- oder ApplicationDocument-Zustand. Die fokussierte UI-Abdeckung bestätigt das Fehlen von Replace-, Delete-, Download- und Preview-Aktionen sowie das Nicht-Leaken von Storage-Pfad/Reference; neue Backend-Tests wurden für Slice 17 nicht hinzugefügt. `storage_ref`, physische Pfade, hashed physical filenames und Store Root werden nie als Response ausgegeben. Payload und private Metadaten bleiben aus Published Opportunity Overview, Published Map Projection, Research-/Availability-Bundles, Prompt Contexts, öffentlichen Fixtures und Publication Endpoints ausgeschlossen.
+
+## AT-105 Orientation Geospatial Integration Boundary
+
+Eine explizite Vocation-Geocode-Aktion nutzt den Vocation `Geocoder`-Port mit `OrientationGeocoder` und ruft Orientation Place Search über `GET /api/v1/places/search` auf. Vocation ruft weder Nominatim noch Photon direkt auf. Ein fehlgeschlagener oder ungültiger Orientation-Response erzeugt einen sichtbaren Fehler und keine erfundenen Koordinaten oder stille Provider-Umschaltung; WorkLocation Evidence und Precision werden nicht verändert.
+
+Die Vocation-Kartenansicht nutzt den gepinnten Orientation Embed Host über `orientation.host-bridge` 1.0. Vocation erzeugt/adaptiert die fachliche MapProjection, Information Rows und opaque Action References; Orientation rendert generisch und meldet Action-Aktivierungen zurück. Orientation liest keine Vocation-Datenbank und entscheidet nicht über Work Location, Precision, Opportunity, Availability, Preferred Posting oder Browsernavigation.
+
+Die lokale Orientation-Komposition verändert weder Published Opportunity Overview 1.0 noch Published Map Projection 1.0. Weitere Orientation-Capabilities wie Routing werden nicht allein durch ihre Verfügbarkeit Bestandteil von Vocation, sondern benötigen einen konkreten Vocation-Nutzerfall und eine eigene Semantikentscheidung.
