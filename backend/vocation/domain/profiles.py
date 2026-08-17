@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from vocation.domain.criteria import AssessmentCriterion
+
 SkillLevel = Literal["learning", "basic", "working", "strong", "expert"]
 WorkModel = Literal["remote", "hybrid", "on_site"]
 NumericDirection = Literal["higher_is_better", "lower_is_better"]
@@ -171,6 +173,85 @@ def validate_criterion_policy(policy: CriterionPolicy) -> None:
         raise ProfileValidationError("Criterion category score values must be unique.")
     if any(not 0 <= item.score <= 100 for item in policy.category_scores):
         raise ProfileValidationError("Criterion category scores must be between 0 and 100.")
+
+
+def validate_criterion_policy_against_criterion(
+    policy: CriterionPolicy,
+    criterion: AssessmentCriterion,
+) -> None:
+    if policy.criterion_id != criterion.criterion_id:
+        raise ProfileValidationError("Criterion policy does not match its referenced criterion.")
+    if criterion.applicable_subject_type != "opportunity":
+        raise ProfileValidationError(
+            f"Criterion policy '{policy.criterion_id}' must reference an opportunity criterion."
+        )
+
+    if criterion.value_type == "text":
+        if (
+            policy.weight > 0
+            or policy.required
+            or policy.minimum_numeric_value is not None
+            or policy.minimum_score is not None
+            or policy.preferred_boolean is not None
+            or policy.category_scores
+        ):
+            raise ProfileValidationError(
+                f"Text criterion '{policy.criterion_id}' cannot define automatic fit or hard-threshold policy."
+            )
+        return
+
+    if criterion.value_type != "numeric" and policy.minimum_numeric_value is not None:
+        raise ProfileValidationError(
+            f"Only numeric criterion '{policy.criterion_id}' may define a minimum numeric value."
+        )
+    if criterion.value_type != "boolean" and policy.preferred_boolean is not None:
+        raise ProfileValidationError(
+            f"Only boolean criterion '{policy.criterion_id}' may define a preferred boolean value."
+        )
+    if criterion.value_type != "categorical" and policy.category_scores:
+        raise ProfileValidationError(
+            f"Only categorical criterion '{policy.criterion_id}' may define category scores."
+        )
+
+    if criterion.value_type == "numeric":
+        if policy.minimum_numeric_value is not None and not (
+            criterion.numeric_min <= policy.minimum_numeric_value <= criterion.numeric_max
+        ):
+            raise ProfileValidationError(
+                f"Minimum numeric value for criterion '{policy.criterion_id}' must stay within the criterion range."
+            )
+        if policy.required and policy.minimum_numeric_value is None and policy.minimum_score is None:
+            raise ProfileValidationError(
+                f"Required numeric criterion '{policy.criterion_id}' needs a deterministic minimum value or score."
+            )
+        return
+
+    if criterion.value_type == "boolean":
+        if (policy.weight > 0 or policy.minimum_score is not None or policy.required) and policy.preferred_boolean is None:
+            raise ProfileValidationError(
+                f"Boolean criterion '{policy.criterion_id}' needs a preferred value before it can be scored."
+            )
+        if policy.required and policy.minimum_score is None:
+            raise ProfileValidationError(
+                f"Required boolean criterion '{policy.criterion_id}' needs a minimum score."
+            )
+        return
+
+    configured_values = {item.value for item in policy.category_scores}
+    allowed_values = set(criterion.allowed_values)
+    if configured_values - allowed_values:
+        raise ProfileValidationError(
+            f"Categorical criterion '{policy.criterion_id}' contains scores for unsupported values."
+        )
+    if policy.weight > 0 or policy.minimum_score is not None or policy.required:
+        if configured_values != allowed_values:
+            raise ProfileValidationError(
+                f"Categorical criterion '{policy.criterion_id}' needs an explicit score for every allowed value."
+            )
+    if policy.required and policy.minimum_score is None:
+        raise ProfileValidationError(
+            f"Required categorical criterion '{policy.criterion_id}' needs a minimum score."
+        )
 
 
 def validate_search_profile(profile: SearchProfile) -> None:
