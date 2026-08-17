@@ -79,6 +79,11 @@ def seed_market_and_profile(client, *, include_missing: bool = False, constraint
 
 def test_fit_uses_external_assessment_and_keeps_fit_separate_from_completeness(client) -> None:
     opportunity_id, profile_id = seed_market_and_profile(client, include_missing=True)
+    candidate = client.put(
+        "/api/profiles/candidate",
+        json={"headline": "Softwareentwickler", "summary": "Privates Kandidatenprofil"},
+    )
+    assert candidate.status_code == 200
 
     response = client.get("/api/opportunity-fit")
     assert response.status_code == 200
@@ -86,6 +91,7 @@ def test_fit_uses_external_assessment_and_keeps_fit_separate_from_completeness(c
     assert fit["opportunity_id"] == opportunity_id
     assert fit["search_profile_id"] == profile_id
     assert fit["search_profile_revision"] == 1
+    assert fit["candidate_profile_revision"] is None
     assert fit["hard_constraint_status"] == "pass"
     assert fit["weighted_fit_score"] == 100
     assert fit["evidence_completeness"] == 40
@@ -183,3 +189,57 @@ def test_categorical_policy_is_explicit_and_not_inferred_from_allowed_value_orde
     assert fit.weighted_fit_score == 65
     assert fit.evidence_completeness == 100
     assert fit.contributions[0].score == 65
+
+
+def test_zero_weight_policy_is_disabled_for_fit_and_completeness() -> None:
+    enabled = AssessmentCriterion(
+        criterion_id="enabled",
+        display_name="Enabled",
+        description="Enabled",
+        value_type="numeric",
+        applicable_subject_type="opportunity",
+        active=True,
+        display_order=1,
+        numeric_min=0,
+        numeric_max=10,
+    )
+    disabled = AssessmentCriterion(
+        criterion_id="disabled",
+        display_name="Disabled",
+        description="Disabled",
+        value_type="numeric",
+        applicable_subject_type="opportunity",
+        active=True,
+        display_order=2,
+        numeric_min=0,
+        numeric_max=10,
+    )
+    profile = SearchProfile(
+        id="search",
+        revision=1,
+        name="Search",
+        description="Search",
+        target_roles=("Developer",),
+        criterion_policies=(
+            CriterionPolicy(criterion_id="enabled", weight=2),
+            CriterionPolicy(criterion_id="disabled", weight=0),
+        ),
+    )
+
+    fit = evaluate_opportunity_fit(
+        opportunity_id="opportunity",
+        search_profile=profile,
+        candidate_profile_revision=None,
+        criteria={enabled.criterion_id: enabled, disabled.criterion_id: disabled},
+        assessments={
+            enabled.criterion_id: AssessmentEvidence(
+                criterion_id=enabled.criterion_id,
+                value=8,
+                origin="external_research",
+            )
+        },
+    )
+
+    assert fit.weighted_fit_score == 80
+    assert fit.evidence_completeness == 100
+    assert fit.contributions[1].status == "missing"
