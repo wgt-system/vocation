@@ -50,7 +50,9 @@ function fit(
       },
     ],
     hard_failures:
-      hardStatus === "fail" ? ["Technologie-Passung: harte Schwelle verfehlt"] : [],
+      hardStatus === "fail"
+        ? ["Technologie-Passung: harte Schwelle verfehlt"]
+        : [],
     hard_unknowns: [],
     missing_evidence: [],
   };
@@ -103,7 +105,9 @@ describe("explainable opportunity fit UI", () => {
     expect(await screen.findByText("Fit 40%")).toBeInTheDocument();
     expect(screen.getByText("Fit 90%")).toBeInTheDocument();
     expect(screen.getAllByText("Evidenz 75%")).toHaveLength(2);
-    expect(screen.getByText("Harte Kriterien nicht erfüllt")).toBeInTheDocument();
+    expect(
+      screen.getByText("Harte Kriterien nicht erfüllt"),
+    ).toBeInTheDocument();
 
     await user.selectOptions(
       screen.getByLabelText("Opportunities sortieren"),
@@ -113,7 +117,9 @@ describe("explainable opportunity fit UI", () => {
     expect(cards[0]).toHaveTextContent("Role High");
     expect(cards[1]).toHaveTextContent("Role Low");
 
-    await user.click(screen.getAllByRole("button", { name: "Fit erklären" })[0]);
+    await user.click(
+      screen.getAllByRole("button", { name: "Fit erklären" })[0],
+    );
     expect(
       screen.getByText("Technologie-Passung erklärt 90 Prozent."),
     ).toBeInTheDocument();
@@ -130,6 +136,8 @@ describe("explainable opportunity fit UI", () => {
     expect(
       screen.getByText("Technologie-Passung erklärt 90 Prozent."),
     ).toBeInTheDocument();
-    expect(screen.getByText("Provenienz: external_research")).toBeInTheDocument();
+    expect(
+      screen.getByText("Provenienz: external_research"),
+    ).toBeInTheDocument();
   });
 });
