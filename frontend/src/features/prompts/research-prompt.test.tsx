@@ -211,11 +211,21 @@ describe("Research Prompt workflow", () => {
 
     const selector = await screen.findByLabelText("Search Profile");
     expect(selector).toHaveValue("search-1");
-    expect(screen.getByText("Wenige gut belegte Junior-Stellen.")).toBeInTheDocument();
-    expect(screen.getByText(/Revision 2 · bis zu 6 Ergebnisse/)).toBeInTheDocument();
-    expect(screen.getByLabelText("Candidate Profile einbeziehen")).toBeChecked();
-    expect(screen.getByText(/Revision 3 · Junior Softwareentwickler/)).toBeInTheDocument();
-    expect(screen.queryByText("Constraints, eine pro Zeile")).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Wenige gut belegte Junior-Stellen."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Revision 2 · bis zu 6 Ergebnisse/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Candidate Profile einbeziehen"),
+    ).toBeChecked();
+    expect(
+      screen.getByText(/Revision 3 · Junior Softwareentwickler/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Constraints, eine pro Zeile"),
+    ).not.toBeInTheDocument();
 
     await user.click(
       screen.getByRole("button", { name: "Profilbasierten Prompt erzeugen" }),
@@ -237,7 +247,10 @@ describe("Research Prompt workflow", () => {
     render(<PromptView />);
 
     await screen.findByLabelText("Search Profile");
-    await user.selectOptions(screen.getByLabelText("Search Profile"), "search-2");
+    await user.selectOptions(
+      screen.getByLabelText("Search Profile"),
+      "search-2",
+    );
     await user.click(screen.getByLabelText("Candidate Profile einbeziehen"));
     await user.click(
       screen.getByRole("button", { name: "Profilbasierten Prompt erzeugen" }),
