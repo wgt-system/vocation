@@ -1,51 +1,68 @@
-# Vocation – Review Checklist
+# Vocation – v0.4.0 Release Review
 
-## Produkt
+**Status:** complete standalone baseline
 
-- Trifft die Domain Vision den tatsächlichen Zweck?
-- Fehlt ein zentraler Use Case?
-- Ist etwas enthalten, das Vocation ausdrücklich nicht leisten soll?
+This checklist records the release closure of the current Vocation product scope. It is no longer a pre-implementation questionnaire.
 
-## Fachsprache
+## Product
 
-- Sind Opportunity, Posting, Observation und Source verständlich getrennt?
-- Sind deutsche UI-Begriffe später eindeutig ableitbar?
-- Gibt es Begriffe, die künstlich oder unnötig wirken?
+- [x] Domain Vision matches the implemented purpose: externally researched job information is converted into a traceable personal job-market working set.
+- [x] Core workflows are present: initial/update research, validation/import, triage, availability, grouping, comparison, map, external links, applications, private documents and duplicate review.
+- [x] Deliberate non-goals remain outside the product instead of being partially implemented.
+- [x] Vocation remains usable as a local-only application; optional WGT/Orientation integration does not take over domain authority.
 
-## Entscheidungen
+## Domain language and decisions
 
-- Sind persönliche Decisions ausreichend geschützt?
-- Sind Ausschluss, Archivierung und Verfügbarkeit klar getrennt?
-- Ist der Bewerbungsprozess richtig abgegrenzt?
+- [x] Opportunity, Posting, Observation, Source and Source Reference are explicitly separated.
+- [x] Personal Assessments and Decisions are separated from imported/external evidence.
+- [x] Tracking Status, Exclusion, Availability and ApplicationCase Lifecycle have distinct semantics.
+- [x] Duplicate Decisions are append-only and do not imply an automatic identity merge.
+- [x] ApplicationDocument content remains private and revision-bound.
 
-## Rechercheworkflow
+## Research workflow
 
-- Sind Initial-, Update-, Teilupdate- und Gap-Filling-Prompts ausreichend?
-- Ist der JSON-Vertrag für ChatGPT realistisch ausfüllbar?
-- Werden zu viele oder zu wenige Daten in Update-Prompts eingebettet?
+- [x] Initial Research Bundle 1.0 is frozen and supported.
+- [x] Research Update Bundle 2.0 supports Full, Company, Opportunity and Gap Filling scopes.
+- [x] Prompt Context Snapshots and opaque Correlation References constrain updates.
+- [x] Availability Check prompting/import is separate from general Research Updates.
+- [x] Imports cannot overwrite protected personal state or Duplicate Decisions.
 
-## Karte und Links
+## Map, links and system boundaries
 
-- Ist Work Location statt Firmensitz der richtige Standard?
-- Sind approximierte Orte ausreichend sichtbar?
-- Soll ein Pin zuerst Vorschau, Detail oder Quellenwahl zeigen?
-- Ist das Öffnen im externen Browser der gewünschte Ablauf?
+- [x] Work Location is the Vocation-owned spatial subject.
+- [x] MapLocationResolution never silently raises Work Location precision.
+- [x] Generic geocoding and rendering are delegated to Orientation through explicit boundaries.
+- [x] External URLs are validated and opened only after explicit user action.
+- [x] Published Opportunity Overview 1.0 and Published Map Projection 1.0 remain frozen read-only contracts.
 
-## Technik
+## Application workflow and private content
 
-- Passt die vorgeschlagene lokale Architektur?
-- Soll Vocation als lokale Web-App, Desktop-Shell oder anders umgesetzt werden?
-- Ist SQLite angemessen?
-- Welche Teile sollen zuerst von Codex/Lunas umgesetzt werden?
+- [x] ApplicationCase lifecycle is explicit and independent of Opportunity Tracking Status.
+- [x] ApplicationMaterial revisions remain historical.
+- [x] ApplicationDocument upload, immutable revision binding, integrity validation and explicit read-only opening are implemented.
+- [x] Document editing/generation/delete/retention/encryption are consciously deferred rather than implied by the baseline.
 
-## Freigabe
+## Technical release gates
 
-Vor Implementierungsbeginn:
+- [x] SQLite migrations are versioned and run at application startup.
+- [x] Backend lint, formatting, type checks and full tests are part of repository CI.
+- [x] Frontend lint, formatting, type checks, full tests, production build and OpenAPI freshness are part of repository CI.
+- [x] Private/local data locations are excluded from source control.
+- [x] Architecture ownership is aligned with `wgt-system/architecture`.
+- [x] No unresolved product issue or feature PR is required for the v0.4.0 standalone scope.
 
-- [ ] Domain Vision freigegeben
-- [ ] Domain Model freigegeben
-- [ ] Research Bundle Schema freigegeben
-- [ ] Prompt Templates getestet
-- [ ] Acceptance Tests ausreichend
-- [ ] Architekturentscheidung für Version 1 getroffen
-- [ ] Codex-Spezifikationsprüfung ohne Blocker
+## Deferred work after v0.4.0
+
+The following do not block this release and require their own future decision if ever needed:
+
+- automatic/fuzzy identity merging and canonical-survivor rules;
+- private document editing, generation, preview/export, retention/delete or encryption;
+- additional Published Vocation capabilities without a concrete consumer;
+- private cross-device transport or write synchronization;
+- authentication/cloud hosting;
+- Vocation-owned mobile application;
+- Orientation routing without a concrete Vocation use case.
+
+## Release decision
+
+The current standalone Vocation scope is **accepted as complete for v0.4.0**. Further work is maintenance or separately scoped product expansion, not unfinished baseline implementation.

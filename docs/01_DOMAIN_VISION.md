@@ -1,6 +1,6 @@
 # Vocation – Domain Vision
 
-**Status:** Draft 0.2  
+**Status:** v0.4.0 complete standalone baseline  
 **Purpose:** Fachliche Leitlinie für die Entwicklung von Vocation
 
 ## 1. Produktvision
