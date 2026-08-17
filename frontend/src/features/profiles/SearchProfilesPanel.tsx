@@ -208,7 +208,9 @@ export function SearchProfilesPanel() {
   async function remove() {
     if (!selectedId) return;
     const profile = profiles.find((item) => item.id === selectedId);
-    if (!window.confirm(`Suchprofil „${profile?.name ?? ""}“ wirklich löschen?`))
+    if (
+      !window.confirm(`Suchprofil „${profile?.name ?? ""}“ wirklich löschen?`)
+    )
       return;
     try {
       await profileApi.deleteSearchProfile(selectedId);
@@ -237,7 +239,8 @@ export function SearchProfilesPanel() {
           <div>
             <h2>Suchprofile</h2>
             <p className="muted">
-              Unterschiedliche Strategien für Rollen, Regionen oder Schwerpunkte.
+              Unterschiedliche Strategien für Rollen, Regionen oder
+              Schwerpunkte.
             </p>
           </div>
           <button type="button" onClick={newProfile}>

@@ -12,7 +12,9 @@ export function ProfileSearchView() {
     <section>
       <header className="page-header">
         <div>
-          <p className="eyebrow">Persönlicher Kontext für qualitative Jobsuche</p>
+          <p className="eyebrow">
+            Persönlicher Kontext für qualitative Jobsuche
+          </p>
           <h1>Profil &amp; Suche</h1>
           <p className="muted">
             Vocation nutzt dein privates Qualifikationsprofil und deine
@@ -44,7 +46,11 @@ export function ProfileSearchView() {
       </div>
 
       <section className="panel profile-workspace">
-        {tab === "candidate" ? <CandidateProfileForm /> : <SearchProfilesPanel />}
+        {tab === "candidate" ? (
+          <CandidateProfileForm />
+        ) : (
+          <SearchProfilesPanel />
+        )}
       </section>
     </section>
   );

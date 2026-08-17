@@ -2,11 +2,16 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { type CandidateProfile, profileApi, type SearchProfile } from "./profileApi";
+import {
+  type CandidateProfile,
+  profileApi,
+  type SearchProfile,
+} from "./profileApi";
 import { ProfileSearchView } from "./ProfileSearchView";
 
 vi.mock("./profileApi", async () => {
-  const actual = await vi.importActual<typeof import("./profileApi")>("./profileApi");
+  const actual =
+    await vi.importActual<typeof import("./profileApi")>("./profileApi");
   return {
     ...actual,
     profileApi: {
@@ -84,7 +89,9 @@ describe("Profil & Suche", () => {
       revision: 4,
     });
     vi.mocked(profileApi.createSearchProfile).mockResolvedValue(searchProfile);
-    vi.mocked(profileApi.setDefaultSearchProfile).mockResolvedValue(searchProfile);
+    vi.mocked(profileApi.setDefaultSearchProfile).mockResolvedValue(
+      searchProfile,
+    );
     vi.mocked(profileApi.deleteSearchProfile).mockResolvedValue(undefined);
   });
 
@@ -97,7 +104,9 @@ describe("Profil & Suche", () => {
     const user = userEvent.setup();
     render(<ProfileSearchView />);
 
-    expect(await screen.findByDisplayValue("Junior Softwareentwickler")).toBeInTheDocument();
+    expect(
+      await screen.findByDisplayValue("Junior Softwareentwickler"),
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue("B.Sc.")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Java")).toBeInTheDocument();
     expect(screen.getByText(/Aktuelle Revision: 2/)).toBeInTheDocument();
@@ -105,7 +114,9 @@ describe("Profil & Suche", () => {
     const headline = screen.getByLabelText("Profilüberschrift");
     await user.clear(headline);
     await user.type(headline, "Softwareentwickler");
-    await user.click(screen.getByRole("button", { name: "Neue Revision speichern" }));
+    await user.click(
+      screen.getByRole("button", { name: "Neue Revision speichern" }),
+    );
 
     expect(profileApi.saveCandidate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -123,11 +134,17 @@ describe("Profil & Suche", () => {
 
     await user.click(screen.getByRole("tab", { name: "Suchprofile" }));
 
-    expect(await screen.findByRole("button", { name: /Junior Hamburg/ })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /Junior Hamburg/ }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/aktives Standardprofil/)).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Junior Softwareentwickler")).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue("Junior Softwareentwickler"),
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue("Hamburg")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Berufseinstieg möglich")).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue("Berufseinstieg möglich"),
+    ).toBeInTheDocument();
     expect(
       screen.getByDisplayValue("Mehrjährige Berufserfahrung zwingend"),
     ).toBeInTheDocument();
@@ -142,17 +159,31 @@ describe("Profil & Suche", () => {
     await user.click(screen.getByRole("button", { name: "+ Neu" }));
 
     await user.type(screen.getByLabelText("Name"), "C++ Hamburg");
-    await user.type(screen.getByLabelText("Ziel & Schwerpunkt"), "Wenige hochwertige C++-Einstiegsrollen");
-    await user.type(screen.getByLabelText("Zielrollen"), "Junior C++ Developer");
+    await user.type(
+      screen.getByLabelText("Ziel & Schwerpunkt"),
+      "Wenige hochwertige C++-Einstiegsrollen",
+    );
+    await user.type(
+      screen.getByLabelText("Zielrollen"),
+      "Junior C++ Developer",
+    );
     await user.type(screen.getByLabelText("Bevorzugte Technologien"), "C++");
     await user.type(screen.getByLabelText("Zielorte"), "Hamburg");
-    await user.type(screen.getByLabelText("Muss erfüllt sein"), "Junior geeignet");
-    await user.type(screen.getByLabelText("Ausschlusskriterien"), "Senior-only");
+    await user.type(
+      screen.getByLabelText("Muss erfüllt sein"),
+      "Junior geeignet",
+    );
+    await user.type(
+      screen.getByLabelText("Ausschlusskriterien"),
+      "Senior-only",
+    );
 
     const resultLimit = screen.getByLabelText("Zielanzahl Ergebnisse");
     await user.clear(resultLimit);
     await user.type(resultLimit, "8");
-    await user.click(screen.getByRole("button", { name: "Suchprofil anlegen" }));
+    await user.click(
+      screen.getByRole("button", { name: "Suchprofil anlegen" }),
+    );
 
     expect(profileApi.createSearchProfile).toHaveBeenCalledWith(
       expect.objectContaining({

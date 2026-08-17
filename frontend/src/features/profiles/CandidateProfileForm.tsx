@@ -160,13 +160,21 @@ export function CandidateProfileForm() {
         }
       >
         {(form.education ?? []).map((item, index) => (
-          <div className="profile-row profile-row-wide" key={`education-${index}`}>
+          <div
+            className="profile-row profile-row-wide"
+            key={`education-${index}`}
+          >
             <input
               aria-label={`Abschluss ${index + 1}`}
               placeholder="Abschluss"
               value={item.degree}
               onChange={(event) =>
-                updateEducation(index, { degree: event.target.value }, form, setForm)
+                updateEducation(
+                  index,
+                  { degree: event.target.value },
+                  form,
+                  setForm,
+                )
               }
             />
             <input
@@ -174,7 +182,12 @@ export function CandidateProfileForm() {
               placeholder="Fach"
               value={item.field}
               onChange={(event) =>
-                updateEducation(index, { field: event.target.value }, form, setForm)
+                updateEducation(
+                  index,
+                  { field: event.target.value },
+                  form,
+                  setForm,
+                )
               }
             />
             <input
@@ -256,7 +269,10 @@ export function CandidateProfileForm() {
                 updateArrayItem(
                   "skills",
                   index,
-                  { ...item, level: event.target.value as SkillPayload["level"] },
+                  {
+                    ...item,
+                    level: event.target.value as SkillPayload["level"],
+                  },
                   setForm,
                 )
               }
@@ -408,13 +424,19 @@ export function CandidateProfileForm() {
               interests: lines(event.target.value),
             }))
           }
-          placeholder={"Ein Interesse pro Zeile\nOpen Source\nSoftwarearchitektur"}
+          placeholder={
+            "Ein Interesse pro Zeile\nOpen Source\nSoftwarearchitektur"
+          }
         />
       </label>
 
       <div className="actions">
         <button className="primary" type="submit" disabled={saving}>
-          {saving ? "Speichert…" : revision ? "Neue Revision speichern" : "Profil speichern"}
+          {saving
+            ? "Speichert…"
+            : revision
+              ? "Neue Revision speichern"
+              : "Profil speichern"}
         </button>
       </div>
     </form>
@@ -435,7 +457,7 @@ function updateArrayItem(
   setForm: React.Dispatch<React.SetStateAction<CandidateProfilePayload>>,
 ) {
   setForm((current) => {
-    const next = [...((current[key] ?? []) as typeof value[])];
+    const next = [...((current[key] ?? []) as (typeof value)[])];
     next[index] = value;
     return { ...current, [key]: next };
   });

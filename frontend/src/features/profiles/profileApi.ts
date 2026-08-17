@@ -1,14 +1,17 @@
 import type { components } from "../../api/generated";
 
-export type CandidateProfile = components["schemas"]["CandidateProfileResponse"];
-export type CandidateProfilePayload = components["schemas"]["CandidateProfilePayload"];
+export type CandidateProfile =
+  components["schemas"]["CandidateProfileResponse"];
+export type CandidateProfilePayload =
+  components["schemas"]["CandidateProfilePayload"];
 export type EducationPayload = components["schemas"]["EducationPayload"];
 export type SkillPayload = components["schemas"]["SkillPayload"];
 export type LanguagePayload = components["schemas"]["LanguagePayload"];
 export type ProjectHighlightPayload =
   components["schemas"]["ProjectHighlightPayload"];
 export type SearchProfile = components["schemas"]["SearchProfileResponse"];
-export type SearchProfilePayload = components["schemas"]["SearchProfilePayload"];
+export type SearchProfilePayload =
+  components["schemas"]["SearchProfilePayload"];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -30,7 +33,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const profileApi = {
-  getCandidate: () => request<CandidateProfile | null>("/api/profiles/candidate"),
+  getCandidate: () =>
+    request<CandidateProfile | null>("/api/profiles/candidate"),
   saveCandidate: (payload: CandidateProfilePayload) =>
     request<CandidateProfile>("/api/profiles/candidate", {
       method: "PUT",
