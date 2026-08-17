@@ -108,7 +108,12 @@ Der Nutzer erstellt für eine Opportunity explizit einen ApplicationCase und fü
 6. Die Karte besitzt keine eigene fachliche Datenhoheit.
 7. WGT-Clients benötigen nicht denselben Funktionsumfang wie die Vocation-Desktop-Anwendung.
 8. Research, Availability und Groups/Waves erzeugen oder verändern keine ApplicationCases.
+9. Research-Imports erzeugen mögliche Duplicate Cases, aber niemals persönliche Duplicate Decisions oder Identitäts-Merges.
 
 ## S24 – Privates ApplicationDocument explizit öffnen
 
 Der Nutzer wählt für eine ApplicationMaterial-Revision die explizite Aktion `Öffnen`. Vocation löst genau das für `(material_id, material_revision)` angezeigte `ApplicationDocument` auf, validiert Byte Size und SHA-256 gegen die persistierten Metadaten und gibt erst danach die unveränderlichen privaten Bytes mit dem persistierten Media Type zurück. Nur ein bereits angehängtes Dokument kann geöffnet werden; es gibt keinen Fallback auf eine andere oder neueste Revision.
+
+## S25 – Mögliche Dublette manuell entscheiden
+
+Der Nutzer öffnet die Vocation-Ansicht `Dubletten` und prüft einen bestehenden Opportunity- oder Posting-DuplicateCase anhand der beiden Subjects, der gespeicherten Evidence und der Source References. Er entscheidet explizit `confirmed_duplicate`, `confirmed_distinct`, `related_but_distinct` oder `keep_unresolved` und gibt einen Grund an. Jede Entscheidung wird append-only historisiert; eine spätere abweichende Entscheidung korrigiert nur den aktuellen Review-Zustand und löscht keine Historie. `confirmed_duplicate` klassifiziert den Fall ausschließlich und führt keinen Merge, keine Löschung und keine Referenzumschreibung aus.
