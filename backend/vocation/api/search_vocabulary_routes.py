@@ -54,9 +54,7 @@ class SearchVocabularyRefreshPromptRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     as_of_date: date
-    kinds: list[RefreshableVocabularyKind] = Field(
-        default_factory=lambda: list(REFRESHABLE_KINDS)
-    )
+    kinds: list[RefreshableVocabularyKind] = Field(default_factory=lambda: list(REFRESHABLE_KINDS))
 
 
 class SearchVocabularyRefreshPromptResponse(BaseModel):
@@ -147,9 +145,7 @@ def list_search_vocabularies(
             query=q,
         )
     except SearchVocabularyValidationError as error:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(error)
-        ) from error
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error)) from error
     return [_response(entry) for entry in entries]
 
 
@@ -170,15 +166,11 @@ def create_custom_search_vocabulary(
             group=payload.group,
         )
     except SearchVocabularyValidationError as error:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail=str(error)
-        ) from error
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
     return _response(entry)
 
 
-@router.post(
-    "/refresh-prompt", response_model=SearchVocabularyRefreshPromptResponse
-)
+@router.post("/refresh-prompt", response_model=SearchVocabularyRefreshPromptResponse)
 def generate_search_vocabulary_refresh_prompt(
     request: Request,
     payload: SearchVocabularyRefreshPromptRequest,
@@ -189,9 +181,7 @@ def generate_search_vocabulary_refresh_prompt(
             kinds=tuple(payload.kinds),
         )
     except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)
-        ) from error
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)) from error
     return SearchVocabularyRefreshPromptResponse(
         prompt_version="1.0",
         as_of_date=date.fromisoformat(generated.as_of_date),
@@ -200,9 +190,7 @@ def generate_search_vocabulary_refresh_prompt(
     )
 
 
-@router.post(
-    "/proposals/review", response_model=ReviewedSearchVocabularyBundleResponse
-)
+@router.post("/proposals/review", response_model=ReviewedSearchVocabularyBundleResponse)
 def review_search_vocabulary_proposals(
     request: Request,
     payload: SearchVocabularyProposalBundle,
@@ -221,9 +209,7 @@ def review_search_vocabulary_proposals(
     try:
         reviewed = _prompt_service(request).review_proposals(proposals)
     except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)
-        ) from error
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)) from error
     return ReviewedSearchVocabularyBundleResponse(
         contract=payload.contract,
         version=payload.version,
@@ -262,11 +248,7 @@ def update_search_vocabulary(
             is_active=payload.is_active,
         )
     except LookupError as error:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(error)
-        ) from error
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
     except SearchVocabularyValidationError as error:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail=str(error)
-        ) from error
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
     return _response(entry)

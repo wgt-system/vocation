@@ -39,9 +39,7 @@ class SqlAlchemySearchVocabularyRepository:
             model = session.get(SearchVocabularyEntryModel, entry_id)
             return None if model is None else self._to_domain(model)
 
-    def find_by_normalized_label(
-        self, kind: SearchVocabularyKind, normalized_label: str
-    ) -> SearchVocabularyEntry | None:
+    def find_by_normalized_label(self, kind: SearchVocabularyKind, normalized_label: str) -> SearchVocabularyEntry | None:
         with self.session_factory() as session:
             model = session.scalar(
                 select(SearchVocabularyEntryModel).where(
@@ -88,12 +86,8 @@ class SqlAlchemySearchVocabularyRepository:
     @staticmethod
     def _to_domain(model: SearchVocabularyEntryModel) -> SearchVocabularyEntry:
         aliases = json.loads(model.aliases_json)
-        if not isinstance(aliases, list) or not all(
-            isinstance(item, str) for item in aliases
-        ):
-            raise RuntimeError(
-                f"Invalid aliases payload for search vocabulary entry '{model.id}'."
-            )
+        if not isinstance(aliases, list) or not all(isinstance(item, str) for item in aliases):
+            raise RuntimeError(f"Invalid aliases payload for search vocabulary entry '{model.id}'.")
         return SearchVocabularyEntry(
             id=model.id,
             kind=cast(SearchVocabularyKind, model.kind),
