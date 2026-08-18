@@ -97,7 +97,7 @@ pnpm --dir frontend build
 
 The application starts on `127.0.0.1:8765` by default and opens the local browser unless `--no-browser` is supplied. Database migrations run automatically at application startup.
 
-The current Windows development launcher starts the backend as a hidden child process and Vite in the foreground. Manual acceptance exposed weak backend-failure visibility and a possible stale-process/file-lock path; #52 tracks a targeted launcher fix.
+The Windows development launcher starts the backend as an observable child process, waits for `/api/health` before starting Vite, reports the exact backend PID/URLs and stops only that child on exit. It refuses to start a second backend on an occupied port; `-BackendSmokeTest` exercises readiness and cleanup without starting the long-running frontend.
 
 The Orientation Embed Host is retained under `frontend/public/orientation-map/`; `ORIENTATION_SOURCE_SHA.txt` records the exact Orientation source revision used for the embedded artifact. Explicit geocoding uses `VOCATION_ORIENTATION_BASE_URL`, defaulting to `http://127.0.0.1:8080`.
 
