@@ -23,7 +23,8 @@ def _service(request: Request) -> OpportunityNoteService:
 
 
 def _not_found(error: LookupError) -> HTTPException:
-    return HTTPException(status_code=404, detail=f"Opportunity '{error}' does not exist.")
+    opportunity_id = str(error.args[0]) if error.args else "unknown"
+    return HTTPException(status_code=404, detail=f"Opportunity '{opportunity_id}' does not exist.")
 
 
 @router.get("/{opportunity_id}/note", response_model=OpportunityNoteResponse | None)
