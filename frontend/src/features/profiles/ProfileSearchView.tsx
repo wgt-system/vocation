@@ -10,22 +10,21 @@ export function ProfileSearchView() {
   const [tab, setTab] = useState<Tab>("candidate");
 
   return (
-    <section>
+    <section className="page-stack profile-page">
       <header className="page-header">
         <div>
-          <p className="eyebrow">
-            Persönlicher Kontext für qualitative Jobsuche
-          </p>
-          <h1>Profil &amp; Suche</h1>
-          <p className="muted">
-            Vocation nutzt dein privates Qualifikationsprofil und deine
-            Suchstrategien als Grundlage für Recherche und erklärbare
-            Fit-Analyse. Diese Daten bleiben lokal und werden nicht publiziert.
+          <p className="eyebrow">Persönlicher Kontext</p>
+          <h1>Profile</h1>
+          <p className="page-description">
+            Pflege dein persönliches Qualifikationsprofil und mehrere
+            Suchstrategien getrennt voneinander. Die Daten bleiben lokal; nur
+            ausdrücklich ausgewählte Inhalte werden in externe Prompts
+            übernommen.
           </p>
         </div>
       </header>
 
-      <div className="profile-tabs" role="tablist" aria-label="Profil & Suche">
+      <div className="profile-tabs" role="tablist" aria-label="Profile">
         <button
           className={tab === "candidate" ? "active" : ""}
           onClick={() => setTab("candidate")}
@@ -33,7 +32,7 @@ export function ProfileSearchView() {
           aria-selected={tab === "candidate"}
           type="button"
         >
-          Mein Profil
+          Persönliches Profil
         </button>
         <button
           className={tab === "search" ? "active" : ""}
@@ -51,11 +50,11 @@ export function ProfileSearchView() {
           aria-selected={tab === "evaluation"}
           type="button"
         >
-          Bewertung
+          Fit & Bewertung
         </button>
       </div>
 
-      <section className="panel profile-workspace">
+      <section className="profile-workspace">
         {tab === "candidate" && <CandidateProfileForm />}
         {tab === "search" && <SearchProfilesPanel />}
         {tab === "evaluation" && <EvaluationPolicyPanel />}
