@@ -1,15 +1,23 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import Annotated, Literal
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, HTTPException, Query, Request, status
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from vocation.application.search_vocabulary import SearchVocabularyService
+from vocation.application.search_vocabulary_prompts import (
+    REFRESHABLE_KINDS,
+    SearchVocabularyPromptService,
+    SearchVocabularyProposal,
+)
 from vocation.domain.search_vocabulary import SearchVocabularyEntry, SearchVocabularyValidationError
 
 router = APIRouter(prefix="/api/search-vocabularies", tags=["search-vocabularies"])
 VocabularyKind = Literal["role", "technology", "industry", "seniority", "employment_type"]
+RefreshableVocabularyKind = Literal["role", "technology", "industry"]
 
 
 class SearchVocabularyResponse(BaseModel):
@@ -42,8 +50,75 @@ class UpdateSearchVocabularyRequest(BaseModel):
     is_active: bool | None = None
 
 
+class SearchVocabularyRefreshPromptRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    as_of_date: date
+    kinds: list[RefreshableVocabularyKind] = Field(
+        default_factory=lambda: list(REFRESHABLE_KINDS)
+    )
+
+
+class SearchVocabularyRefreshPromptResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    prompt_version: Literal["1.0"]
+    as_of_date: date
+    kinds: list[RefreshableVocabularyKind]
+    prompt_text: str
+
+
+class SearchVocabularyProposalPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: RefreshableVocabularyKind
+    label: str = Field(min_length=1, max_length=160)
+    aliases: list[str] = Field(default_factory=list)
+    group: str | None = Field(default=None, max_length=120)
+    reason: str = Field(min_length=1, max_length=1000)
+    source_urls: list[str] = Field(min_length=1)
+
+    @field_validator("source_urls")
+    @classmethod
+    def validate_source_urls(cls, urls: list[str]) -> list[str]:
+        for url in urls:
+            parsed = urlparse(url)
+            if parsed.scheme != "https" or not parsed.netloc:
+                raise ValueError("Catalog proposal source URLs must be absolute HTTPS URLs.")
+        return urls
+
+
+class SearchVocabularyProposalBundle(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    contract: Literal["vocation.search-vocabulary-proposals"]
+    version: Literal["1.0"]
+    as_of_date: date
+    proposals: list[SearchVocabularyProposalPayload]
+
+
+class ReviewedSearchVocabularyProposalResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    proposal: SearchVocabularyProposalPayload
+    already_known_entry_id: str | None
+
+
+class ReviewedSearchVocabularyBundleResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    contract: Literal["vocation.search-vocabulary-proposals"]
+    version: Literal["1.0"]
+    as_of_date: date
+    proposals: list[ReviewedSearchVocabularyProposalResponse]
+
+
 def _service(request: Request) -> SearchVocabularyService:
     return request.app.state.search_vocabulary_service
+
+
+def _prompt_service(request: Request) -> SearchVocabularyPromptService:
+    return request.app.state.search_vocabulary_prompt_service
 
 
 def _response(entry: SearchVocabularyEntry) -> SearchVocabularyResponse:
@@ -91,6 +166,67 @@ def create_custom_search_vocabulary(
     except SearchVocabularyValidationError as error:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
     return _response(entry)
+
+
+@router.post("/refresh-prompt", response_model=SearchVocabularyRefreshPromptResponse)
+def generate_search_vocabulary_refresh_prompt(
+    request: Request,
+    payload: SearchVocabularyRefreshPromptRequest,
+) -> SearchVocabularyRefreshPromptResponse:
+    try:
+        generated = _prompt_service(request).generate(
+            as_of_date=payload.as_of_date.isoformat(),
+            kinds=tuple(payload.kinds),
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)) from error
+    return SearchVocabularyRefreshPromptResponse(
+        prompt_version="1.0",
+        as_of_date=generated.as_of_date,
+        kinds=list(generated.kinds),
+        prompt_text=generated.prompt_text,
+    )
+
+
+@router.post("/proposals/review", response_model=ReviewedSearchVocabularyBundleResponse)
+def review_search_vocabulary_proposals(
+    request: Request,
+    payload: SearchVocabularyProposalBundle,
+) -> ReviewedSearchVocabularyBundleResponse:
+    proposals = tuple(
+        SearchVocabularyProposal(
+            kind=item.kind,
+            label=item.label,
+            aliases=tuple(item.aliases),
+            group=item.group,
+            reason=item.reason,
+            source_urls=tuple(item.source_urls),
+        )
+        for item in payload.proposals
+    )
+    try:
+        reviewed = _prompt_service(request).review_proposals(proposals)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)) from error
+    return ReviewedSearchVocabularyBundleResponse(
+        contract=payload.contract,
+        version=payload.version,
+        as_of_date=payload.as_of_date,
+        proposals=[
+            ReviewedSearchVocabularyProposalResponse(
+                proposal=SearchVocabularyProposalPayload(
+                    kind=item.proposal.kind,
+                    label=item.proposal.label,
+                    aliases=list(item.proposal.aliases),
+                    group=item.proposal.group,
+                    reason=item.proposal.reason,
+                    source_urls=list(item.proposal.source_urls),
+                ),
+                already_known_entry_id=item.already_known_entry_id,
+            )
+            for item in reviewed
+        ],
+    )
 
 
 @router.patch("/{entry_id}", response_model=SearchVocabularyResponse)
