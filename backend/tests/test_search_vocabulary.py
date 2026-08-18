@@ -4,7 +4,6 @@ from dataclasses import replace
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-
 from vocation.api.app import create_app
 from vocation.config import get_settings
 
