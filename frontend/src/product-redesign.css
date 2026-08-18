@@ -241,7 +241,10 @@ label > span:first-child {
 
 .market-controls-primary {
   display: grid;
-  grid-template-columns: minmax(260px, 2fr) minmax(190px, 1fr) minmax(180px, 0.8fr);
+  grid-template-columns: minmax(260px, 2fr) minmax(190px, 1fr) minmax(
+      180px,
+      0.8fr
+    );
   gap: 0.85rem;
   align-items: end;
 }
