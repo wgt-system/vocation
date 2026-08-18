@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Literal, Protocol
 
 from vocation.application.criteria import CriteriaService
 from vocation.application.profiles import ProfileRepository
@@ -28,7 +28,7 @@ class GeneratedInitialResearchPrompt:
     prompt_run_id: str
     prompt_context_ref: str
     prompt_text: str
-    bundle_version: str
+    bundle_version: Literal["1.0"]
     criteria_count: int
 
 
