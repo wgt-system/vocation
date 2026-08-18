@@ -31,7 +31,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
         working-directory: frontend
-      - run: pnpm format
+      - run: pnpm exec biome format --write src
         working-directory: frontend
       - run: pnpm api:generate
         working-directory: frontend
