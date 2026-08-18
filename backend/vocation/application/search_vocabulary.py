@@ -25,9 +25,7 @@ class SearchVocabularyRepository(Protocol):
 
     def get_entry(self, entry_id: str) -> SearchVocabularyEntry | None: ...
 
-    def find_by_normalized_label(
-        self, kind: SearchVocabularyKind, normalized_label: str
-    ) -> SearchVocabularyEntry | None: ...
+    def find_by_normalized_label(self, kind: SearchVocabularyKind, normalized_label: str) -> SearchVocabularyEntry | None: ...
 
     def create_entry(self, entry: SearchVocabularyEntry) -> SearchVocabularyEntry: ...
 
@@ -82,9 +80,7 @@ class SearchVocabularyService:
         )
         validate_search_vocabulary_entry(entry)
         if self.repository.find_by_normalized_label(kind, entry.normalized_label) is not None:
-            raise SearchVocabularyValidationError(
-                f"Search vocabulary already contains '{entry.label}' for kind '{kind}'."
-            )
+            raise SearchVocabularyValidationError(f"Search vocabulary already contains '{entry.label}' for kind '{kind}'.")
         return self.repository.create_entry(entry)
 
     def update(
@@ -115,7 +111,5 @@ class SearchVocabularyService:
         validate_search_vocabulary_entry(updated)
         duplicate = self.repository.find_by_normalized_label(updated.kind, updated.normalized_label)
         if duplicate is not None and duplicate.id != updated.id:
-            raise SearchVocabularyValidationError(
-                f"Search vocabulary already contains '{updated.label}' for kind '{updated.kind}'."
-            )
+            raise SearchVocabularyValidationError(f"Search vocabulary already contains '{updated.label}' for kind '{updated.kind}'.")
         return self.repository.update_entry(updated)

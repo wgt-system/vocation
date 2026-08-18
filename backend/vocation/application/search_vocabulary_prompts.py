@@ -51,9 +51,7 @@ class SearchVocabularyPromptService:
             raise ValueError("At least one refreshable vocabulary kind is required.")
         unsupported = [kind for kind in kinds if kind not in REFRESHABLE_KINDS]
         if unsupported:
-            raise ValueError(
-                "Catalog refresh supports only role, technology and industry vocabularies."
-            )
+            raise ValueError("Catalog refresh supports only role, technology and industry vocabularies.")
         if len(set(kinds)) != len(kinds):
             raise ValueError("Catalog refresh vocabulary kinds must be unique.")
 
@@ -85,15 +83,11 @@ class SearchVocabularyPromptService:
             prompt_text=prompt,
         )
 
-    def review_proposals(
-        self, proposals: tuple[SearchVocabularyProposal, ...]
-    ) -> list[ReviewedSearchVocabularyProposal]:
+    def review_proposals(self, proposals: tuple[SearchVocabularyProposal, ...]) -> list[ReviewedSearchVocabularyProposal]:
         reviewed: list[ReviewedSearchVocabularyProposal] = []
         for proposal in proposals:
             if proposal.kind not in REFRESHABLE_KINDS:
-                raise ValueError(
-                    "Catalog refresh proposals support only role, technology and industry."
-                )
+                raise ValueError("Catalog refresh proposals support only role, technology and industry.")
             label = proposal.label.strip()
             if not label:
                 raise ValueError("Catalog proposal labels must be nonempty.")

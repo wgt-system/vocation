@@ -148,19 +148,13 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
-    app.state.opportunity_note_service = OpportunityNoteService(
-        SqlAlchemyOpportunityNoteRepository(database.session_factory)
-    )
-    app.state.application_case_service = ApplicationCaseService(
-        SqlAlchemyApplicationCaseRepository(database.session_factory)
-    )
+    app.state.opportunity_note_service = OpportunityNoteService(SqlAlchemyOpportunityNoteRepository(database.session_factory))
+    app.state.application_case_service = ApplicationCaseService(SqlAlchemyApplicationCaseRepository(database.session_factory))
     app.state.application_document_service = ApplicationDocumentService(
         SqlAlchemyApplicationDocumentRepository(database.session_factory),
         FilesystemApplicationDocumentStore(settings.application_document_store_dir),
     )
-    app.state.opportunity_group_service = OpportunityGroupService(
-        SqlAlchemyOpportunityGroupRepository(database.session_factory)
-    )
+    app.state.opportunity_group_service = OpportunityGroupService(SqlAlchemyOpportunityGroupRepository(database.session_factory))
     app.state.orientation_geocoder = OrientationGeocoder(settings.orientation_base_url)
     app.state.map_service = MapService(
         SqlAlchemyMapLocationResolutionRepository(database.session_factory),
@@ -169,12 +163,8 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.external_navigation_service = ExternalNavigationService(
         SqlAlchemyExternalLinkRepository(database.session_factory), SystemBrowserAdapter()
     )
-    app.state.posting_identity_resolver = PostingIdentityResolver(
-        SqlAlchemyPostingIdentityRepository(database.session_factory)
-    )
-    app.state.duplicate_case_service = DuplicateCaseService(
-        SqlAlchemyDuplicateCaseRepository(database.session_factory)
-    )
+    app.state.posting_identity_resolver = PostingIdentityResolver(SqlAlchemyPostingIdentityRepository(database.session_factory))
+    app.state.duplicate_case_service = DuplicateCaseService(SqlAlchemyDuplicateCaseRepository(database.session_factory))
     app.state.update_import_planner = UpdateImportPlanner(
         prompt_context_repository,
         SqlAlchemyUpdateSubjectRepository(database.session_factory),
@@ -203,12 +193,8 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         ),
         settings.schema_path.parent / "availability-check-bundle-v1.schema.json",
     )
-    app.state.opportunity_service = OpportunityQueryService(
-        SqlAlchemyOpportunityReadRepository(database.session_factory)
-    )
-    app.state.comparison_service = OpportunityComparisonService(
-        SqlAlchemyComparisonRepository(database.session_factory)
-    )
+    app.state.opportunity_service = OpportunityQueryService(SqlAlchemyOpportunityReadRepository(database.session_factory))
+    app.state.comparison_service = OpportunityComparisonService(SqlAlchemyComparisonRepository(database.session_factory))
     app.state.publication_service = OpportunityOverviewPublicationService(
         SqlAlchemyOpportunityOverviewPublicationRepository(database.session_factory)
     )

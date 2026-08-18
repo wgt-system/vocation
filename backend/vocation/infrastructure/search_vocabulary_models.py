@@ -10,9 +10,7 @@ from vocation.infrastructure.models import Base
 
 class SearchVocabularyEntryModel(Base):
     __tablename__ = "search_vocabulary_entries"
-    __table_args__ = (
-        UniqueConstraint("kind", "normalized_label", name="uq_search_vocabulary_kind_label"),
-    )
+    __table_args__ = (UniqueConstraint("kind", "normalized_label", name="uq_search_vocabulary_kind_label"),)
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     kind: Mapped[str] = mapped_column(String(32), nullable=False, index=True)

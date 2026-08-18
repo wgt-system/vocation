@@ -38,8 +38,6 @@ def get_settings() -> Settings:
         output_contract_path=RESOURCE_ROOT / "prompts" / "output-contract.md",
         update_prompt_dir=RESOURCE_ROOT / "prompts",
         search_vocabulary_prompt_path=RESOURCE_ROOT / "prompts" / "search-vocabulary-refresh.md",
-        application_document_store_dir=Path(
-            os.getenv("VOCATION_DOCUMENT_STORE_DIR", str(data_dir / "application-documents"))
-        ),
+        application_document_store_dir=Path(os.getenv("VOCATION_DOCUMENT_STORE_DIR", str(data_dir / "application-documents"))),
         orientation_base_url=os.getenv("VOCATION_ORIENTATION_BASE_URL", "http://127.0.0.1:8080"),
     )

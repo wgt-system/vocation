@@ -48,7 +48,9 @@ export const searchVocabularyApi = {
     if (options?.query) params.set("q", options.query);
     if (options?.includeInactive) params.set("include_inactive", "true");
     const suffix = params.size ? `?${params.toString()}` : "";
-    return request<SearchVocabularyEntry[]>(`/api/search-vocabularies${suffix}`);
+    return request<SearchVocabularyEntry[]>(
+      `/api/search-vocabularies${suffix}`,
+    );
   },
   createCustom: (payload: CreateSearchVocabularyRequest) =>
     request<SearchVocabularyEntry>("/api/search-vocabularies/custom", {

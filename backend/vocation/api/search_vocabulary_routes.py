@@ -54,9 +54,7 @@ class SearchVocabularyRefreshPromptRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     as_of_date: date
-    kinds: list[RefreshableVocabularyKind] = Field(
-        default_factory=lambda: list(REFRESHABLE_KINDS)
-    )
+    kinds: list[RefreshableVocabularyKind] = Field(default_factory=lambda: list(REFRESHABLE_KINDS))
 
 
 class SearchVocabularyRefreshPromptResponse(BaseModel):

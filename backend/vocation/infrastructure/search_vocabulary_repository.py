@@ -39,9 +39,7 @@ class SqlAlchemySearchVocabularyRepository:
             model = session.get(SearchVocabularyEntryModel, entry_id)
             return None if model is None else self._to_domain(model)
 
-    def find_by_normalized_label(
-        self, kind: SearchVocabularyKind, normalized_label: str
-    ) -> SearchVocabularyEntry | None:
+    def find_by_normalized_label(self, kind: SearchVocabularyKind, normalized_label: str) -> SearchVocabularyEntry | None:
         with self.session_factory() as session:
             model = session.scalar(
                 select(SearchVocabularyEntryModel).where(

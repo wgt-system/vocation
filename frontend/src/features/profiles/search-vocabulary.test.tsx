@@ -42,15 +42,17 @@ beforeEach(() => {
     is_active: true,
     is_custom: true,
   });
-  vi.mocked(searchVocabularyApi.update).mockImplementation(async (id, payload) => ({
-    id,
-    kind: "role",
-    label: "AI Engineer",
-    aliases: [],
-    group: "AI & Data",
-    is_active: payload.is_active ?? true,
-    is_custom: false,
-  }));
+  vi.mocked(searchVocabularyApi.update).mockImplementation(
+    async (id, payload) => ({
+      id,
+      kind: "role",
+      label: "AI Engineer",
+      aliases: [],
+      group: "AI & Data",
+      is_active: payload.is_active ?? true,
+      is_custom: false,
+    }),
+  );
   vi.mocked(searchVocabularyApi.generateRefreshPrompt).mockResolvedValue({
     prompt_version: "1.0",
     as_of_date: "2026-08-18",
@@ -101,9 +103,12 @@ describe("SearchVocabularyManager", () => {
     expect(await screen.findByText("AI Engineer")).toBeInTheDocument();
     expect(screen.getByText("AI & Data")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Deaktivieren" }));
-    expect(searchVocabularyApi.update).toHaveBeenCalledWith("role-ai-engineer", {
-      is_active: false,
-    });
+    expect(searchVocabularyApi.update).toHaveBeenCalledWith(
+      "role-ai-engineer",
+      {
+        is_active: false,
+      },
+    );
   });
 
   it("creates custom terms without requiring a catalog release", async () => {
@@ -112,7 +117,9 @@ describe("SearchVocabularyManager", () => {
     await screen.findByText("AI Engineer");
 
     await user.type(screen.getByLabelText("Name"), "Agentic Systems Engineer");
-    await user.click(screen.getByRole("button", { name: "Begriff hinzufügen" }));
+    await user.click(
+      screen.getByRole("button", { name: "Begriff hinzufügen" }),
+    );
 
     await waitFor(() =>
       expect(searchVocabularyApi.createCustom).toHaveBeenCalledWith(
