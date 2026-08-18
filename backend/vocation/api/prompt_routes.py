@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
 
 from vocation.api.schemas import (
     AvailabilityPromptPayload,
@@ -25,7 +25,11 @@ def update_prompt_options(request: Request) -> UpdatePromptOptionsResponse:
 
 
 @router.post("/initial", response_model=GeneratedPromptResponse)
-def generate_initial_prompt(payload: InitialPromptPayload, request: Request) -> GeneratedPromptResponse:
+def generate_initial_prompt(
+    payload: InitialPromptPayload,
+    request: Request,
+    response: Response,
+) -> GeneratedPromptResponse:
     service: InitialResearchService = request.app.state.initial_research_service
     include_candidate_profile = request.query_params.get("include_candidate_profile", "true").lower() not in {
         "false",
@@ -39,7 +43,13 @@ def generate_initial_prompt(payload: InitialPromptPayload, request: Request) -> 
             include_candidate_profile=include_candidate_profile,
             as_of_date=payload.as_of_date.isoformat(),
         )
-        return GeneratedPromptResponse(**generated.__dict__)
+        response.headers["X-Prompt-Context-Ref"] = generated.prompt_context_ref
+        return GeneratedPromptResponse(
+            prompt_run_id=generated.prompt_run_id,
+            prompt_text=generated.prompt_text,
+            bundle_version=generated.bundle_version,
+            criteria_count=generated.criteria_count,
+        )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
