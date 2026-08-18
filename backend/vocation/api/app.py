@@ -138,9 +138,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
-    app.state.opportunity_note_service = OpportunityNoteService(
-        SqlAlchemyOpportunityNoteRepository(database.session_factory)
-    )
+    app.state.opportunity_note_service = OpportunityNoteService(SqlAlchemyOpportunityNoteRepository(database.session_factory))
     app.state.application_case_service = ApplicationCaseService(SqlAlchemyApplicationCaseRepository(database.session_factory))
     app.state.application_document_service = ApplicationDocumentService(
         SqlAlchemyApplicationDocumentRepository(database.session_factory),
