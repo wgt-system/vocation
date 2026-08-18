@@ -135,3 +135,91 @@ def test_catalog_lifecycle_does_not_rewrite_search_profile_revision(client: Test
     stored = client.get(f"/api/profiles/search/{profile.json()['id']}")
     assert stored.status_code == 200
     assert stored.json()["target_roles"] == ["Future Systems Engineer"]
+
+
+def test_refresh_prompt_is_self_contained_and_excludes_places(client: TestClient) -> None:
+    generated = client.post(
+        "/api/search-vocabularies/refresh-prompt",
+        json={
+            "as_of_date": "2026-08-18",
+            "kinds": ["role", "technology", "industry"],
+        },
+    )
+    assert generated.status_code == 200
+    payload = generated.json()
+    assert payload["prompt_version"] == "1.0"
+    assert payload["as_of_date"] == "2026-08-18"
+    assert "AI Engineer" in payload["prompt_text"]
+    assert "PostgreSQL" in payload["prompt_text"]
+    assert '"contract": "vocation.search-vocabulary-proposals"' in payload["prompt_text"]
+    assert "Do not research geographic places" in payload["prompt_text"]
+
+
+def test_proposal_review_marks_known_terms_without_mutating_catalog(client: TestClient) -> None:
+    before = client.get("/api/search-vocabularies", params={"kind": "role"}).json()
+    bundle = {
+        "contract": "vocation.search-vocabulary-proposals",
+        "version": "1.0",
+        "as_of_date": "2026-08-18",
+        "proposals": [
+            {
+                "kind": "role",
+                "label": "AI Engineer",
+                "aliases": ["Artificial Intelligence Engineer"],
+                "group": "AI & Data",
+                "reason": "Already represented in the current market catalog.",
+                "source_urls": ["https://example.com/ai-engineer"],
+            },
+            {
+                "kind": "role",
+                "label": "Agentic Systems Engineer",
+                "aliases": ["Agentic AI Engineer"],
+                "group": "AI & Data",
+                "reason": "A hypothetical new market term for explicit review.",
+                "source_urls": ["https://example.com/agentic-systems"],
+            },
+        ],
+    }
+
+    reviewed = client.post("/api/search-vocabularies/proposals/review", json=bundle)
+    assert reviewed.status_code == 200
+    proposals = reviewed.json()["proposals"]
+    assert proposals[0]["already_known_entry_id"] == "role-ai-engineer"
+    assert proposals[1]["already_known_entry_id"] is None
+
+    after = client.get("/api/search-vocabularies", params={"kind": "role"}).json()
+    assert after == before
+
+    accepted = client.post(
+        "/api/search-vocabularies/custom",
+        json={
+            "kind": proposals[1]["proposal"]["kind"],
+            "label": proposals[1]["proposal"]["label"],
+            "aliases": proposals[1]["proposal"]["aliases"],
+            "group": proposals[1]["proposal"]["group"],
+        },
+    )
+    assert accepted.status_code == 201
+    assert accepted.json()["label"] == "Agentic Systems Engineer"
+
+
+def test_proposal_review_requires_https_evidence(client: TestClient) -> None:
+    invalid = client.post(
+        "/api/search-vocabularies/proposals/review",
+        json={
+            "contract": "vocation.search-vocabulary-proposals",
+            "version": "1.0",
+            "as_of_date": "2026-08-18",
+            "proposals": [
+                {
+                    "kind": "technology",
+                    "label": "FutureDB",
+                    "aliases": [],
+                    "group": "Datenbank",
+                    "reason": "Needs evidence.",
+                    "source_urls": ["http://example.com/futuredb"],
+                }
+            ],
+        },
+    )
+    assert invalid.status_code == 422
