@@ -380,7 +380,10 @@ export function OpportunityList({
 
       {!loading && !error && items.length > 0 && (
         <>
-          <section className="market-controls" aria-label="Stellenmarkt filtern">
+          <section
+            className="market-controls"
+            aria-label="Stellenmarkt filtern"
+          >
             <div className="market-controls-primary">
               <label className="search-field">
                 <span>Suche</span>
@@ -570,7 +573,10 @@ export function OpportunityList({
                     <span>
                       {item.company_name} – {item.title}
                     </span>
-                    <button type="button" onClick={() => toggleComparison(item)}>
+                    <button
+                      type="button"
+                      onClick={() => toggleComparison(item)}
+                    >
                       Entfernen
                     </button>
                   </li>
