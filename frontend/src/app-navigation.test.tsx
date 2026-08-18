@@ -36,16 +36,36 @@ afterEach(() => {
 describe("first-user navigation", () => {
   it("keeps workflow areas primary and implementation surfaces secondary", () => {
     render(<App />);
-    const navigation = screen.getByRole("navigation", { name: "Arbeitsbereiche" });
+    const navigation = screen.getByRole("navigation", {
+      name: "Arbeitsbereiche",
+    });
 
-    expect(within(navigation).getByRole("button", { name: "Stellenmarkt" })).toBeInTheDocument();
-    expect(within(navigation).getByRole("button", { name: "Profil & Suche" })).toBeInTheDocument();
-    expect(within(navigation).getByRole("button", { name: "Recherche" })).toBeInTheDocument();
-    expect(within(navigation).getByRole("button", { name: "Organisation" })).toBeInTheDocument();
-    expect(within(navigation).getByRole("button", { name: "Werkzeuge" })).toBeInTheDocument();
-    expect(within(navigation).queryByRole("button", { name: "Import" })).not.toBeInTheDocument();
-    expect(within(navigation).queryByRole("button", { name: "Dubletten" })).not.toBeInTheDocument();
-    expect(within(navigation).queryByRole("button", { name: "Assessment-Kriterien" })).not.toBeInTheDocument();
+    expect(
+      within(navigation).getByRole("button", { name: "Stellenmarkt" }),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).getByRole("button", { name: "Profil & Suche" }),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).getByRole("button", { name: "Recherche" }),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).getByRole("button", { name: "Organisation" }),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).getByRole("button", { name: "Werkzeuge" }),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).queryByRole("button", { name: "Import" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(navigation).queryByRole("button", { name: "Dubletten" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(navigation).queryByRole("button", {
+        name: "Assessment-Kriterien",
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("moves directly from market to profile and research and back", async () => {
@@ -53,13 +73,19 @@ describe("first-user navigation", () => {
     render(<App />);
 
     expect(screen.getByText("Stellenmarkt-Inhalt")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Profil konfigurieren" }));
+    await user.click(
+      screen.getByRole("button", { name: "Profil konfigurieren" }),
+    );
     expect(screen.getByText("Profil-Inhalt")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Mit Profil recherchieren" }));
+    await user.click(
+      screen.getByRole("button", { name: "Mit Profil recherchieren" }),
+    );
     expect(screen.getByText("Recherche-Inhalt")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Stellenmarkt öffnen" }));
+    await user.click(
+      screen.getByRole("button", { name: "Stellenmarkt öffnen" }),
+    );
     expect(screen.getByText("Stellenmarkt-Inhalt")).toBeInTheDocument();
   });
 
