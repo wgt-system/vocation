@@ -154,12 +154,15 @@ describe("SearchVocabularyManager", () => {
     );
     await user.click(screen.getByRole("button", { name: "Vorschläge prüfen" }));
 
+    expect(searchVocabularyApi.reviewProposals).toHaveBeenCalledTimes(1);
     expect(
       await screen.findByText("Agentic Systems Engineer"),
     ).toBeInTheDocument();
+    expect(screen.getAllByText("AI Engineer").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("Bereits vorhanden")).toBeInTheDocument();
-    expect(searchVocabularyApi.createCustom).not.toHaveBeenCalled();
+    expect(screen.queryByText("Übernommen")).not.toBeInTheDocument();
 
+    vi.mocked(searchVocabularyApi.createCustom).mockClear();
     await user.click(screen.getByRole("button", { name: "Übernehmen" }));
     expect(searchVocabularyApi.createCustom).toHaveBeenCalledWith({
       kind: "role",
