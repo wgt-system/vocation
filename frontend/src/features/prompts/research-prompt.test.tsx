@@ -209,6 +209,21 @@ describe("Research Prompt workflow", () => {
     const user = userEvent.setup();
     render(<PromptView />);
 
+    expect(
+      screen.getByRole("heading", { name: "Recherche" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "Neue Stellensuche" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", {
+        name: "Gesamten Stellenmarkt aktualisieren",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "Verfügbarkeit prüfen" }),
+    ).toBeInTheDocument();
+
     const selector = await screen.findByLabelText("Search Profile");
     expect(selector).toHaveValue("search-1");
     expect(
@@ -283,7 +298,7 @@ describe("Research Prompt workflow", () => {
     await user.click(
       screen.getByRole("button", { name: "Profilbasierten Prompt erzeugen" }),
     );
-    fireEvent.change(screen.getByLabelText("Research-Ergebnis JSON"), {
+    fireEvent.change(screen.getByLabelText("Recherche-Ergebnis JSON"), {
       target: { value: "{}" },
     });
     await user.click(
@@ -364,7 +379,7 @@ describe("Research Prompt workflow", () => {
     render(<PromptView />);
     await chooseMode("gap_filling");
     await user.click(
-      screen.getByRole("button", { name: "Request hinzufügen" }),
+      screen.getByRole("button", { name: "Anfrage hinzufügen" }),
     );
     await user.selectOptions(screen.getByLabelText("Subject"), "company-1");
     await user.selectOptions(
@@ -389,7 +404,7 @@ describe("Research Prompt workflow", () => {
     vi.mocked(api.getUpdatePromptOptions).mockResolvedValue(options);
     vi.mocked(api.listCriteria).mockResolvedValue(criteria);
     await user.click(
-      screen.getByRole("button", { name: "Request hinzufügen" }),
+      screen.getByRole("button", { name: "Anfrage hinzufügen" }),
     );
     await user.selectOptions(
       screen.getAllByLabelText("Subject")[1],
@@ -407,7 +422,7 @@ describe("Research Prompt workflow", () => {
     render(<PromptView />);
     await chooseMode("gap_filling");
     await user.click(
-      screen.getByRole("button", { name: "Request hinzufügen" }),
+      screen.getByRole("button", { name: "Anfrage hinzufügen" }),
     );
     await user.selectOptions(
       screen.getByLabelText("Evidence Kind"),
@@ -475,7 +490,7 @@ describe("Research Prompt workflow", () => {
       issues: [],
       duplicate_of_import_id: null,
     });
-    fireEvent.change(screen.getByLabelText("Research-Ergebnis JSON"), {
+    fireEvent.change(screen.getByLabelText("Recherche-Ergebnis JSON"), {
       target: { value: "{}" },
     });
     await user.click(

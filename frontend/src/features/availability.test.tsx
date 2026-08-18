@@ -151,7 +151,7 @@ describe("Availability workflow", () => {
       posting_ids: ["posting-1"],
       as_of_date: expect.any(String),
     });
-    expect(await screen.findByText("Availability Check")).toBeInTheDocument();
+    expect(await screen.findByText("Verfügbarkeit prüfen")).toBeInTheDocument();
     expect(screen.getByText("Prompt Context Ref:")).toBeInTheDocument();
 
     vi.mocked(api.importAvailabilityText).mockResolvedValue({
@@ -167,7 +167,7 @@ describe("Availability workflow", () => {
       issues: [],
       duplicate_of_import_id: null,
     });
-    fireEvent.change(screen.getByLabelText("Availability-Ergebnis JSON"), {
+    fireEvent.change(screen.getByLabelText("Verfügbarkeits-Ergebnis JSON"), {
       target: { value: "{}" },
     });
     await user.click(

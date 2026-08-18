@@ -1,0 +1,275 @@
+{
+  "bundle_version": "1.0",
+  "bundle_id": "acceptance-first-user-market-001",
+  "generated_at": "2026-08-18T09:30:00Z",
+  "research_scope": {
+    "type": "initial_market_research",
+    "as_of_date": "2026-08-18",
+    "search_profile": "Hamburg Junior Software",
+    "constraints": []
+  },
+  "sources": [
+    {
+      "id": "src-example-careers",
+      "name": "Example Careers",
+      "type": "company_careers",
+      "base_url": "https://example.com/careers"
+    },
+    {
+      "id": "src-harbor-careers",
+      "name": "Harbor Systems Careers",
+      "type": "company_careers",
+      "base_url": "https://harbor.example.com/careers"
+    },
+    {
+      "id": "src-north-careers",
+      "name": "North Labs Careers",
+      "type": "company_careers",
+      "base_url": "https://north.example.com/jobs"
+    }
+  ],
+  "source_references": [
+    {
+      "id": "ref-example-job",
+      "source_id": "src-example-careers",
+      "url": "https://example.com/jobs/junior-softwareentwickler",
+      "external_reference_id": "EX-100",
+      "display_label": "Junior Softwareentwickler",
+      "observed_at": "2026-08-18T09:00:00Z"
+    },
+    {
+      "id": "ref-harbor-job",
+      "source_id": "src-harbor-careers",
+      "url": "https://harbor.example.com/careers/backend-engineer",
+      "external_reference_id": "HS-210",
+      "display_label": "Junior Backend Engineer",
+      "observed_at": "2026-08-18T09:05:00Z"
+    },
+    {
+      "id": "ref-north-job",
+      "source_id": "src-north-careers",
+      "url": "https://north.example.com/jobs/platform-developer",
+      "external_reference_id": "NL-320",
+      "display_label": "Platform Developer",
+      "observed_at": "2026-08-18T09:10:00Z"
+    }
+  ],
+  "companies": [
+    {
+      "id": "cmp-example",
+      "canonical_name": "Example GmbH",
+      "source_reference_id": "ref-example-job",
+      "observed_at": "2026-08-18T09:00:00Z",
+      "evidence_summary": "Official careers page identifies Example GmbH as the employer."
+    },
+    {
+      "id": "cmp-harbor",
+      "canonical_name": "Harbor Systems GmbH",
+      "source_reference_id": "ref-harbor-job",
+      "observed_at": "2026-08-18T09:05:00Z",
+      "evidence_summary": "Official careers page identifies Harbor Systems GmbH as the employer."
+    },
+    {
+      "id": "cmp-north",
+      "canonical_name": "North Labs AG",
+      "source_reference_id": "ref-north-job",
+      "observed_at": "2026-08-18T09:10:00Z",
+      "evidence_summary": "Official careers page identifies North Labs AG as the employer."
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "opp-example-junior",
+      "company_id": "cmp-example",
+      "canonical_title": "Junior Softwareentwickler",
+      "source_reference_id": "ref-example-job",
+      "observed_at": "2026-08-18T09:00:00Z",
+      "evidence_summary": "Official current job posting for a junior software-development role.",
+      "work_locations": [
+        {
+          "label": "Hamburg",
+          "city": "Hamburg",
+          "country_code": "DE",
+          "precision": "city",
+          "source_reference_id": "ref-example-job",
+          "observed_at": "2026-08-18T09:00:00Z",
+          "evidence_summary": "Posting names Hamburg as the work location."
+        }
+      ]
+    },
+    {
+      "id": "opp-harbor-backend",
+      "company_id": "cmp-harbor",
+      "canonical_title": "Junior Backend Engineer",
+      "source_reference_id": "ref-harbor-job",
+      "observed_at": "2026-08-18T09:05:00Z",
+      "evidence_summary": "Official current job posting for a junior backend role.",
+      "work_locations": [
+        {
+          "label": "Hamburg",
+          "city": "Hamburg",
+          "country_code": "DE",
+          "precision": "city",
+          "source_reference_id": "ref-harbor-job",
+          "observed_at": "2026-08-18T09:05:00Z",
+          "evidence_summary": "Posting names Hamburg as the work location."
+        }
+      ]
+    },
+    {
+      "id": "opp-north-platform",
+      "company_id": "cmp-north",
+      "canonical_title": "Platform Developer",
+      "source_reference_id": "ref-north-job",
+      "observed_at": "2026-08-18T09:10:00Z",
+      "evidence_summary": "Official current posting for a platform role requiring prior experience.",
+      "work_locations": [
+        {
+          "label": "Lübeck",
+          "city": "Lübeck",
+          "country_code": "DE",
+          "precision": "city",
+          "source_reference_id": "ref-north-job",
+          "observed_at": "2026-08-18T09:10:00Z",
+          "evidence_summary": "Posting names Lübeck as the work location."
+        }
+      ]
+    }
+  ],
+  "postings": [
+    {
+      "id": "post-example-junior",
+      "company_id": "cmp-example",
+      "opportunity_id": "opp-example-junior",
+      "source_reference_id": "ref-example-job",
+      "title": "Junior Softwareentwickler",
+      "external_posting_id": "EX-100",
+      "published_at": "2026-08-12",
+      "observed_at": "2026-08-18T09:00:00Z"
+    },
+    {
+      "id": "post-harbor-backend",
+      "company_id": "cmp-harbor",
+      "opportunity_id": "opp-harbor-backend",
+      "source_reference_id": "ref-harbor-job",
+      "title": "Junior Backend Engineer",
+      "external_posting_id": "HS-210",
+      "published_at": "2026-08-13",
+      "observed_at": "2026-08-18T09:05:00Z"
+    },
+    {
+      "id": "post-north-platform",
+      "company_id": "cmp-north",
+      "opportunity_id": "opp-north-platform",
+      "source_reference_id": "ref-north-job",
+      "title": "Platform Developer",
+      "external_posting_id": "NL-320",
+      "published_at": "2026-08-11",
+      "observed_at": "2026-08-18T09:10:00Z"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs-example-tech",
+      "subject_type": "posting",
+      "subject_id": "post-example-junior",
+      "type": "technology_requirement",
+      "value": ["Java", "Maven", "PostgreSQL"],
+      "source_reference_id": "ref-example-job",
+      "observed_at": "2026-08-18T09:00:00Z",
+      "confidence": 0.98,
+      "evidence_summary": "Requirements list Java, Maven and PostgreSQL."
+    },
+    {
+      "id": "obs-example-work-model",
+      "subject_type": "opportunity",
+      "subject_id": "opp-example-junior",
+      "type": "work_model",
+      "value": "hybrid",
+      "source_reference_id": "ref-example-job",
+      "observed_at": "2026-08-18T09:00:00Z",
+      "confidence": 0.98,
+      "evidence_summary": "Posting states hybrid work."
+    },
+    {
+      "id": "obs-harbor-tech",
+      "subject_type": "posting",
+      "subject_id": "post-harbor-backend",
+      "type": "technology_requirement",
+      "value": ["Java", "Spring", "Docker"],
+      "source_reference_id": "ref-harbor-job",
+      "observed_at": "2026-08-18T09:05:00Z",
+      "confidence": 0.96,
+      "evidence_summary": "Requirements list Java, Spring and Docker."
+    },
+    {
+      "id": "obs-harbor-work-model",
+      "subject_type": "opportunity",
+      "subject_id": "opp-harbor-backend",
+      "type": "work_model",
+      "value": "hybrid",
+      "source_reference_id": "ref-harbor-job",
+      "observed_at": "2026-08-18T09:05:00Z",
+      "confidence": 0.97,
+      "evidence_summary": "Posting offers hybrid work."
+    },
+    {
+      "id": "obs-north-tech",
+      "subject_type": "posting",
+      "subject_id": "post-north-platform",
+      "type": "technology_requirement",
+      "value": ["Kubernetes", "Go", "Terraform"],
+      "source_reference_id": "ref-north-job",
+      "observed_at": "2026-08-18T09:10:00Z",
+      "confidence": 0.96,
+      "evidence_summary": "Requirements list Kubernetes, Go and Terraform."
+    },
+    {
+      "id": "obs-north-experience",
+      "subject_type": "opportunity",
+      "subject_id": "opp-north-platform",
+      "type": "experience_requirement",
+      "value": "Several years of professional platform experience required",
+      "source_reference_id": "ref-north-job",
+      "observed_at": "2026-08-18T09:10:00Z",
+      "confidence": 0.99,
+      "evidence_summary": "Posting explicitly asks for several years of platform experience."
+    }
+  ],
+  "assessments": [
+    {
+      "id": "ass-example-junior-fit",
+      "subject_type": "opportunity",
+      "subject_id": "opp-example-junior",
+      "criterion_id": "junior_suitability",
+      "value": 5,
+      "origin": "external_research",
+      "source_reference_ids": ["ref-example-job"],
+      "created_at": "2026-08-18T09:15:00Z",
+      "reasoning": "Explicit junior role with structured onboarding."
+    },
+    {
+      "id": "ass-harbor-junior-fit",
+      "subject_type": "opportunity",
+      "subject_id": "opp-harbor-backend",
+      "criterion_id": "junior_suitability",
+      "value": 4,
+      "origin": "external_research",
+      "source_reference_ids": ["ref-harbor-job"],
+      "created_at": "2026-08-18T09:20:00Z",
+      "reasoning": "Explicit junior title with a conventional backend stack."
+    },
+    {
+      "id": "ass-north-junior-fit",
+      "subject_type": "opportunity",
+      "subject_id": "opp-north-platform",
+      "criterion_id": "junior_suitability",
+      "value": 2,
+      "origin": "external_research",
+      "source_reference_ids": ["ref-north-job"],
+      "created_at": "2026-08-18T09:25:00Z",
+      "reasoning": "Role asks for prior platform experience and is not presented as junior."
+    }
+  ],
+  "warnings": []
+}
