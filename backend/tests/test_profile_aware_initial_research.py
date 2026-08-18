@@ -83,6 +83,7 @@ def test_default_profile_and_candidate_are_snapshotted_at_exact_revisions(client
     )
     assert generated.status_code == 200
     context = prompt_context(client, generated.json()["prompt_run_id"])
+    assert generated.headers["X-Prompt-Context-Ref"] == context.prompt_context_ref
 
     assert context.scope_type == "initial_market_research"
     assert context.scope_json["search_profile"]["id"] == profile_id
