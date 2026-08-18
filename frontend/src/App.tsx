@@ -47,6 +47,11 @@ export default function App() {
     setRefreshToken((value) => value + 1);
   }
 
+  function finishResearchImport() {
+    markImported();
+    navigate("market");
+  }
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -140,7 +145,7 @@ export default function App() {
                 Stellenmarkt öffnen
               </button>
             </WorkflowLinks>
-            <PromptView onImported={markImported} />
+            <PromptView onImported={finishResearchImport} />
           </>
         )}
         {view === "organisation" && <OrganisationView />}
