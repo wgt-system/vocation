@@ -65,7 +65,7 @@ function freshnessLabel(item: OpportunityListItem) {
 
 export function OpportunityList({
   refreshToken,
-  onSelect,
+ onSelect,
   onStartResearch,
   onOpenProfiles,
 }: {
@@ -524,7 +524,7 @@ export function OpportunityList({
               </div>
             </div>
 
-            {hasActiveFilters && (
+            {hasActiveFilters && visibleItems.length > 0 && (
               <div className="market-controls-footer">
                 <button type="button" onClick={resetWorkspace}>
                   Filter zurücksetzen
