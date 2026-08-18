@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from datetime import UTC, datetime
+from typing import cast
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -17,7 +18,6 @@ class SqlAlchemySearchVocabularyRepository:
 
     def list_entries(
         self,
-        *,
         kind: SearchVocabularyKind | None = None,
         include_inactive: bool = False,
     ) -> list[SearchVocabularyEntry]:
@@ -39,7 +39,9 @@ class SqlAlchemySearchVocabularyRepository:
             model = session.get(SearchVocabularyEntryModel, entry_id)
             return None if model is None else self._to_domain(model)
 
-    def find_by_normalized_label(self, kind: SearchVocabularyKind, normalized_label: str) -> SearchVocabularyEntry | None:
+    def find_by_normalized_label(
+        self, kind: SearchVocabularyKind, normalized_label: str
+    ) -> SearchVocabularyEntry | None:
         with self.session_factory() as session:
             model = session.scalar(
                 select(SearchVocabularyEntryModel).where(
@@ -86,11 +88,15 @@ class SqlAlchemySearchVocabularyRepository:
     @staticmethod
     def _to_domain(model: SearchVocabularyEntryModel) -> SearchVocabularyEntry:
         aliases = json.loads(model.aliases_json)
-        if not isinstance(aliases, list) or not all(isinstance(item, str) for item in aliases):
-            raise RuntimeError(f"Invalid aliases payload for search vocabulary entry '{model.id}'.")
+        if not isinstance(aliases, list) or not all(
+            isinstance(item, str) for item in aliases
+        ):
+            raise RuntimeError(
+                f"Invalid aliases payload for search vocabulary entry '{model.id}'."
+            )
         return SearchVocabularyEntry(
             id=model.id,
-            kind=model.kind,  # type: ignore[arg-type]
+            kind=cast(SearchVocabularyKind, model.kind),
             label=model.label,
             aliases=tuple(aliases),
             group=model.group_name,
