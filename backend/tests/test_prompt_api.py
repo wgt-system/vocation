@@ -114,7 +114,7 @@ def test_generated_full_prompt_context_can_drive_update_import_and_traceability(
 
 
 def test_initial_prompt_endpoint_keeps_response_shape_with_persistent_search_profile(client) -> None:
-    profile = client.post("/api/profiles/search", json=search_payload(name="Python roles", preferred=["Python"]))
+    profile = client.post("/api/profiles/search", json=search_payload(name="Python roles"))
     assert profile.status_code == 201
     response = client.post(
         "/api/prompts/initial",
