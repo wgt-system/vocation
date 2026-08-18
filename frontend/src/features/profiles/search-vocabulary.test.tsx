@@ -111,12 +111,7 @@ describe("SearchVocabularyManager", () => {
     render(<SearchVocabularyManager />);
     await screen.findByText("AI Engineer");
 
-    const nameInputs = screen.getAllByRole("textbox");
-    const customName = nameInputs.find(
-      (input) => input.getAttribute("value") === "",
-    );
-    expect(customName).toBeDefined();
-    await user.type(customName!, "Agentic Systems Engineer");
+    await user.type(screen.getByLabelText("Name"), "Agentic Systems Engineer");
     await user.click(screen.getByRole("button", { name: "Begriff hinzufügen" }));
 
     await waitFor(() =>
