@@ -73,13 +73,13 @@ def valid_bundle() -> dict:
     return json.loads((ROOT / "examples" / "imports" / "initial-valid.json").read_text(encoding="utf-8"))
 
 
-def test_default_profile_and_candidate_are_snapshotted_at_exact_revisions(client) -> None:
+def test_selected_profile_and_candidate_are_snapshotted_at_exact_revisions(client) -> None:
     profile_id = create_profile(client)
     create_candidate(client)
 
     generated = client.post(
         "/api/prompts/initial",
-        json={"search_profile": "", "constraints": [], "as_of_date": "2026-08-17"},
+        json={"search_profile": profile_id, "constraints": [], "as_of_date": "2026-08-17"},
     )
     assert generated.status_code == 200
     context = prompt_context(client, generated.json()["prompt_run_id"])
