@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { OpportunityDetailView } from "./features/opportunities/OpportunityDetailView";
 import { OpportunityDetailFitPanel } from "./features/opportunities/OpportunityFitBreakdown";
@@ -19,11 +19,7 @@ const primaryLabels: Record<PrimaryView, string> = {
   organisation: "Organisation",
 };
 
-function WorkflowLinks({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function WorkflowLinks({ children }: { children: ReactNode }) {
   return (
     <section className="panel workflow-links" aria-label="Workflow-Navigation">
       <div>
