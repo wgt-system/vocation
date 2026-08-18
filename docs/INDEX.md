@@ -18,11 +18,11 @@
 | 14_REVIEW_CHECKLIST | historischer v0.4.0 Release-Review und Scope-Abschluss |
 | 15_PERSONAL_SEARCH_CONTEXT | privates Candidate Profile, Search Profiles, Provenienz und aktuelle Produktgrenzen |
 | 16_OPPORTUNITY_FIT | Search-Profile-Evaluationspolitik und erklärbarer Opportunity Fit |
-| 17_FIRST_USER_ACCEPTANCE | deterministischer First-User-Flow und manueller Current-Market-Acceptance-Check |
-| 18_MANUAL_PRODUCT_ACCEPTANCE | Ergebnis der ersten manuellen Produktabnahme, Blocker und akzeptierte Post-v0.4-Produkt-Richtung |
+| 17_MANUAL_PRODUCT_ACCEPTANCE | Ergebnis der ersten manuellen Produktabnahme, Blocker und akzeptierte Post-v0.4-Produkt-Richtung |
+| 18_FIRST_USER_ACCEPTANCE | deterministischer First-User-Flow und manueller Current-Market-Acceptance-Check |
 
 ## Statushinweis
 
-`main` bleibt der stabile v0.4.0-Stand. Die automatisierte Post-v0.4-Acceptance auf `dev` ist technisch grün, die erste manuelle Produktabnahme vom 2026-08-18 hat jedoch blockierende UX- und Workflow-Funde ergeben. Der aktuelle Entscheidungs- und Release-Gate-Stand ist in `18_MANUAL_PRODUCT_ACCEPTANCE.md` dokumentiert.
+`main` bleibt der stabile v0.4.0-Stand. Die automatisierte Post-v0.4-Acceptance auf `dev` ist technisch grün, die erste manuelle Produktabnahme vom 2026-08-18 hat jedoch blockierende UX- und Workflow-Funde ergeben. Der aktuelle Entscheidungs- und Release-Gate-Stand ist in `17_MANUAL_PRODUCT_ACCEPTANCE.md` dokumentiert; die Wiederholungsprozedur steht in `18_FIRST_USER_ACCEPTANCE.md`.
 
 Historische ADRs/Release-Entscheidungen werden nicht rückwirkend auf neue Produktpläne umgeschrieben. Dieses nummerierte Set beschreibt die aktuelle Vocation-Seite der Architektur und Produktarbeit; systemweite Ownership bleibt in `wgt-system/architecture` autoritativ.
