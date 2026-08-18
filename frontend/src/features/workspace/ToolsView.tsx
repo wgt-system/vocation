@@ -17,8 +17,8 @@ export function ToolsView({ onImported }: { onImported: () => void }) {
           <h1>Werkzeuge</h1>
           <p className="page-description">
             Manueller JSON-Import, Kriterienverwaltung und technische
-            Dublettenprüfung bleiben erreichbar, ohne den normalen
-            Arbeitsablauf zu überladen.
+            Dublettenprüfung bleiben erreichbar, ohne den normalen Arbeitsablauf
+            zu überladen.
           </p>
         </div>
       </header>
