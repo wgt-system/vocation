@@ -64,7 +64,8 @@ class InitialResearchService:
             "search_profile": profile.name,
             "constraints": constraints,
         }
-        active_criteria = self.criteria.active_snapshot()
+        active_criteria = self.criteria.list(active_only=True)
+        criteria_snapshot = [criterion.as_snapshot() for criterion in active_criteria]
         template = self.template_path.read_text(encoding="utf-8")
         contract = self.output_contract_path.read_text(encoding="utf-8")
         prompt_text = (
@@ -74,7 +75,7 @@ class InitialResearchService:
             .replace("{{AS_OF_DATE}}", as_of_date)
             .replace(
                 "{{ACTIVE_ASSESSMENT_CRITERIA}}",
-                json.dumps(active_criteria, ensure_ascii=False, indent=2, sort_keys=True),
+                json.dumps(criteria_snapshot, ensure_ascii=False, indent=2, sort_keys=True),
             )
             .replace("{{OUTPUT_CONTRACT}}", contract)
         )
@@ -83,7 +84,7 @@ class InitialResearchService:
             candidate_profile=candidate,
             research_scope=research_scope,
             as_of_date=as_of_date,
-            criteria_snapshot=active_criteria,
+            criteria_snapshot=criteria_snapshot,
             prompt_text=prompt_text,
         )
         return GeneratedInitialResearchPrompt(
@@ -91,7 +92,7 @@ class InitialResearchService:
             prompt_context_ref=prompt_context_ref,
             prompt_text=prompt_text,
             bundle_version="1.0",
-            criteria_count=len(active_criteria),
+            criteria_count=len(criteria_snapshot),
         )
 
     def _resolve_search_profile(self, selector: str) -> SearchProfile:
