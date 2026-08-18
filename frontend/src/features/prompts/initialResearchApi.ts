@@ -3,7 +3,7 @@ import type { components } from "../../api/generated";
 
 export type GeneratedInitialResearchPrompt =
   components["schemas"]["GeneratedPromptResponse"] & {
-    prompt_context_ref: string;
+    prompt_context_ref?: string;
   };
 export type InitialPromptPayload =
   components["schemas"]["InitialPromptPayload"];
