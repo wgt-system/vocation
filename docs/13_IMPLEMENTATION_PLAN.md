@@ -281,7 +281,7 @@ After blocking product work is implemented:
 
 1. run full automated repository gates;
 2. start the exact local candidate cleanly;
-3. rerun `docs/16_FIRST_USER_ACCEPTANCE.md` with the real Candidate/Search Profile;
+3. rerun `docs/18_FIRST_USER_ACCEPTANCE.md` with the real Candidate/Search Profile;
 4. execute real current research using the improved strategy/source/freshness rules;
 5. verify original/current posting/application routes;
 6. exercise Fit/search/filter/map/comparison/application flow;
