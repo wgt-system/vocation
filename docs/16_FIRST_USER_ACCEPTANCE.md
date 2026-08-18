@@ -1,5 +1,7 @@
 # First-user acceptance
 
+**Status:** automated path passes; first manual product pass on 2026-08-18 is blocked by #45–#52.
+
 This acceptance path verifies Vocation as a qualitative, local job-search workflow rather than as isolated implementation screens.
 
 ## Automated deterministic acceptance
@@ -18,21 +20,46 @@ This acceptance path verifies Vocation as a qualitative, local job-search workfl
 
 The fixture is intentionally synthetic and repository-stable. CI therefore tests Vocation deterministically and does not depend on websites, search engines, model availability or the current job market.
 
-The normal UI mirrors this sequence: **Stellenmarkt**, **Profil & Suche**, **Recherche** and **Organisation** are the primary work areas. Manual raw import and direct criterion administration remain under **Werkzeuge**. A successful inline import from **Recherche** refreshes the market state and returns directly to **Stellenmarkt**.
+The currently implemented UI mirrors this sequence through **Stellenmarkt**, **Profil & Suche**, **Recherche** and **Organisation**. Manual raw import and direct criterion administration remain under **Werkzeuge**. A successful inline import from **Recherche** refreshes the market state and returns directly to **Stellenmarkt**.
 
-## Manual current-market acceptance
+This describes implementation, not the accepted final information architecture. The manual pass has since rejected parts of that presentation; see `17_MANUAL_PRODUCT_ACCEPTANCE.md` and #45.
 
-Periodically replace only the simulated external-research step with a real current research run:
+## Manual acceptance result – 2026-08-18
 
-1. Open **Profil & Suche** and review the Candidate Profile and the default Search Profile. Confirm target roles, technology tiers, locations/work model, hard must/must-not constraints, result limit and criterion policy.
-2. Open **Recherche**, choose **Initial Research**, confirm the intended Search Profile and whether Candidate Profile data should be included, and set today's as-of date.
+The first real local/manual product pass **did not pass**. It stopped before a release decision because the normal empty-market/profile workflow already exposed blocking findings:
+
+- global `Nächster Schritt` guidance duplicates navigation and should be removed;
+- the sidebar footer slogan has no useful product function;
+- Stellenmarkt title/count/search/filter/sort/view controls form an unreadable dense strip, including controls that are pointless for an empty market;
+- mixed German/English user-facing terminology and inconsistent card/form sizing make the UI feel implementation-oriented;
+- Candidate/Search Profile editing is too textarea-heavy and repetitive for durable use;
+- Search Profile roles, seniority, employment types, industries and technologies need structured selectors; target locations need explicit place/radius semantics;
+- the personal profile needs durable reusable personal/career facts and CV/certificate/evidence documents;
+- `Organisation` and literal `Groups/Waves` are not accepted as final user-facing application-planning language;
+- real research needs deliberate company-first/direct-career-page and freshness-verification strategies instead of one generic search pattern;
+- the Windows development launcher hides backend failures and may make stale child/file-lock diagnosis unnecessarily difficult.
+
+Focused blockers are tracked in #45–#52. Detailed product direction is in `17_MANUAL_PRODUCT_ACCEPTANCE.md`.
+
+Because the product was already blocked at this stage, the current-market import/update/restart sequence below has **not yet been accepted**. It must be repeated after the blocking product work is resolved.
+
+## Manual current-market acceptance procedure
+
+When the blocking findings are ready for re-test, replace only the simulated external-research step with a real current research run:
+
+1. Open the personal/search-profile area and review the Candidate Profile, default Search Profile and evaluation policy. Confirm target roles, technology tiers, search areas/work model, hard must/must-not constraints, result target and criterion policy.
+2. Open **Recherche**, choose the intended initial-research strategy and confirm the Search Profile, optional Candidate Profile disclosure and today's as-of date.
 3. Generate the prompt and copy it into a research-capable external model/tool. Do not manually add private Vocation state beyond what the prompt intentionally contains.
-4. Ask the external tool to return only the requested Research Bundle JSON. Prefer official company-career pages as evidence and accept fewer results rather than quota-filling weak entries.
-5. Paste the JSON into the inline result import on **Recherche**. The import must be accepted without editing internal IDs or provenance fields and should return directly to **Stellenmarkt**.
-6. Verify that results show explainable Fit, evidence completeness and hard-constraint state for the selected Search Profile. Spot-check at least two Source Reference URLs against their official postings.
-7. Exercise text search, Search Profile selection, hard-constraint/evidence filters, Fit sorting, map/comparison and a Group/Wave. Add a private note and a Tracking Status/Decision to one Opportunity.
-8. Return to **Recherche** and generate an Opportunity Update or Full Update for the current as-of date. Run it externally and import the returned Bundle 2.0.
-9. Re-open the affected Opportunity. Confirm that new evidence was appended without replacing the original source provenance and that the private note, Tracking Status/Decision, Group/Wave membership and personal assessments remain intact.
-10. Restart Vocation and confirm Candidate/Search Profiles plus the personal Opportunity state are still present.
+4. Ask the external tool to return only the requested schema-valid bundle. Prefer official company-career/original posting pages, verify an active application route where possible, and accept fewer results rather than quota-filling weak entries.
+5. Paste the JSON into the inline result import on **Recherche**. The import must be accepted without editing internal IDs or provenance fields and should return to **Stellenmarkt**.
+6. Verify that results show explainable Fit, evidence completeness and hard-constraint state for the selected Search Profile. Spot-check at least two Source Reference URLs against official current postings and their actual application path.
+7. Exercise text search, Search Profile selection, hard-constraint/evidence filters, Fit sorting, map/comparison and the currently implemented collection/application-planning workflow. Add a private note and a Tracking Status/Decision to one Opportunity.
+8. Return to **Recherche** and generate an Opportunity Update, Full Update or dedicated freshness/availability check for the current as-of date. Run it externally and import the returned versioned bundle.
+9. Re-open the affected Opportunity. Confirm that new evidence was appended without replacing the original source provenance and that the private note, Tracking Status/Decision, collection membership and personal assessments remain intact.
+10. Restart Vocation and confirm Candidate/Search Profiles plus the personal Opportunity/Application state are still present.
 
-A failure in steps 5–10 is a Vocation acceptance failure. A current posting disappearing between research and manual verification is market volatility, not by itself an application failure; its availability should instead be refreshed through the dedicated availability/update workflow.
+A failure in steps 5–10 is a Vocation acceptance failure. A current posting disappearing between research and manual verification is market volatility rather than an identity failure, but it must become visible through the existing Availability/Freshness workflow rather than remaining presented as an actionable current posting.
+
+## Release rule
+
+Automated acceptance plus a synthetic fixture is necessary but not sufficient. #42 closes only after the real local/current-market workflow has been exercised on the redesigned product, blocking findings are resolved or explicitly deferred, and the exact candidate passes the repository gates.
