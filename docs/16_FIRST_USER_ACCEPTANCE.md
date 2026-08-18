@@ -18,6 +18,8 @@ This acceptance path verifies Vocation as a qualitative, local job-search workfl
 
 The fixture is intentionally synthetic and repository-stable. CI therefore tests Vocation deterministically and does not depend on websites, search engines, model availability or the current job market.
 
+The normal UI mirrors this sequence: **Stellenmarkt**, **Profil & Suche**, **Recherche** and **Organisation** are the primary work areas. Manual raw import and direct criterion administration remain under **Werkzeuge**. A successful inline import from **Recherche** refreshes the market state and returns directly to **Stellenmarkt**.
+
 ## Manual current-market acceptance
 
 Periodically replace only the simulated external-research step with a real current research run:
@@ -26,8 +28,8 @@ Periodically replace only the simulated external-research step with a real curre
 2. Open **Recherche**, choose **Initial Research**, confirm the intended Search Profile and whether Candidate Profile data should be included, and set today's as-of date.
 3. Generate the prompt and copy it into a research-capable external model/tool. Do not manually add private Vocation state beyond what the prompt intentionally contains.
 4. Ask the external tool to return only the requested Research Bundle JSON. Prefer official company-career pages as evidence and accept fewer results rather than quota-filling weak entries.
-5. Paste the JSON into the inline result import on **Recherche**. The import must be accepted without editing internal IDs or provenance fields.
-6. Open **Stellenmarkt**. Verify that results show explainable Fit, evidence completeness and hard-constraint state for the selected Search Profile. Spot-check at least two Source Reference URLs against their official postings.
+5. Paste the JSON into the inline result import on **Recherche**. The import must be accepted without editing internal IDs or provenance fields and should return directly to **Stellenmarkt**.
+6. Verify that results show explainable Fit, evidence completeness and hard-constraint state for the selected Search Profile. Spot-check at least two Source Reference URLs against their official postings.
 7. Exercise text search, Search Profile selection, hard-constraint/evidence filters, Fit sorting, map/comparison and a Group/Wave. Add a private note and a Tracking Status/Decision to one Opportunity.
 8. Return to **Recherche** and generate an Opportunity Update or Full Update for the current as-of date. Run it externally and import the returned Bundle 2.0.
 9. Re-open the affected Opportunity. Confirm that new evidence was appended without replacing the original source provenance and that the private note, Tracking Status/Decision, Group/Wave membership and personal assessments remain intact.
