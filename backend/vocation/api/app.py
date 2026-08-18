@@ -48,6 +48,7 @@ from vocation.application.profiles import ProfileService
 from vocation.application.prompts import PromptService
 from vocation.application.publication import MapProjectionPublicationService, OpportunityOverviewPublicationService
 from vocation.application.search_vocabulary import SearchVocabularyService
+from vocation.application.search_vocabulary_prompts import SearchVocabularyPromptService
 from vocation.application.update_planning import UpdateImportPlanner
 from vocation.config import Settings, get_settings
 from vocation.infrastructure.application_case_repository import SqlAlchemyApplicationCaseRepository
@@ -108,8 +109,11 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
         profile_repository,
         criteria=app.state.criteria_service,
     )
-    app.state.search_vocabulary_service = SearchVocabularyService(
-        SqlAlchemySearchVocabularyRepository(database.session_factory)
+    search_vocabulary_repository = SqlAlchemySearchVocabularyRepository(database.session_factory)
+    app.state.search_vocabulary_service = SearchVocabularyService(search_vocabulary_repository)
+    app.state.search_vocabulary_prompt_service = SearchVocabularyPromptService(
+        search_vocabulary_repository,
+        settings.search_vocabulary_prompt_path,
     )
     app.state.opportunity_fit_service = OpportunityFitService(
         SqlAlchemyFitRepository(database.session_factory),
