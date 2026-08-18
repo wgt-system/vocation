@@ -84,7 +84,7 @@ Candidate Profile revision provenance is recorded only where candidate facts act
 
 Hard must-have/must-not constraints remain distinct from weighted fit. Missing evidence is never silently treated as a match.
 
-See `15_OPPORTUNITY_FIT.md` for the fit rules.
+See `16_OPPORTUNITY_FIT.md` for the fit rules.
 
 ## Profile-aware Initial Research
 
