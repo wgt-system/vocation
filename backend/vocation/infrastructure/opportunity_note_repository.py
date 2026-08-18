@@ -22,7 +22,9 @@ class OpportunityNoteModel(Base):
 
 
 def _iso(value: datetime) -> str:
-    return value.isoformat().replace("+00:00", "Z")
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=UTC)
+    return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
 class SqlAlchemyOpportunityNoteRepository:
