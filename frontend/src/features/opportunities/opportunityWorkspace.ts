@@ -35,7 +35,10 @@ function textMatches(item: OpportunityListItem, query: string): boolean {
     .includes(normalized);
 }
 
-function tieBreak(left: OpportunityListItem, right: OpportunityListItem): number {
+function tieBreak(
+  left: OpportunityListItem,
+  right: OpportunityListItem,
+): number {
   return (
     left.company_name.localeCompare(right.company_name, "de-DE") ||
     left.title.localeCompare(right.title, "de-DE") ||
@@ -100,12 +103,7 @@ export function analyzeOpportunities(
   return [...filtered].sort((left, right) => {
     switch (filters.sort) {
       case "fit_desc":
-        return scoreCompare(
-          left,
-          right,
-          fits,
-          (fit) => fit.weighted_fit_score,
-        );
+        return scoreCompare(left, right, fits, (fit) => fit.weighted_fit_score);
       case "evidence_desc":
         return scoreCompare(
           left,
