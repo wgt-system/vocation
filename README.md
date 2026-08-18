@@ -6,7 +6,7 @@ Vocation is a standalone, local-first application for a personal job market. It 
 
 Stable `main` remains the released **v0.4.0 standalone baseline**. The `dev` branch contains the completed post-v0.4 qualitative capability work from #31 and has passed the automated first-user acceptance path.
 
-The first real local/manual product pass started on **2026-08-18** and exposed blocking UX and workflow findings. The automated acceptance therefore does **not** count as product acceptance and no next semantic version has been chosen. The current findings, product direction and release gate are documented in `docs/18_MANUAL_PRODUCT_ACCEPTANCE.md` and tracked by #42 with focused follow-up issues #45–#52.
+The first real local/manual product pass started on **2026-08-18** and exposed blocking UX and workflow findings. The automated acceptance therefore does **not** count as product acceptance and no next semantic version has been chosen. The current findings, product direction and release gate are documented in `docs/17_MANUAL_PRODUCT_ACCEPTANCE.md` and tracked by #42 with focused follow-up issues #45–#52.
 
 The next release is considered only after the blocking findings are implemented or consciously deferred, the current-market workflow is repeated with real data, and the exact resulting release candidate passes the repository gates.
 
@@ -43,7 +43,7 @@ The completed acceptance wave adds the qualitative personal-search layer without
 - the currently implemented navigation around **Stellenmarkt**, **Profil & Suche**, **Recherche** and **Organisation**, with manual implementation-oriented surfaces under **Werkzeuge**;
 - a deterministic realistic first-user acceptance flow covering initial research, linked import, fit, personal state, scoped update, provenance preservation and application restart.
 
-The currently implemented navigation and form layout are **not** the accepted final product design. Manual acceptance specifically identified the global next-step panel, dense Stellenmarkt controls, mixed terminology, raw multiline Search Profile fields and application/organisation presentation as blockers. See `docs/18_MANUAL_PRODUCT_ACCEPTANCE.md`.
+The currently implemented navigation and form layout are **not** the accepted final product design. Manual acceptance specifically identified the global next-step panel, dense Stellenmarkt controls, mixed terminology, raw multiline Search Profile fields and application/organisation presentation as blockers. See `docs/17_MANUAL_PRODUCT_ACCEPTANCE.md`.
 
 ### Accepted post-v0.4 product direction
 
