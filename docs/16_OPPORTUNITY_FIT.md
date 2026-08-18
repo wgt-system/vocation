@@ -70,4 +70,4 @@ The Opportunity workspace/list shows weighted fit, evidence completeness and har
 
 Opportunity Fit remains inside the Vocation bounded context. It is not a generic scoring service and is not part of Orientation, Wiiii Got This, Conveyance, or any frozen Published Vocation contract.
 
-The manual product pass does not invalidate the evaluator. #45/#47 redesign how Profile policy and Fit controls are presented; `18_MANUAL_PRODUCT_ACCEPTANCE.md` records the current release gate.
+The manual product pass does not invalidate the evaluator. #45/#47 redesign how Profile policy and Fit controls are presented; `17_MANUAL_PRODUCT_ACCEPTANCE.md` records the current release gate.
