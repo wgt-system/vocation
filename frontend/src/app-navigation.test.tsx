@@ -5,7 +5,23 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
 vi.mock("./features/opportunities/OpportunityList", () => ({
-  OpportunityList: () => <div>Stellenmarkt-Inhalt</div>,
+  OpportunityList: ({
+    onOpenProfiles,
+    onStartResearch,
+  }: {
+    onOpenProfiles?: () => void;
+    onStartResearch?: () => void;
+  }) => (
+    <div>
+      Stellenmarkt-Inhalt
+      <button type="button" onClick={onOpenProfiles}>
+        Profile öffnen
+      </button>
+      <button type="button" onClick={onStartResearch}>
+        Recherche starten
+      </button>
+    </div>
+  ),
 }));
 vi.mock("./features/opportunities/OpportunityDetailView", () => ({
   OpportunityDetailView: () => <div>Opportunity-Detail</div>,
@@ -30,7 +46,7 @@ vi.mock("./features/prompts/PromptView", () => ({
   ),
 }));
 vi.mock("./features/workspace/OrganisationView", () => ({
-  OrganisationView: () => <div>Organisation-Inhalt</div>,
+  OrganisationView: () => <div>Bewerbungen-Inhalt</div>,
 }));
 vi.mock("./features/workspace/ToolsView", () => ({
   ToolsView: () => <div>Werkzeuge-Inhalt</div>,
@@ -40,8 +56,8 @@ afterEach(() => {
   cleanup();
 });
 
-describe("first-user navigation", () => {
-  it("keeps workflow areas primary and implementation surfaces secondary", () => {
+describe("product navigation", () => {
+  it("uses intent-oriented primary areas and keeps technical tools secondary", () => {
     render(<App />);
     const navigation = screen.getByRole("navigation", {
       name: "Arbeitsbereiche",
@@ -51,49 +67,34 @@ describe("first-user navigation", () => {
       within(navigation).getByRole("button", { name: "Stellenmarkt" }),
     ).toBeInTheDocument();
     expect(
-      within(navigation).getByRole("button", { name: "Profil & Suche" }),
+      within(navigation).getByRole("button", { name: "Profile" }),
     ).toBeInTheDocument();
     expect(
       within(navigation).getByRole("button", { name: "Recherche" }),
     ).toBeInTheDocument();
     expect(
-      within(navigation).getByRole("button", { name: "Organisation" }),
+      within(navigation).getByRole("button", { name: "Bewerbungen" }),
     ).toBeInTheDocument();
     expect(
       within(navigation).getByRole("button", { name: "Werkzeuge" }),
     ).toBeInTheDocument();
+    expect(screen.queryByText("Nächster Schritt")).not.toBeInTheDocument();
     expect(
-      within(navigation).queryByRole("button", { name: "Import" }),
-    ).not.toBeInTheDocument();
-    expect(
-      within(navigation).queryByRole("button", { name: "Dubletten" }),
-    ).not.toBeInTheDocument();
-    expect(
-      within(navigation).queryByRole("button", {
-        name: "Assessment-Kriterien",
-      }),
+      screen.queryByText("Lokal · privat · nachvollziehbar"),
     ).not.toBeInTheDocument();
   });
 
-  it("moves directly from market to profile and research and back", async () => {
+  it("lets the empty-market actions open profiles or research without global workflow cards", async () => {
     const user = userEvent.setup();
     render(<App />);
 
     expect(screen.getByText("Stellenmarkt-Inhalt")).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", { name: "Profil konfigurieren" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Profile öffnen" }));
     expect(screen.getByText("Profil-Inhalt")).toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole("button", { name: "Mit Profil recherchieren" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Stellenmarkt" }));
+    await user.click(screen.getByRole("button", { name: "Recherche starten" }));
     expect(screen.getByText("Recherche-Inhalt")).toBeInTheDocument();
-
-    await user.click(
-      screen.getByRole("button", { name: "Stellenmarkt öffnen" }),
-    );
-    expect(screen.getByText("Stellenmarkt-Inhalt")).toBeInTheDocument();
   });
 
   it("hands a successful inline research import directly to the market", async () => {
@@ -108,12 +109,12 @@ describe("first-user navigation", () => {
     expect(screen.getByText("Stellenmarkt-Inhalt")).toBeInTheDocument();
   });
 
-  it("keeps organisation and tools reachable without promoting technical screens", async () => {
+  it("keeps applications and tools directly reachable", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Organisation" }));
-    expect(screen.getByText("Organisation-Inhalt")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Bewerbungen" }));
+    expect(screen.getByText("Bewerbungen-Inhalt")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Werkzeuge" }));
     expect(screen.getByText("Werkzeuge-Inhalt")).toBeInTheDocument();

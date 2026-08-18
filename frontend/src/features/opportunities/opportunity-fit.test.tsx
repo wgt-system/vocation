@@ -210,12 +210,10 @@ describe("explainable opportunity fit UI", () => {
     expect(screen.getByText("Role High")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Opportunities durchsuchen"), "Low");
-    expect(
-      screen.getByText("Keine passenden Opportunities"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Keine passenden Stellen")).toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("button", { name: "Analyse zurücksetzen" }),
+      screen.getByRole("button", { name: "Filter zurücksetzen" }),
     );
     expect(screen.getByText("Role Low")).toBeInTheDocument();
     expect(screen.getByText("Role High")).toBeInTheDocument();

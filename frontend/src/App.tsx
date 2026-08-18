@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { useState } from "react";
 
 import { OpportunityDetailView } from "./features/opportunities/OpportunityDetailView";
 import { OpportunityDetailFitPanel } from "./features/opportunities/OpportunityFitBreakdown";
@@ -9,27 +9,15 @@ import { PromptView } from "./features/prompts/PromptView";
 import { OrganisationView } from "./features/workspace/OrganisationView";
 import { ToolsView } from "./features/workspace/ToolsView";
 
-type PrimaryView = "market" | "profile" | "research" | "organisation";
+type PrimaryView = "market" | "profile" | "research" | "applications";
 type View = PrimaryView | "tools";
 
 const primaryLabels: Record<PrimaryView, string> = {
   market: "Stellenmarkt",
-  profile: "Profil & Suche",
+  profile: "Profile",
   research: "Recherche",
-  organisation: "Organisation",
+  applications: "Bewerbungen",
 };
-
-function WorkflowLinks({ children }: { children: ReactNode }) {
-  return (
-    <section className="panel workflow-links" aria-label="Workflow-Navigation">
-      <div>
-        <p className="eyebrow">Nächster Schritt</p>
-        <p className="muted">Wechsle direkt zum passenden Arbeitsbereich.</p>
-      </div>
-      <div className="actions">{children}</div>
-    </section>
-  );
-}
 
 export default function App() {
   const [view, setView] = useState<View>("market");
@@ -63,7 +51,7 @@ export default function App() {
           </div>
         </div>
         <nav aria-label="Arbeitsbereiche">
-          <small className="nav-section-label">Arbeitsbereich</small>
+          <small className="nav-section-label">Arbeitsbereiche</small>
           {(Object.keys(primaryLabels) as PrimaryView[]).map((item) => (
             <button
               className={view === item ? "active" : ""}
@@ -81,74 +69,31 @@ export default function App() {
             Werkzeuge
           </button>
         </nav>
-        <p className="local-note">Lokal · privat · nachvollziehbar</p>
       </aside>
       <main className="content">
         {view === "market" &&
           (selectedOpportunity ? (
-            <>
+            <div className="page-stack">
               <OpportunityDetailFitPanel opportunityId={selectedOpportunity} />
               <OpportunityNotePanel opportunityId={selectedOpportunity} />
               <OpportunityDetailView
                 opportunityId={selectedOpportunity}
                 onBack={() => setSelectedOpportunity(null)}
               />
-            </>
+            </div>
           ) : (
-            <>
-              <WorkflowLinks>
-                <button type="button" onClick={() => navigate("profile")}>
-                  Profil konfigurieren
-                </button>
-                <button
-                  className="primary"
-                  type="button"
-                  onClick={() => navigate("research")}
-                >
-                  Recherche starten
-                </button>
-              </WorkflowLinks>
-              <OpportunityList
-                refreshToken={refreshToken}
-                onSelect={setSelectedOpportunity}
-              />
-            </>
+            <OpportunityList
+              refreshToken={refreshToken}
+              onSelect={setSelectedOpportunity}
+              onStartResearch={() => navigate("research")}
+              onOpenProfiles={() => navigate("profile")}
+            />
           ))}
-        {view === "profile" && (
-          <>
-            <WorkflowLinks>
-              <button type="button" onClick={() => navigate("market")}>
-                Zum Stellenmarkt
-              </button>
-              <button
-                className="primary"
-                type="button"
-                onClick={() => navigate("research")}
-              >
-                Mit Profil recherchieren
-              </button>
-            </WorkflowLinks>
-            <ProfileSearchView />
-          </>
-        )}
+        {view === "profile" && <ProfileSearchView />}
         {view === "research" && (
-          <>
-            <WorkflowLinks>
-              <button type="button" onClick={() => navigate("profile")}>
-                Profil prüfen
-              </button>
-              <button
-                className="primary"
-                type="button"
-                onClick={() => navigate("market")}
-              >
-                Stellenmarkt öffnen
-              </button>
-            </WorkflowLinks>
-            <PromptView onImported={finishResearchImport} />
-          </>
+          <PromptView onImported={finishResearchImport} />
         )}
-        {view === "organisation" && <OrganisationView />}
+        {view === "applications" && <OrganisationView />}
         {view === "tools" && <ToolsView onImported={markImported} />}
       </main>
     </div>
