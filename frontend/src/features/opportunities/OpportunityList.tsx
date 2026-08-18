@@ -2,20 +2,26 @@ import { useEffect, useState } from "react";
 
 import {
   api,
-  type OpportunityGroup,
   type OpportunityComparison,
+  type OpportunityGroup,
   type OpportunityListItem,
   type TrackingStatus,
 } from "../../api/client";
 import { EmptyState, ErrorState, Loading } from "../../components/AsyncState";
+import { profileApi, type SearchProfile } from "../profiles/profileApi";
+import { fitApi, type OpportunityFit } from "./fitApi";
 import { MapView } from "./MapView";
 import { OpportunityComparisonView } from "./OpportunityComparisonView";
 import { OpportunityFitBreakdown } from "./OpportunityFitBreakdown";
-import { fitApi, type OpportunityFit } from "./fitApi";
+import {
+  analyzeOpportunities,
+  type Availability,
+  type EvidenceFilter,
+  type HardConstraintFilter,
+  type OpportunitySort,
+} from "./opportunityWorkspace";
 
-type Availability = NonNullable<OpportunityListItem["availability"]>;
 type DisplayMode = "list" | "map";
-type FitSort = "default" | "fit_desc";
 
 const availabilityLabels: Record<Availability, string> = {
   available: "Verfügbar",
@@ -57,12 +63,21 @@ export function OpportunityList({
   const [items, setItems] = useState<OpportunityListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TrackingStatus[]>([]);
   const [availabilityFilter, setAvailabilityFilter] = useState<
     Availability | "all"
   >("all");
+  const [hardConstraintFilter, setHardConstraintFilter] =
+    useState<HardConstraintFilter>("all");
+  const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
+  const [sort, setSort] = useState<OpportunitySort>("recency_desc");
   const [groups, setGroups] = useState<OpportunityGroup[]>([]);
   const [groupFilter, setGroupFilter] = useState("");
+  const [searchProfiles, setSearchProfiles] = useState<SearchProfile[]>([]);
+  const [selectedSearchProfileId, setSelectedSearchProfileId] = useState("");
+  const [profilesLoading, setProfilesLoading] = useState(true);
+  const [profileError, setProfileError] = useState("");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("list");
   const [selectedItems, setSelectedItems] = useState<OpportunityListItem[]>([]);
   const [comparison, setComparison] = useState<OpportunityComparison | null>(
@@ -73,7 +88,6 @@ export function OpportunityList({
   const [fits, setFits] = useState<Record<string, OpportunityFit>>({});
   const [fitLoading, setFitLoading] = useState(false);
   const [fitError, setFitError] = useState("");
-  const [fitSort, setFitSort] = useState<FitSort>("default");
   const [expandedFitId, setExpandedFitId] = useState("");
   const statuses: { value: TrackingStatus; label: string }[] = [
     { value: "new", label: "Neu" },
@@ -84,25 +98,18 @@ export function OpportunityList({
     { value: "excluded", label: "Ausgeschlossen" },
     { value: "archived", label: "Archiviert" },
   ];
-  const filteredItems = items.filter(
-    (item) =>
-      (statusFilter.length === 0 ||
-        statusFilter.includes(item.tracking_status)) &&
-      (availabilityFilter === "all" ||
-        availabilityOf(item) === availabilityFilter),
-  );
-  const visibleItems =
-    fitSort === "fit_desc"
-      ? [...filteredItems].sort((left, right) => {
-          const leftScore = fits[left.id]?.weighted_fit_score;
-          const rightScore = fits[right.id]?.weighted_fit_score;
-          if (leftScore === null || leftScore === undefined) {
-            return rightScore === null || rightScore === undefined ? 0 : 1;
-          }
-          if (rightScore === null || rightScore === undefined) return -1;
-          return rightScore - leftScore;
-        })
-      : filteredItems;
+  const visibleItems = analyzeOpportunities(items, fits, {
+    query,
+    statuses: statusFilter,
+    availability: availabilityFilter,
+    hardConstraint: hardConstraintFilter,
+    evidence: evidenceFilter,
+    sort,
+  });
+  const defaultSearchProfileId =
+    searchProfiles.find((profile) => profile.is_default)?.id ??
+    searchProfiles[0]?.id ??
+    "";
 
   function toggleStatus(status: TrackingStatus) {
     setStatusFilter((current) =>
@@ -110,6 +117,17 @@ export function OpportunityList({
         ? current.filter((item) => item !== status)
         : [...current, status],
     );
+  }
+
+  function resetWorkspace() {
+    setQuery("");
+    setStatusFilter([]);
+    setAvailabilityFilter("all");
+    setHardConstraintFilter("all");
+    setEvidenceFilter("all");
+    setSort("recency_desc");
+    setGroupFilter("");
+    setSelectedSearchProfileId(defaultSearchProfileId);
   }
 
   useEffect(() => {
@@ -136,6 +154,36 @@ export function OpportunityList({
   }, []);
 
   useEffect(() => {
+    setProfilesLoading(true);
+    setProfileError("");
+    profileApi
+      .listSearchProfiles()
+      .then((profiles) => {
+        setSearchProfiles(profiles);
+        setSelectedSearchProfileId((current) => {
+          if (current && profiles.some((profile) => profile.id === current)) {
+            return current;
+          }
+          return (
+            profiles.find((profile) => profile.is_default)?.id ??
+            profiles[0]?.id ??
+            ""
+          );
+        });
+      })
+      .catch((reason) => {
+        setSearchProfiles([]);
+        setSelectedSearchProfileId("");
+        setProfileError(
+          reason instanceof Error
+            ? reason.message
+            : "Search Profiles konnten nicht geladen werden.",
+        );
+      })
+      .finally(() => setProfilesLoading(false));
+  }, []);
+
+  useEffect(() => {
     let active = true;
     if (items.length === 0) {
       setFits({});
@@ -145,10 +193,26 @@ export function OpportunityList({
         active = false;
       };
     }
+    if (!selectedSearchProfileId) {
+      setFits({});
+      setFitLoading(false);
+      setFitError(
+        profilesLoading || profileError
+          ? ""
+          : "Kein Search Profile für die Fit-Analyse verfügbar.",
+      );
+      return () => {
+        active = false;
+      };
+    }
     setFitLoading(true);
     setFitError("");
+    setFits({});
     fitApi
-      .list(items.map((item) => item.id))
+      .list(
+        items.map((item) => item.id),
+        selectedSearchProfileId,
+      )
       .then((nextFits) => {
         if (!active) return;
         setFits(
@@ -170,7 +234,7 @@ export function OpportunityList({
     return () => {
       active = false;
     };
-  }, [items]);
+  }, [items, profileError, profilesLoading, selectedSearchProfileId]);
 
   function toggleComparison(item: OpportunityListItem) {
     setComparisonError("");
@@ -220,6 +284,38 @@ export function OpportunityList({
           <p className="eyebrow">Persönlicher Stellenmarkt</p>
           <h1>Opportunities</h1>
         </div>
+        <span className="count-badge">
+          {visibleItems.length} von {items.length}
+        </span>
+        <label>
+          Suche
+          <input
+            type="search"
+            aria-label="Opportunities durchsuchen"
+            placeholder="Titel, Unternehmen oder Ort"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+        <label>
+          Search Profile
+          <select
+            aria-label="Search Profile für Opportunity-Analyse"
+            value={selectedSearchProfileId}
+            disabled={profilesLoading || searchProfiles.length === 0}
+            onChange={(event) => setSelectedSearchProfileId(event.target.value)}
+          >
+            {searchProfiles.length === 0 && (
+              <option value="">Kein Search Profile</option>
+            )}
+            {searchProfiles.map((profile) => (
+              <option key={profile.id} value={profile.id}>
+                {profile.name}
+                {profile.is_default ? " (Standard)" : ""}
+              </option>
+            ))}
+          </select>
+        </label>
         <fieldset className="status-filters">
           <legend>Tracking Status filtern</legend>
           {statuses.map((status) => (
@@ -232,13 +328,7 @@ export function OpportunityList({
               {status.label}
             </label>
           ))}
-          {statusFilter.length > 0 && (
-            <button type="button" onClick={() => setStatusFilter([])}>
-              Filter löschen
-            </button>
-          )}
         </fieldset>
-        <span className="count-badge">{visibleItems.length}</span>
         <label>
           Availability
           <select
@@ -271,16 +361,53 @@ export function OpportunityList({
           </select>
         </label>
         <label>
+          Harte Kriterien
+          <select
+            aria-label="Harte Kriterien filtern"
+            value={hardConstraintFilter}
+            onChange={(event) =>
+              setHardConstraintFilter(
+                event.target.value as HardConstraintFilter,
+              )
+            }
+          >
+            <option value="all">Alle</option>
+            <option value="pass">Erfüllt</option>
+            <option value="fail">Nicht erfüllt</option>
+            <option value="unknown">Offen</option>
+          </select>
+        </label>
+        <label>
+          Evidenz
+          <select
+            aria-label="Evidenz filtern"
+            value={evidenceFilter}
+            onChange={(event) =>
+              setEvidenceFilter(event.target.value as EvidenceFilter)
+            }
+          >
+            <option value="all">Alle</option>
+            <option value="missing">Fehlende Evidenz</option>
+            <option value="complete">Keine fehlende Evidenz</option>
+          </select>
+        </label>
+        <label>
           Sortierung
           <select
             aria-label="Opportunities sortieren"
-            value={fitSort}
-            onChange={(event) => setFitSort(event.target.value as FitSort)}
+            value={sort}
+            onChange={(event) => setSort(event.target.value as OpportunitySort)}
           >
-            <option value="default">Standard</option>
+            <option value="recency_desc">Zuletzt importiert</option>
             <option value="fit_desc">Bester Fit zuerst</option>
+            <option value="evidence_desc">Beste Evidenz zuerst</option>
+            <option value="company_asc">Unternehmen A–Z</option>
+            <option value="title_asc">Titel A–Z</option>
           </select>
         </label>
+        <button type="button" onClick={resetWorkspace}>
+          Analyse zurücksetzen
+        </button>
         <div className="view-toggle" aria-label="Opportunity Ansicht">
           <button
             type="button"
@@ -298,6 +425,11 @@ export function OpportunityList({
           </button>
         </div>
       </header>
+      {profileError && (
+        <p className="state state-error" role="alert">
+          Search Profiles nicht verfügbar: {profileError}
+        </p>
+      )}
       {fitError && (
         <p className="muted" role="status">
           Fit nicht verfügbar: {fitError}
@@ -351,6 +483,14 @@ export function OpportunityList({
           <p>
             Erzeuge einen Research Prompt und importiere anschließend das JSON
             Bundle.
+          </p>
+        </EmptyState>
+      )}
+      {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
+        <EmptyState>
+          <h2>Keine passenden Opportunities</h2>
+          <p>
+            Die aktuelle Suche oder Filterkombination liefert kein Ergebnis.
           </p>
         </EmptyState>
       )}

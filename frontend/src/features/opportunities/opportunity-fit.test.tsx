@@ -1,17 +1,24 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "../../api/client";
+import { profileApi, type SearchProfile } from "../profiles/profileApi";
+import { fitApi, type OpportunityFit } from "./fitApi";
 import { OpportunityDetailFitPanel } from "./OpportunityFitBreakdown";
 import { OpportunityList } from "./OpportunityList";
-import { fitApi, type OpportunityFit } from "./fitApi";
 
 vi.mock("../../api/client", () => ({
   api: {
     listOpportunities: vi.fn(),
     listGroups: vi.fn(),
     compareOpportunities: vi.fn(),
+  },
+}));
+
+vi.mock("../profiles/profileApi", () => ({
+  profileApi: {
+    listSearchProfiles: vi.fn(),
   },
 }));
 
@@ -58,8 +65,46 @@ function fit(
   };
 }
 
+function searchProfile(
+  id: string,
+  name: string,
+  isDefault: boolean,
+): SearchProfile {
+  return {
+    id,
+    revision: 1,
+    name,
+    description: "",
+    target_roles: [],
+    seniority_targets: [],
+    preferred_technologies: [],
+    acceptable_technologies: [],
+    avoided_technologies: [],
+    target_locations: [],
+    work_models: [],
+    relocation_willing: false,
+    employment_types: [],
+    preferred_industries: [],
+    avoided_industries: [],
+    preferred_company_characteristics: [],
+    avoided_company_characteristics: [],
+    salary_floor: null,
+    salary_target: null,
+    salary_currency: "EUR",
+    must_haves: [],
+    must_not_haves: [],
+    result_limit: 10,
+    criterion_policies: [],
+    is_default: isDefault,
+  };
+}
+
 beforeEach(() => {
   vi.mocked(api.listGroups).mockResolvedValue([]);
+  vi.mocked(profileApi.listSearchProfiles).mockResolvedValue([
+    searchProfile("search-1", "Hamburg quality", true),
+    searchProfile("search-2", "Berlin Java", false),
+  ]);
   vi.mocked(api.listOpportunities).mockResolvedValue([
     {
       id: "opp-low",
@@ -126,6 +171,54 @@ describe("explainable opportunity fit UI", () => {
     expect(
       screen.getByText("Technologie-Passung: harte Schwelle verfehlt"),
     ).toBeInTheDocument();
+  });
+
+  it("preselects the default Search Profile and reloads fit when it changes", async () => {
+    const user = userEvent.setup();
+    render(<OpportunityList refreshToken={0} onSelect={vi.fn()} />);
+
+    const profile = await screen.findByLabelText(
+      "Search Profile für Opportunity-Analyse",
+    );
+    expect(profile).toHaveValue("search-1");
+    await waitFor(() =>
+      expect(fitApi.list).toHaveBeenCalledWith(
+        ["opp-low", "opp-high"],
+        "search-1",
+      ),
+    );
+
+    await user.selectOptions(profile, "search-2");
+    await waitFor(() =>
+      expect(fitApi.list).toHaveBeenCalledWith(
+        ["opp-low", "opp-high"],
+        "search-2",
+      ),
+    );
+  });
+
+  it("composes workspace search and hard-constraint filters and resets them", async () => {
+    const user = userEvent.setup();
+    render(<OpportunityList refreshToken={0} onSelect={vi.fn()} />);
+    expect(await screen.findByText("Role Low")).toBeInTheDocument();
+
+    await user.selectOptions(
+      screen.getByLabelText("Harte Kriterien filtern"),
+      "fail",
+    );
+    expect(screen.queryByText("Role Low")).not.toBeInTheDocument();
+    expect(screen.getByText("Role High")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Opportunities durchsuchen"), "Low");
+    expect(
+      screen.getByText("Keine passenden Opportunities"),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Analyse zurücksetzen" }),
+    );
+    expect(screen.getByText("Role Low")).toBeInTheDocument();
+    expect(screen.getByText("Role High")).toBeInTheDocument();
   });
 
   it("uses the same breakdown on the detail screen", async () => {

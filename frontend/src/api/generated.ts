@@ -727,6 +727,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/opportunities/{opportunity_id}/note": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Opportunity Note */
+        get: operations["get_opportunity_note_api_opportunities__opportunity_id__note_get"];
+        /** Save Opportunity Note */
+        put: operations["save_opportunity_note_api_opportunities__opportunity_id__note_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/opportunities/{opportunity_id}/restore": {
         parameters: {
             query?: never;
@@ -2140,6 +2158,20 @@ export interface components {
              * @enum {string}
              */
             tracking_status: "new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived";
+        };
+        /** OpportunityNotePayload */
+        OpportunityNotePayload: {
+            /** Content */
+            content: string;
+        };
+        /** OpportunityNoteResponse */
+        OpportunityNoteResponse: {
+            /** Content */
+            content: string;
+            /** Opportunity Id */
+            opportunity_id: string;
+            /** Updated At */
+            updated_at: string;
         };
         /** OpportunityOptionResponse */
         OpportunityOptionResponse: {
@@ -4075,6 +4107,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OpportunityFitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_opportunity_note_api_opportunities__opportunity_id__note_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityNoteResponse"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_opportunity_note_api_opportunities__opportunity_id__note_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityNotePayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityNoteResponse"] | null;
                 };
             };
             /** @description Validation Error */

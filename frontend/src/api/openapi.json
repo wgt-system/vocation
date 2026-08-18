@@ -3373,6 +3373,43 @@
         "title": "OpportunityListItemResponse",
         "type": "object"
       },
+      "OpportunityNotePayload": {
+        "properties": {
+          "content": {
+            "maxLength": 50000,
+            "title": "Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "OpportunityNotePayload",
+        "type": "object"
+      },
+      "OpportunityNoteResponse": {
+        "properties": {
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "opportunity_id",
+          "content",
+          "updated_at"
+        ],
+        "title": "OpportunityNoteResponse",
+        "type": "object"
+      },
       "OpportunityOptionResponse": {
         "properties": {
           "company_id": {
@@ -6676,6 +6713,114 @@
         "summary": "Get Opportunity Fit",
         "tags": [
           "opportunity-fit"
+        ]
+      }
+    },
+    "/api/opportunities/{opportunity_id}/note": {
+      "get": {
+        "operationId": "get_opportunity_note_api_opportunities__opportunity_id__note_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/OpportunityNoteResponse"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Opportunity Note Api Opportunities  Opportunity Id  Note Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Opportunity Note",
+        "tags": [
+          "opportunity-notes"
+        ]
+      },
+      "put": {
+        "operationId": "save_opportunity_note_api_opportunities__opportunity_id__note_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityNotePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/OpportunityNoteResponse"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Save Opportunity Note Api Opportunities  Opportunity Id  Note Put"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Opportunity Note",
+        "tags": [
+          "opportunity-notes"
         ]
       }
     },

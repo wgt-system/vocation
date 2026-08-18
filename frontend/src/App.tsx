@@ -7,6 +7,7 @@ import { ImportView } from "./features/imports/ImportView";
 import { OpportunityDetailView } from "./features/opportunities/OpportunityDetailView";
 import { OpportunityDetailFitPanel } from "./features/opportunities/OpportunityFitBreakdown";
 import { OpportunityList } from "./features/opportunities/OpportunityList";
+import { OpportunityNotePanel } from "./features/opportunities/OpportunityNotePanel";
 import { ProfileSearchView } from "./features/profiles/ProfileSearchView";
 import { PromptView } from "./features/prompts/PromptView";
 
@@ -69,6 +70,7 @@ export default function App() {
           (selectedOpportunity ? (
             <>
               <OpportunityDetailFitPanel opportunityId={selectedOpportunity} />
+              <OpportunityNotePanel opportunityId={selectedOpportunity} />
               <OpportunityDetailView
                 opportunityId={selectedOpportunity}
                 onBack={() => setSelectedOpportunity(null)}

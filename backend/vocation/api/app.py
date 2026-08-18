@@ -20,6 +20,7 @@ from vocation.api.fit_routes import router as fit_router
 from vocation.api.group_routes import router as group_router
 from vocation.api.import_routes import router as import_router
 from vocation.api.map_routes import router as map_router
+from vocation.api.opportunity_note_routes import router as opportunity_note_router
 from vocation.api.opportunity_routes import router as opportunity_router
 from vocation.api.profile_routes import router as profile_router
 from vocation.api.prompt_routes import router as prompt_router
@@ -39,6 +40,7 @@ from vocation.application.initial_research import InitialResearchService
 from vocation.application.initial_research_imports import InitialResearchImportService
 from vocation.application.map import MapService
 from vocation.application.opportunities import OpportunityQueryService
+from vocation.application.opportunity_notes import OpportunityNoteService
 from vocation.application.personal_triage import PersonalTriageService
 from vocation.application.posting_identity import PostingIdentityResolver
 from vocation.application.profiles import ProfileService
@@ -60,6 +62,7 @@ from vocation.infrastructure.fit_repository import SqlAlchemyFitRepository
 from vocation.infrastructure.group_repository import SqlAlchemyOpportunityGroupRepository
 from vocation.infrastructure.initial_research_repository import SqlAlchemyInitialResearchRepository
 from vocation.infrastructure.map_location_repository import SqlAlchemyMapLocationResolutionRepository
+from vocation.infrastructure.opportunity_note_repository import SqlAlchemyOpportunityNoteRepository
 from vocation.infrastructure.opportunity_queries import SqlAlchemyOpportunityReadRepository
 from vocation.infrastructure.orientation_geocoder import OrientationGeocoder
 from vocation.infrastructure.personal_triage_repository import SqlAlchemyPersonalTriageRepository
@@ -135,6 +138,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.state.personal_triage_service = PersonalTriageService(
         SqlAlchemyPersonalTriageRepository(database.session_factory), criteria_repository
     )
+    app.state.opportunity_note_service = OpportunityNoteService(SqlAlchemyOpportunityNoteRepository(database.session_factory))
     app.state.application_case_service = ApplicationCaseService(SqlAlchemyApplicationCaseRepository(database.session_factory))
     app.state.application_document_service = ApplicationDocumentService(
         SqlAlchemyApplicationDocumentRepository(database.session_factory),
@@ -209,6 +213,7 @@ def create_app(settings: Settings | None = None, *, run_migrations: bool = True)
     app.include_router(import_router)
     app.include_router(group_router)
     app.include_router(map_router)
+    app.include_router(opportunity_note_router)
     app.include_router(opportunity_router)
     app.include_router(published_router)
 
