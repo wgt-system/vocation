@@ -35,14 +35,21 @@ describe("OpportunityNotePanel", () => {
     const user = userEvent.setup();
     render(<OpportunityNotePanel opportunityId="opp-1" />);
 
-    const textarea = await screen.findByLabelText("Persönliche Opportunity-Notiz");
+    const textarea = await screen.findByLabelText(
+      "Persönliche Opportunity-Notiz",
+    );
     expect(textarea).toHaveValue("Existing private note");
     await user.clear(textarea);
     await user.type(textarea, "Updated note");
     await user.click(screen.getByRole("button", { name: "Notiz speichern" }));
 
-    expect(opportunityNoteApi.save).toHaveBeenCalledWith("opp-1", "Updated note");
-    expect(await screen.findByText("Persönliche Notiz gespeichert.")).toBeInTheDocument();
+    expect(opportunityNoteApi.save).toHaveBeenCalledWith(
+      "opp-1",
+      "Updated note",
+    );
+    expect(
+      await screen.findByText("Persönliche Notiz gespeichert."),
+    ).toBeInTheDocument();
     expect(textarea).toHaveValue("Updated note");
   });
 
@@ -51,11 +58,15 @@ describe("OpportunityNotePanel", () => {
     const user = userEvent.setup();
     render(<OpportunityNotePanel opportunityId="opp-1" />);
 
-    const textarea = await screen.findByLabelText("Persönliche Opportunity-Notiz");
+    const textarea = await screen.findByLabelText(
+      "Persönliche Opportunity-Notiz",
+    );
     await user.clear(textarea);
     await user.click(screen.getByRole("button", { name: "Notiz speichern" }));
 
-    expect(await screen.findByText("Persönliche Notiz gelöscht.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Persönliche Notiz gelöscht."),
+    ).toBeInTheDocument();
     expect(textarea).toHaveValue("");
   });
 });
