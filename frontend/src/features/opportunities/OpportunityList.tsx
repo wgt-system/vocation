@@ -8,10 +8,7 @@ import {
   type TrackingStatus,
 } from "../../api/client";
 import { EmptyState, ErrorState, Loading } from "../../components/AsyncState";
-import {
-  profileApi,
-  type SearchProfile,
-} from "../profiles/profileApi";
+import { profileApi, type SearchProfile } from "../profiles/profileApi";
 import { fitApi, type OpportunityFit } from "./fitApi";
 import { MapView } from "./MapView";
 import { OpportunityComparisonView } from "./OpportunityComparisonView";
@@ -73,8 +70,7 @@ export function OpportunityList({
   >("all");
   const [hardConstraintFilter, setHardConstraintFilter] =
     useState<HardConstraintFilter>("all");
-  const [evidenceFilter, setEvidenceFilter] =
-    useState<EvidenceFilter>("all");
+  const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
   const [sort, setSort] = useState<OpportunitySort>("recency_desc");
   const [groups, setGroups] = useState<OpportunityGroup[]>([]);
   const [groupFilter, setGroupFilter] = useState("");
@@ -211,6 +207,7 @@ export function OpportunityList({
     }
     setFitLoading(true);
     setFitError("");
+    setFits({});
     fitApi
       .list(
         items.map((item) => item.id),
@@ -401,7 +398,7 @@ export function OpportunityList({
             value={sort}
             onChange={(event) => setSort(event.target.value as OpportunitySort)}
           >
-            <option value="recency_desc">Neueste zuerst</option>
+            <option value="recency_desc">Zuletzt importiert</option>
             <option value="fit_desc">Bester Fit zuerst</option>
             <option value="evidence_desc">Beste Evidenz zuerst</option>
             <option value="company_asc">Unternehmen A–Z</option>
@@ -492,7 +489,9 @@ export function OpportunityList({
       {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
         <EmptyState>
           <h2>Keine passenden Opportunities</h2>
-          <p>Die aktuelle Suche oder Filterkombination liefert kein Ergebnis.</p>
+          <p>
+            Die aktuelle Suche oder Filterkombination liefert kein Ergebnis.
+          </p>
         </EmptyState>
       )}
       {displayMode === "list" ? (
