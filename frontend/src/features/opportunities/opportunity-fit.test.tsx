@@ -3,10 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "../../api/client";
-import {
-  profileApi,
-  type SearchProfile,
-} from "../profiles/profileApi";
+import { profileApi, type SearchProfile } from "../profiles/profileApi";
 import { fitApi, type OpportunityFit } from "./fitApi";
 import { OpportunityDetailFitPanel } from "./OpportunityFitBreakdown";
 import { OpportunityList } from "./OpportunityList";
@@ -205,14 +202,21 @@ describe("explainable opportunity fit UI", () => {
     render(<OpportunityList refreshToken={0} onSelect={vi.fn()} />);
     expect(await screen.findByText("Role Low")).toBeInTheDocument();
 
-    await user.selectOptions(screen.getByLabelText("Harte Kriterien filtern"), "fail");
+    await user.selectOptions(
+      screen.getByLabelText("Harte Kriterien filtern"),
+      "fail",
+    );
     expect(screen.queryByText("Role Low")).not.toBeInTheDocument();
     expect(screen.getByText("Role High")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Opportunities durchsuchen"), "Low");
-    expect(screen.getByText("Keine passenden Opportunities")).toBeInTheDocument();
+    expect(
+      screen.getByText("Keine passenden Opportunities"),
+    ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Analyse zurücksetzen" }));
+    await user.click(
+      screen.getByRole("button", { name: "Analyse zurücksetzen" }),
+    );
     expect(screen.getByText("Role Low")).toBeInTheDocument();
     expect(screen.getByText("Role High")).toBeInTheDocument();
   });
