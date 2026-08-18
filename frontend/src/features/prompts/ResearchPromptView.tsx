@@ -11,6 +11,12 @@ import {
 } from "../../api/client";
 import { ErrorState, Loading } from "../../components/AsyncState";
 import { ImportReportView } from "../imports/ImportReportView";
+import {
+  profileApi,
+  type CandidateProfile,
+  type SearchProfile,
+} from "../profiles/profileApi";
+import { initialResearchApi } from "./initialResearchApi";
 
 type EvidenceKind = "observation" | "criterion";
 type ResearchMode = UpdateMode | "availability_check";
@@ -23,7 +29,12 @@ type GapDraft = {
   criterionId: string;
 };
 type GeneratedState =
-  | { kind: "initial"; promptText: string; bundleVersion: string }
+  | {
+      kind: "initial";
+      promptText: string;
+      bundleVersion: string;
+      promptRunId: string;
+    }
   | { kind: "update"; result: GeneratedUpdatePrompt }
   | {
       kind: "availability";
@@ -66,8 +77,11 @@ export function ResearchPromptView({
   onImported?: () => void;
 }) {
   const [mode, setMode] = useState<ResearchMode | "initial">("initial");
-  const [profile, setProfile] = useState("");
-  const [constraints, setConstraints] = useState("");
+  const [searchProfiles, setSearchProfiles] = useState<SearchProfile[]>([]);
+  const [selectedSearchProfileId, setSelectedSearchProfileId] = useState("");
+  const [candidateProfile, setCandidateProfile] =
+    useState<CandidateProfile | null>(null);
+  const [includeCandidateProfile, setIncludeCandidateProfile] = useState(true);
   const [asOfDate, setAsOfDate] = useState(
     new Date().toISOString().slice(0, 10),
   );
@@ -82,6 +96,7 @@ export function ResearchPromptView({
     useState<AvailabilityImportReport | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [initialOptionsLoading, setInitialOptionsLoading] = useState(false);
   const [optionsLoading, setOptionsLoading] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
   const [error, setError] = useState("");
@@ -89,29 +104,70 @@ export function ResearchPromptView({
   const [importError, setImportError] = useState("");
   const [gapError, setGapError] = useState("");
 
+  const selectedSearchProfile = useMemo(
+    () =>
+      searchProfiles.find(
+        (profile) => profile.id === selectedSearchProfileId,
+      ) ?? null,
+    [searchProfiles, selectedSearchProfileId],
+  );
+
   function clearGenerated() {
     setGenerated(null);
     setReport(null);
     setAvailabilityReport(null);
     setCopied(false);
   }
+
   function changeScope(change: () => void) {
     change();
     clearGenerated();
     setFormError("");
   }
+
   function changeMode(next: ResearchMode | "initial") {
     setMode(next);
     setSelectedIds([]);
     setGaps([]);
     setFormError("");
     setGapError("");
+    setError("");
     clearGenerated();
   }
 
   useEffect(() => {
+    if (mode !== "initial") return;
+    setInitialOptionsLoading(true);
+    setError("");
+    Promise.all([profileApi.listSearchProfiles(), profileApi.getCandidate()])
+      .then(([profiles, candidate]) => {
+        setSearchProfiles(profiles);
+        setCandidateProfile(candidate);
+        setIncludeCandidateProfile(candidate !== null);
+        setSelectedSearchProfileId((current) => {
+          if (profiles.some((profile) => profile.id === current))
+            return current;
+          return (
+            profiles.find((profile) => profile.is_default)?.id ??
+            profiles[0]?.id ??
+            ""
+          );
+        });
+      })
+      .catch((reason) =>
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : "Profile konnten nicht geladen werden.",
+        ),
+      )
+      .finally(() => setInitialOptionsLoading(false));
+  }, [mode]);
+
+  useEffect(() => {
     if (mode === "initial") return;
     setOptionsLoading(true);
+    setError("");
     const request =
       mode === "gap_filling"
         ? Promise.all([api.getUpdatePromptOptions(), api.listCriteria()]).then(
@@ -137,6 +193,7 @@ export function ResearchPromptView({
       new Map((options?.companies ?? []).map((item) => [item.id, item.name])),
     [options],
   );
+
   function toggleId(id: string) {
     changeScope(() =>
       setSelectedIds((current) =>
@@ -146,25 +203,30 @@ export function ResearchPromptView({
       ),
     );
   }
+
   function subjects(type: SubjectType) {
     if (!options) return [];
-    if (type === "company")
+    if (type === "company") {
       return options.companies.map((item) => ({
         id: item.id,
         label: item.name,
       }));
-    if (type === "opportunity")
+    }
+    if (type === "opportunity") {
       return options.opportunities.map((item) => ({
         id: item.id,
         label: `${item.title} — ${companyNames.get(item.company_id) ?? "Unbekanntes Unternehmen"}`,
       }));
+    }
     return options.postings.map((item) => ({ id: item.id, label: item.title }));
   }
+
   function applicableCriteria(type: SubjectType) {
     return criteria.filter(
       (item) => item.active && item.applicable_subject_type === type,
     );
   }
+
   function gapKey(item: GapDraft) {
     return [
       item.subjectType,
@@ -174,18 +236,21 @@ export function ResearchPromptView({
       item.criterionId,
     ].join("|");
   }
+
   function updateGap(index: number, patch: Partial<GapDraft>) {
     const next = gaps.map((item, itemIndex) => {
       if (itemIndex !== index) return item;
       const updated = { ...item, ...patch };
-      if (patch.subjectType)
+      if (patch.subjectType) {
         Object.assign(updated, {
           subjectId: "",
           criterionId: "",
           observationType: "",
         });
-      if (patch.evidenceKind)
+      }
+      if (patch.evidenceKind) {
         Object.assign(updated, { criterionId: "", observationType: "" });
+      }
       return updated;
     });
     const keys = next.map(gapKey);
@@ -196,6 +261,7 @@ export function ResearchPromptView({
     changeScope(() => setGaps(next));
     setGapError("");
   }
+
   function removeGap(index: number) {
     changeScope(() =>
       setGaps((current) =>
@@ -203,6 +269,7 @@ export function ResearchPromptView({
       ),
     );
   }
+
   function validGaps() {
     return (
       gaps.length > 0 &&
@@ -227,18 +294,25 @@ export function ResearchPromptView({
     clearGenerated();
     try {
       if (mode === "initial") {
-        const result = await api.generatePrompt({
-          search_profile: profile,
-          constraints: constraints
-            .split("\n")
-            .map((item) => item.trim())
-            .filter(Boolean),
-          as_of_date: asOfDate,
-        });
+        if (!selectedSearchProfileId) {
+          setFormError(
+            "Lege zuerst unter „Profil & Suche“ ein Search Profile an.",
+          );
+          return;
+        }
+        const result = await initialResearchApi.generate(
+          {
+            search_profile: selectedSearchProfileId,
+            constraints: [],
+            as_of_date: asOfDate,
+          },
+          includeCandidateProfile && candidateProfile !== null,
+        );
         setGenerated({
           kind: "initial",
           promptText: result.prompt_text,
           bundleVersion: result.bundle_version,
+          promptRunId: result.prompt_run_id,
         });
         return;
       }
@@ -308,6 +382,7 @@ export function ResearchPromptView({
       setLoading(false);
     }
   }
+
   async function copyPrompt() {
     const text =
       generated?.kind === "initial" || generated?.kind === "availability"
@@ -317,6 +392,7 @@ export function ResearchPromptView({
     await navigator.clipboard.writeText(text);
     setCopied(true);
   }
+
   function savePrompt() {
     const text =
       generated?.kind === "initial" || generated?.kind === "availability"
@@ -332,6 +408,7 @@ export function ResearchPromptView({
     link.click();
     URL.revokeObjectURL(url);
   }
+
   async function importResult() {
     setImportLoading(true);
     setImportError("");
@@ -339,6 +416,13 @@ export function ResearchPromptView({
       if (generated?.kind === "availability") {
         const next = await api.importAvailabilityText(content);
         setAvailabilityReport(next);
+        if (next.status === "applied") onImported?.();
+      } else if (generated?.kind === "initial") {
+        const next = await initialResearchApi.importText(
+          content,
+          generated.promptRunId,
+        );
+        setReport(next);
         if (next.status === "applied") onImported?.();
       } else {
         const next = await api.importText(content);
@@ -353,12 +437,14 @@ export function ResearchPromptView({
       setImportLoading(false);
     }
   }
+
   async function selectFile(file?: File) {
     if (!file) return;
     setContent(await file.text());
     setReport(null);
     setAvailabilityReport(null);
   }
+
   const promptText =
     generated?.kind === "initial" || generated?.kind === "availability"
       ? generated.promptText
@@ -389,31 +475,79 @@ export function ResearchPromptView({
             ))}
           </select>
         </label>
+
         {mode === "initial" && (
-          <>
+          <div className="stack initial-research-options">
             <label>
-              Suchprofil
-              <textarea
-                rows={5}
-                value={profile}
+              Search Profile
+              <select
+                aria-label="Search Profile"
+                value={selectedSearchProfileId}
                 onChange={(event) =>
-                  changeScope(() => setProfile(event.target.value))
+                  changeScope(() =>
+                    setSelectedSearchProfileId(event.target.value),
+                  )
                 }
-                required
-              />
+              >
+                {searchProfiles.length === 0 && (
+                  <option value="">Kein Search Profile vorhanden</option>
+                )}
+                {searchProfiles.map((profile) => (
+                  <option key={profile.id} value={profile.id}>
+                    {profile.name} · Revision {profile.revision}
+                    {profile.is_default ? " · Standard" : ""}
+                  </option>
+                ))}
+              </select>
             </label>
-            <label>
-              Constraints, eine pro Zeile
-              <textarea
-                rows={4}
-                value={constraints}
-                onChange={(event) =>
-                  changeScope(() => setConstraints(event.target.value))
-                }
-              />
-            </label>
-          </>
+
+            {selectedSearchProfile && (
+              <div className="record">
+                <strong>{selectedSearchProfile.name}</strong>
+                <p>{selectedSearchProfile.description}</p>
+                <small>
+                  Revision {selectedSearchProfile.revision} · bis zu{" "}
+                  {selectedSearchProfile.result_limit} Ergebnisse · Rollen:{" "}
+                  {selectedSearchProfile.target_roles.join(", ")}
+                </small>
+              </div>
+            )}
+
+            <div className="record">
+              <label className="checkbox-label">
+                <input
+                  aria-label="Candidate Profile einbeziehen"
+                  type="checkbox"
+                  checked={includeCandidateProfile && candidateProfile !== null}
+                  disabled={candidateProfile === null}
+                  onChange={(event) =>
+                    changeScope(() =>
+                      setIncludeCandidateProfile(event.target.checked),
+                    )
+                  }
+                />
+                Candidate Profile in externen Prompt einbeziehen
+              </label>
+              {candidateProfile ? (
+                <p className="muted">
+                  Revision {candidateProfile.revision} ·{" "}
+                  {candidateProfile.headline}
+                </p>
+              ) : (
+                <p className="muted">
+                  Kein Candidate Profile vorhanden. Die Recherche nutzt nur das
+                  Search Profile.
+                </p>
+              )}
+              <p className="muted">
+                Beim Kopieren verlässt der sichtbare Prompt Vocation. Aktivierte
+                Candidate-Daten sind darin als Recherchekontext enthalten; sie
+                werden nicht Bestandteil des Research Bundles.
+              </p>
+            </div>
+          </div>
         )}
+
         {mode === "company_update" && (
           <fieldset className="selection-list">
             <legend>Companies auswählen</legend>
@@ -429,6 +563,7 @@ export function ResearchPromptView({
             ))}
           </fieldset>
         )}
+
         {mode === "opportunity_update" && (
           <fieldset className="selection-list">
             <legend>Opportunities auswählen</legend>
@@ -445,6 +580,7 @@ export function ResearchPromptView({
             ))}
           </fieldset>
         )}
+
         {mode === "availability_check" && (
           <fieldset className="selection-list">
             <legend>Postings auswählen</legend>
@@ -460,14 +596,16 @@ export function ResearchPromptView({
             ))}
           </fieldset>
         )}
+
         {mode === "gap_filling" && (
           <div className="gap-requests">
             <h2>Gap-Anfragen</h2>
             {gaps.map((item, index) => (
-              <div className="gap-request" key={index}>
+              <div className="gap-request" key={gapKey(item) || index}>
                 <label>
                   Subject Type
                   <select
+                    aria-label="Subject Type"
                     value={item.subjectType}
                     onChange={(event) =>
                       updateGap(index, {
@@ -483,6 +621,7 @@ export function ResearchPromptView({
                 <label>
                   Subject
                   <select
+                    aria-label="Subject"
                     value={item.subjectId}
                     onChange={(event) =>
                       updateGap(index, { subjectId: event.target.value })
@@ -499,6 +638,7 @@ export function ResearchPromptView({
                 <label>
                   Evidence Kind
                   <select
+                    aria-label="Evidence Kind"
                     value={item.evidenceKind}
                     onChange={(event) =>
                       updateGap(index, {
@@ -514,6 +654,7 @@ export function ResearchPromptView({
                   <label>
                     Observation
                     <select
+                      aria-label="Observation"
                       value={item.observationType}
                       onChange={(event) =>
                         updateGap(index, {
@@ -534,6 +675,7 @@ export function ResearchPromptView({
                   <label>
                     Assessment Criterion
                     <select
+                      aria-label="Assessment Criterion"
                       value={item.criterionId}
                       onChange={(event) =>
                         updateGap(index, { criterionId: event.target.value })
@@ -573,9 +715,11 @@ export function ResearchPromptView({
             )}
           </div>
         )}
+
         <label>
           Stichtag
           <input
+            aria-label="Stichtag"
             type="date"
             value={asOfDate}
             onChange={(event) =>
@@ -584,14 +728,17 @@ export function ResearchPromptView({
             required
           />
         </label>
+        {initialOptionsLoading && mode === "initial" && (
+          <Loading label="Profile werden geladen …" />
+        )}
         {optionsLoading && <Loading label="Update-Optionen werden geladen …" />}
         <button
           className="primary"
           type="submit"
-          disabled={loading || optionsLoading}
+          disabled={loading || optionsLoading || initialOptionsLoading}
         >
           {mode === "initial"
-            ? "Self-contained Prompt erzeugen"
+            ? "Profilbasierten Prompt erzeugen"
             : "Prompt erzeugen"}
         </button>
         {loading && <Loading label="Prompt wird erzeugt …" />}
@@ -602,6 +749,7 @@ export function ResearchPromptView({
         )}
         {error && <ErrorState message={error} />}
       </form>
+
       {generated && promptText && (
         <div className="panel stack">
           <h2>Generierter Prompt</h2>
@@ -627,6 +775,11 @@ export function ResearchPromptView({
                   : generated.result.bundle_version}
             </code>
           </p>
+          {generated.kind === "initial" && (
+            <p>
+              Prompt Run: <code>{generated.promptRunId}</code>
+            </p>
+          )}
           {(generated.kind === "update" ||
             generated.kind === "availability") && (
             <>
@@ -666,6 +819,7 @@ export function ResearchPromptView({
           </div>
         </div>
       )}
+
       {generated && (
         <section className="panel stack">
           <h2>Research-Ergebnis importieren</h2>

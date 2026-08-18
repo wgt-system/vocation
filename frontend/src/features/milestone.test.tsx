@@ -13,7 +13,6 @@ import { CriteriaView } from "./criteria/CriteriaView";
 import { ImportView } from "./imports/ImportView";
 import { OpportunityDetailView } from "./opportunities/OpportunityDetailView";
 import { OpportunityList } from "./opportunities/OpportunityList";
-import { PromptView } from "./prompts/PromptView";
 
 vi.mock("../api/client", () => ({
   api: {
@@ -22,7 +21,6 @@ vi.mock("../api/client", () => ({
     editCriterion: vi.fn(),
     activateCriterion: vi.fn(),
     reorderCriteria: vi.fn(),
-    generatePrompt: vi.fn(),
     importText: vi.fn(),
     getImportReport: vi.fn(),
     listOpportunities: vi.fn(),
@@ -71,30 +69,6 @@ describe("first milestone UI", () => {
     render(<CriteriaView />);
     expect(await screen.findByText("Junior-Eignung")).toBeInTheDocument();
     expect(screen.getByText(/junior_suitability/)).toBeInTheDocument();
-  });
-
-  it("generates and copies a self-contained prompt", async () => {
-    vi.mocked(api.generatePrompt).mockResolvedValue({
-      prompt_run_id: "run-1",
-      prompt_text: "complete prompt",
-      bundle_version: "1.0",
-      criteria_count: 1,
-    });
-    render(<PromptView />);
-    await userEvent.type(screen.getByLabelText("Suchprofil"), "Junior Python");
-    await userEvent.click(
-      screen.getByRole("button", { name: /Self-contained Prompt erzeugen/i }),
-    );
-    expect(
-      await screen.findByDisplayValue("complete prompt"),
-    ).toBeInTheDocument();
-    await userEvent.click(
-      screen.getByRole("button", { name: /Zwischenablage/ }),
-    );
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      "complete prompt",
-    );
-    expect(screen.getByText("Kopiert.")).toBeInTheDocument();
   });
 
   it("renders import validation errors", async () => {

@@ -4,14 +4,33 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api, type UpdatePromptOptions } from "../../api/client";
 import { ImportReportView } from "../imports/ImportReportView";
+import {
+  profileApi,
+  type CandidateProfile,
+  type SearchProfile,
+} from "../profiles/profileApi";
+import { initialResearchApi } from "./initialResearchApi";
 import { PromptView } from "./PromptView";
 
 vi.mock("../../api/client", () => ({
   api: {
-    generatePrompt: vi.fn(),
     getUpdatePromptOptions: vi.fn(),
     generateUpdatePrompt: vi.fn(),
     listCriteria: vi.fn(),
+    importText: vi.fn(),
+  },
+}));
+
+vi.mock("../profiles/profileApi", () => ({
+  profileApi: {
+    listSearchProfiles: vi.fn(),
+    getCandidate: vi.fn(),
+  },
+}));
+
+vi.mock("./initialResearchApi", () => ({
+  initialResearchApi: {
+    generate: vi.fn(),
     importText: vi.fn(),
   },
 }));
@@ -22,7 +41,11 @@ const options: UpdatePromptOptions = {
     { id: "company-2", name: "Other AG" },
   ],
   opportunities: [
-    { id: "opportunity-1", title: "Python Engineer", company_id: "company-1" },
+    {
+      id: "opportunity-1",
+      title: "Python Engineer",
+      company_id: "company-1",
+    },
   ],
   postings: [
     {
@@ -70,6 +93,75 @@ const criteria = [
   },
 ];
 
+const searchProfiles: SearchProfile[] = [
+  {
+    id: "search-1",
+    revision: 2,
+    name: "Hamburg quality",
+    description: "Wenige gut belegte Junior-Stellen.",
+    target_roles: ["Junior Softwareentwickler"],
+    seniority_targets: ["junior"],
+    preferred_technologies: ["Java"],
+    acceptable_technologies: ["Python"],
+    avoided_technologies: [],
+    target_locations: ["Hamburg"],
+    work_models: ["hybrid"],
+    relocation_willing: false,
+    employment_types: ["full-time"],
+    preferred_industries: [],
+    avoided_industries: [],
+    preferred_company_characteristics: [],
+    avoided_company_characteristics: [],
+    salary_floor: null,
+    salary_target: null,
+    salary_currency: "EUR",
+    must_haves: ["Berufseinstieg möglich"],
+    must_not_haves: ["Senior-only"],
+    result_limit: 6,
+    criterion_policies: [],
+    is_default: true,
+  },
+  {
+    id: "search-2",
+    revision: 1,
+    name: "Berlin Java",
+    description: "Alternative Suche.",
+    target_roles: ["Softwareentwickler"],
+    seniority_targets: [],
+    preferred_technologies: ["Java"],
+    acceptable_technologies: [],
+    avoided_technologies: [],
+    target_locations: ["Berlin"],
+    work_models: [],
+    relocation_willing: true,
+    employment_types: ["full-time"],
+    preferred_industries: [],
+    avoided_industries: [],
+    preferred_company_characteristics: [],
+    avoided_company_characteristics: [],
+    salary_floor: null,
+    salary_target: null,
+    salary_currency: "EUR",
+    must_haves: [],
+    must_not_haves: [],
+    result_limit: 10,
+    criterion_policies: [],
+    is_default: false,
+  },
+];
+
+const candidateProfile: CandidateProfile = {
+  revision: 3,
+  headline: "Junior Softwareentwickler",
+  summary: "Informatikprofil mit Java-Erfahrung.",
+  education: [],
+  skills: [],
+  languages: [],
+  experience_summary: "",
+  projects: [],
+  interests: [],
+};
+
 const updatePrompt = {
   bundle_version: "2.0" as const,
   criteria_count: 2,
@@ -78,15 +170,20 @@ const updatePrompt = {
   prompt_text: "generated update prompt",
   prompt_type: "full_update" as const,
   prompt_version: "2.1",
-  research_scope: { type: "full_update" as const, as_of_date: "2026-08-09" },
+  research_scope: {
+    type: "full_update" as const,
+    as_of_date: "2026-08-09",
+  },
 };
 
 beforeEach(() => {
   vi.mocked(api.getUpdatePromptOptions).mockResolvedValue(options);
   vi.mocked(api.listCriteria).mockResolvedValue(criteria);
-  vi.mocked(api.generatePrompt).mockResolvedValue({
+  vi.mocked(profileApi.listSearchProfiles).mockResolvedValue(searchProfiles);
+  vi.mocked(profileApi.getCandidate).mockResolvedValue(candidateProfile);
+  vi.mocked(initialResearchApi.generate).mockResolvedValue({
     prompt_run_id: "initial-run",
-    prompt_text: "initial prompt",
+    prompt_text: "profile-aware initial prompt",
     bundle_version: "1.0",
     criteria_count: 2,
   });
@@ -96,6 +193,7 @@ beforeEach(() => {
     value: { writeText: vi.fn().mockResolvedValue(undefined) },
   });
 });
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
@@ -107,23 +205,98 @@ async function chooseMode(label: string) {
 }
 
 describe("Research Prompt workflow", () => {
-  it("keeps Initial Research payload unchanged", async () => {
+  it("uses the default persistent Search Profile and visible Candidate disclosure for Initial Research", async () => {
     const user = userEvent.setup();
     render(<PromptView />);
-    await user.type(screen.getByLabelText("Suchprofil"), "Python developer");
-    await user.type(
-      screen.getByLabelText("Constraints, eine pro Zeile"),
-      "Remote\nNo agencies",
-    );
+
+    const selector = await screen.findByLabelText("Search Profile");
+    expect(selector).toHaveValue("search-1");
+    expect(
+      screen.getByText("Wenige gut belegte Junior-Stellen."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Revision 2 · bis zu 6 Ergebnisse/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Candidate Profile einbeziehen"),
+    ).toBeChecked();
+    expect(
+      screen.getByText(/Revision 3 · Junior Softwareentwickler/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Constraints, eine pro Zeile"),
+    ).not.toBeInTheDocument();
+
     await user.click(
-      screen.getByRole("button", { name: /Self-contained Prompt erzeugen/ }),
+      screen.getByRole("button", { name: "Profilbasierten Prompt erzeugen" }),
     );
-    expect(api.generatePrompt).toHaveBeenCalledWith(
+
+    expect(initialResearchApi.generate).toHaveBeenCalledWith(
       expect.objectContaining({
-        search_profile: "Python developer",
-        constraints: ["Remote", "No agencies"],
+        search_profile: "search-1",
+        constraints: [],
+        as_of_date: expect.any(String),
+      }),
+      true,
+    );
+    expect(screen.getByText(/Prompt Run:/)).toHaveTextContent("initial-run");
+  });
+
+  it("can select another Search Profile and exclude Candidate data explicitly", async () => {
+    const user = userEvent.setup();
+    render(<PromptView />);
+
+    await screen.findByLabelText("Search Profile");
+    await user.selectOptions(
+      screen.getByLabelText("Search Profile"),
+      "search-2",
+    );
+    await user.click(screen.getByLabelText("Candidate Profile einbeziehen"));
+    await user.click(
+      screen.getByRole("button", { name: "Profilbasierten Prompt erzeugen" }),
+    );
+
+    expect(initialResearchApi.generate).toHaveBeenCalledWith(
+      expect.objectContaining({ search_profile: "search-2", constraints: [] }),
+      false,
+    );
+  });
+
+  it("links Initial Research inline import to the generated prompt run", async () => {
+    const user = userEvent.setup();
+    const imported = vi.fn();
+    vi.mocked(initialResearchApi.importText).mockResolvedValue({
+      import_id: "initial-import",
+      status: "applied",
+      bundle_id: "bundle-initial",
+      bundle_version: "1.0",
+      prompt_context_ref: "initial-ctx",
+      fingerprint: "fp",
+      counts: {},
+      warnings: [],
+      issues: [],
+      duplicate_of_import_id: null,
+    });
+    render(<PromptView onImported={imported} />);
+
+    await screen.findByLabelText("Search Profile");
+    await user.click(
+      screen.getByRole("button", { name: "Profilbasierten Prompt erzeugen" }),
+    );
+    fireEvent.change(screen.getByLabelText("Research-Ergebnis JSON"), {
+      target: { value: "{}" },
+    });
+    await user.click(
+      screen.getByRole("button", {
+        name: "Bundle validieren und importieren",
       }),
     );
+
+    expect(initialResearchApi.importText).toHaveBeenCalledWith(
+      "{}",
+      "initial-run",
+    );
+    expect(imported).toHaveBeenCalledTimes(1);
   });
 
   it("submits Full Update with only mode and date", async () => {
@@ -306,7 +479,9 @@ describe("Research Prompt workflow", () => {
       target: { value: "{}" },
     });
     await user.click(
-      screen.getByRole("button", { name: "Bundle validieren und importieren" }),
+      screen.getByRole("button", {
+        name: "Bundle validieren und importieren",
+      }),
     );
     expect(await screen.findByText("Import erfolgreich")).toBeInTheDocument();
     expect(imported).toHaveBeenCalledTimes(1);
@@ -323,7 +498,9 @@ describe("Research Prompt workflow", () => {
       duplicate_of_import_id: "import-1",
     });
     await user.click(
-      screen.getByRole("button", { name: "Bundle validieren und importieren" }),
+      screen.getByRole("button", {
+        name: "Bundle validieren und importieren",
+      }),
     );
     expect(imported).toHaveBeenCalledTimes(1);
   });

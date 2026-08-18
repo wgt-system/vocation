@@ -3,6 +3,33 @@ from __future__ import annotations
 from datetime import date
 
 
+def _search_profile_payload() -> dict:
+    return {
+        "name": "Junior Python Hamburg",
+        "description": "Quality-first entry-level search.",
+        "target_roles": ["Junior Softwareentwickler"],
+        "seniority_targets": ["junior"],
+        "preferred_technologies": ["Python"],
+        "acceptable_technologies": ["Java"],
+        "avoided_technologies": [],
+        "target_locations": ["Hamburg"],
+        "work_models": ["hybrid"],
+        "relocation_willing": False,
+        "employment_types": ["full-time"],
+        "preferred_industries": ["Software"],
+        "avoided_industries": [],
+        "preferred_company_characteristics": ["gute Einarbeitung"],
+        "avoided_company_characteristics": [],
+        "salary_floor": None,
+        "salary_target": None,
+        "salary_currency": "EUR",
+        "must_haves": ["Berufseinstieg möglich"],
+        "must_not_haves": ["Senior-only"],
+        "result_limit": 7,
+        "criterion_policies": [],
+    }
+
+
 def test_seeded_criteria_can_be_listed_and_managed(client) -> None:
     response = client.get("/api/criteria")
     assert response.status_code == 200
@@ -50,13 +77,24 @@ def test_seeded_criteria_can_be_listed_and_managed(client) -> None:
     assert edited.json()["display_name"] == "Junior-Passung"
 
 
-def test_generated_prompt_is_self_contained_and_contains_active_criteria(client) -> None:
+def test_generated_prompt_is_profile_aware_quality_first_and_self_contained(client) -> None:
     client.post("/api/criteria/work_model_fit/activation", json={"active": False})
+    profile = client.post("/api/profiles/search", json=_search_profile_payload())
+    assert profile.status_code == 201
+    candidate = client.put(
+        "/api/profiles/candidate",
+        json={
+            "headline": "Junior Softwareentwickler",
+            "summary": "Informatikprofil mit Python- und Java-Erfahrung.",
+        },
+    )
+    assert candidate.status_code == 200
+
     response = client.post(
         "/api/prompts/initial",
         json={
-            "search_profile": "Junior Python roles",
-            "constraints": ["Hamburg", "Hybrid possible"],
+            "search_profile": profile.json()["id"],
+            "constraints": [],
             "as_of_date": date(2026, 8, 6).isoformat(),
         },
     )
@@ -69,8 +107,14 @@ def test_generated_prompt_is_self_contained_and_contains_active_criteria(client)
     assert "role_clarity" in prompt
     assert "work_model_fit" not in prompt
     assert "source_references: SourceReference[]" in prompt
-    assert 'type: "initial_market_research"' in prompt
-    assert "Junior Python roles" in prompt
+    assert '"type": "initial_market_research"' in prompt
+    assert '"name": "Junior Python Hamburg"' in prompt
+    assert '"result_limit": 7' in prompt
+    assert "Must have: Berufseinstieg möglich" in prompt
+    assert "Must not have: Senior-only" in prompt
+    assert "Junior Softwareentwickler" in prompt
+    assert "upper bound, not a target" in prompt
+    assert "Prefer fewer concrete opportunities" in prompt
     assert "2026-08-06" in prompt
     assert "schemas/research-bundle" not in prompt
     assert "{{" not in prompt

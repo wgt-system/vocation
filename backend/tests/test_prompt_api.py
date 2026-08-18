@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from tests.test_imports import valid_bundle
+from tests.test_profiles import search_payload
 from vocation.infrastructure.models import CompanyModel, OpportunityModel, PostingModel
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -112,13 +113,16 @@ def test_generated_full_prompt_context_can_drive_update_import_and_traceability(
     assert duplicate["prompt_context_ref"] == generated["prompt_context_ref"]
 
 
-def test_initial_prompt_endpoint_remains_unchanged(client) -> None:
+def test_initial_prompt_endpoint_keeps_response_shape_with_persistent_search_profile(client) -> None:
+    profile = client.post("/api/profiles/search", json=search_payload(name="Python roles"))
+    assert profile.status_code == 201
     response = client.post(
         "/api/prompts/initial",
-        json={"search_profile": "Python roles", "constraints": [], "as_of_date": "2026-08-09"},
+        json={"search_profile": profile.json()["id"], "constraints": [], "as_of_date": "2026-08-09"},
     )
     assert response.status_code == 200
     assert set(response.json()) == {"prompt_run_id", "prompt_text", "bundle_version", "criteria_count"}
+    assert response.headers["X-Prompt-Context-Ref"]
     assert response.json()["bundle_version"] == "1.0"
 
 
