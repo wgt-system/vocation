@@ -140,7 +140,7 @@ describe("Opportunity comparison workflow", () => {
     );
     expect(fifth).toBeDisabled();
     expect(
-      screen.getByText("4 von 2–4 Opportunities ausgewählt"),
+      screen.getByText("4 von 2–4 Stellen ausgewählt"),
     ).toBeInTheDocument();
     await user.click(screen.getAllByRole("button", { name: "Entfernen" })[0]);
     expect(
