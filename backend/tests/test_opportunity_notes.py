@@ -6,6 +6,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 from tests.test_imports import import_bundle, valid_bundle
+from tests.test_profiles import search_payload
 from vocation.api.app import create_app
 from vocation.config import get_settings
 
@@ -46,8 +47,25 @@ def test_opportunity_note_create_update_and_clear(client) -> None:
 
 
 def test_opportunity_note_requires_existing_opportunity(client) -> None:
-    assert client.get("/api/opportunities/missing/note").status_code == 404
+    missing = client.get("/api/opportunities/missing/note")
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "Opportunity 'missing' does not exist."
     assert client.put("/api/opportunities/missing/note", json={"content": "note"}).status_code == 404
+
+
+def test_opportunity_note_does_not_affect_fit(client) -> None:
+    assert import_bundle(client, valid_bundle()).status_code == 200
+    oid = opportunity_id(client)
+    profile = client.post("/api/profiles/search", json=search_payload())
+    assert profile.status_code == 201
+    profile_id = profile.json()["id"]
+
+    before = client.get(f"/api/opportunities/{oid}/fit?search_profile_id={profile_id}")
+    assert before.status_code == 200
+    assert client.put(f"/api/opportunities/{oid}/note", json={"content": "Private analysis only."}).status_code == 200
+    after = client.get(f"/api/opportunities/{oid}/fit?search_profile_id={profile_id}")
+    assert after.status_code == 200
+    assert after.json() == before.json()
 
 
 def test_repeated_research_import_does_not_overwrite_opportunity_note(client) -> None:
