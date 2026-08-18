@@ -1,499 +1,395 @@
-# Vocation – Acceptance Tests
+# Vocation – Acceptance Criteria
 
-**Status:** Draft 0.1
+**Status:** automated technical acceptance is green for the implemented baseline; manual product acceptance started on 2026-08-18 and is blocked by #45–#52.
 
-## AT-01 Initialer Import
+## 1. Purpose
 
-Gegeben ein gültiges Initial Research Bundle  
-Wenn der Nutzer es importiert  
-Dann werden Opportunities, Postings, Sources, Observations und External Assessments angelegt  
-Und ein erfolgreicher Import Record wird gespeichert.
+This document describes the durable acceptance criteria behind Vocation. The executable tests in `backend/tests/` and `frontend/src/**/*.test.*` remain the implementation-level source of truth for exact edge cases.
 
-## AT-02 Identischer Import
+Acceptance has two different levels:
 
-Gegeben ein bereits angewendetes Bundle  
-Wenn dasselbe Bundle erneut importiert wird  
-Dann entstehen keine doppelten Domänenobjekte  
-Und der bestehende Import wird referenziert.
+1. **automated technical/domain acceptance** – deterministic contracts, invariants, persistence, API/frontend behavior and restart safety;
+2. **manual product acceptance** – real local workflow, current external market data, usability, information architecture and actual decision/application usefulness.
 
-## AT-03 Persönliche Decision geschützt
+A green CI run is necessary but does not by itself authorize a release after a manual product blocker has been found.
 
-Gegeben eine ausgeschlossene Opportunity  
-Und ein Update Bundle mit einer gegenteiligen Empfehlung  
-Wenn das Bundle importiert wird  
-Dann bleibt die Exclusion bestehen  
-Und die Empfehlung wird nur als External Assessment gespeichert.
+## 2. Initial Research and import
 
-## AT-04 Sichere Posting-Zuordnung
+### AC-IR-01 Valid initial import
 
-Gegeben ein bekanntes Posting mit Source und deterministischer Identität
-Wenn ein Update dieselbe externe Posting-ID liefert oder die normalisierte HTTPS-URL als Fallback verwendet
-Dann wird keine zweite Posting Entity erzeugt.
+Given a valid Research Bundle 1.0, Vocation creates/reuses the permitted Companies, Opportunities, Postings, Sources/References, Observations and External Assessments atomically and stores an Import Record.
 
-## AT-05 Unsichere Dublette
+### AC-IR-02 Closed/versioned contract
 
-Gegeben zwei ähnliche Postings ohne sicheren Identifier  
-Wenn sie importiert werden  
-Dann wird kein automatischer Merge durchgeführt  
-Und ein Duplicate Case wird angelegt.
+Unknown properties, unsupported versions, malformed references, invalid required HTTPS URLs, invalid criterion values or protected personal fields reject the bundle before domain mutation.
 
-## AT-06 Availability
+### AC-IR-03 Idempotency
 
-Gegeben eine bisher erreichbare Anzeige  
-Wenn ein Availability Check `explicitly_unavailable` meldet
-Dann bleibt das Posting historisch erhalten  
-Und die aus Observations abgeleitete Availability wird nachvollziehbar geändert.
+A previously applied canonical bundle fingerprint is not applied again.
 
-## AT-07 Temporärer Fehler
+### AC-IR-04 Deterministic Posting identity
 
-Wenn eine Source nur `temporarily_unreachable` ist  
-Dann wird die Availability `uncertain` und die Opportunity nicht als definitiv geschlossen markiert.
+Posting identity uses the accepted deterministic Source + external posting ID rule or normalized HTTPS-URL fallback. Similar text does not cause fuzzy merge.
 
-## AT-08 Prompt Initial Research
+### AC-IR-05 Profile-aware prompt provenance
 
-Wenn der Nutzer einen Initial Research Prompt erzeugt  
-Dann enthält der Prompt die gewünschte Bundle Version, das reine JSON-Ausgabeformat und keine nicht benötigten Bestandsdaten.
+Normal Initial Research resolves an exact Search Profile revision and optionally an explicitly included Candidate Profile revision, stores an immutable prompt-context snapshot and returns an opaque internal `prompt_context_ref` separately from Research Bundle 1.0.
 
-## AT-09 Prompt Full Update
+### AC-IR-06 Linked Initial import scope
 
-Wenn ein Full Update Prompt erzeugt wird  
-Dann enthält er Vocation-issued opaque Correlation References, offene Unsicherheiten und den erlaubten Änderungsumfang
-Und enthält im v0.3 keine Availability/Freshness.
+When the inline import supplies the Initial Research prompt-context reference, Vocation verifies the returned Research Bundle 1.0 scope against that snapshot and preserves provenance. A manual/context-free 1.0 import remains valid without prompt-context provenance.
 
-## AT-10 Prompt Teilupdate
+### AC-IR-07 Quality-first prompt
 
-Wenn ein Company Update Prompt erzeugt wird  
-Dann enthält er nur den gewählten Company-Scope  
-Und kennzeichnet außerhalb liegende Informationen als nicht zu übernehmen.
+The generated Initial Research prompt is self-contained, embeds the expected output contract/guidance, requests source/provenance evidence, uses the selected Search Profile and does not require the external tool to mutate private Vocation state or produce an opaque final Vocation ranking.
 
-## AT-11 Gap Filling
+## 3. Research Update Bundle 2.0
 
-Wenn für eine Opportunity fehlende Felder ausgewählt werden  
-Dann fordert der Prompt nur diese Felder und relevante Quellen an.
+### AC-UP-01 Explicit dispatch
 
-## AT-12 Import falsche Version
+Research Bundle 1.0 is initial-only. Research Update Bundle 2.0 is dispatched separately and requires its update Prompt Context semantics.
 
-Wenn ein Bundle eine unbekannte Version besitzt  
-Dann wird es ohne Domänenänderungen abgelehnt.
+### AC-UP-02 Scope-local correlation
 
-## AT-13 Ungültige URL
+Full/Company/Opportunity/Gap workflows use only Vocation-issued opaque Correlation References from the issuing Prompt Context Snapshot. Unknown/reused-out-of-context references are blockers.
 
-Wenn ein Posting eine `javascript:`-URL enthält  
-Dann wird der Import abgelehnt oder der Link als ungültig markiert  
-Und er kann nicht geöffnet werden.
+### AC-UP-03 Scope enforcement
 
-## AT-14 Karte zeigt Precision
+No update may create/change Subjects outside its permitted scope. Gap Filling cannot create unrelated Companies/Opportunities/Postings or possible duplicates.
 
-Wenn eine Location nur `approximate` ist  
-Dann ist dies in der Kartenansicht erkennbar; Vocation liefert die Precision als fachliche Information an die generische Orientation-Darstellung.
+### AC-UP-04 Blockers before apply
 
-## AT-15 Spatial Feature öffnet Detail
+Prompt-context, scope, protected-field, identity and duplicate-evidence blockers are found before business mutation.
 
-Wenn der Nutzer ein räumliches Feature auswählt und die von Vocation bereitgestellte Detail-Aktion aktiviert  
-Dann wird die Vocation-Vorschau oder Detailansicht geöffnet  
-Und noch keine externe URL.
+### AC-UP-05 Atomic apply and personal-state preservation
 
-## AT-16 Originalanzeige öffnen
+An accepted update is applied atomically. Exceptions roll back. Personal Assessments, Decisions, Tracking Status, private notes, Groups/Waves and Application state remain unchanged.
 
-Wenn der Nutzer in der Vorschau eine Source auswählt  
-Dann wird die validierte URL im Standardbrowser geöffnet.
+### AC-UP-06 Append-only external evidence
 
-## AT-17 Mehrere Posting-Links
+Known subjects are safely reused. New Sources/References/Observations/Assessments are added according to contract rules instead of silently rewriting historical evidence/canonical ownership.
 
-Wenn mehrere Postings verfügbar sind  
-Dann kann der Nutzer die Quelle auswählen  
-Oder Vocation markiert einen nachvollziehbar bevorzugten Link.
+## 4. Availability and freshness
 
-## AT-18 Kein Link
+### AC-AV-01 Dedicated contract
 
-Wenn kein gültiger Link existiert  
-Dann zeigt Vocation einen verständlichen Zustand  
-Und startet keinen Browser.
+Availability Check Bundle 1.0 is a separate versioned boundary and does not silently become Research Update Bundle 2.0 fields.
 
-## AT-19 Filterkonsistenz
+### AC-AV-02 Conservative result mapping
 
-Wenn ein Filter in der Stellenliste gesetzt ist  
-Dann zeigt die Karte dieselbe Opportunity-Menge.
+- explicit available evidence derives available;
+- explicit unavailable evidence derives unavailable;
+- temporarily unreachable / not found / indeterminate derive uncertain;
+- no observation derives unknown.
 
-## AT-20 Historie
+### AC-AV-03 Opportunity aggregation
 
-Wenn ein neuer Import einen Wert verändert  
-Dann bleibt die ältere Observation erhalten.
+Opportunity Availability is derived from its Posting states without creating a permanent Opportunity-closed truth.
 
-## AT-21 Published Cross-device Read
+### AC-AV-04 Append-only history
 
-Wenn Wiiii Got This eine Published Vocation Capability verwendet
-Dann ist sie read-only und enthält keine Import- oder Decision-Commands.
+Availability observations remain historical and never delete the original Research Posting/Source evidence.
 
-## AT-22 Publication Snapshot Age
+### AC-AV-05 Freshness meaning
 
-**Späteres Slice-Verhalten, nicht v0.3.**
+`last_checked_at`/`age_days` measure age of Availability evidence. There is no automatic stale threshold that changes Availability solely because time passed.
 
-Wenn eine Publication Snapshot älter ist
-Dann zeigt der Client Publication Age, ohne daraus stale oder unavailable Job Postings abzuleiten.
+### AC-AV-06 Private-state isolation
 
-## AT-23 Exclusion mit Grund
+Availability checks never mutate Candidate/Search Profiles, Tracking Status, Personal Assessments, Decisions, notes, Groups/Waves or ApplicationCases.
 
-Wenn eine Opportunity ausgeschlossen wird  
-Dann ist mindestens ein Exclusion Reason erforderlich.
+## 5. Criteria, personal assessment and decisions
 
-## AT-24 Restore
+### AC-PA-01 Vocation-owned criteria
 
-Wenn eine Exclusion aufgehoben wird  
-Dann bleibt die frühere Decision in der Historie sichtbar.
+External bundles may reference only known active Vocation Assessment Criteria with compatible subject/value semantics. External research cannot define arbitrary new criterion semantics in a bundle.
 
-## AT-25 Keine automatische API-Nutzung
+### AC-PA-02 Personal Assessment revisions
 
-Vocation erzeugt Prompts und importiert JSON  
-Aber ruft keine kostenpflichtige LLM-API auf.
+Create/revise operations are explicit and revisioned. Only the current revision can be revised. History remains readable.
 
-## AT-26 Assessment Criteria gehören Vocation
+### AC-PA-03 External/personal separation
 
-Gegeben ein aktiver Vocation Criteria Catalog
-Wenn ein Initial Research Prompt erzeugt wird
-Dann enthält er jedes aktive und kein inaktives Criterion mit Value Type und erlaubter Skala oder Werten.
+External Assessments and Personal Assessments are visibly/semantically separate. Imports never overwrite Personal Assessment history.
 
-## AT-27 Unbekanntes Criterion
+### AC-PA-04 Tracking/Exclusion/Restore
 
-Wenn ein Bundle ein Vocation unbekanntes Criterion referenziert
-Dann wird der gesamte Import ohne fachliche Änderungen abgelehnt.
+Tracking transitions obey the accepted states/invariants. Exclusion requires a reason; Restore references the active Exclusion and preserves decision history.
 
-## AT-28 Geschlossene Bundle-Objekte
+### AC-PA-05 Restart persistence
 
-Wenn ein verschachteltes Bundle-Objekt eine unbekannte oder geschützte Property enthält
-Dann wird der gesamte Import ohne fachliche Änderungen abgelehnt.
+Personal assessment/decision/tracking state survives application restart against the same database.
 
-## AT-29 Atomarer Initial Import
+## 6. Candidate Profile and Search Profiles
 
-Gegeben ein Bundle mit mindestens einem blockierenden Fehler
-Wenn der Nutzer es importiert
-Dann werden keine Companies, Opportunities, Postings, Observations oder Assessments daraus gespeichert
-Und der Import Report enthält alle erkannten Blocker.
+### AC-PS-01 Candidate Profile revisions
 
-## AT-30 Kanonischer Fingerprint
+Candidate Profile updates create immutable numbered snapshots; the newest is current and private.
 
-Gegeben zwei semantisch identische Bundles mit unterschiedlicher Object-Key-Reihenfolge und unterschiedlichem Whitespace
-Wenn beide importiert werden
-Dann wird nur der erste Import angewendet und der zweite als identisch erkannt.
+### AC-PS-02 Multiple Search Profiles
 
-## AT-31 Self-contained Initial Prompt
+Multiple stable Search Profiles may exist, each with immutable revisions. Exactly one may be default.
 
-Wenn ein Initial Research Prompt erzeugt wird
-Dann enthält er Search Profile, Constraints, Stichtag, aktive Criteria, vollständige Output-Struktur, kontrollierte Vokabulare und Provenienzregeln
-Und verweist nicht auf lokale Repository-Pfade.
-## AT-32 Personal Assessment Create
+### AC-PS-03 Candidate/Search separation
 
-Wenn für eine Opportunity und ein aktives Opportunity-Criterion ein Wert angelegt wird, entsteht genau eine aktuelle unveränderliche Revision.
+Candidate facts do not become Search Profile policy. Search Profile role/location/technology/industry/salary/hard-constraint policy does not rewrite Candidate facts.
 
-## AT-33 Duplicate Create und immutable Revision
+### AC-PS-04 Search-profile validation
 
-Ein zweites Create für dasselbe Opportunity/Criterion wird als Konflikt abgelehnt. Eine Revision erzeugt einen neuen Datensatz, verlinkt den Vorgänger und lässt die alte Revision sichtbar; eine alte Revision kann nicht erneut revidiert werden.
+Mutually exclusive technology tiers, salary bounds, result-limit constraints and evaluation-policy criterion/value rules are enforced atomically.
 
-## AT-34 Criterion- und Value-Validation
+### AC-PS-05 No publication leakage
 
-Numeric-, Categorical-, Boolean- und Text-Werte werden jeweils typ- und skalenkonform validiert. Unbekannte oder inaktive Criteria sowie ungültige Werte werden atomar abgelehnt. Semantische Änderungen eines referenzierten Criteria werden abgelehnt.
+Candidate/Search Profile contents are absent from frozen Published Opportunity Overview/Map Projection contracts and public examples unless a separate explicit contract is designed.
 
-## AT-35 Personal/External Separation
+### Planned manual/product criteria (#46–#48)
 
-Ein Personal Assessment ist im Detail getrennt vom External Assessment sichtbar und wird nicht durch Importdaten ersetzt.
+The current textarea-heavy editor is not product-accepted. Re-acceptance additionally requires:
 
-## AT-36 Tracking transitions
+- reusable durable personal/career facts and document library;
+- structured role/seniority/employment/technology/industry controls with custom values;
+- explicit Search Areas with optional radii and Orientation-backed place selection;
+- maintainable vocabularies without historical Search Profile mutation.
 
-Die Statuswerte sind exakt `new`, `to_review`, `interesting`, `shortlisted`, `deferred`, `excluded`, `archived`. Normale nicht ausgeschlossene Übergänge sind direkt möglich; ein No-op und ein generischer Übergang zu `excluded` werden abgelehnt.
+## 7. Explainable Opportunity Fit
 
-## AT-37 Exclusion
+### AC-FIT-01 Determinism
 
-Exclusion ist eine eigene Operation, verlangt einen nichtleeren Grund, speichert den vorherigen Status und erzeugt einen unveränderlichen Decision-Eintrag.
+The same evidence + exact Search Profile revision/policy produces the same Fit result.
 
-## AT-38 Restore
+### AC-FIT-02 Separate hard constraints
 
-Restore ist nur bei aktueller Exclusion erlaubt, referenziert die aktive Exclusion und verwendet ohne Zielstatus deren gespeicherten vorherigen Status. Ein expliziter gültiger nicht ausgeschlossener Zielstatus ist möglich; historische Exclusions bleiben unverändert. Wiederholte Exclusion/Restore-Zyklen referenzieren jeweils die korrekte aktive Exclusion.
+Hard must/must-not status is represented separately from weighted Fit and can be pass/fail/unknown according to available evidence.
 
-## AT-39 Import Preservation
+### AC-FIT-03 Missing evidence
 
-Ein wiederholter Research-Bundle-Import lässt aktuellen persönlichen Wert, alle Revisionen, Tracking Status und Decision History unverändert.
+Missing evidence is explicit and contributes to Evidence Completeness rather than being silently treated as a positive match.
 
-## AT-40 Status Filtering and Decision History
+### AC-FIT-04 Explainability
 
-Die Stellenliste filtert nach Tracking Status; die Detailansicht zeigt die chronologische Decision History.
+Criterion contributions expose enough value/weight/reasoning/provenance context to explain the aggregate result.
 
-## AT-41 Triage UI
+### AC-FIT-05 Candidate provenance
 
-Die UI trennt Create und Revise, zeigt typisierte Assessment Controls, bietet Status-/Exclusion-/Restore-Aktionen und zeigt bei einem Mutationsfehler das bereits geladene Read Model weiter an.
+Candidate Profile revision is included in Fit provenance only when Candidate facts actually contribute to the current calculation.
 
-## AT-42 Migration fresh install
+### AC-FIT-06 No hidden mutation
 
-Eine leere Datenbank migriert bis `head` und enthält die v0.2-Triage-Struktur.
+Calculating/filtering/sorting by Fit never changes Tracking Status, Decisions, Assessments, notes or Application state.
 
-## AT-43 Migration from v0.1.0
+## 8. Opportunity workspace
 
-Eine auf `0002` migrierte v0.1.0-Datenbank migriert bis `head` und liefert dasselbe Schema wie die Fresh-Installation.
+### AC-WS-01 Search/filter/sort
 
-## AT-44 Migration integrity constraints
+Text search and implemented tracking/availability/group/hard-constraint/evidence/profile-aware filters produce deterministic visible Opportunity sets.
 
-Das Schema schützt `UNIQUE(opportunity_id, criterion_id, revision_number)`, `UNIQUE(supersedes_id)`, `UNIQUE(reverses_decision_id)`, `revision_number >= 1` und `origin = 'personal'`.
+### AC-WS-02 Profile switch safety
 
-## AT-45 Persistent restart
+Changing selected Search Profile invalidates/clears old Fit display until new profile-specific results are available; results from two profile contexts are never mixed.
 
-Nach Dispose und Neustart mit derselben SQLite-Datei bleiben Opportunity, Status, aktuelles Personal Assessment, beide Revisionen, vollständige Decision History und die Restore-Referenz erhalten.
+### AC-WS-03 Private note isolation
 
-## AT-46 Update contract compatibility
+Create/update/clear note persists locally, survives restart and is unaffected by Research/Update imports. Note content does not alter Fit.
 
-Research Bundle `1.0` validiert das unveränderte Initial-Beispiel und lehnt Update Scopes ab. Research Update Bundle `2.0` ist ein separater Contract.
+### AC-WS-04 List/map consistency
 
-## AT-47 Update scope modes
+MapProjection is built from the same explicit filtered Opportunity set as the workspace list.
 
-Full, Company, Opportunity und Gap Filling validieren jeweils mit `prompt_context_ref`; bekannte Subjects verwenden opaque Correlation References, neue Subjects Creation-/Evidence-Felder.
+### Manual product criteria (#45)
 
-## AT-48 Closed and protected update objects
+Current control composition is not accepted. Re-acceptance requires deliberate empty/populated states, coherent grouping/responsive layout, consistent German product wording and no global `Nächster Schritt`/decorative footer clutter.
 
-Unbekannte Properties und Personal-State-Properties werden abgelehnt. Gap Filling mit neuen Companies, Opportunities, Postings oder Possible Duplicates wird strukturell abgelehnt.
+## 9. Groups/Application Waves
 
-## AT-49 Update identity and duplicate evidence
+### AC-GR-01 Ordered membership
 
-Possible-Duplicate-Einträge sind nur Evidenz für Opportunity-/Posting-Paare mit Quellenbeleg; Company-Duplicates, Self-References und automatische Merge-Bedeutung sind unzulässig. Posting-Identität bleibt Source plus External ID oder HTTPS-URL; Correlation-/Identity-Konflikte sind Blocker.
+Group membership is unique per Group/Opportunity and maintains explicit deterministic order.
 
-## AT-50 Explicit version dispatch
+### AC-GR-02 Isolation
 
-Der Import dispatcht Research Bundle `1.0` ausschließlich als initial-only und Research Update Bundle `2.0` ausschließlich als kontrolliertes Update.
+Group CRUD/add/remove/reorder affects only group metadata/membership and never Research/Availability/Tracking/Decision/Application semantics.
 
-## AT-51 Planner blockers before mutation
+### AC-GR-03 Application Wave model
 
-Unbekannter Prompt Context, Scope-/Correlation-Fehler und deterministische Identity-Konflikte werden im Update-Plan vor jeder Domain-Mutation als Blocker gemeldet.
+Application Wave is an OpportunityGroup type, not a hidden automation engine and not an ApplicationCase state.
 
-## AT-52 Safe reuse and append-only evidence
+### Manual product criterion
 
-Ein akzeptiertes Update verwendet bestehende Company-, Opportunity- und Posting-Subjects wieder, schreibt deren kanonische Zustände nicht um und speichert neue Sources, Source References und externe Evidence append-only.
+The domain model may remain, but literal `Groups/Waves`/`Organisation` is not accepted as final main-navigation wording. #45/#50 own the application-planning presentation.
 
-## AT-53 Atomic rollback, personal-state preservation and idempotency
+## 10. Map and Orientation boundary
 
-Ein vor `Apply` erkannter Blocker verursacht keinerlei Domain-Mutation. Eine Exception während der atomaren `Apply`-Transaktion rollt alle Update-Schreibvorgänge zurück. Persönliche Assessments, Decisions und Tracking Status bleiben unverändert. Ein bereits angewendeter identischer Update-Fingerprint wird nicht erneut angewendet.
+### AC-MAP-01 MapLocationResolution
 
-## AT-54 Duplicate Case create/reuse without mutation
+Explicit manual/Orientation-backed resolution creates at most one current resolution per WorkLocation; deleting/re-resolving supporting data does not alter WorkLocation evidence/precision.
 
-Possible-Duplicate-Evidence erzeugt oder verwendet ausschließlich einen ungelösten Duplicate Case. Es findet kein Merge, keine Löschung und keine kanonische Umschreibung statt.
+### AC-MAP-02 No automatic geocoding
 
-## AT-55 Minimale Prompt Context Scopes
+Map render/filter/import does not silently geocode or mutate locations.
 
-Full-, Company-, Opportunity- und Gap-Filling-Prompt Contexts enthalten ausschließlich ihren erlaubten Scope; sie enthalten keine unabhängigen Subjects außerhalb des Scopes und keinen persönlichen Zustand.
+### AC-MAP-03 Orientation ownership
 
-## AT-56 Gap-Filling-Minimierung
+Generic map rendering/clustering/hit testing/place search belong to Orientation. Vocation provides job-specific scene information/actions and interprets returned action references.
 
-Ein Gap-Filling-Prompt Context enthält ausschließlich die ausdrücklich angeforderten Subject-/Observation- oder Criterion-Kombinationen.
+### AC-MAP-04 No hidden external navigation
 
-## AT-57 Prompt Context Traceability
+Selecting/rendering a map feature never automatically opens an external posting URL.
 
-Ein Update PromptRun persistiert genau einen Prompt Context Snapshot und dessen Prompt Context Ref. Ein angewendeter Update-Import persistiert die validierte Ref und Bundle Version 2.0, während Initial Research außerhalb dieser Beziehung bleibt.
+### Planned Search-Area criterion
 
-## AT-58 Typed Update API
+Search Profile place/radius selection (#47) must use the accepted Orientation generic place boundary and remain semantically separate from imported WorkLocations.
 
-Die typisierten Update-Endpunkte und OpenAPI-Verträge sind verfügbar; der Initial-Research-Endpunkt bleibt kompatibel.
+## 11. External links
 
-## AT-59 Desktop Update Workflow
+### AC-LINK-01 HTTPS policy
 
-Für alle fünf Modi unterstützt die Desktop-UI Scope-Auswahl, Prompt-Generierung, Preview, Copy/Save und Inline-Import des zurückgegebenen JSON. Ein neuer Preview ersetzt einen veralteten Preview-Inhalt.
+Only accepted absolute HTTPS links with host reach the OS browser adapter.
 
-## AT-60 Update Import Traceability
+### AC-LINK-02 Deterministic preferred link
 
-Ein erzeugtes Update Bundle kann über den v0.3-Importer aus Issue #9 importiert werden; Duplicate-Importe erzeugen keine neue Mutation und bewahren die ursprünglichen Bundle-, Prompt- und Prompt-Context-Metadaten.
+PreferredPostingSelector uses the accepted Availability → Source type → observed time → Posting ID order.
 
-## AT-61 WGT iPhone ohne Windows-PC
+### AC-LINK-03 Explicit user action
 
-Wenn der Windows-PC ausgeschaltet ist
-Dann kann Wiiii Got This die letzte veröffentlichte Read Projection auf dem iPhone anzeigen.
+Opening an external posting always requires explicit user action. No import/render/filter side effect starts a browser.
 
-## AT-62 Local-only Operation
+### AC-LINK-04 Current actionability is separate
 
-Wenn keine Remote-Publikation konfiguriert ist
-Dann bleiben lokale Prompting-, Import-, Pflege- und Read-Workflows nutzbar.
+A structurally valid URL is not proof that a Posting is still available. Availability/Freshness evidence remains the current-actionability boundary.
 
-## AT-63 Opportunity Overview 1.0 Contract
+## 12. Opportunity comparison
 
-Das Artefakt validiert gegen `schemas/published-opportunity-overview-v1.schema.json`; Capability und Contract Version sind exakt `vocation.opportunity_overview` und `1.0`.
+### AC-CMP-01 Selection constraints
 
-## AT-64 Published Field Exclusions
+Only 2–4 unique existing Opportunities are compared in the explicit requested order.
 
-Das Artefakt enthält keine geschützten persönlichen, internen Import-/Provenance-, Prompt-, Observation-, URL-, Availability/Freshness- oder Schreibfelder; unbekannte Properties werden abgelehnt.
+### AC-CMP-02 Evidence semantics
 
-## AT-65 Opaque Published References
+Supported research/assessment dimensions show missing/multiple evidence explicitly without invented winner/contradiction semantics.
 
-`opportunity_ref`, `company_ref` und `publication_ref` sind nichtleere opaque Vocation-Referenzen. Verbraucher dürfen sie speichern und zurückgeben, aber nicht interpretieren.
+### AC-CMP-03 Read-only
 
-## AT-66 Deterministic Opportunity Overview
+Comparison never changes any Vocation state and exposes no automatic URL action.
 
-Vocation erzeugt Opportunities und Work Locations in der eingefrorenen deterministischen Reihenfolge; die Reihenfolge ist für stabile Snapshots und Tests bestimmt, aber nicht fachlich semantisch.
+## 13. Duplicate review
 
-## AT-67 Empty Published Market
+### AC-DUP-01 Possible duplicate ≠ merge
 
-Ein gültiges Opportunity-Overview-Artefakt darf eine leere `opportunities`-Liste enthalten.
+Research evidence may create/reuse a Duplicate Case but never a destructive merge.
 
-## AT-68 Publication Age versus Freshness
+### AC-DUP-02 Explicit append-only decision
 
-Das Artefakt enthält `generated_at`, aber weder `publication_age` noch `stale`. Consumer können daraus Publication Age ableiten; daraus darf keine Vocation Availability/Freshness abgeleitet werden.
+User decisions are append-only with one of `confirmed_duplicate`, `confirmed_distinct`, `related_but_distinct`, `keep_unresolved` and a nonblank reason.
 
-## AT-69 Availability Check Bundle 1.0
+### AC-DUP-03 No re-parenting
 
-Ein Availability Check Bundle 1.0 validiert nur mit `bundle_kind: "availability_check"`, `bundle_version: "1.0"`, Prompt Context Ref, Availability Scope, mindestens einer Observation und den fünf eingefrorenen Result-Werten.
+`confirmed_duplicate` remains classification only. Opportunity/Posting identity, Assessments, Decisions, Groups, ApplicationCases/Documents and Published refs are not automatically rewritten.
 
-## AT-70 Append-only Availability Observations
+## 14. ApplicationCase and private ApplicationDocuments
 
-Ein akzeptierter Availability Check ergänzt AvailabilityObservations append-only. Ein Blocker erzeugt keine Observation-Writes und keine persönlichen Änderungen.
+### AC-APP-01 Lifecycle
 
-## AT-71 AvailabilityEvaluator
+ApplicationCase creation/lifecycle changes are explicit, independently persisted and do not implicitly follow Opportunity Tracking Status.
 
-Die neueste Observation mappt deterministisch auf `available`, `unavailable`, `uncertain` oder `unknown`. `temporarily_unreachable`, `not_found` und `indeterminate` ergeben `uncertain`, nie definitiv `unavailable`.
+### AC-APP-02 One active case invariant
 
-## AT-72 Opportunity Availability Aggregation
+At most one nonterminal active ApplicationCase exists per Opportunity; terminal history remains readable.
 
-Opportunity Availability ist `available`, wenn ein Posting verfügbar ist; sonst `uncertain`, wenn eines unsicher ist; sonst `unknown`, wenn eines unbekannt ist; nur bei vorhandenen und ausschließlich nicht verfügbaren Postings `unavailable`. Ohne Postings ist sie `unknown`.
+### AC-APP-03 Material revisions
 
-## AT-73 Personal-state Preservation
+ApplicationMaterial revisions are explicit/historical; content replacement creates a new revision rather than modifying an existing document payload in place.
 
-Availability Checks verändern weder Tracking Status, Personal Assessments, Decisions, Exclusion/Restore noch Groups/Waves.
+### AC-APP-04 Private document integrity
 
-## AT-74 Availability-evidence Freshness
+Attach stores allowed payload bytes through `ApplicationDocumentStore`, verifies read-back size/SHA-256 before acceptance and persists private metadata/opaque reference only after success.
 
-Posting- und Opportunity-Read-Models leiten `last_checked_at` und nichtnegative `age_days` aus der neuesten Availability Observation und einer injizierten UTC-Uhr ab. Freshness ist keine Availability-Änderung.
+### AC-APP-05 Exact read
 
-## AT-75 Availability Prompt und interne API
+Opening content resolves the exact `document_id`/material revision and revalidates integrity. No implicit latest-revision fallback.
 
-Availability Check Prompt-Erzeugung, dedizierte Availability-Import-Routen, Availability/Freshness-Felder in den internen Opportunity- und Posting-Read-Models sowie die React/Desktop-Integration sind implementiert. Die Liste bietet Filter und Badges; die Detailansicht zeigt Status und Historie. Der Published Opportunity Overview 1.0 Contract bleibt unverändert.
+### AC-APP-06 Privacy/publication isolation
 
-## AT-76 No Automatic Stale Threshold
+ApplicationCases/Materials/Documents are absent from frozen public Published contracts and from Research imports.
 
-Es gibt keine Fresh-/Stale-Kategorie und keinen automatischen Ablauf. Alte explizit verfügbare Evidenz bleibt `available`, während ihr Alter separat angezeigt wird.
+### Planned product criteria (#46/#50)
 
-## AT-77 Research Update Compatibility
+Re-acceptance of the broader application product requires reusable profile documents, coherent `Bewerbungen` workspace and explicitly reviewed application-material generation without automatic submission/hidden disclosure.
 
-Research Update Bundle 2.0 bleibt unverändert; Availability-Felder, Availability-Scope und Availability-Observation-Typen werden nicht in diesen Vertrag aufgenommen.
+## 15. Published contracts
 
-## AT-78 Opportunity Groups and Application Waves
+### AC-PUB-01 Opportunity Overview 1.0
 
-Eine Group besitzt stabile ID, nichtleeren Namen, optionale Beschreibung und Type `general` oder `application_wave`; Application Wave ist kein separates Aggregate.
+Validates exactly against `schemas/published-opportunity-overview-v1.schema.json`, uses opaque refs and contains only frozen fields.
 
-## AT-79 Ordered Membership and Group Commands
+### AC-PUB-02 Published Map Projection 1.0
 
-Memberships sind durch `(group_id, opportunity_id)` eindeutig und besitzen explizite Positionen. Add hängt an, Remove betrifft nur die Group, Reorder normalisiert den vollständigen Satz deterministisch, Delete löscht keine Opportunity.
+Validates exactly against `schemas/published-map-projection-v1.schema.json`, is URL-free and publishes only existing explicit resolutions without geocoding/mutation.
 
-## AT-80 Group State Isolation
+### AC-PUB-03 No silent expansion
 
-Groups/Waves verändern weder Opportunity-Zustand, Tracking Status, Personal Assessments, Decisions, Availability/Freshness noch Research-Daten. Research- und Availability-Bundles können keine Memberships erzeugen oder ändern.
+Internal post-v0.4 Candidate/Search/Fit/workspace/application changes do not silently add fields to frozen contracts.
 
-## AT-81 Group Reads and Filtering
+### AC-PUB-04 Publication age
 
-Group list/detail, geordnete Opportunities, Membership-Anzeige in Opportunity List/Detail sowie `group_id`-Filter sind implementiert. Die React Groups & Waves UI und `/api/groups` unterstützen diese Read-Capabilities.
+Publication generated time/age must not be interpreted as Posting Availability/Freshness.
 
-## AT-82 MapLocationResolution
+## 16. First-user end-to-end automated acceptance
 
-Eine WorkLocation kann durch explizite Nutzeraktion höchstens eine aktuelle MapLocationResolution mit gültigen Koordinaten, `manual` oder `geocoder`, optionalem Provider Key, Zeitpunkt und verwendeter Query/Label besitzen. Die Persistence und UI-Aktionen für Geocode, Manual und Delete sind implementiert. Ohne Resolution ist sie `unmapped`; WorkLocation Evidence und Precision bleiben unverändert.
+The deterministic fixture `examples/acceptance/first-user-market.json` and `backend/tests/test_first_user_acceptance.py` exercise the real application/API/persistence path:
 
-## AT-83 MapProjection and Filter Consistency
+1. Candidate Profile;
+2. default Search Profile + evaluation policy;
+3. exact Initial Research prompt context;
+4. linked Research Bundle 1.0 import;
+5. explainable Fit;
+6. personal note/tracking/decision/group state;
+7. correlation-ref Update 2.0;
+8. protected-state/provenance preservation;
+9. application restart and state verification.
 
-Die implementierte interne MapProjection erzeugt ein Feature pro aufgelöster WorkLocation aus einer expliziten Opportunity-ID-Menge. `/api/map`, gemeinsame List/Map-Filter, Tracking Status, Availability und Group/Wave-Memberships werden nur gelesen und repräsentieren dieselben gefilterten Opportunities.
+Frontend acceptance verifies the corresponding navigation/transitions including successful inline research import returning to Stellenmarkt.
 
-## AT-84 Desktop Map Boundary
+This automated path is green but does not override the manual UX findings.
 
-Die implementierte Kartenansicht nutzt `OrientationMapFrame` und den gepinnten Orientation Embed Host über `orientation.host-bridge` 1.0 statt eines Vocation-eigenen Leaflet-Renderers. Vocation liefert die fachliche MapProjection, Information Rows und opaque Action References; Orientation besitzt generisches Rendering, Clustering und Hit Testing. Aktivierte Actions werden an Vocation zurückgegeben und dort fachlich interpretiert. Es gibt keine automatische oder periodische Geocodierung, keine automatische externe URL-Navigation und keine Mutation von Opportunity-, Personal-, Research- oder Availability-Zustand. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben unverändert.
+## 17. Manual current-market/product acceptance
 
-## AT-85 ExternalLinkPolicy
+The first manual product pass on 2026-08-18 stopped before real current-market completion because the current empty-market/Profile UI already failed product acceptance.
 
-ExternalLink ist ein abgeleiteter Read-Wert ohne eigene Tabelle. Nur absolute `https`-URLs mit nichtleerem Host sind gültig; andere, malformed oder relative URLs werden lokal abgelehnt und erreichen keinen Browser Adapter.
+Blocking areas:
 
-## AT-86 PreferredPostingSelector
+- #45 product UI/information architecture;
+- #46 persistent personal profile/documents;
+- #47 structured Search Profile/Search Areas;
+- #48 maintainable vocabularies;
+- #49 research strategy/company-first/freshness coverage;
+- #50 application workspace/drafting;
+- #52 dev launcher startup/cleanup observability.
 
-Gültige Links werden deterministisch nach Availability, Source Type, neuestem `observed_at` und Posting ID gerankt. Explizite Posting-/Source-Auswahl gilt nur für die aktuelle Aktion; es gibt keine persistierte persönliche Präferenz.
+After resolution, `docs/16_FIRST_USER_ACCEPTANCE.md` must be rerun with real current postings and official source/application-route verification.
 
-## AT-87 Explicit Navigation
+## 18. Research-strategy acceptance direction (#49)
 
-`OpenPostingInBrowser` öffnet ausschließlich nach expliziter Nutzeraktion über einen austauschbaren Browser Adapter. Laden, Filtern, Detail- oder reine Spatial-Feature-Auswahl öffnen keinen Browser; erst eine von Vocation definierte External-Link-Action darf den bestehenden Vocation-Command auslösen. Availability und persönlicher Zustand bleiben unverändert.
+Future explicit research runs must satisfy:
 
-## AT-88 URL-Free MapProjection
+- company-first/role-first/domain/regional/freshness/gap strategies are intentional and traceable;
+- official company/original sources are preferred when available;
+- an active application route is verified close to import time where practical;
+- broad inspection does not force quota-filling weak Opportunities;
+- stale/expired evidence stays historical but is no longer presented as actionable after negative Availability evidence;
+- Company coverage can remember `checked/no relevant role` without fabricating an Opportunity.
 
-Die MapProjection enthält keine URLs oder `posting_links`. Vocation ermittelt ExternalLink-Kandidaten separat über Opportunity ID und kann daraus opaque Action References für die lokale Orientation Spatial Scene ableiten; URLs werden nicht Teil der Projection. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben URL-frei.
+## 19. Development/runtime acceptance (#52)
 
-## AT-89 External Navigation Workflow
+The normal Windows dev launcher must eventually make backend failure/readiness visible and clean up its exact child process so a normal stop does not leave a stale Vocation process locking `.venv` native extensions.
 
-Die implementierten `/api/external-links`-Read-/Open-Endpunkte, typed Clients und Opportunity-Detail-UI zeigen Source, Availability, Observed At und Preferred-Marker. Default-/Preferred- sowie explizites Posting-Öffnen, No-Link- und lokale Browser-Fehlerzustände sind abgedeckt. Für die Kartenansicht lädt Vocation Kandidaten separat und dedupliziert pro Opportunity; die Orientation-Darstellung erhält nur Vocation-definierte Informationen/Action References und eine Action-Aktivierung wird anschließend von Vocation ausgeführt.
+It must never indiscriminately kill unrelated Python processes.
 
-## AT-90 Comparison Selection
+## 20. Release rule
 
-Die implementierte `Vergleichen`-UI und `POST /api/comparison/opportunities` akzeptieren genau 2 bis 4 eindeutige, existierende Opportunity IDs, behalten deren angeforderte Reihenfolge und lehnen Duplikate, falsche Anzahl oder fehlende Opportunities ohne stille Auslassung ab. Die Auswahl wird nicht persistiert.
+A next release is eligible only when:
 
-## AT-91 Opportunity Comparison Read Model
-
-Jede Vergleichsspalte zeigt Opportunity/Company, WorkLocations mit Precision, Tracking Status, Availability mit Availability-evidence Freshness sowie kompakte Group/Wave-Memberships. Das implementierte Read Model ist intern, read-only, horizontal scrollbar für 2–4 Spalten und enthält keine URLs oder Browser-Aktionen.
-
-## AT-92 Research Evidence Comparison
-
-Die sechs festgelegten Research-Dimensionen verwenden nur Opportunity- und Posting-scoped Observations. Fehlende Daten sind `missing`; mehrere Werte bleiben deterministisch als Evidenz sichtbar und werden nicht automatisch als widersprüchlich bezeichnet. Company-scoped Observations werden nicht kopiert.
-
-## AT-93 Assessment Comparison and State Isolation
-
-Opportunity-scoped Assessments werden criterion-keyed verglichen; Personal Assessments zeigen nur die aktuelle Revision, External Assessments mehrere Werte ohne automatische Auswahl. Die typed Clients und die Navigation zu bestehenden Vocation Details sind implementiert. Comparison verändert weder Tracking Status, Groups/Waves, Assessments noch Decisions. Risk bleibt ohne konkrete Read-Quelle außerhalb der V1-Ansicht.
-
-## AT-94 Published Map Projection 1.0 Contract
-
-Das kanonische Artefakt validiert gegen `schemas/published-map-projection-v1.schema.json` mit Capability `vocation.map_projection`, Contract Version `1.0`, Publication Metadata und geschlossenen Feature-Objekten. Leere `features` sind gültig.
-
-## AT-95 Published Map Projection Boundaries
-
-Jedes Feature enthält nur opaque Refs, Titel, Company, WorkLocation Label/Precision und Latitude/Longitude. Nur vorhandene explizite MapLocationResolutions erzeugen Features; mehrere mapped WorkLocations derselben Opportunity sind erlaubt. Es gibt keine URLs, Navigation, persönliche oder Research-Daten, Availability/Freshness, Groups/Waves, Provider-/Query-/Resolved-at-Metadaten oder Schreibbefehle.
-
-## AT-96 Published Map Projection Runtime
-
-`GET /published/v1/map-projection` liefert die implementierte Published Map Projection 1.0 außerhalb der internen React OpenAPI. Ein dedizierter read-only Publication Repository/Service veröffentlicht ausschließlich bestehende MapLocationResolutions, geocodiert und mutiert nie, akzeptiert eine leere Projection und ordnet Features deterministisch nach Company Name, Opportunity Title, WorkLocation Label case-insensitiv und `feature_ref`. Published Opportunity Overview 1.0 bleibt unverändert.
-
-## AT-97 ApplicationCase Ownership and Lifecycle
-
-Die implementierte ApplicationCase-Domäne bindet einen Case an genau eine Opportunity, wird ausschließlich explizit erstellt und verwendet die Zustände `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`, `rejected` und `withdrawn`; die letzten drei sind terminal. Lifecycle Events bleiben historisch lesbar und sind vom Opportunity Tracking Status getrennt.
-
-## AT-98 ApplicationCase Isolation
-
-Die implementierte Persistenz und History erzwingen höchstens einen aktiven/nonterminal Case je Opportunity. Research-/Availability-Imports und Groups/Waves erzeugen oder ändern keine ApplicationCases. Es gibt keine automatische Submission oder Transition aus E-Mail, Kalender oder externen Quellen.
-
-## AT-99 Private ApplicationMaterial Boundary
-
-ApplicationMaterial-Metadaten verwenden die Arten `cv`, `cover_letter` und `other` sowie explizite historische Revisionen; aktuelle Metadaten und die aus der Revision-Historie rekonstruierte aktuelle Revision sind implementiert. Private Inhalte erscheinen weder in Published Contracts, öffentlichen Fixtures, Logs, Research-/Availability-Bundles noch Publication Endpoints. Opportunity Overview 1.0 und Map Projection 1.0 bleiben unverändert.
-
-## AT-100 ApplicationCase API and UI
-
-Die internen ApplicationCase-/Material-Endpunkte, der typed Client und das Opportunity-Detail-React-Panel sind implementiert. Unterstützt werden Case-Liste/Detail, Lifecycle, Material-Metadaten und Material-Revisionen. Ein vollständiger Material-History-Endpoint existiert weiterhin nicht. Dokument-Payloads und Storage-Referenzen werden nicht in das normale ApplicationCase Read Model eingebettet; die separaten privaten ApplicationDocument-Endpunkte aus Slice 16/17 existieren daneben ausdrücklich.
-
-## AT-101 ApplicationDocument Semantics
-
-Die implementierte Material-Revision kann null oder ein immutable ApplicationDocument mit Document ID, Material ID/Revision, Original-Dateiname, erlaubtem Media Type, Byte Size, SHA-256 und Created At besitzen. Creation berechnet Byte Size und SHA-256 aus den gelieferten Bytes; Content-Ersatz erfolgt nur durch neue Material-Revision. Die Datenbank erzwingt `UNIQUE(material_id, material_revision)`; historische Revisionen behalten eigene Dokumente und neue Revisionen erben keine Dokumentdaten.
-
-## AT-102 Document Privacy and Integrity Boundary
-
-ApplicationDocument-Payload und identifizierende Metadaten erscheinen nicht in Published Contracts, Research-/Availability-Bundles, Prompt Contexts, Logs, Fixtures oder Publication Endpoints. Die implementierte Store-/Service-Kette schreibt create-only und atomic, liest Payloads zurück und erkennt fehlende oder korrupte Bytes als Integrity Errors; `storage_ref`, Pfade und hashed physical filenames werden nicht geleakt. Rendering, Editing/Generation, Encryption, Retention/Delete und Transport bleiben außerhalb der implementierten Dokument-Baseline bzw. benötigen eigene spätere Semantik.
-
-## AT-103 Private Document API and React Upload
-
-Die internen Multipart-Endpunkte für revisionsgebundene Dokumente, der typed Client und der Opportunity-Detail-Upload-Workflow sind implementiert. Erlaubt sind PDF, Plain Text und Markdown mit explizitem Media Type; Dateiname, Type, Byte Size und Created At werden angezeigt. Preview, Delete, Export/Download, Save-as und In-place-Replacement sind nicht implementiert; `Öffnen` ist als separater Slice-17-Workflow implementiert.
-
-## AT-104 Slice 17 ApplicationDocument Access (implementiert)
-
-Ein bereits angehängtes PDF kann nur nach expliziter Nutzeraktion `Öffnen` über `OpenApplicationDocument` gelesen werden. Die fokussierte React-Abdeckung verifiziert die Aktion nur bei angehängtem Dokument, die exakte Dokument-ID/Content-URL, neuen Browsing-Kontext sowie `noopener`/`noreferrer`. Der Zugriff verwendet genau `document_id` der aktuell angezeigten `(material_id, material_revision)` und liefert nach Byte-Size-/SHA-256-Prüfung die exakten Bytes mit dem persistierten Media Type. Es gibt keinen Fallback auf eine andere oder neueste Revision.
-
-Ein bereits angehängtes `text/plain` kann explizit gelesen werden; dasselbe gilt für `text/markdown`, jeweils mit identischem Verhalten der privaten Content-Grenze. Die Abdeckung verifiziert außerdem, dass nach einer neueren Material-Revision keine ältere Dokumentrevision wiederverwendet wird. Ein angehängtes `text/markdown` liefert die exakt gespeicherten Bytes; Vocation führt keine Markdown-Transformation oder Rendering durch. Ohne angehängtes Dokument existiert keine Öffnen-Aktion.
-
-Fehlende Dokument-Metadaten ergeben `document metadata not found`. Fehlende Backing Bytes oder korrupte Bytes ergeben einen expliziten Integrity Error; es wird kein leeres oder synthetisches Dokument zurückgegeben.
-
-Öffnen verändert weder ApplicationCase-Lifecycle noch Opportunity Tracking Status und erzeugt keinen ApplicationMaterial- oder ApplicationDocument-Zustand. Die fokussierte UI-Abdeckung bestätigt das Fehlen von Replace-, Delete-, Download- und Preview-Aktionen sowie das Nicht-Leaken von Storage-Pfad/Reference; neue Backend-Tests wurden für Slice 17 nicht hinzugefügt. `storage_ref`, physische Pfade, hashed physical filenames und Store Root werden nie als Response ausgegeben. Payload und private Metadaten bleiben aus Published Opportunity Overview, Published Map Projection, Research-/Availability-Bundles, Prompt Contexts, öffentlichen Fixtures und Publication Endpoints ausgeschlossen.
-
-## AT-105 Orientation Geospatial Integration Boundary
-
-Eine explizite Vocation-Geocode-Aktion nutzt den Vocation `Geocoder`-Port mit `OrientationGeocoder` und ruft Orientation Place Search über `GET /api/v1/places/search` auf. Vocation ruft weder Nominatim noch Photon direkt auf. Ein fehlgeschlagener oder ungültiger Orientation-Response erzeugt einen sichtbaren Fehler und keine erfundenen Koordinaten oder stille Provider-Umschaltung; WorkLocation Evidence und Precision werden nicht verändert.
-
-Die Vocation-Kartenansicht nutzt den gepinnten Orientation Embed Host über `orientation.host-bridge` 1.0. Vocation erzeugt/adaptiert die fachliche MapProjection, Information Rows und opaque Action References; Orientation rendert generisch und meldet Action-Aktivierungen zurück. Orientation liest keine Vocation-Datenbank und entscheidet nicht über Work Location, Precision, Opportunity, Availability, Preferred Posting oder Browsernavigation.
-
-Die lokale Orientation-Komposition verändert weder Published Opportunity Overview 1.0 noch Published Map Projection 1.0. Weitere Orientation-Capabilities wie Routing werden nicht allein durch ihre Verfügbarkeit Bestandteil von Vocation, sondern benötigen einen konkreten Vocation-Nutzerfall und eine eigene Semantikentscheidung.
-
-## AT-106 Duplicate Decision History and Isolation
-
-Ein bestehender Opportunity- oder Posting-DuplicateCase kann nur durch explizite Nutzeraktion mit `confirmed_duplicate`, `confirmed_distinct`, `related_but_distinct` oder `keep_unresolved` und nichtleerem Grund entschieden werden. Jede Decision wird mit fortlaufender Sequence append-only gespeichert; eine abweichende spätere Decision wird aktuell, ohne ältere Decisions zu verändern. Dasselbe aktuelle Outcome wird als Konflikt abgelehnt. Research-/Availability-Imports sowie persönliche Opportunity-Zustände bleiben davon unverändert.
-
-## AT-107 Duplicate Review API and UI Without Merge
-
-Die internen `/api/duplicate-cases`-Routen liefern Opportunity- und Posting-Cases mit lesbaren Subject-/Source-Summaries, aktueller Decision und Historie. Die React-Ansicht `Dubletten` filtert offen/entschieden/alle, verlangt einen Entscheidungsgrund und zeigt Evidence-URLs nur als nicht klickbaren Review-Kontext. `confirmed_duplicate` erzeugt weder Merge, Delete, Re-Parenting noch sonstige Identitätsmutation; es gibt keine Merge-/Delete-Controls und keine Änderung an Published Opportunity Overview 1.0 oder Published Map Projection 1.0.
-
+- required automated repository gates pass on the exact candidate;
+- manual product blockers are resolved or explicitly accepted/deferred;
+- current-market acceptance is rerun successfully;
+- version/status/changelog metadata are intentionally aligned;
+- `dev` is promoted through the documented release model without silent contract changes.
