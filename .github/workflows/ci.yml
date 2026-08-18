@@ -110,3 +110,8 @@ jobs:
           finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
           }
+      - name: Verify development launcher readiness and child cleanup
+        shell: pwsh
+        run: |
+          .\scripts\dev.ps1 -BackendSmokeTest -StartupTimeoutSeconds 30
+          uv sync --locked --extra dev
