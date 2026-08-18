@@ -16,7 +16,7 @@ Criterion policies describe what evidence matters most after import. Prioritize 
 
 {{CANDIDATE_PROFILE}}
 
-Candidate facts are private context intentionally included in this copied prompt. Use them only to improve discovery relevance. Never emit Candidate Profile data, personal Assessments, Decisions, Tracking Status, Groups/Waves, exclusions, application state or other private Vocation state in the Research Bundle.
+When a structured Candidate Profile is present above, those candidate facts are private context intentionally included in this copied prompt. Use them only to improve discovery relevance. Never emit Candidate Profile data, personal Assessments, Decisions, Tracking Status, Groups/Waves, exclusions, application state or other private Vocation state in the Research Bundle.
 
 ## Research scope to echo exactly
 
