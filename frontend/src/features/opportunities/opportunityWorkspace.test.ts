@@ -152,11 +152,9 @@ describe("analyzeOpportunities", () => {
   });
 
   it("sorts by recency, company and title", () => {
-    expect(analyzeOpportunities(items, fits, defaults).map((entry) => entry.id)).toEqual([
-      "opp-1",
-      "opp-2",
-      "opp-3",
-    ]);
+    expect(
+      analyzeOpportunities(items, fits, defaults).map((entry) => entry.id),
+    ).toEqual(["opp-1", "opp-2", "opp-3"]);
     expect(
       analyzeOpportunities(items, fits, {
         ...defaults,
