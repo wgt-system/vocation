@@ -55,7 +55,9 @@ describe("Stellenmarkt product workspace", () => {
     );
 
     expect(
-      await screen.findByRole("heading", { name: "Baue deinen ersten Stellenmarkt auf" }),
+      await screen.findByRole("heading", {
+        name: "Baue deinen ersten Stellenmarkt auf",
+      }),
     ).toBeInTheDocument();
     expect(
       screen.queryByLabelText("Opportunities durchsuchen"),
@@ -92,7 +94,9 @@ describe("Stellenmarkt product workspace", () => {
       await screen.findByRole("heading", { name: "Stellenmarkt" }),
     ).toBeInTheDocument();
     expect(screen.getByText("1 Stellen")).toBeInTheDocument();
-    expect(screen.getByLabelText("Opportunities durchsuchen")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Opportunities durchsuchen"),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Availability filtern")).toBeInTheDocument();
     expect(screen.getByText("Verfügbarkeit")).toBeInTheDocument();
     expect(screen.getByText("Sammlung")).toBeInTheDocument();
