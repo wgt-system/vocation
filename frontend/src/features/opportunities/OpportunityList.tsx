@@ -65,7 +65,7 @@ function freshnessLabel(item: OpportunityListItem) {
 
 export function OpportunityList({
   refreshToken,
- onSelect,
+  onSelect,
   onStartResearch,
   onOpenProfiles,
 }: {
