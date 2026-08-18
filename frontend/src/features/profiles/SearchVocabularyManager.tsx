@@ -173,7 +173,7 @@ export function SearchVocabularyManager() {
       await searchVocabularyApi.createCustom({
         kind: proposal.kind,
         label: proposal.label,
-        aliases: proposal.aliases,
+        aliases: proposal.aliases ?? [],
         group: proposal.group,
       });
       setAcceptedLabels((current) => new Set(current).add(proposal.label));
@@ -421,6 +421,7 @@ export function SearchVocabularyManager() {
             )}
             {reviewed.proposals.map(
               ({ proposal, already_known_entry_id: knownId }) => {
+                const aliases = proposal.aliases ?? [];
                 const accepted = acceptedLabels.has(proposal.label);
                 return (
                   <article
@@ -433,8 +434,8 @@ export function SearchVocabularyManager() {
                       </span>
                       <strong>{proposal.label}</strong>
                       <p>{proposal.reason}</p>
-                      {proposal.aliases.length > 0 && (
-                        <small>Aliasse: {proposal.aliases.join(" · ")}</small>
+                      {aliases.length > 0 && (
+                        <small>Aliasse: {aliases.join(" · ")}</small>
                       )}
                       <div className="vocabulary-sources">
                         {proposal.source_urls.map((url) => (
