@@ -1,211 +1,308 @@
-# Vocation – Implementation Plan
+# Vocation – Implementation Plan and Current Roadmap
 
-**Status:** v0.4.0 complete standalone baseline; Slices 1–18 implemented.
+**Status:** stable v0.4.0 standalone baseline complete; post-v0.4 personal-search/fit/research/workspace acceptance capabilities implemented on `dev`; manual product acceptance is blocked.
 
-## Phase 0 – Spezifikationsprüfung
+## 1. Purpose
 
-Vor Produktcode werden maßgebliche Dokumente auf Widersprüche, Blocker, untestbare Kriterien und fehlende Vertragsdetails geprüft.
+This document separates three things that older revisions mixed together:
 
-## Slice 1 – Projektgrundlage
+1. **completed stable v0.4.0 slices**;
+2. **implemented post-v0.4 development capabilities**;
+3. **current manual-acceptance product work that is not implemented yet**.
 
-- Repository-Struktur
-- Build/Run
-- Testumgebung
-- lokale Datenbank und Migrationen
-- Health Check
-- Logging
+A listed future work package is not a claim that the feature exists.
 
-## Slice 2 – Research Bundle Contract
+## 2. Completed stable v0.4.0 baseline
 
-- JSON Schema
-- Parser
-- Validation
-- Fingerprint
-- Beispieltests
-- noch keine UI
+The technical slice sequence that produced stable v0.4.0 is complete.
 
-## Slice 3 – Kernmodell Import
+### Slice 1 – Project foundation
 
-- Company
-- Opportunity
-- Posting
-- Observation
-- Import Record
-- atomare Transaktion
-- Contract- und Domain Tests
+Repository/build/run/test foundation, local database, migrations, health/logging.
 
-## Slice 4 – Job List und Detail
+### Slice 2 – Research Bundle 1.0 contract
 
-- Query Services
-- erste Read Models
-- Desktop UI
-- Filter und Detailansicht
+Frozen initial research JSON Schema, parser/validation/fingerprint and contract examples/tests.
 
-## Slice 5 – Assessments und Decisions
+### Slice 3 – Core import model
 
-- External Assessment
-- Personal Assessment
-- Risks
-- Tracking Status
-- Exclusion/Restore
-- History
+Company, Opportunity, Posting, Observation, Import Record and atomic Research Bundle application.
 
-## Slice 6 – Prompt Generation
+### Slice 4 – Opportunity list/detail
 
-- Prompt Templates
-- Prompt Scope
-- Context Snapshot
-- Prompt Preview
-- Clipboard
-- Prompt Run History
+Initial internal Read Models, filters and React desktop presentation.
 
-## Slice 7 – Update Imports und Dubletten
+### Slice 5 – Assessments and personal decisions
 
-- Vocation-issued opaque Correlation References
-- gespeicherter Prompt Context und Update Scope
-- deterministische Posting-Identität
-- ungelöste Duplicate Cases als Evidenz
-- kein automatischer Merge
+Vocation criteria, External/Personal Assessments, Tracking Status, Exclusion/Restore and history.
 
-## Post-v0.3 Priorität: Data Publication
+### Slice 6 – Prompt generation
+
+Versioned prompt templates, Prompt Scope/Context, preview/copy/save and prompt provenance.
+
+### Slice 7 – Research Update Bundle 2.0 and duplicate evidence
+
+Opaque correlation refs, scoped deterministic update planning, identity protection, possible Duplicate Cases and atomic update apply.
 
 ### Slice 8 – Published Opportunity Overview 1.0
 
-- Vocation-owned projection
-- versioned client-neutral Published Contract
-- contract tests
-- local publication endpoint/artifact boundary
-- transport-independent
-- no iOS implementation in Vocation
-- no remote relay implementation yet
-- no personal-state write commands
+Frozen client-neutral read contract and local publication boundary outside internal React OpenAPI.
 
-Contract 1.0 is frozen in `schemas/published-opportunity-overview-v1.schema.json` with a canonical fictional example and schema-only contract tests. Slice 8 is implemented on `dev` with the local read-only boundary `/published/v1/opportunity-overview`; it remains outside the internal React OpenAPI. No relay, WGT client, authentication, remote persistence, or cross-device writes are implemented.
+### Slice 9 – Availability/Freshness
 
-### Slice 9 – Availability und Freshness
+Dedicated Availability Check contract, append-only observations, evaluator, read/API/UI integration and freshness age.
 
-- Availability Observations
-- Evaluator
-- Freshness
-- UI Indicators
+### Slice 10 – Opportunity Groups/Application Waves
 
-Slice 9 freezes Availability Check Bundle 1.0 and its evidence-derived semantics. Availability Prompt generation, the dedicated Availability Import HTTP boundary, internal Availability/Freshness read-model/API integration, list filters/badges, and detail/history UI are implemented on `dev`. This remains post-v0.3 development and does not change Published Opportunity Overview 1.0.
+Group aggregate/type, ordered membership, CRUD/reorder, list/detail filters and UI.
 
-## Slice 10 – Groups und Waves (implementiert auf `dev`)
+### Slice 11 – Map/Orientation integration
 
-- Opportunity Groups
-- Application Waves
-- Filter und Übersicht
+Vocation-owned WorkLocation/MapLocationResolution/MapProjection with generic place/map capability delegated to Orientation. Direct Vocation Nominatim/Leaflet ownership was removed through the accepted system architecture migration.
 
-V1 definiert `OpportunityGroup` als Aggregate mit Type `general` oder `application_wave`; Application Wave ist kein separates Aggregate. Implementiert sind `CreateOpportunityGroup`, `EditOpportunityGroup`, `DeleteOpportunityGroup`, `AddOpportunityToGroup`, `RemoveOpportunityFromGroup` und `ReorderOpportunityGroup`, persistente geordnete Memberships, `/api/groups`, `group_id`-Filter, Opportunity List/Detail Memberships und die React Groups & Waves UI. Membership ist veränderbarer Organisationszustand; Gruppen verändern keine Opportunity-, Personal-, Research- oder Availability-Daten. Published Opportunity Overview 1.0 bleibt unverändert.
+### Slice 12 – External Links
 
-## Slice 11 – Karte (implementiert auf `dev`, generische Infrastruktur zu Orientation migriert)
+Derived ExternalLink values, HTTPS policy, deterministic PreferredPostingSelector and explicit OS-browser open workflow.
 
-- Work Locations
-- MapProjection
-- Renderer
-- Filterkonsistenz
-- Pin Preview
+### Slice 13 – Opportunity comparison
 
-V1 führte `MapLocationResolution` als Vocation-owned Supporting Data pro WorkLocation ein. Persistence, explizite Manual-/Geocoder-Auflösung, interner MapProjection-Read-Path, `/api/map`, gemeinsame List/Map-Filter über die aktuell sichtbaren Opportunity IDs sowie Geocode/Manual/Delete-UI bleiben implementiert und Vocation-owned. Resolution ist nicht append-only Evidence oder Decision History, überschreibt keine WorkLocation Precision und wird nur explizit durch den Nutzer ausgelöst. Keine automatische/background Geocodierung, kein Address Crawling und keine Status-/Personal-/Research-/Availability-Mutation.
+Read-only 2–4 Opportunity comparison with explicit missing evidence/no ranking side effects.
 
-Die ursprünglich in Vocation implementierten generischen Nominatim- und Leaflet/React-Leaflet-Adapter wurden nach der systemweiten Orientation-Ownership-Entscheidung ersetzt. Der Vocation `Geocoder`-Port nutzt jetzt `OrientationGeocoder` gegen Orientation Place Search (`GET /api/v1/places/search`). Die React-Karte nutzt `OrientationMapFrame` und den gepinnten Orientation Embed Host über `orientation.host-bridge` 1.0. Vocation adaptiert weiterhin die fachlich autoritative MapProjection, Information und Action References; Orientation rendert die generische Spatial Scene und gibt Action-Aktivierungen an Vocation zurück. Published Opportunity Overview 1.0 bleibt unverändert.
+### Slice 14 – Published Map Projection 1.0
 
-## Slice 12 – External Links (implementiert auf `dev`)
+Frozen client-neutral URL-free map publication contract based only on existing explicit resolutions.
 
-- PreferredPostingSelector
-- ExternalLinkPolicy
-- Browser Adapter
-- Quellenwahl im Pin und Detail
+### Slice 15 – ApplicationCase and private ApplicationMaterial metadata
 
-V1 definiert ExternalLink als abgeleiteten Read-/Application-Wert ohne eigene Persistenz. Implementiert sind ExternalLinkPolicy, deterministischer PreferredPostingSelector, SQLAlchemy Read-Adapter, SystemBrowserAdapter, `/api/external-links`, typed interne OpenAPI-/Frontend-Clients, Opportunity-Detail-Workflow sowie Map-Navigation mit dedupliziertem Link-Laden pro Opportunity. Die Policy akzeptiert nur absolute HTTPS-URLs mit Host und prüft lokal ohne URL-Probing. Availability, Source Type, `observed_at` und Posting ID bestimmen das Ranking; explizite Auswahl wird nicht gespeichert. `OpenPostingInBrowser` ist ausschließlich Nutzeraktion. Die Orientation Map Surface erhält nur Vocation-definierte Action References; Auswahl und Browseröffnung bleiben Vocation-owned. Research Contracts und Published Opportunity Overview 1.0 bleiben unverändert.
+Independent application lifecycle, append-only events/material revisions and internal API/UI.
 
-## Slice 13 – Vergleich (implementiert auf `dev`)
+### Slice 16 – Private ApplicationDocument content
 
-- Comparison Read Model
-- UI
+Immutable document semantic metadata, filesystem store port/adapter, upload and integrity verification.
 
-V1 definiert `OpportunityComparisonView` als internen, read-only und nicht persistierten Vergleich für 2 bis 4 explizit geordnete, existierende Opportunities. Implementiert sind `POST /api/comparison/opportunities`, SQLAlchemy Comparison Read Repository, typed OpenAPI-/Frontend-Client, temporäre Desktop-Auswahl, horizontal scrollbar 2–4-Spalten-UI und Vocation-Detail-Navigation. Die Ansicht zeigt Summary, Availability-evidence Freshness, Groups/Waves, sechs Research-Dimensionen und Opportunity-scoped Assessments mit explizitem Missing-State und deterministischer Evidenzreihenfolge. Sie ist kein Ranking, Scoring, Recommendation, Winner Selector oder neue Assessment-Domäne. Es gibt keine inferred Contradictions, keine URLs/Browser-Aktionen und keine Mutation. Eine konkrete Risk-Read-Quelle ist nicht implementiert; Risk-Vergleich bleibt spätere Arbeit. Published Opportunity Overview 1.0 bleibt unverändert.
+### Slice 17 – Private ApplicationDocument access
 
-## Slice 14 – Client-neutral Published Capability expansion
+Exact read-only content access after integrity validation and explicit `Öffnen` UI action.
 
-### Published Map Projection 1.0 (implementiert auf `dev`)
+### Slice 18 – Duplicate Case resolution
 
-Der client-neutrale, transport-unabhängige Contract `schemas/published-map-projection-v1.schema.json` ist eingefroren und unter `GET /published/v1/map-projection` implementiert. Ein dedizierter read-only Publication Repository/Service publiziert ausschließlich bestehende explizite MapLocationResolutions als URL-freie Features mit opaque Refs, Titel, Company, WorkLocation Precision und Koordinaten. Publication geocodiert, mutiert oder resolved nichts. Features werden deterministisch nach Company Name, Opportunity Title, WorkLocation Label case-insensitiv und `feature_ref` geordnet. Empty Features sind gültig; mehrere mapped WorkLocations können mehrere Features je Opportunity erzeugen. Der Endpoint bleibt außerhalb der internen React OpenAPI; persönliche Zustände, Availability/Freshness, Groups/Waves, URLs, Provider-, Research-, Import-, Posting- und Source-Daten werden nicht exponiert. Published Opportunity Overview 1.0 bleibt unverändert.
+Append-only explicit DuplicateDecision history with four outcomes and no merge/re-parenting engine.
 
-Die lokale Vocation→Orientation-Map-Komposition ändert diesen geschlossenen Contract nicht. Der Architecture Control Plane erlaubt reichere provider-owned Spatial Projections, verlangt für Cross-Context-Publication aber einen versionierten Nachfolger statt einer stillen Änderung von Published Map Projection 1.0.
+`docs/14_REVIEW_CHECKLIST.md` remains the historical v0.4.0 release-scope review rather than a roadmap for the current `dev` branch.
 
-## Slice 15 – Application Case and private Application Material (implementiert auf `dev`)
+## 3. Implemented post-v0.4 qualitative acceptance wave
 
-Vocation besitzt ApplicationCase-Fachsemantik als Aggregate pro Opportunity, getrennt vom Opportunity Tracking Status. Implementiert sind die eingefrorenen Lifecycle-Semantiken, das immutable Domain Model, Alembic `0011`, der DB-Invariant für einen aktiven Case, append-only Lifecycle-/Material-Revision-Historie, SQLAlchemy Repository, ApplicationCaseService, interne FastAPI-Endpunkte, typed OpenAPI-/Frontend-Client, Opportunity-Detail-React-UI sowie fokussierte Domain-/Migration-/Service-/API-/Frontend-Tests. Research/Availability, automatische Submission, E-Mail/Calendar-Übergänge, tatsächliche CV-/Cover-Letter-Inhalte, File Upload, PDF/LaTeX/Document Rendering, Storage-/Encryption-Implementierung, private Cross-device-Transporte, WGT und Conveyance bleiben aus diesem Slice ausgeschlossen. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben unverändert.
+The #31 acceptance candidate added the missing personal search context without changing frozen Research/Published contracts.
 
-## Slice 16 – Private Application Document Content (implementiert auf `dev`)
+### #32 – Candidate Profile + Search Profiles
 
-Vocation besitzt die semantische `ApplicationDocument`-Zuordnung an genau einer immutable ApplicationMaterial-Revision. Implementiert sind Domain-Metadata aus supplied bytes, Alembic `0012`, `application_documents`, Composite FK und Unique-Invariant pro Material-Revision, `ApplicationDocumentStore`-Port, `FilesystemApplicationDocumentStore`, SQLAlchemy Repository, ApplicationDocumentService mit write/read-back integrity verification, private interne FastAPI-Endpunkte, typed Frontend Client und der bestehende ApplicationCasePanel-Upload-Workflow. Lokale Konfiguration verwendet `data/application-documents` in Development, `%LOCALAPPDATA%\\Vocation\\application-documents` packaged/frozen oder `VOCATION_DOCUMENT_STORE_DIR` als Override. Payload bytes werden außerhalb relationaler Tabellen gespeichert; physische Dateinamen leiten sich aus `sha256(storage_ref.encode("utf-8"))` ab und sind keine Domainsemantik.
+Implemented:
 
-Erlaubt sind `application/pdf`, `text/plain` und `text/markdown`; Original-Dateiname, Media Type, Byte Size, SHA-256 und Created At werden als private Metadata behandelt. Neue Inhalte erfordern neue Material-Revisionen; es gibt kein In-place-Replacement, Delete oder Content-Deduplication. Preview, Export/Download, Editing, Templates, PDF/LaTeX, Encryption at Rest, Cross-device Encryption, Synchronization/Replication, WGT/Conveyance-Integration und Submission/Email/Calendar-Automation bleiben Nicht-Ziele. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben unverändert. Künftige Cross-Context-Arbeit folgt `wgt-system/architecture`.
+- private immutable Candidate Profile revisions;
+- stable multiple Search Profiles with immutable revisions;
+- exactly one default Search Profile;
+- persistent search policy fields and validation;
+- internal API/frontend editing.
 
-## Slice 17 – Private Application Document Access (implementiert auf `dev`)
+### #33 – Explainable Opportunity Fit
 
-Slice 17 ist auf `dev` implementiert. Der read-only Use Case `OpenApplicationDocument` nutzt die bestehende Integritätsprüfung des `ApplicationDocumentStore` für ein exakt bestimmtes, immutable ApplicationDocument an einer ApplicationMaterial-Revision. Der bestehende ApplicationDocumentStore liest den Payload und validiert Byte Size sowie SHA-256 vor jeder nutzbaren Rückgabe. Die bestehende interne/private Content-Grenze `GET /api/application-documents/{document_id}/content` liefert die exakten Payload Bytes und den persistierten Media Type, ohne Storage Reference, Pfad, hashed physical filename oder Store Root; sie ist kein Published Contract.
+Implemented:
 
-Die React ApplicationCasePanel-Oberfläche bietet für ein vorhandenes Dokument der aktuell angezeigten Revision die explizite Aktion `Öffnen` und verwendet exakt das geladene `document.id` in einem neuen Browsing-Kontext (`target="_blank"`, `rel="noopener noreferrer"`). Browser-supported PDF-/Text-Handhabung ist zulässig; eingebettetes Preview/Rendering, Export/Save-as, Edit/Delete/Replace, Cross-device Integration, WGT/Conveyance-Zugriff und neue Lifecycle-/Tracking-Zustände gehören nicht zu Slice 17. Die Implementierung folgt der autoritativen `wgt-system/architecture` für künftigen privaten Cross-device-Zugriff.
+- Search-Profile-specific evaluation policy;
+- deterministic weighted fit;
+- separate hard-constraint state;
+- evidence completeness/missing evidence;
+- criterion contribution explanations;
+- list/detail integration and profile-aware sorting/filtering.
 
+### #36 – Profile-aware quality-first Initial Research
 
-## Slice 18 – Duplicate Case Resolution (implementiert auf `dev`)
+Implemented:
 
-Vocation kann bestehende Opportunity- und Posting-DuplicateCases jetzt explizit und historisiert reviewen. Implementiert sind `DuplicateDecision` mit den vier eingefrorenen Outcomes und nichtleerem Grund, Alembic `0013`, append-only SQLAlchemy-Persistenz, aktuelle Review-Sicht aus der letzten Decision, interne `/api/duplicate-cases`-Read-/Decision-Routen, generierte TypeScript-API-Typen sowie die React-Ansicht `Dubletten` mit offenen/entschiedenen/allen Fällen und vollständiger Decision History.
+- exact Search Profile snapshot/provenance;
+- optional exact Candidate Profile snapshot after explicit disclosure;
+- Initial Research Prompt Context and opaque internal context ref;
+- quality-first prompt generation;
+- linked Research Bundle 1.0 import scope validation;
+- legacy/manual context-free 1.0 import compatibility.
 
-`confirmed_duplicate` bleibt reine Klassifikation. Slice 18 führt keinen Merge, keine Löschung, kein Canonical-Survivor-Modell, kein Re-Parenting und keine Übertragung von Assessments, Decisions, Groups/Waves, ApplicationCases, ApplicationMaterials oder ApplicationDocuments aus. Research-/Availability-Imports verändern Duplicate Decisions nicht. Published Opportunity Overview 1.0 und Published Map Projection 1.0 bleiben unverändert. Eine spätere Merge-Capability benötigt eine eigene explizit eingefrorene Semantik.
+### #38 – Opportunity workspace and private notes
 
-## Cross-cutting Migration – Orientation Integration (implementiert auf `dev`)
+Implemented:
 
-Nach Annahme von Orientation als generischem Geospatial-Bounded-Context wurden die entsprechenden Vocation-Duplikate entfernt bzw. ersetzt:
+- persistent private Opportunity note isolated from Research/Fit;
+- text search;
+- tracking/availability/group/profile/hard-constraint/evidence filters;
+- deterministic Fit/evidence/recency/company/title sorting;
+- list/map composition over the same visible Opportunity set.
 
-- direkter Nominatim-Adapter entfernt;
-- `OrientationGeocoder` konsumiert Orientation Place Search über eine konfigurierte Base URL (`VOCATION_ORIENTATION_BASE_URL`, Default `http://127.0.0.1:8080`);
-- React Leaflet/Leaflet und die zugehörigen Vocation-Renderer-Abhängigkeiten entfernt;
-- Orientation Embed Host als gepinntes statisches Artefakt unter `frontend/public/orientation-map/` eingebunden;
-- `ORIENTATION_SOURCE_SHA.txt` dokumentiert die verwendete Orientation-Source-Revision;
-- `OrientationMapFrame` adaptiert Vocation-owned Features/Information/Actions in `orientation.host-bridge` 1.0;
-- Vocation verarbeitet Details-/External-Link-Aktionen weiterhin selbst.
+### #40 – First-user navigation and deterministic E2E acceptance
 
-Diese Migration verändert keine Vocation-owned Work-Location-/Precision-/Opportunity-/External-Link-Semantik und keinen eingefrorenen Published Contract. Routing aus Orientation v0.3.0 wird dadurch nicht automatisch zu einer Vocation-Anforderung.
+Implemented:
 
-## Weitere mögliche Produktarbeit
+- current primary navigation around Stellenmarkt / Profil & Suche / Recherche / Organisation;
+- implementation/admin tools moved to a secondary Werkzeuge area;
+- empty-market/profile/research transitions;
+- successful inline Initial Research import returns to Stellenmarkt;
+- realistic synthetic end-to-end acceptance across profile → prompt → import → fit → personal state → update → restart.
 
-- weitere client-neutrale Published Vocation Capabilities, nur bei konkretem Consumer-Szenario;
-- WGT/iOS/Conveyance-Integration geeigneter Published/privater Capabilities;
-- private Document-Folgeslices wie Preview/Export/Editing/Generation nur nach eigener Semantik-Freigabe;
-- reichhaltiger Nachfolger von Published Map Projection 1.0 nur bei konkretem Cross-Context-Bedarf;
-- keine iOS-App in Vocation.
+The automated acceptance passed, but the first manual product pass later rejected substantial presentation/workflow choices. Therefore this wave is **technically complete but not a release-quality product acceptance**.
 
-## Ausführungsworkflow
+## 4. Release-preparation work already completed
 
-Remote GitHub-Arbeit wird standardmäßig direkt über den GitHub-Connector ausgeführt: Repository-Inspektion, Dateien/Branches/PRs/Issues und Remote-Verifikation werden nicht an lokale Worker delegiert, wenn der Connector die Aufgabe vollständig abdeckt.
+### #43 – Status/document indexing
 
-Lokale Worker/Subagents werden nur für Aufgaben eingesetzt, die echten lokalen Dateisystem-, Build-, Runtime-, Geräte- oder Umgebungszugriff benötigen. Lokale Installationen oder Toolchain-Änderungen benötigen vor Ausführung die ausdrückliche Zustimmung des Nutzers.
+README/docs were aligned to distinguish stable v0.4.0 `main` from post-v0.4 `dev` capability work without changing package version.
 
-## Done-Kriterien je Slice
+### #44 – Release ancestry reconciliation
 
-- maßgebliche Dokumente genannt,
-- relevante verfügbare Tests/Checks grün oder nicht verfügbare lokale Checks transparent benannt,
-- keine stillen Vertragsänderungen,
-- ADRs aktualisiert, wenn eine echte Architekturentscheidung getroffen wurde,
-- Acceptance Tests nachvollziehbar erfüllt,
-- Vocation-Domainownership und lokale Autorität bleiben erhalten,
-- akzeptierte generische System-Capabilities werden nicht ohne Architekturentscheidung dupliziert.
+The graph-only v0.4.0 main release commit was merged back into `dev` with a regular merge. `dev` now descends cleanly from stable main and is purely ahead.
 
-## v0.2.0 – Persönliche Triage
+### #42 – Current parent release acceptance
 
-Der v0.2.0-Scope umfasst versionierte Personal Assessments, Tracking Status, Decision History, Exclusion/Restore sowie Desktop-API- und React-Steuerung. Nicht enthalten bleiben Update-Bundles, fuzzy matching, Rankings, Gruppen/Waves, Maps, Published Vocation Capabilities, Crawling, kostenpflichtige LLM-APIs und Authentifizierung.
+Still **open**. No next version is chosen until real product acceptance passes.
 
-## v0.3.0 – Implementierungsstand
+## 5. First manual product pass – 2026-08-18
 
-Issue #7 – Research Update Bundle 2.0 Contract: abgeschlossen.
+The local product run exposed blockers before the real current-market workflow could be considered accepted.
 
-Issue #8 – deterministische Identität und ungelöste Duplicate Cases: abgeschlossen.
+Authoritative detail: `docs/17_MANUAL_PRODUCT_ACCEPTANCE.md`.
 
-Issue #9 – Prompt Context Persistence, read-only Planning und atomarer Update Import: abgeschlossen.
+### #45 – Product UI and information architecture
 
-Issue #10 – scoped prompting und Desktop-Update-Workflow: abgeschlossen. Research Bundle `1.0` bleibt unverändert und initial-only. Vocation v0.3.0 enthält Research Update Bundle 2.0, scoped Full/Company/Opportunity/Gap Filling updates, Prompt Context Snapshots und opaque Correlation References, deterministische Posting-Identität, ungelöste Duplicate Cases ohne automatischen Merge, read-only Planning und atomaren Update Apply, PromptRun/ResearchImport-Traceability, den vollständigen Desktop Research Prompt preview/copy/save/import workflow sowie die implementierte Published Opportunity Overview 1.0 Publication auf `dev`. Issue #13 ist end-to-end implementiert: Availability Prompt generation, dedizierter Availability Import, Availability/Freshness Read Models/API sowie React/Desktop-Workflow mit Listenfiltern, Badges und Detail-/Historienansicht. Issue #14 Groups/Waves, Issue #15 Map, Issue #16 External Links und Issue #21 Opportunity Comparison sind end-to-end auf `dev` implementiert; Research contracts und Published Opportunity Overview 1.0 bleiben unverändert. Slice 15 ist implementiert: ApplicationCase und private ApplicationMaterial sind Vocation-eigene Domänensemantik mit der in diesem Abschnitt dokumentierten Persistenz-, Service-, API- und UI-Umsetzung.
+Blocking presentation redesign:
+
+- remove global `Nächster Schritt` card;
+- remove decorative sidebar privacy slogan;
+- redesign Stellenmarkt header/filter composition and empty state;
+- consistent spacing/card/control system;
+- coherent German product wording;
+- likely top-level areas Stellenmarkt / Profile / Recherche / Bewerbungen;
+- reconsider literal Organisation / Groups/Waves presentation.
+
+### #46 – Persistent personal career profile and document library
+
+Planned:
+
+- richer durable application/personal career facts;
+- dated education/experience/project data;
+- reusable CV/certificates/references/evidence documents;
+- reuse compatible Vocation private document infrastructure;
+- future reviewable document-extraction proposals;
+- no premature document-reading microservice.
+
+### #47 – Structured Search Profile editor and Search Areas
+
+Planned:
+
+- typed searchable role/seniority/employment/technology/industry controls;
+- custom terms where necessary;
+- explicit Orientation-backed place selection;
+- multiple Search Areas with optional radii;
+- separate remote/relocation/nationwide semantics;
+- clarify strategy/priorities instead of giant catch-all textareas.
+
+### #48 – Maintainable search vocabularies
+
+Planned Vocation-owned role/technology/industry catalogs with aliases, lifecycle/custom values and explicit prompt-assisted proposals. Generic place data remains Orientation-owned.
+
+### #49 – Research strategy engine and coverage
+
+Planned explicit repeatable research runs:
+
+- role-first;
+- company-first career-page grind;
+- domain/technology grind;
+- regional grind;
+- freshness re-check;
+- gap/coverage grind.
+
+Also planned: Company/career-page coverage state, official-source/application-route preference and stale-result handling through existing Availability semantics.
+
+### #50 – Application workspace and assisted drafting
+
+Planned user-facing `Bewerbungen` flow around the existing ApplicationCase/Material/Document domain plus explicit reviewable prompt-assisted cover-letter/message/profile drafts. No automatic submission.
+
+### #52 – Windows development launcher
+
+Planned targeted dev-launcher health/readiness/cleanup diagnostics after a manual run exposed a `.venv` native-extension access-denied/file-lock scenario and a hidden backend process that made diagnosis difficult.
+
+## 6. Documentation alignment (#51)
+
+Documentation is being realigned on `docs/manual-acceptance-product-direction` so it no longer says:
+
+- Candidate/Search Profiles or Fit are future work;
+- Initial Research has no Prompt Context;
+- Update Bundle 2.0/Duplicate Decision/ApplicationDocument content are still unimplemented;
+- automated first-user acceptance equals real product acceptance;
+- the current `Profil & Suche`/`Organisation` layout is the accepted final IA.
+
+The docs must continue to distinguish stable/released, implemented-on-dev and planned states explicitly.
+
+## 7. Recommended execution order after documentation merge
+
+The issues are related but should not be implemented as one uncontrolled mega-branch.
+
+### Phase A – product shell and editor foundations
+
+1. **#45 UI/information architecture foundation** – define the reusable page/header/card/form/control system and remove the explicitly rejected global clutter.
+2. **#47 structured Search Profile editor** – because it directly fixes the current blocker and establishes reusable select/tag/search-area controls.
+3. **#48 catalogs** – add stable vocabulary data underneath #47 without hard-coding all future terms into UI components.
+
+### Phase B – durable personal context
+
+4. **#46 personal career profile/document library** – reuse the new interaction system and existing document storage/integrity architecture.
+
+Document extraction itself should remain a later slice inside/after #46 unless the manual career-document workflow proves the required fields first.
+
+### Phase C – real-market coverage
+
+5. **#49 research strategies/coverage** – encode the successful Jobsuche lessons after Search Profiles/Search Areas/catalog semantics are stable.
+
+This is the key work package before repeating a serious broad current-market acceptance because it addresses direct company-page discovery and stale-result recall/verification.
+
+### Phase D – applications
+
+6. **#50 Bewerbungen/application drafting** – compose the already implemented ApplicationCase primitives with the now richer personal profile/documents.
+
+### Parallel maintenance
+
+7. **#52 dev launcher** can be handled independently because it should not change product/domain semantics.
+
+### Documentation
+
+8. **#51** stays aligned through the above changes and closes when the repository docs reflect the accepted current state after the manual-finding branch is merged.
+
+## 8. Release gate
+
+Do not choose the next semantic version yet.
+
+After blocking product work is implemented:
+
+1. run full automated repository gates;
+2. start the exact local candidate cleanly;
+3. rerun `docs/16_FIRST_USER_ACCEPTANCE.md` with the real Candidate/Search Profile;
+4. execute real current research using the improved strategy/source/freshness rules;
+5. verify original/current posting/application routes;
+6. exercise Fit/search/filter/map/comparison/application flow;
+7. import update/availability results and verify protected state/provenance;
+8. restart and verify persistence;
+9. record remaining product defects explicitly;
+10. only then choose the next version, update release metadata/changelog/status and promote the exact accepted candidate to `main`/tag.
+
+## 9. Dependency PR policy during acceptance
+
+Open dependency PRs that broaden major-version ranges or otherwise alter the candidate should remain separate from product acceptance unless deliberately reviewed/tested. A low-risk patch update is still a separate change, not a reason to silently mutate the accepted candidate midway through manual testing.
+
+## 10. Architecture constraints for all future work
+
+- no silent Research/Published contract mutation;
+- no shared DB/cross-context Domain Class coupling;
+- Orientation owns generic place/geospatial capability;
+- Vocation owns Search Area/job-market semantics;
+- Candidate Profile facts remain distinct from Search Profile policy;
+- external Research/Extraction/Generation output is evidence/proposal, never hidden personal mutation;
+- no automatic application submission;
+- no new microservice without concrete bounded-context/runtime/security justification;
+- preserve local/private operation;
+- every work package gets focused tests and manual acceptance relevant to its actual product behavior.
