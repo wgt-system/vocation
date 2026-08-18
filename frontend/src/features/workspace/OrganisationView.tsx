@@ -14,7 +14,9 @@ export function OrganisationView() {
         <div>
           <p className="eyebrow">Markt organisieren</p>
           <h1>Organisation</h1>
-          <p>Arbeite mit Groups/Waves und kläre mögliche Dubletten an einem Ort.</p>
+          <p>
+            Arbeite mit Groups/Waves und kläre mögliche Dubletten an einem Ort.
+          </p>
         </div>
       </header>
       <div className="profile-tabs" role="tablist" aria-label="Organisation">
