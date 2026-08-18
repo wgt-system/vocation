@@ -72,13 +72,9 @@ def test_update_import_does_not_overwrite_opportunity_note(client) -> None:
     )
     assert generated.status_code == 200
     context = json.loads(
-        generated.json()["prompt_text"]
-        .split("## Prompt Context\n", 1)[1]
-        .split("\n\n## Active Assessment Criteria", 1)[0]
+        generated.json()["prompt_text"].split("## Prompt Context\n", 1)[1].split("\n\n## Active Assessment Criteria", 1)[0]
     )
-    bundle = json.loads(
-        (ROOT / "examples" / "updates" / "full-update-valid.json").read_text(encoding="utf-8")
-    )
+    bundle = json.loads((ROOT / "examples" / "updates" / "full-update-valid.json").read_text(encoding="utf-8"))
     bundle["prompt_context_ref"] = generated.json()["prompt_context_ref"]
     bundle["research_scope"] = context["research_scope"]
     applied = client.post("/api/imports/text", json={"content": json.dumps(bundle)})
