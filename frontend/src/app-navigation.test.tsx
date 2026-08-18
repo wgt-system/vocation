@@ -20,7 +20,14 @@ vi.mock("./features/profiles/ProfileSearchView", () => ({
   ProfileSearchView: () => <div>Profil-Inhalt</div>,
 }));
 vi.mock("./features/prompts/PromptView", () => ({
-  PromptView: () => <div>Recherche-Inhalt</div>,
+  PromptView: ({ onImported }: { onImported: () => void }) => (
+    <div>
+      Recherche-Inhalt
+      <button type="button" onClick={onImported}>
+        Research-Import erfolgreich
+      </button>
+    </div>
+  ),
 }));
 vi.mock("./features/workspace/OrganisationView", () => ({
   OrganisationView: () => <div>Organisation-Inhalt</div>,
@@ -85,6 +92,18 @@ describe("first-user navigation", () => {
 
     await user.click(
       screen.getByRole("button", { name: "Stellenmarkt öffnen" }),
+    );
+    expect(screen.getByText("Stellenmarkt-Inhalt")).toBeInTheDocument();
+  });
+
+  it("hands a successful inline research import directly to the market", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Recherche" }));
+    expect(screen.getByText("Recherche-Inhalt")).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Research-Import erfolgreich" }),
     );
     expect(screen.getByText("Stellenmarkt-Inhalt")).toBeInTheDocument();
   });
