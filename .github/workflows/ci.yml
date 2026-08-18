@@ -5,7 +5,37 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
+  format-first-user-acceptance:
+    if: github.event_name == 'pull_request' && github.head_ref == 'feat/first-user-acceptance' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/first-user-acceptance
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: uv sync --locked --extra dev
+      - run: uv run ruff format backend/tests/test_first_user_acceptance.py
+      - name: Commit Ruff output
+        run: |
+          if git diff --quiet -- backend/tests/test_first_user_acceptance.py; then
+            echo "Acceptance test is already formatted."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/tests/test_first_user_acceptance.py
+          git commit -m "Format first-user acceptance test"
+          git push origin HEAD:feat/first-user-acceptance
+
   backend:
     runs-on: ubuntu-latest
     steps:
