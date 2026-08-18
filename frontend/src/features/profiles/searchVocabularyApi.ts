@@ -16,8 +16,9 @@ export type ReviewedSearchVocabularyBundle =
   components["schemas"]["ReviewedSearchVocabularyBundleResponse"];
 
 export type SearchVocabularyKind = SearchVocabularyEntry["kind"];
-export type RefreshableSearchVocabularyKind =
-  SearchVocabularyRefreshPromptRequest["kinds"][number];
+export type RefreshableSearchVocabularyKind = NonNullable<
+  SearchVocabularyRefreshPromptRequest["kinds"]
+>[number];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
