@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { Loading } from "../../components/AsyncState";
-import {
-  opportunityNoteApi,
-  type OpportunityNote,
-} from "./opportunityNoteApi";
+import { opportunityNoteApi, type OpportunityNote } from "./opportunityNoteApi";
 
 function errorMessage(reason: unknown): string {
   return reason instanceof Error
@@ -56,7 +53,9 @@ export function OpportunityNotePanel({
       const next = await opportunityNoteApi.save(opportunityId, content);
       setNote(next);
       setContent(next?.content ?? "");
-      setMessage(next ? "Persönliche Notiz gespeichert." : "Persönliche Notiz gelöscht.");
+      setMessage(
+        next ? "Persönliche Notiz gespeichert." : "Persönliche Notiz gelöscht.",
+      );
     } catch (reason) {
       setError(errorMessage(reason));
     } finally {
@@ -70,7 +69,8 @@ export function OpportunityNotePanel({
         <p className="eyebrow">Privater Vocation-Zustand</p>
         <h2>Persönliche Notiz</h2>
         <p className="muted">
-          Wird nicht in Research Bundles übernommen und beeinflusst den Fit nicht automatisch.
+          Wird nicht in Research Bundles übernommen und beeinflusst den Fit
+          nicht automatisch.
         </p>
       </div>
       {loading ? (
@@ -99,7 +99,8 @@ export function OpportunityNotePanel({
             </button>
             {note && (
               <small>
-                Zuletzt gespeichert: {new Date(note.updated_at).toLocaleString("de-DE")}
+                Zuletzt gespeichert:{" "}
+                {new Date(note.updated_at).toLocaleString("de-DE")}
               </small>
             )}
           </div>
