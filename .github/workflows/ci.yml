@@ -5,48 +5,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  regenerate-openapi:
-    if: github.event_name == 'pull_request' && github.head_ref == 'feat/opportunity-workspace' && github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: feat/opportunity-workspace
-      - uses: astral-sh/setup-uv@v6
-        with:
-          enable-cache: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - run: uv sync --locked --extra dev
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-        working-directory: frontend
-      - run: pnpm api:generate
-        working-directory: frontend
-      - name: Commit generated artifacts
-        run: |
-          if git diff --quiet -- frontend/src/api/openapi.json frontend/src/api/generated.ts; then
-            echo "Generated artifacts are already current."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add frontend/src/api/openapi.json frontend/src/api/generated.ts
-          git commit -m "Regenerate OpenAPI artifacts"
-          git push origin HEAD:feat/opportunity-workspace
-
   backend:
     runs-on: ubuntu-latest
     steps:
