@@ -20,10 +20,7 @@ def load_market_bundle() -> dict:
 
 
 def prompt_context_from_text(prompt_text: str) -> dict:
-    return json.loads(
-        prompt_text.split("## Prompt Context\n", 1)[1]
-        .split("\n\n## Active Assessment Criteria", 1)[0]
-    )
+    return json.loads(prompt_text.split("## Prompt Context\n", 1)[1].split("\n\n## Active Assessment Criteria", 1)[0])
 
 
 def initial_prompt_context(client: TestClient, prompt_run_id: str):
@@ -33,9 +30,7 @@ def initial_prompt_context(client: TestClient, prompt_run_id: str):
         assert run is not None
         assert run.prompt_context_ref is not None
         context_ref = run.prompt_context_ref
-    context = SqlAlchemyPromptContextSnapshotRepository(
-        database.session_factory
-    ).get(context_ref)
+    context = SqlAlchemyPromptContextSnapshotRepository(database.session_factory).get(context_ref)
     assert context is not None
     return context
 
@@ -186,44 +181,24 @@ def test_first_user_profile_research_analysis_personal_state_update_and_restart(
         )
         assert initial_import.status_code == 200
         assert initial_import.json()["status"] == "applied", initial_import.json()["issues"]
-        assert (
-            initial_import.json()["prompt_context_ref"]
-            == context.prompt_context_ref
-        )
+        assert initial_import.json()["prompt_context_ref"] == context.prompt_context_ref
 
         opportunities = client.get("/api/opportunities").json()
         assert len(opportunities) == 3
         ids = opportunity_ids_by_title(client)
         target_id = ids["Junior Softwareentwickler"]
         fit_results = {
-            title: client.get(
-                f"/api/opportunities/{opportunity_id}/fit?search_profile_id={profile_id}"
-            ).json()
+            title: client.get(f"/api/opportunities/{opportunity_id}/fit?search_profile_id={profile_id}").json()
             for title, opportunity_id in ids.items()
         }
-        assert (
-            fit_results["Junior Softwareentwickler"]["hard_constraint_status"]
-            == "pass"
-        )
-        assert (
-            fit_results["Junior Backend Engineer"]["hard_constraint_status"]
-            == "pass"
-        )
+        assert fit_results["Junior Softwareentwickler"]["hard_constraint_status"] == "pass"
+        assert fit_results["Junior Backend Engineer"]["hard_constraint_status"] == "pass"
         assert fit_results["Platform Developer"]["hard_constraint_status"] == "fail"
-        assert (
-            fit_results["Junior Softwareentwickler"]["weighted_fit_score"]
-            > fit_results["Platform Developer"]["weighted_fit_score"]
-        )
+        assert fit_results["Junior Softwareentwickler"]["weighted_fit_score"] > fit_results["Platform Developer"]["weighted_fit_score"]
 
         detail_before = client.get(f"/api/opportunities/{target_id}").json()
-        assert (
-            detail_before["postings"][0]["source_reference"]["url"]
-            == initial_source_url
-        )
-        assert (
-            detail_before["external_assessments"][0]["origin"]
-            == "external_research"
-        )
+        assert detail_before["postings"][0]["source_reference"]["url"] == initial_source_url
+        assert detail_before["external_assessments"][0]["origin"] == "external_research"
 
         note = client.put(
             f"/api/opportunities/{target_id}/note",
@@ -270,52 +245,25 @@ def test_first_user_profile_research_analysis_personal_state_update_and_restart(
             json={"content": json.dumps(update_bundle(update), ensure_ascii=False)},
         )
         assert applied_update.status_code == 200
-        assert applied_update.json()["status"] == "applied", applied_update.json()[
-            "issues"
-        ]
-        assert (
-            applied_update.json()["prompt_context_ref"]
-            == update["prompt_context_ref"]
-        )
+        assert applied_update.json()["status"] == "applied", applied_update.json()["issues"]
+        assert applied_update.json()["prompt_context_ref"] == update["prompt_context_ref"]
 
-        assert client.get(f"/api/opportunities/{target_id}/note").json()[
-            "content"
-        ].startswith("Gute Java-/Maven-Passung")
-        assert (
-            client.get(f"/api/opportunities/{target_id}").json()["tracking_status"]
-            == "shortlisted"
-        )
-        assert (
-            client.get(f"/api/opportunities/{target_id}/decisions").json()
-            == decisions_before
-        )
-        assert (
-            client.get(f"/api/groups/{group_id}").json()["memberships"][0][
-                "opportunity_id"
-            ]
-            == target_id
-        )
+        assert client.get(f"/api/opportunities/{target_id}/note").json()["content"].startswith("Gute Java-/Maven-Passung")
+        assert client.get(f"/api/opportunities/{target_id}").json()["tracking_status"] == "shortlisted"
+        assert client.get(f"/api/opportunities/{target_id}/decisions").json() == decisions_before
+        assert client.get(f"/api/groups/{group_id}").json()["memberships"][0]["opportunity_id"] == target_id
         detail_after = client.get(f"/api/opportunities/{target_id}").json()
+        assert any(posting["source_reference"]["url"] == initial_source_url for posting in detail_after["postings"])
         assert any(
-            posting["source_reference"]["url"] == initial_source_url
-            for posting in detail_after["postings"]
-        )
-        assert any(
-            observation["evidence_summary"]
-            == "Official posting still states hybrid work."
-            for observation in detail_after["observations"]
+            observation["evidence_summary"] == "Official posting still states hybrid work." for observation in detail_after["observations"]
         )
 
     with TestClient(create_app(settings)) as client:
         candidate_after_restart = client.get("/api/profiles/candidate")
         assert candidate_after_restart.status_code == 200
-        assert (
-            candidate_after_restart.json()["headline"] == "Junior Softwareentwickler"
-        )
+        assert candidate_after_restart.json()["headline"] == "Junior Softwareentwickler"
         profiles = client.get("/api/profiles/search").json()
-        persisted_profile = next(
-            profile for profile in profiles if profile["id"] == profile_id
-        )
+        persisted_profile = next(profile for profile in profiles if profile["id"] == profile_id)
         assert persisted_profile["is_default"] is True
         assert persisted_profile["revision"] == 1
 
@@ -323,19 +271,6 @@ def test_first_user_profile_research_analysis_personal_state_update_and_restart(
         assert note_after_restart["content"].startswith("Gute Java-/Maven-Passung")
         detail = client.get(f"/api/opportunities/{target_id}").json()
         assert detail["tracking_status"] == "shortlisted"
-        assert any(
-            posting["source_reference"]["url"] == initial_source_url
-            for posting in detail["postings"]
-        )
-        assert (
-            client.get(f"/api/groups/{group_id}").json()["memberships"][0][
-                "opportunity_id"
-            ]
-            == target_id
-        )
-        assert (
-            client.get(f"/api/opportunities/{target_id}/decisions").json()[-1][
-                "resulting_status"
-            ]
-            == "shortlisted"
-        )
+        assert any(posting["source_reference"]["url"] == initial_source_url for posting in detail["postings"])
+        assert client.get(f"/api/groups/{group_id}").json()["memberships"][0]["opportunity_id"] == target_id
+        assert client.get(f"/api/opportunities/{target_id}/decisions").json()[-1]["resulting_status"] == "shortlisted"
