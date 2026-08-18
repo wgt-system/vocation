@@ -365,7 +365,7 @@ Blocking areas:
 - #50 application workspace/drafting;
 - #52 dev launcher startup/cleanup observability.
 
-After resolution, `docs/16_FIRST_USER_ACCEPTANCE.md` must be rerun with real current postings and official source/application-route verification.
+After resolution, `docs/18_FIRST_USER_ACCEPTANCE.md` must be rerun with real current postings and official source/application-route verification.
 
 ## 18. Research-strategy acceptance direction (#49)
 
