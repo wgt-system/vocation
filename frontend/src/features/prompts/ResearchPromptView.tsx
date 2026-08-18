@@ -45,12 +45,12 @@ type GeneratedState =
     };
 
 const labels: Record<ResearchMode | "initial", string> = {
-  initial: "Initial Research",
-  full_update: "Full Update",
-  company_update: "Company Update",
-  opportunity_update: "Opportunity Update",
-  gap_filling: "Gap Filling",
-  availability_check: "Availability Check",
+  initial: "Neue Stellensuche",
+  full_update: "Gesamten Stellenmarkt aktualisieren",
+  company_update: "Unternehmen aktualisieren",
+  opportunity_update: "Stelle aktualisieren",
+  gap_filling: "Fehlende Informationen recherchieren",
+  availability_check: "Verfügbarkeit prüfen",
 };
 const modes: (ResearchMode | "initial")[] = [
   "initial",
@@ -454,13 +454,13 @@ export function ResearchPromptView({
     <section>
       <header className="page-header">
         <div>
-          <p className="eyebrow">External Research</p>
-          <h1>Research Prompt</h1>
+          <p className="eyebrow">Externe Recherche</p>
+          <h1>Recherche</h1>
         </div>
       </header>
       <form className="panel stack" onSubmit={generate}>
         <label>
-          Research-Modus
+          Rechercheart
           <select
             aria-label="Prompt-Modus"
             value={mode}
@@ -550,7 +550,7 @@ export function ResearchPromptView({
 
         {mode === "company_update" && (
           <fieldset className="selection-list">
-            <legend>Companies auswählen</legend>
+            <legend>Unternehmen auswählen</legend>
             {options?.companies.map((item) => (
               <label key={item.id} className="checkbox-label">
                 <input
@@ -566,7 +566,7 @@ export function ResearchPromptView({
 
         {mode === "opportunity_update" && (
           <fieldset className="selection-list">
-            <legend>Opportunities auswählen</legend>
+            <legend>Stellen auswählen</legend>
             {options?.opportunities.map((item) => (
               <label key={item.id} className="checkbox-label">
                 <input
@@ -583,7 +583,7 @@ export function ResearchPromptView({
 
         {mode === "availability_check" && (
           <fieldset className="selection-list">
-            <legend>Postings auswählen</legend>
+            <legend>Stellenanzeigen auswählen</legend>
             {options?.postings.map((item) => (
               <label key={item.id} className="checkbox-label">
                 <input
@@ -599,11 +599,11 @@ export function ResearchPromptView({
 
         {mode === "gap_filling" && (
           <div className="gap-requests">
-            <h2>Gap-Anfragen</h2>
+            <h2>Fehlende Informationen</h2>
             {gaps.map((item, index) => (
               <div className="gap-request" key={gapKey(item) || index}>
                 <label>
-                  Subject Type
+                  Bezugstyp
                   <select
                     aria-label="Subject Type"
                     value={item.subjectType}
@@ -613,13 +613,13 @@ export function ResearchPromptView({
                       })
                     }
                   >
-                    <option value="company">Company</option>
-                    <option value="opportunity">Opportunity</option>
-                    <option value="posting">Posting</option>
+                    <option value="company">Unternehmen</option>
+                    <option value="opportunity">Stelle</option>
+                    <option value="posting">Stellenanzeige</option>
                   </select>
                 </label>
                 <label>
-                  Subject
+                  Bezug
                   <select
                     aria-label="Subject"
                     value={item.subjectId}
@@ -636,7 +636,7 @@ export function ResearchPromptView({
                   </select>
                 </label>
                 <label>
-                  Evidence Kind
+                  Evidenzart
                   <select
                     aria-label="Evidence Kind"
                     value={item.evidenceKind}
@@ -646,13 +646,13 @@ export function ResearchPromptView({
                       })
                     }
                   >
-                    <option value="observation">Observation</option>
-                    <option value="criterion">Assessment Criterion</option>
+                    <option value="observation">Beobachtung</option>
+                    <option value="criterion">Bewertungskriterium</option>
                   </select>
                 </label>
                 {item.evidenceKind === "observation" ? (
                   <label>
-                    Observation
+                    Beobachtung
                     <select
                       aria-label="Observation"
                       value={item.observationType}
@@ -673,7 +673,7 @@ export function ResearchPromptView({
                   </label>
                 ) : (
                   <label>
-                    Assessment Criterion
+                    Bewertungskriterium
                     <select
                       aria-label="Assessment Criterion"
                       value={item.criterionId}
@@ -694,7 +694,7 @@ export function ResearchPromptView({
                   </label>
                 )}
                 <button type="button" onClick={() => removeGap(index)}>
-                  Request entfernen
+                  Anfrage entfernen
                 </button>
               </div>
             ))}
@@ -706,7 +706,7 @@ export function ResearchPromptView({
                 )
               }
             >
-              Request hinzufügen
+              Anfrage hinzufügen
             </button>
             {gapError && (
               <p className="state state-error" role="alert">
@@ -822,14 +822,14 @@ export function ResearchPromptView({
 
       {generated && (
         <section className="panel stack">
-          <h2>Research-Ergebnis importieren</h2>
+          <h2>Recherche-Ergebnis importieren</h2>
           <label>
             Datei auswählen
             <input
               aria-label={
                 generated.kind === "availability"
-                  ? "Availability-Ergebnis JSON-Datei"
-                  : "Research-Ergebnis JSON-Datei"
+                  ? "Verfügbarkeits-Ergebnis JSON-Datei"
+                  : "Recherche-Ergebnis JSON-Datei"
               }
               type="file"
               accept="application/json,.json"
@@ -841,8 +841,8 @@ export function ResearchPromptView({
             <textarea
               aria-label={
                 generated.kind === "availability"
-                  ? "Availability-Ergebnis JSON"
-                  : "Research-Ergebnis JSON"
+                  ? "Verfügbarkeits-Ergebnis JSON"
+                  : "Recherche-Ergebnis JSON"
               }
               rows={14}
               value={content}
