@@ -225,7 +225,7 @@ describe("Availability workflow", () => {
     render(<OpportunityList refreshToken={0} onSelect={vi.fn()} />);
     expect(await screen.findByText("Available job")).toBeInTheDocument();
     expect(screen.getAllByText("Verfügbar").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("1 Tage alt")).toBeInTheDocument();
+    expect(screen.getByText("1 Tage seit letzter Prüfung")).toBeInTheDocument();
     await user.selectOptions(
       screen.getByLabelText("Availability filtern"),
       "uncertain",
