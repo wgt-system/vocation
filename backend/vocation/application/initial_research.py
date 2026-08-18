@@ -26,6 +26,7 @@ class InitialResearchPromptRepository(Protocol):
 @dataclass(frozen=True)
 class GeneratedInitialResearchPrompt:
     prompt_run_id: str
+    prompt_context_ref: str
     prompt_text: str
     bundle_version: str
     criteria_count: int
@@ -77,7 +78,7 @@ class InitialResearchService:
             )
             .replace("{{OUTPUT_CONTRACT}}", contract)
         )
-        prompt_run_id, _ = self.prompt_runs.save(
+        prompt_run_id, prompt_context_ref = self.prompt_runs.save(
             search_profile=profile,
             candidate_profile=candidate,
             research_scope=research_scope,
@@ -87,6 +88,7 @@ class InitialResearchService:
         )
         return GeneratedInitialResearchPrompt(
             prompt_run_id=prompt_run_id,
+            prompt_context_ref=prompt_context_ref,
             prompt_text=prompt_text,
             bundle_version="1.0",
             criteria_count=len(active_criteria),
