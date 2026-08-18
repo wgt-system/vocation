@@ -114,7 +114,7 @@ Der aktuell implementierte Basispfad lautet:
 10. Spätere Update-Prompts beziehen den vorhandenen Bestand gezielt ein.
 11. Für verfolgte Stellen kann der Nutzer einen ApplicationCase mit privaten Materialien/Dokumenten pflegen.
 
-Die manuelle Produktabnahme hat gezeigt, dass die aktuelle UI dieses Modell noch nicht ausreichend klar und effizient präsentiert. Die akzeptierte Post-v0.4-Richtung ist in `18_MANUAL_PRODUCT_ACCEPTANCE.md` dokumentiert.
+Die manuelle Produktabnahme hat gezeigt, dass die aktuelle UI dieses Modell noch nicht ausreichend klar und effizient präsentiert. Die akzeptierte Post-v0.4-Richtung ist in `17_MANUAL_PRODUCT_ACCEPTANCE.md` dokumentiert.
 
 ## 8. Gerätebezogene Nutzung
 
@@ -237,4 +237,4 @@ Weitere bewusste spätere Fragen bleiben unter anderem:
 
 Die finalen Felder von Research Bundle 1.0, Published Opportunity Overview 1.0 und Published Map Projection 1.0 werden durch diese Produktarbeit nicht still erweitert.
 
-Die detaillierten manuellen Acceptance-Funde und die Trennung zwischen implementiertem und geplantem Stand stehen in `18_MANUAL_PRODUCT_ACCEPTANCE.md`.
+Die detaillierten manuellen Acceptance-Funde und die Trennung zwischen implementiertem und geplantem Stand stehen in `17_MANUAL_PRODUCT_ACCEPTANCE.md`.
