@@ -4,9 +4,11 @@ Vocation is a standalone, local-first application for a personal job market. It 
 
 ## Current status
 
-Stable `main` remains the released **v0.4.0 standalone baseline**. The `dev` branch has since completed the post-v0.4.0 qualitative first-user acceptance work governed by #31. That development state has passed automated acceptance, but it has not yet been assigned a new release version or promoted to `main`.
+Stable `main` remains the released **v0.4.0 standalone baseline**. The `dev` branch contains the completed post-v0.4 qualitative capability work from #31 and has passed the automated first-user acceptance path.
 
-The next release gate is a manual product/monkey acceptance run with current real job-market data using the documented first-user workflow. A new semantic version is chosen only after that real local workflow has been exercised and blocking findings have been resolved or explicitly deferred.
+The first real local/manual product pass started on **2026-08-18** and exposed blocking UX and workflow findings. The automated acceptance therefore does **not** count as product acceptance and no next semantic version has been chosen. The current findings, product direction and release gate are documented in `docs/17_MANUAL_PRODUCT_ACCEPTANCE.md` and tracked by #42 with focused follow-up issues #45–#52.
+
+The next release is considered only after the blocking findings are implemented or consciously deferred, the current-market workflow is repeated with real data, and the exact resulting release candidate passes the repository gates.
 
 ### Stable v0.4.0 baseline
 
@@ -29,7 +31,7 @@ Vocation v0.4.0 closes the released standalone baseline from research planning t
 
 The v0.4.0 scope deliberately does **not** include automatic research through a paid LLM API, crawling, automatic application submission, e-mail/calendar automation, automatic duplicate merging, document editing/generation, or cross-device write synchronization. Those remain separate future decisions rather than unfinished v0.4.0 requirements.
 
-### Post-v0.4.0 acceptance capabilities on `dev`
+### Implemented post-v0.4 capabilities on `dev`
 
 The completed acceptance wave adds the qualitative personal-search layer without changing the frozen Research Bundle or Published contracts:
 
@@ -38,10 +40,23 @@ The completed acceptance wave adds the qualitative personal-search layer without
 - deterministic, explainable Opportunity Fit with weighted criterion contributions, evidence completeness and separate hard-constraint status;
 - profile-aware, quality-first Initial Research prompts with exact profile/candidate provenance snapshots and linked Research Bundle 1.0 imports;
 - an Opportunity workspace with text search, profile-aware filtering/sorting and private persistent notes that remain separate from imported evidence;
-- user-oriented navigation around **Stellenmarkt**, **Profil & Suche**, **Recherche** and **Organisation**, with manual implementation-oriented surfaces retained under **Werkzeuge**;
+- the currently implemented navigation around **Stellenmarkt**, **Profil & Suche**, **Recherche** and **Organisation**, with manual implementation-oriented surfaces under **Werkzeuge**;
 - a deterministic realistic first-user acceptance flow covering initial research, linked import, fit, personal state, scoped update, provenance preservation and application restart.
 
-The automated acceptance procedure and the corresponding manual current-market product check are documented in `docs/16_FIRST_USER_ACCEPTANCE.md`.
+The currently implemented navigation and form layout are **not** the accepted final product design. Manual acceptance specifically identified the global next-step panel, dense Stellenmarkt controls, mixed terminology, raw multiline Search Profile fields and application/organisation presentation as blockers. See `docs/17_MANUAL_PRODUCT_ACCEPTANCE.md`.
+
+### Accepted post-v0.4 product direction
+
+Planned work now focuses on:
+
+- a deliberate UI/information-architecture redesign with likely primary areas **Stellenmarkt**, **Profile**, **Recherche** and **Bewerbungen**;
+- a durable personal career profile with reusable local CV/certificate/evidence documents;
+- structured Search Profile controls, explicit place/radius search areas and maintainable role/technology/industry vocabularies;
+- explicit research strategies such as company-first career-page research, regional/domain grinds and freshness re-checks;
+- a coherent application workspace and explicitly reviewed prompt-assisted application-material drafts;
+- a replaceable document-extraction boundary before any justified decision to split generic PDF/OCR understanding into another service.
+
+These items are roadmap/acceptance work, not claims about the currently released v0.4.0 product.
 
 ## Ownership and system integration
 
@@ -49,15 +64,17 @@ Vocation is independently owned and locally authoritative for its job-market sem
 
 Generic geospatial capability belongs to Orientation. Vocation owns Work Location, Precision, MapLocationResolution, Map Projection and all job-market information/actions. `OrientationGeocoder` consumes Orientation Place Search, while the browser map uses the pinned Orientation Embed Host through `orientation.host-bridge` 1.0. If the optional Orientation backend is unavailable, geocoding fails visibly; existing local data and manual location resolution remain usable.
 
+Search Profile search areas may use the same Orientation place-search boundary for generic place selection. Vocation still owns the job-search meaning of target areas, radii, remote/relocation policy and fit.
+
 Published Opportunity Overview 1.0 is available at `/published/v1/opportunity-overview`. Published Map Projection 1.0 is available at `/published/v1/map-projection`. Both remain outside the internal React OpenAPI and are read-only provider-owned contracts.
 
 ## Technology stack
 
-Python 3.13, FastAPI, Pydantic, SQLAlchemy, Alembic, SQLite and JSON Schema; React, TypeScript and Vite. Repository validation uses pytest, Ruff, mypy, Vitest, Testing Library and Biome. Internal frontend API types are generated from FastAPI OpenAPI.
+Python >=3.13 (development/tooling target 3.13), FastAPI, Pydantic, SQLAlchemy, Alembic, SQLite and JSON Schema; React, TypeScript and Vite. Repository validation uses pytest, Ruff, mypy, Vitest, Testing Library and Biome. Internal frontend API types are generated from FastAPI OpenAPI.
 
 ## Local development
 
-Prerequisites: Python 3.13, [uv](https://docs.astral.sh/uv/), Node.js 22 and pnpm.
+Prerequisites: Python >=3.13, [uv](https://docs.astral.sh/uv/), Node.js 22 and pnpm.
 
 ```powershell
 uv sync --locked --extra dev
@@ -80,6 +97,8 @@ pnpm --dir frontend build
 
 The application starts on `127.0.0.1:8765` by default and opens the local browser unless `--no-browser` is supplied. Database migrations run automatically at application startup.
 
+The current Windows development launcher starts the backend as a hidden child process and Vite in the foreground. Manual acceptance exposed weak backend-failure visibility and a possible stale-process/file-lock path; #52 tracks a targeted launcher fix.
+
 The Orientation Embed Host is retained under `frontend/public/orientation-map/`; `ORIENTATION_SOURCE_SHA.txt` records the exact Orientation source revision used for the embedded artifact. Explicit geocoding uses `VOCATION_ORIENTATION_BASE_URL`, defaulting to `http://127.0.0.1:8080`.
 
 ## Local data and privacy
@@ -90,11 +109,15 @@ Local databases, imported job data, private application documents, generated per
 
 ## Deliberate future scope
 
-The following are not required to consider the v0.4.0 standalone baseline complete:
+The following are not required to consider the released v0.4.0 standalone baseline complete, but some are now explicit post-v0.4 product work:
 
+- structured reusable personal profile documents and future extraction-assisted profile proposals (#46);
+- structured Search Profile controls, search areas and reference catalogs (#47/#48);
+- explicit research-strategy/coverage workflows (#49);
+- application workspace and reviewed application-material generation (#50);
+- document delete/retention, rich editing/rendering/export or encryption semantics beyond separately accepted work;
 - fuzzy or heuristic automatic Opportunity identity merging;
 - a Duplicate Case merge engine or canonical-survivor model;
-- document delete/retention, editing, generation, preview/export or encryption semantics;
 - additional Published Vocation contracts without a concrete consumer;
 - Conveyance/private cross-device transport or cross-device writes;
 - authentication, cloud hosting or a Vocation-owned iOS application;

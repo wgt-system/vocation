@@ -1,6 +1,6 @@
 # Vocation – Explainable Opportunity Fit
 
-**Status:** Implemented for the qualitative-search acceptance work package.
+**Status:** implemented on `dev`; domain/read semantics accepted, current surrounding product UI still subject to manual acceptance redesign.
 
 ## Purpose
 
@@ -47,7 +47,7 @@ Hard-constraint state is independent from the weighted score:
 
 Search Profile `must_haves` and `must_not_haves` remain separate from criterion weights. Free-text constraints are reported as `unknown` until a structured evidence path exists; they are never simulated through an extreme weight.
 
-A hard failure does not rewrite or clamp the weighted fit. The UI therefore distinguishes "low fit" from "hard constraint failed" rather than conflating them.
+A hard failure does not rewrite or clamp the weighted fit. The UI therefore distinguishes low fit from hard-constraint failure rather than conflating them.
 
 ## Evidence precedence and provenance
 
@@ -64,8 +64,10 @@ The internal API exposes the same evaluator through:
 
 If no explicit Search Profile ID is supplied, the configured default Search Profile is used. A missing default profile is an explicit error rather than an implicit scoring policy.
 
-The Opportunity list shows weighted fit, evidence completeness, and hard-constraint state; it can sort scored Opportunities by descending fit and can open the contribution breakdown. The Opportunity detail screen renders the same breakdown model. No frontend scoring implementation exists.
+The Opportunity workspace/list shows weighted fit, evidence completeness and hard-constraint state; it can filter/sort with the same backend/domain semantics and open the contribution breakdown. Opportunity detail renders the same breakdown model. No independent frontend scoring implementation exists.
 
 ## Boundaries
 
 Opportunity Fit remains inside the Vocation bounded context. It is not a generic scoring service and is not part of Orientation, Wiiii Got This, Conveyance, or any frozen Published Vocation contract.
+
+The manual product pass does not invalidate the evaluator. #45/#47 redesign how Profile policy and Fit controls are presented; `17_MANUAL_PRODUCT_ACCEPTANCE.md` records the current release gate.

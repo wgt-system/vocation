@@ -1,336 +1,449 @@
 # Vocation – Domain Model
 
-**Status:** Draft 0.2
+**Status:** current through the implemented post-v0.4 Candidate/Search Profile, explainable Fit and profile-aware Initial Research capabilities. Planned product extensions are explicitly marked.
 
-## Aggregate Roots
+## 1. Domain model principles
+
+- Vocation is locally authoritative for its job-market, search-strategy, fit, personal-decision and application semantics.
+- External Research supplies versioned evidence/contracts, never hidden personal mutation.
+- Historical/revisioned state is preserved where provenance matters.
+- Stable internal/domain concepts are separated from user-facing UI wording.
+- Generic capabilities such as place search/geocoding remain behind accepted system boundaries such as Orientation.
+
+## 2. Core market aggregates
 
 ### JobOpportunity
 
-Zentraler persönlicher Bezugspunkt.
+Central personal representation of one concrete professional opportunity.
 
-Wesentliche Felder:
+Relevant state includes:
 
-- `OpportunityId`
-- `CanonicalTitle`
-- `CompanyId`
-- optionale `OrganizationUnitId`
-- `WorkLocations`
-- `TrackingStatus`
-- optionale `Priority`
-- Zeitpunkte
+- stable `OpportunityId`;
+- canonical title;
+- `CompanyId`;
+- optional organization-unit relation;
+- Work Locations;
+- Tracking Status;
+- timestamps and imported evidence relations.
 
-Invarianten:
+Invariants:
 
-- genau eine aktive Company-Zuordnung,
-- `excluded` benötigt aktive Exclusion Decision,
-- External Imports verändern keine Personal Decisions,
-- mehrere Postings sind erlaubt,
-- Archivierung löscht keine Historie.
+- exactly one current Company relation;
+- multiple Postings are allowed;
+- `excluded` requires the corresponding personal Exclusion semantics;
+- external imports never overwrite Personal Assessments, Decisions, notes, Group memberships or ApplicationCases;
+- archival/history operations do not delete Research history.
 
 ### JobPosting
 
-Konkrete Veröffentlichung.
+Concrete published representation of an Opportunity.
 
-Wesentliche Felder:
+Relevant state:
 
-- `PostingId`
-- `SourceId`
-- `SourceReference`
-- optionale External ID
-- beobachteter Titel
-- `FirstObservedAt`
-- `LastObservedAt`
-- optionale `OpportunityId`
+- stable `PostingId`;
+- `SourceId` and Source Reference;
+- optional external posting ID;
+- observed title/content evidence;
+- observation times;
+- Opportunity relation.
 
-Regeln:
-
-- genau eine Source,
-- sichere Opportunity-Zuordnung oder explizite Unsicherheit,
-- URL-Wechsel ändert nicht automatisch Identität,
-- externe Links werden separat validiert.
+Safe deterministic identity is based on Source + external posting ID where available, otherwise the accepted normalized HTTPS-URL fallback. Similar title/company/location text alone does not authorize an automatic merge.
 
 ### Company
 
-- `CompanyId`
-- Canonical Name
-- Alternative Names
-- Official Website
-- Locations
-- Organization Units
+Evidence-backed organization in the imported Vocation market.
+
+Relevant fields include stable identity, canonical name, alternative names, official website evidence and related organization/location information where supported by evidence.
+
+A future Company **research-coverage candidate** from #49 is not automatically the same thing as an evidence-backed imported Company/Opportunity. Discovery coverage must not weaken import/identity rules.
+
+## 3. External evidence and imports
+
+### ResearchObservation
+
+Append-only/time-bound sourced statement about a supported subject/dimension. An Observation is evidence, not timeless truth.
 
 ### ResearchImport
 
-- `ImportId`
-- Bundle Fingerprint
-- Bundle Version
-- Status
-- Entry Results
-- Errors und Warnings
+Audit/provenance record for one Research/Update import attempt.
 
-### ResearchPromptRun
+Relevant state includes:
 
-Dokumentiert die Erzeugung eines konkreten Prompts.
+- import ID;
+- bundle fingerprint/version;
+- status/report;
+- errors/warnings;
+- optional validated Prompt Context reference when the workflow supplies one.
 
-Felder:
+### Initial Research Bundle 1.0
 
-- `PromptRunId`
-- `PromptType`
-- `PromptVersion`
-- `BundleVersion`
-- as-of date
-- criteria snapshot
-- rendered prompt
-- Initial: Search Profile / Constraints
-- Update: Prompt Context Ref
+Frozen external contract for initial market research. It does not gain Candidate/Search Profile IDs merely because profile-aware prompting exists.
 
-Regeln:
+### Research Update Bundle 2.0
 
-- PromptRun verändert keine Domänendaten,
-- Scope ist explizit,
-- ein Update PromptRun hat genau eine nicht-null `Prompt Context Ref`; ein Initial PromptRun hat keine Prompt Context Ref,
-- der PromptContextSnapshot ist der Traceability-Pivot und enthält read-only Kontext,
-- Ausgabeanforderung verweist auf eine Bundle Version.
+Separate versioned external contract for scoped update of known subjects through Vocation-issued opaque Correlation References.
 
-### OpportunityAssessment
+### Availability Check Bundle 1.0
 
-Historische Bewertung mit Origin, Type, Dimensions, Result und Reasoning.
+Separate versioned external contract for append-only Availability Observations of known Postings.
 
-Im ersten Meilenstein referenziert jedes externe Assessment genau ein Vocation-eigenes `AssessmentCriterion`. Externe Bundles dürfen keine Kriterien definieren.
+## 4. Personal profile and search strategy
+
+### CandidateProfile
+
+Private, revisioned local representation of person/qualification facts.
+
+The currently implemented snapshot contains headline/summary, education, skills/technologies, languages, experience summary, projects/portfolio and work-relevant interests.
+
+Invariants:
+
+- revisions are immutable historical snapshots;
+- the newest revision is the current profile;
+- profile data is not a Published Vocation Capability;
+- Research includes Candidate Profile data only through an explicit prompt-disclosure choice;
+- Candidate facts do not own Search Profile policy.
+
+#46 plans a richer durable personal career model and reusable CV/certificate/evidence documents. Those are roadmap semantics, not claims about the current schema.
+
+### SearchProfile
+
+Vocation-owned revisioned job-search strategy with stable profile identity and immutable revisions.
+
+The current snapshot can contain:
+
+- name/description;
+- target roles and seniority;
+- preferred/acceptable/avoided technologies;
+- target locations;
+- accepted work models and relocation willingness;
+- employment-type preferences;
+- preferred/avoided industries and company characteristics;
+- salary floor/target;
+- must-have/must-not constraints;
+- quality-first result limit;
+- criterion-specific Evaluation Policy.
+
+Invariants:
+
+- one Search Profile may be default at a time;
+- historical revisions remain immutable;
+- technology tiers are mutually exclusive;
+- salary floor may not exceed salary target;
+- result target is bounded;
+- changing current catalog terminology in future must not rewrite historical profile revisions.
+
+### SearchArea (planned, #47)
+
+Future structured replacement for raw location strings where useful.
+
+A Search Area owns job-search semantics such as selected place reference/label and optional radius. Generic place lookup/geocoding is consumed from Orientation; Vocation does not become the generic place authority.
+
+Remote, nationwide search and relocation remain separate policy concepts.
+
+### SearchCatalogEntry (planned, #48)
+
+Stable Vocation-owned reference item for role/technology/industry vocabulary, supporting canonical label, aliases, lifecycle status and custom entries.
+
+Catalog evolution never silently rewrites historical Search Profile snapshots.
+
+## 5. Assessment and explainable fit
 
 ### AssessmentCriterion
 
-Vocation-eigener Kriterienkatalog mit stabiler Criterion ID, Display Name, Beschreibung, Value Type (`numeric`, `boolean`, `categorical`, `text`), optionalem Zahlenbereich oder erlaubten Kategorien, Applicable Subject Type, Aktivierungszustand und Display Order.
+Vocation-owned semantic criterion definition with stable ID, display name/description, value type, optional range/categories, applicable subject type, activation state and display order.
 
-Nach dem ersten referenzierenden Assessment dürfen Value Type, Skala/Kategorien und Applicable Subject Type nicht inkompatibel geändert werden. Dafür muss eine neue Criterion ID angelegt werden. Name, Beschreibung, Aktivierung und Reihenfolge bleiben editierbar.
+Once referenced by Assessments, incompatible semantic changes require a new Criterion ID. Display metadata/activation/order remain separately editable under the accepted rules.
+
+### ExternalAssessment
+
+Assessment supplied through Research evidence and linked to a known Vocation Criterion.
+
+### PersonalAssessment
+
+Private Vocation-owned assessment with immutable revisions. Exactly one current revision exists per Opportunity/Criterion pair.
+
+Research imports never mutate Personal Assessments.
+
+### SearchProfileEvaluationPolicy
+
+Search-Profile-specific criterion policy separated from the global Criterion definition.
+
+It can contain weight and supported minimum/required semantics. Hard Search Profile must-have/must-not rules remain separate from weighted fit.
+
+### OpportunityFit
+
+Read-only deterministic calculation for one Opportunity and exact Search Profile revision.
+
+Contains at least:
+
+- Opportunity/Profile identity and revision provenance;
+- hard-constraint status (`pass`, `fail`, `unknown`);
+- weighted fit score when evidence permits;
+- evidence completeness;
+- criterion contributions/explanations;
+- missing evidence and hard-constraint failures/unknowns.
+
+Rules:
+
+- no opaque ML ranking;
+- missing evidence is visible, never silently neutral;
+- Personal/External assessment provenance remains distinguishable;
+- calculation has no hidden mutation;
+- Candidate Profile revision is recorded only where Candidate facts actually contribute.
+
+## 6. Personal triage
 
 ### OpportunityDecision
 
-Bewusste persönliche Entscheidung mit Reason und möglicher Reversal-Beziehung.
+Append-only/traceable personal decision, including Exclusion/Restore semantics where applicable.
 
-### ApplicationCase
+### TrackingStatus
 
-Vocation-owned Aggregate mit stabiler `ApplicationCaseId`, referenziert genau eine `OpportunityId` und besitzt einen ApplicationCase-Lifecycle sowie historische Lifecycle Events. V1-Lifecycle: `draft`, `ready`, `submitted`, `interviewing`, `offer`, `accepted`, `rejected`, `withdrawn`; `accepted`, `rejected` und `withdrawn` sind terminal.
+Current personal triage state: `new`, `to_review`, `interesting`, `shortlisted`, `deferred`, `excluded`, `archived`.
 
-Invarianten:
+The API/domain enum does not require literal English labels in the UI.
 
-- Erstellung und Lifecycle-Änderungen erfolgen ausschließlich durch explizite Nutzeraktionen.
-- Eine Opportunity hat höchstens einen aktiven/nonterminal ApplicationCase; terminale Cases bleiben historisch lesbar.
-- `Opportunity.tracking_status` bleibt unabhängiger Triage-Zustand und wird nicht vom ApplicationCase überschrieben.
-- Research-/Availability-Imports und Groups/Application Waves erzeugen oder verändern keine ApplicationCases.
-- Keine automatische Submission oder Transition aus E-Mail, Kalender, Research, Availability oder externen Quellen.
+### OpportunityNote
 
-### ApplicationMaterial
+One private current note per Opportunity in the current product slice. It is separate from Research Observations, Assessments and Decisions and never contributes to Fit automatically.
 
-Private, von einem ApplicationCase besessene Metadaten-Entity mit `MaterialId`, `ApplicationCaseId`, Kind `cv`, `cover_letter` oder `other`, Display Name, Revision sowie Created/Updated Timestamps. Revisionen sind explizit und historisch. Inhalt, Dateiformat, Speicherort, Rendering und Verschlüsselung sind nicht Teil dieses Slice.
+## 7. Prompting and provenance
 
-### ApplicationDocument
+### ResearchPromptRun
 
-Private Content-Entity an genau einer immutable ApplicationMaterial-Revision. Felder: `DocumentId`, `MaterialId`, `MaterialRevision`, Original Display Filename, Media Type, Byte Size, SHA-256 Content Digest und `CreatedAt`. Pro Material-Revision gibt es null oder ein Dokument. Erlaubte Media Types sind `application/pdf`, `text/plain` und `text/markdown`. Payload ist nach dem Anhängen unveränderlich; Content-Ersatz erfordert eine neue Material-Revision. Fehlende gespeicherte Bytes sind ein expliziter Integrity Error.
+Documents generation of a concrete prompt.
 
-`ApplicationDocumentStore` ist ein Infrastruktur-Port mit opaque Storage Reference. Keine automatische Deduplication, keine gemeinsame Ownership und keine Löschung aufgrund gleicher SHA-256-Werte.
+Supported prompt families include:
 
-### OpportunityGroup
+- initial market research;
+- full update;
+- company update;
+- opportunity update;
+- gap filling;
+- availability check.
 
-Aggregate mit stabiler `GroupId`, nichtleerem Namen, optionaler Beschreibung, Type `general` oder `application_wave` und geordneten Memberships. `ApplicationWave` ist ausschließlich eine OpportunityGroup mit Type `application_wave`.
+A Prompt Run does not mutate market/domain state.
 
-Membership enthält `GroupId`, `OpportunityId` und eine explizite Position. `(group_id, opportunity_id)` ist eindeutig. Eine Opportunity darf mehreren Groups und mehreren Application Waves angehören; es gibt weder Exklusivität noch eine Active-Wave-Invariante.
+### PromptContextSnapshot
 
-Invarianten und Commands:
+Immutable read-only snapshot of the exact Vocation context used to generate a prompt.
 
-- `CreateOpportunityGroup` erzeugt keine Änderung an einer Opportunity.
-- `AddOpportunityToGroup` hängt eine Membership ans Ende an.
-- `RemoveOpportunityFromGroup` betrifft nur die Membership der Group.
-- `ReorderOpportunityGroup` erhält den vollständigen geordneten Member-Satz und normalisiert Positionen deterministisch.
-- `DeleteOpportunityGroup` löscht Memberships, niemals Opportunities oder deren Zustand.
-- Group Membership ist veränderbarer Organisationszustand und keine append-only Decision-Historie.
-- Groups/Waves verändern niemals Tracking Status, Personal Assessments, Decisions, Availability/Freshness oder Research-Daten.
-- Research- und Availability-Bundles dürfen Groups/Waves weder erzeugen noch verändern.
-- V1 enthält keine Bewerbungseinreichung, Frist, Application Status oder automatische Statusübergänge.
+#### Initial Research
 
-### DuplicateCase
+Post-v0.4 Initial Research **does** use a Prompt Context Snapshot.
 
-Im v0.3 ausschließlich eine ungelöste mögliche Identitätsbeziehung mit Evidenz. Es gibt noch keinen bestätigten, gelösten oder Merge-Zustand. Zukünftige Duplicate Decisions (`confirmed duplicate`, `confirmed distinct`, `related but distinct`, `keep unresolved`) bleiben spätere Domänenentscheidungen.
+It records:
 
-## Entities und Value Objects
+- exact Search Profile ID/revision/snapshot;
+- exact Candidate Profile revision/snapshot when explicitly included;
+- as-of date;
+- canonical expected Research Bundle 1.0 `research_scope`;
+- opaque internal `prompt_context_ref` exposed separately to the normal inline import workflow.
 
-- `ResearchObservation`
-- `AvailabilityObservation`
-- `Location`
-- `WorkLocation`
-- `Source`
-- `SourceReference`
-- `AssessmentScore`
-- `Risk`
-- `ExclusionReason`
-- `PromptScope`
-- `PromptContextSnapshot`
-- `ExternalLink`
-- `MapFeature`
-- `MapLocationResolution`
+Research Bundle 1.0 itself remains unchanged and contains no internal profile IDs.
 
-### MapLocationResolution
+A linked Initial Research import may persist the validated prompt-context reference. Legacy/manual context-free 1.0 import remains valid with no prompt provenance.
 
-Supporting Data im Vocation Context für eine `WorkLocation`, mit `WorkLocationId`, Latitude, Longitude, `ResolutionSource` (`manual` oder `geocoder`), optionalem `ProviderKey`, `ResolvedAt` und verwendeter Query/Label. Koordinaten sind auf Latitude -90..90 und Longitude -180..180 begrenzt; pro WorkLocation existiert höchstens eine aktuelle Resolution.
+#### Update prompts
 
-Eine erfolgreiche explizite Neuauflösung ersetzt die bisherige abgeleitete Resolution. Die Daten sind weder append-only Research Evidence noch Decision History. Keine Resolution bedeutet `unmapped`, nicht eine ungültige WorkLocation. Geocoding verändert weder WorkLocation noch deren Precision. Auflösung erfolgt ausschließlich explizit durch den Nutzer; automatische oder periodische Geocoding-Läufe gibt es nicht. Geocoder werden über einen provider-neutralen Port angebunden.
+Update snapshots contain scope-local opaque Correlation References for known Companies/Opportunities/Postings according to Research Update Bundle 2.0.
 
-## ResearchPromptRun
+Correlation References are valid only in their issuing snapshot and do not authorize ownership/re-parenting changes.
 
-### Prompt Types
+### ResearchStrategy / ResearchCoverage (planned, #49)
 
-- `initial_market_research`
-- `full_update`
-- `company_update`
-- `opportunity_update`
-- `gap_filling`
-- `availability_check`
-- `custom_subset`
+Future Vocation-owned metadata for explicit research methods/runs and market coverage, e.g. role-first, company-first, domain/technology, regional, freshness re-check and gap/coverage runs.
 
-Weitere nicht implementierte Prompt-Typen sind spätere Slices. `availability_check` ist auf `dev` implementiert und bleibt als post-v0.3 Workflow fachlich getrennt.
+This does not silently change Research Bundle schemas. A research-coverage Company entry is discovery state, not automatically imported Opportunity evidence.
 
-### Prompt Scope
+## 8. Availability/Freshness
 
-Enthält:
+### AvailabilityObservation
 
-- Scope Type
-- referenzierte, für den Prompt Run erzeugte opaque Correlation References
-- gewünschte Felder oder Fragen
-- erlaubten Änderungsbereich
-- Stichtag
-- erwartete Bundle Version
+Append-only evidence for a known Posting.
 
-### Invarianten
-
-1. Ein Update-Prompt muss den Scope und einen Prompt Context Snapshot mit opaque Correlation References enthalten; interne Vocation IDs werden nicht veröffentlicht.
-2. Ein Prompt darf nicht behaupten, selbst recherchiert zu haben.
-3. Ein Prompt muss die gewünschte Ausgabe als reines JSON verlangen.
-4. Ein Teilupdate darf keine außerhalb des Scopes liegenden Änderungen als verbindlich ausgeben.
-5. Templates enthalten generische Schutzregeln; persönliche Assessments, Decisions und Tracking Status sowie deren Werte werden nicht in den öffentlichen Prompt Context eingebettet.
-
-Für v0.3 sind Update Bundles ein eigener Published Contract `2.0`. Eine Correlation Reference gilt nur für den ausstellenden Prompt Context Snapshot und kann zwischen Prompt Runs wechseln. Sie löst genau ein bestehendes Company-, Opportunity- oder Posting-Objekt auf, erlaubt aber keine Änderung bestehender Ownership-Beziehungen.
-
-`PromptContextSnapshot` ist der Traceability-Pivot und besitzt seinen eigenen Fingerprint. Ein Update PromptRun gehört genau zu einem Snapshot; ein Initial PromptRun hat keine Prompt Context Ref. Ein angewendeter Update-`ResearchImport` speichert `bundle_version = 2.0` und die validierte `prompt_context_ref`; ein initialer `1.0`-Import speichert keine Prompt Context Ref. `ResearchImport` referenziert niemals direkt einen `prompt_run_id`; mehrere Importe dürfen denselben Snapshot referenzieren.
-
-## ExternalLink (implemented read/application value)
-
-Derived Application/Read Value aus bestehendem Posting, Source und SourceReference; keine eigene Persistence-Tabelle.
-
-Mindestfelder: `posting_id`, `source_id`, `source_name`, `source_type`, `url`, `display_label`, Posting Availability, `observed_at`, `preferred`.
-
-Regeln:
-
-- nur absolute `https`-URLs mit nichtleerem Host,
-- `http`, `file:`, `javascript:`, `data:` und proprietäre/unbekannte Schemes sowie malformed/relative URLs ablehnen,
-- lokale strukturelle Validierung ohne Fetch, HEAD-Check, Crawling oder URL-Probing,
-- Posting Availability wird angezeigt, definiert aber nicht URL-Gültigkeit,
-- nur nach expliziter Nutzeraktion öffnen; ungültige Links erreichen nie den Browser Adapter.
-
-## Domain Services
-
-### OpportunityIdentityResolver
-
-Bewertet Matches und erzeugt Evidenz.
-
-### ObservationReconciler
-
-Leitet aktuelle Sichten aus Observations ab.
-
-### AssessmentResolver
-
-Wählt darzustellende Assessments ohne sie zu verändern.
+Supported contract outcomes are interpreted conservatively: explicit available/unavailable evidence may derive those states; temporarily unreachable/not found/indeterminate evidence derives `uncertain` rather than automatic permanent unavailability.
 
 ### AvailabilityEvaluator
 
-Leitet Availability aus Observations ab.
+Derives current Posting/Opportunity Availability without creating a permanent Opportunity-closed truth.
 
-### ImportTranslator
+### Freshness
 
-Anticorruption Layer für Research Bundles.
+Current implemented Freshness is age of Availability evidence, not a universal age score for all Research data.
 
-Der erste Meilenstein verwendet ausschließlich deterministische Posting-Identität aus Source plus External Posting ID oder ersatzweise normalisierter HTTPS-URL. Fuzzy Matching ist nicht enthalten.
+A posting's apparent age can trigger verification, but age alone does not mutate Availability.
 
-### PromptContextBuilder
+## 9. Groups and application planning
 
-Erzeugt den minimal nötigen Kontext für einen Prompt Scope.
+### OpportunityGroup
+
+Aggregate with stable Group ID, name, optional description, type `general` or `application_wave` and ordered memberships.
+
+Membership is mutable organization state; it never changes Opportunity identity, tracking, Assessments, Decisions, Research or Availability.
+
+### ApplicationWave
+
+`OpportunityGroup` with type `application_wave`, not a separate aggregate. It has no automatic submission/deadline/status semantics.
+
+The manual acceptance rejected literal `Groups/Waves` as final product language. #45/#50 may present the same underlying semantics through clearer collection/application-planning concepts.
+
+## 10. Application domain
+
+### ApplicationCase
+
+Vocation-owned Aggregate for one Opportunity with independent application lifecycle.
+
+V1 lifecycle:
+
+`draft` → `ready` → `submitted` → `interviewing` → `offer`, with terminal `accepted`, `rejected`, `withdrawn` according to the implemented transition rules.
+
+Invariants:
+
+- creation/transitions are explicit user actions;
+- at most one active/nonterminal case per Opportunity;
+- terminal cases remain historical;
+- Opportunity Tracking Status is independent;
+- Research/Availability/Groups never create or mutate ApplicationCases;
+- no automatic submission.
+
+### ApplicationMaterial
+
+Private material metadata owned by an ApplicationCase with stable Material ID, kind (`cv`, `cover_letter`, `other`), display name and explicit revisions.
+
+Material revisions are historical. Actual immutable payload content can be attached through `ApplicationDocument`; the older pre-document-slice statement that content is undefined is obsolete.
+
+### ApplicationDocument
+
+Private immutable content attached to exactly one ApplicationMaterial revision.
+
+Metadata includes Document ID, material/revision identity, original filename, media type, byte size, SHA-256 digest and creation time. Current accepted media types are `application/pdf`, `text/plain`, `text/markdown`.
+
+Payload replacement requires a new Material revision. Missing/corrupt backing payload is an explicit integrity error.
+
+### ApplicationDocumentStore
+
+Provider-neutral infrastructure port for private bytes and opaque storage references. Physical path/layout is not domain semantics.
+
+### CareerProfileDocument (planned, #46)
+
+Reusable private career document such as CV/certificate/reference, not semantically owned by exactly one ApplicationCase.
+
+The planned implementation should reuse compatible document-integrity/storage infrastructure without pretending a reusable profile document is already an ApplicationMaterial revision.
+
+### DocumentExtractionProposal (planned, #46)
+
+Extracted text/fact proposal with provenance. It is not a confirmed Candidate Profile fact until explicitly accepted.
+
+Document extraction starts behind a replaceable port; a separate generic PDF/OCR service requires a separately justified architecture boundary.
+
+### ApplicationDraft (planned, #50)
+
+Externally/generated private draft (e.g. cover letter/application message) from an exact Opportunity/Profile/document context. It becomes accepted ApplicationMaterial only through explicit review/action; generation never means submission.
+
+## 11. Identity and duplicate review
+
+### DuplicateCase
+
+Persisted possible-identity relationship between two supported subjects with evidence. It never performs automatic merge.
+
+### DuplicateDecision
+
+Implemented append-only personal review history for a DuplicateCase with outcomes:
+
+- `confirmed_duplicate`;
+- `confirmed_distinct`;
+- `related_but_distinct`;
+- `keep_unresolved`.
+
+A nonblank reason is required. Latest decision is current judgment. `confirmed_duplicate` is classification only and performs no merge, deletion, re-parenting or transfer of Assessments/Decisions/Groups/Application state/documents.
+
+## 12. Spatial supporting data
+
+### WorkLocation
+
+Research/Vocation fact about where an Opportunity is performed.
+
+### MapLocationResolution
+
+Current Vocation-owned supporting resolution for one WorkLocation with coordinates, source (`manual`/`geocoder`), optional provider key, resolved time and query/label.
+
+It is neither Research Evidence nor Decision history. Geocoding cannot increase the underlying WorkLocation Precision.
+
+### MapProjection
+
+Read-only projection built from the currently selected/filtered Opportunity set. Generic rendering/place capability is delegated to Orientation; Vocation owns job-specific feature/action meaning.
+
+## 13. External links
+
+### ExternalLink
+
+Derived read/application value from Posting + Source + Source Reference. No own persistence table.
+
+Policy accepts only structurally valid absolute HTTPS URLs with host. No automatic network probing is performed as part of URL validation.
 
 ### PreferredPostingSelector
 
-Wählt für eine Ansicht bevorzugte gültige Posting-Links anhand dokumentierter Regeln:
+Deterministically ranks valid link candidates using the accepted order:
 
-1. Availability `available > unknown > uncertain > unavailable`,
-2. Source Type `company_careers > job_board > professional_network > other`,
-3. neuestes Posting `observed_at`,
-4. Posting ID als deterministischer Tie-Break.
+1. Availability `available > unknown > uncertain > unavailable`;
+2. Source Type `company_careers > job_board > professional_network > other`;
+3. newest observed time;
+4. Posting ID tie-break.
 
-Eine explizite Posting-/Source-Auswahl überschreibt die Auswahl nur für die aktuelle Aktion und wird nicht persistiert. Der Selector mutiert weder Availability noch Posting-Zustand; ohne gültigen Link gibt es keinen Preferred Link.
+Opening remains an explicit user action.
 
-### ExternalLinkPolicy
+## 14. Publication
 
-Validiert absolute HTTPS-URLs lokal strukturell und entscheidet, ob ein Link geöffnet werden darf. Der Browser Adapter ist austauschbare Infrastruktur.
+### Published Opportunity Overview 1.0
 
-Die implementierte SQLAlchemy-Read-Adapter liefert ExternalLink-Kandidaten ohne eigene Persistenz. `SystemBrowserAdapter` öffnet ausschließlich bereits validierte URLs im Standardbrowser des Betriebssystems.
+Frozen client-neutral Vocation-owned read contract. It contains only its schema-defined fields/opaque refs and no private state, URLs or hidden write semantics.
 
-## Domain Events
+### Published Map Projection 1.0
 
-- `ResearchPromptGenerated`
-- `ResearchImportCompleted`
-- `ResearchImportRejected`
-- `JobOpportunityCreated`
-- `JobPostingCreated`
-- `ResearchObservationRecorded`
-- `OpportunityAssessmentAdded`
-- `OpportunityExcluded`
-- `OpportunityTrackingStatusChanged`
-- `PossibleDuplicateDetected`
-- `AvailabilityAssessmentChanged`
-- `ExternalPostingOpened`
+Frozen client-neutral URL-free map projection contract based on already resolved locations. Publication does not geocode or mutate state.
 
-`ExternalPostingOpened` kann als Audit-/Analytics-Event behandelt werden, ohne die Fachidentität zu verändern.
+Publication age is not Posting Freshness/Availability.
 
-## Repository-Grenzen
+## 15. Important repositories/ports
 
-- `JobOpportunityRepository`
-- `JobPostingRepository`
-- `CompanyRepository`
-- `ResearchImportRepository`
-- `ResearchPromptRunRepository`
-- `OpportunityAssessmentRepository`
-- `OpportunityDecisionRepository`
-- `OpportunityGroupRepository`
-- `DuplicateCaseRepository`
+Representative persistence/application boundaries include repositories/services for:
 
-## Read Queries
+- Opportunities/Postings/Companies;
+- Research imports and prompt contexts/runs;
+- Assessments/Decisions/notes;
+- Candidate/Search Profiles;
+- Groups;
+- Duplicate Cases/Decisions;
+- Availability;
+- ApplicationCases/Materials/Documents;
+- map resolutions/read models;
+- Published projections.
 
-- `JobListQuery`
-- `JobDetailQuery`
-- `OpportunityComparisonQuery`
+Application logic depends on explicit repository/infrastructure ports rather than UI widgets or physical file paths.
 
-### OpportunityComparisonQuery (implemented read query)
+## 16. Read models
 
-Read-only Query für 2 bis 4 eindeutige, existierende Opportunity IDs in der angeforderten Reihenfolge. Sie erzeugt keine Domain-Mutation und keine Persistenz. Alle ausgewählten Opportunities müssen existieren; fehlende IDs führen zu einem Fehler statt stiller Auslassung. Es gibt kein Ranking, Scoring, keinen Winner und keine persistierte Shortlist.
+Important current read models include:
 
-Die Query vergleicht Opportunity- und zugehörige Posting-Observations nur in den sechs Dimensionen `technology_requirement`, `task`, `seniority`, `experience_requirement`, `work_model` und `salary`. Company-scoped Observations/Assessments werden nicht in Opportunity-Zellen kopiert. Opportunity-scoped Personal- und External-Assessments werden nach Assessment Criterion dargestellt; Personal Assessments verwenden nur die aktuelle Revision, ohne Historie. Mehrere Werte bleiben als Evidenzwerte sichtbar und werden nicht aus unterschiedlichen Strings automatisch als Widerspruch abgeleitet. Eine strukturierte Contradiction wird nur übernommen, wenn sie bereits explizit als solche vorliegt.
-- `CompanyOverviewQuery`
-- `MapProjectionQuery`
-- `PromptContextQuery`
-- `ImportReportQuery`
-- `PublishedOpportunityOverviewQuery`
+- Opportunity list/detail/workspace;
+- Search Profile-aware Fit breakdown;
+- Opportunity comparison;
+- map projection;
+- group/duplicate/application views;
+- import reports and prompt workflow state;
+- published projections.
 
-### Data Publication
+Filtering/search/sorting read behavior does not mutate personal/domain state.
 
-Data Publication ist eine Vocation-owned Supporting Subdomain/Application Responsibility. Ein Publication Adapter erzeugt client-neutrale, versionierte Published Read Projections und Publication Snapshots. Die lokale Datenbank bleibt autoritativ; Publication Metadata und Snapshot Age sind abgeleitete Informationen und nicht Domain Freshness.
+## 17. Planned post-acceptance model work
 
-Für `Opportunity Overview` Published Contract 1.0 sind ausschließlich Capability, Contract Version, Publication Metadata (`publication_ref`, `generated_at`) und die geschlossenen Opportunity-Overview-Felder vorgesehen. Referenzen bleiben opaque; der Vertrag enthält keinen persönlichen Zustand, keine Import-/Provenance-Daten, keine URLs, Availability/Freshness oder Schreibinformationen.
+The first manual product pass does not invalidate the implemented v0.4/post-v0.4 model. It identifies model/presentation extensions tracked separately:
 
-Availability Check Bundle 1.0 bleibt ein separater Vertrag. `AvailabilityObservation`-Einträge sind append-only Evidenz; aktuelle Posting-/Opportunity-Availability und availability-evidence Freshness werden daraus abgeleitet und verändern keinen persönlichen Zustand.
-## Persönliche Triage
+- #46 richer personal career profile/documents/extraction proposals;
+- #47 structured Search Areas and typed Search Profile editors;
+- #48 maintainable search vocabularies;
+- #49 explicit Research Strategy/Coverage state;
+- #50 coherent application drafting/workspace.
 
-`Opportunity.tracking_status` gehört zur Vocation-Opportunity und wird ausschließlich durch persönliche Commands geändert. `PersonalAssessment` enthält Opportunity, Criterion, Wert, Begründung, Erstellzeitpunkt, Revisionsnummer und `supersedes_id`; Datensätze sind append-only, pro Opportunity/Criterion gibt es genau eine aktuelle Revision. `OpportunityDecision` enthält vorherigen und resultierenden Status, Typ, optionalen Grund und bei Restore die Referenz auf die aktive Exclusion.
-
-Invarianten: neue und revidierte Assessments verwenden nur aktive Opportunity-Kriterien und gültige Numeric-, Categorical-, Boolean- oder Text-Werte; nur die aktuelle Revision darf revidiert werden; Create ist für ein bereits vorhandenes Opportunity/Criterion unzulässig; Exclusion benötigt einen Grund; Restore ist nur für ausgeschlossene Opportunities zulässig und löst den Default aus dem gespeicherten vorherigen Status auf; Import verändert weder PersonalAssessment noch Decision oder Tracking Status. Application Services hängen ausschließlich von Repository-Ports ab.
-
-### OpenApplicationDocument
-
-Read-only Application Use Case für expliziten ApplicationDocument Access. Input ist `document_id`. Der Use Case löst zuerst die Dokument-Metadaten auf, liest danach den Payload über `ApplicationDocumentStore`, validiert Byte Size und SHA-256 gegen die persistierten Werte und liefert erst bei erfolgreicher Prüfung unveränderliche private Metadaten und exakte Payload Bytes.
-
-Mögliche Fehler sind `document metadata not found`, `backing payload missing` und `integrity mismatch`. Der Use Case erzeugt keinen Domain-Zustand für `opened_at`, Zugriffszähler, zuletzt geöffnet, temporäre Dateien, Browser-Tabs oder Viewer-Zustand.
+`docs/17_MANUAL_PRODUCT_ACCEPTANCE.md` is authoritative for the current release gate and for which of these concepts are planned versus implemented.

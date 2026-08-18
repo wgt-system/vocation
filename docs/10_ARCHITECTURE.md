@@ -1,239 +1,413 @@
 # Vocation – Architecture
 
-**Status:** Version 1 beschlossen
+**Status:** Version-1 architecture remains accepted; this document is aligned with the implemented post-v0.4 personal-search baseline and the current manual-acceptance direction.
 
-## 1. Architekturziele
+## 1. Architecture goals
 
-- eigenständig startbare Desktop-Anwendung,
-- klare Domain/Application/Infrastructure-Grenzen,
-- keine Abhängigkeit von Wiiii Got This für Vocation-Fachsemantik oder Persistenz,
-- versionierte Import- und Read Contracts,
-- read-heavy Nutzung,
-- lokale Datenhoheit,
-- client-neutrale Published Read Projections für Wiiii Got This auf Windows und iPhone,
-- Wiederverwendung akzeptierter systemweiter generischer Capabilities statt eigener Duplikate,
-- geringe Betriebs- und Wartungskosten.
+- independently runnable local Vocation product;
+- clear Domain / Application / Infrastructure / Presentation boundaries;
+- Vocation-owned local persistence and business authority;
+- versioned external Research/Update/Availability contracts;
+- versioned client-neutral Published Read contracts;
+- reuse accepted system-wide generic capabilities instead of duplicating them;
+- private personal/application data remains local unless explicitly disclosed/published through a reviewed boundary;
+- low operational/maintenance cost;
+- no service split merely for code organization.
 
-## 2. Laufzeitbild Version 1
+## 2. Version-1 runtime picture
 
 ```text
-Desktop UI
-   │
+Browser/Desktop UI
+      │
+Internal FastAPI Presentation API
+      │
 Application Layer
-   │
+      │
 Domain Model
-   │
-Repositories / Query Services
-   │
-Local Database
+      │
+Repositories / Query Services / Ports
+      │
+SQLite + private local document storage
 ```
 
-Zusätzliche Adapter/Grenzen:
+Additional adapters/boundaries include:
 
-- File Picker
-- Clipboard
-- Browser Launcher
-- Orientation Host Bridge für generisches Map Rendering
-- OrientationGeocoder für explizite Geocodierung
+- File/Clipboard;
+- OS browser launcher;
+- Orientation Place Search adapter for generic geospatial resolution;
+- Orientation Host Bridge/Embed Host for generic map rendering;
+- private `ApplicationDocumentStore`;
+- future replaceable Document Extraction port only when #46 implements extraction.
 
-Vocation kann intern einen lokalen HTTP-Server verwenden, muss aber als ein eigenständig nutzbares Vocation-Produkt erscheinen. Fachliche Autorität und lokale Persistenz bleiben in Vocation. Generic geospatial capability ist systemweit Orientation zugeordnet und wird über explizite Grenzen konsumiert.
+FastAPI may serve the built frontend in production mode. The browser UI is a presentation shell around one local Vocation authority, not a distributed frontend/backend ownership split.
 
-## 3. Technologieentscheidung Version 1
+## 3. Technology decision
 
-ADR-0007 legt für die Vocation-eigene Runtime verbindlich fest:
+Current Vocation runtime/tooling:
 
-- Backend/Application: Python 3.13, FastAPI und Pydantic
-- Persistenz: SQLAlchemy 2, Alembic und SQLite
-- Vertragsvalidierung: JSON Schema Draft 2020-12 mit `jsonschema`
-- Backend-Tests: pytest
-- Frontend: React, TypeScript und Vite
-- Frontend-Tests: Vitest und React Testing Library
+- Python >=3.13, development/type/lint target 3.13;
+- FastAPI and Pydantic;
+- SQLAlchemy 2 and Alembic;
+- SQLite;
+- JSON Schema Draft 2020-12 validation;
+- pytest, Ruff, mypy;
+- React, TypeScript, Vite;
+- Vitest, React Testing Library and Biome.
 
-FastAPI stellt im Produktionsmodus die gebauten Frontend-Dateien bereit. Ein Python-Startvorgang startet den lokalen HTTP-Dienst und darf anschließend die lokale Vocation-URL über den Standardbrowser öffnen. Frontend und Backend müssen in der Produktion nicht separat gestartet werden.
+Generic map rendering/geocoding provider technology is intentionally not a Vocation technology decision. Vocation consumes Orientation-owned capabilities through explicit provider-neutral Vocation boundaries.
 
-Die generische Karte ist nach der systemweiten Orientation-Ownership-Entscheidung keine Vocation-Technologieentscheidung mehr. Vocation bündelt einen gepinnten Orientation Embed Host und adaptiert Vocation-owned MapProjection-Daten über `orientation.host-bridge` 1.0. Explizite Geocodierung nutzt einen Vocation-Application-Port mit `OrientationGeocoder` als Infrastrukturadapter gegen die konfigurierte Orientation-Backend-Grenze. Vocation kennt weder MapLibre- noch Photon-Semantik als eigene Domain-/Application-Semantik.
+The application remains suitable for later local packaging (e.g. PyInstaller) without making Docker/cloud infrastructure part of the product baseline.
 
-Die Anwendung wird so strukturiert, dass eine spätere lokale Distribution mit PyInstaller möglich bleibt. Docker, Cloud-Infrastruktur und externe fachliche Datenautorität sind nicht Teil von Version 1. Die konkrete lokale/remote Topologie einer konsumierten Orientation-Capability bleibt eine Deployment-Frage und transferiert keine Vocation-Fachsemantik.
-
-## 4. Schichten
+## 4. Layers
 
 ### Domain
 
-- Entities, Value Objects, Aggregates
-- Domain Services
-- Domain Events
-- keine Frameworkabhängigkeiten
+Owns Vocation semantics/invariants:
+
+- Opportunity/Posting/Company/evidence;
+- Candidate/Search Profile separation;
+- Search Profile policy and explainable Fit;
+- personal Assessment/Decision/Tracking/notes;
+- Availability/Freshness derivation;
+- Groups/Application Waves;
+- ApplicationCase/Material/Document semantics;
+- Duplicate Case/Decision semantics;
+- job-specific spatial meaning.
+
+No FastAPI/SQLAlchemy/React/Orientation provider DTO dependencies.
 
 ### Application
 
-- Commands und Queries
-- Use-Case-Orchestrierung
-- Transaktionen
-- Berechtigungen und Plattform-Capability-Prüfung
-- generische Ports wie `Geocoder`, ohne Orientation-/Provider-DTOs in der Domain
+Owns use-case orchestration:
+
+- commands/queries;
+- transaction boundaries;
+- prompt context generation/provenance;
+- import planning/application;
+- Fit calculation orchestration;
+- document integrity/application services;
+- provider-neutral ports (`Geocoder`, `ApplicationDocumentStore`, future `DocumentExtractor`).
 
 ### Infrastructure
 
-- Datenbank
-- JSON
-- Files
-- Clipboard
-- Browser
-- Orientation-Adapter
-- Logging
+Implements:
+
+- SQLAlchemy/Alembic persistence;
+- filesystem private document store;
+- JSON/files/clipboard;
+- OS browser launch;
+- Orientation adapters;
+- logging/configuration;
+- future concrete PDF/text/OCR extraction adapters behind an application port.
 
 ### Presentation
 
-- Desktop UI
-- internes HTTP API bleibt eine Presentation API und ist kein automatischer Published WGT Contract
-- Vocation-owned Publication Adapter für client-neutrale Published Capabilities
-- Vocation-to-Orientation Scene Adapter/Host für die lokale Kartenansicht
+Includes:
 
-## 5. Datenhaltung
+- React product UI;
+- internal FastAPI `/api/...` presentation API and generated TS types;
+- Vocation-owned separate `/published/...` adapters for frozen client-neutral contracts;
+- Vocation→Orientation scene/host adaptation for local map UI.
 
-Vocation besitzt seine eigene Datenbank.
+Internal OpenAPI is not automatically a Published WGT contract.
 
-Keine anderen Kontexte greifen direkt darauf zu.
+## 5. Persistence and private data
 
-Empfohlene Eigenschaften:
+Vocation owns its database. No other context reads/writes it directly.
 
-- Migrationen
-- Transaktionen
-- Backups/Export
-- stabile interne IDs
-- keine direkte Persistenz von UI-Read-Models als Wahrheit
-- Rohbundle optional als Audit-Artefakt
+Properties:
 
-Die initiale SQLite-Struktur wird ausschließlich durch Alembic-Migrationen erzeugt.
+- schema created/evolved only by Alembic migrations;
+- transactional writes;
+- stable internal IDs;
+- imported evidence and personal state remain distinguishable;
+- immutable/revisioned history where semantics require it;
+- read models are projections, not persisted truth by default;
+- normal private data paths are gitignored.
 
-## 6. Prompt-Dateien
+Private ApplicationDocument payload bytes are stored outside relational tables through `ApplicationDocumentStore`; relational metadata stores opaque storage reference plus semantic integrity metadata.
 
-Prompt Templates liegen versioniert unter `prompts/`.
+The same physical infrastructure may be reused by future Career/Profile documents, but their ownership model must not be faked as an ApplicationMaterial revision if they are reusable independently of an ApplicationCase.
 
-Die Runtime darf Templates laden und mit einem Prompt Context Snapshot rendern.
+## 6. Candidate/Search Profile architecture
 
-Prompt Templates enthalten keine geheimen oder benutzerspezifischen Daten außerhalb des expliziten Scopes.
+Candidate facts and Vocation search policy are deliberately separate.
 
-Update-Prompt-Traceability folgt `PromptRun → PromptContextSnapshot ← ResearchImport`. Ein Update PromptRun gehört genau zu einem Snapshot; dessen opaque Correlation References sind snapshot-lokal. `ResearchImport` referenziert nicht direkt einen PromptRun. Initial Research liegt außerhalb dieser Update-Prompt-Context-Beziehung.
+Current local persistence stores immutable Candidate Profile revisions and stable Search Profiles with immutable revisions/default selection.
 
-## 7. Import Pipeline
+Why no separate Personal Profile service yet:
+
+- there is currently one concrete owner/consumer need inside Vocation;
+- a separate runtime would add integration/deployment/security cost without a demonstrated second bounded context;
+- the model is already separable enough to extract later if another concrete WGT consumer needs the same personal-profile semantics.
+
+Search Profile-specific policy/fit remains Vocation Core Domain even if Candidate facts are ever extracted.
+
+Future Search Areas (#47) use Orientation for **generic place lookup**, but Vocation persists/owns selected search-area/radius/remote/relocation semantics.
+
+## 7. Prompt contexts and provenance
+
+Prompt templates are versioned under `prompts/`.
+
+### Initial Research
+
+Post-v0.4 Initial Research has an immutable Vocation Prompt Context Snapshot containing:
+
+- exact Search Profile identity/revision/snapshot;
+- optional exact Candidate Profile revision/snapshot after explicit inclusion;
+- as-of date;
+- canonical expected Research Bundle 1.0 scope;
+- opaque internal prompt-context reference.
+
+The reference is returned separately to the internal UI/import workflow; it is not added to frozen Research Bundle 1.0.
+
+A linked 1.0 import validates the returned scope against the snapshot and may persist prompt-context provenance. Manual/context-free 1.0 import remains supported.
+
+### Update prompts
+
+Update Prompt Context Snapshots contain scope-local opaque Correlation References for known subjects. Update Bundle 2.0 echoes only those references and must validate scope/identity before mutation.
+
+`ResearchImport` records prompt-context provenance where the selected workflow supplies/requires it; external contracts do not need internal Prompt Run IDs.
+
+## 8. Import architecture
 
 ```text
-File/Clipboard
-→ Parse
-→ Explicit 1.0/2.0 Dispatch
-→ Schema/Contract Validate
-→ Prompt Context and Scope
-→ Identity
-→ Deterministic Plan
-→ Blocker Check
-→ Single Atomic Apply
-→ Import Report
+File / Clipboard / Inline JSON
+  → Parse
+  → Explicit contract/version dispatch
+  → JSON Schema validation
+  → semantic/protected-field validation
+  → Prompt Context + scope validation where applicable
+  → deterministic identity resolution
+  → deterministic mutation plan
+  → blocker check
+  → one atomic apply
+  → Import Report / provenance
 ```
 
-Research Bundle `1.0` und Research Update Bundle `2.0` werden explizit getrennt dispatcht. Beim Update folgen nach Schema-/Contract-Validierung Prompt Context und Scope/Correlation-Prüfung, Identity, deterministischer Plan und Blocker-Prüfung; erst danach wird eine einzige atomare Apply-Transaktion ausgeführt. Merge-Entscheidungen gehören weder in Parsing noch in Persistenz. Strukturelle oder semantische Blocker verhindern jede fachliche Änderung. Partielle Imports sind nicht erlaubt.
+Rules:
 
-## 8. Map Architecture
+- 1.0 Initial, 2.0 Update and Availability contracts are explicitly separated;
+- blockers are discovered before business mutation;
+- no partial silent apply;
+- Research Bundle DTOs are not database/domain entities;
+- deterministic Posting identity does not become fuzzy merge;
+- possible duplicates remain evidence/review cases;
+- external imports never own private Profile/Decision/Note/Group/Application state.
 
-Die generische Geospatial-Capability ist systemweit Orientation zugeordnet. Die implementierte Trennung lautet:
+## 9. Availability/freshness architecture
 
-- Vocation besitzt Work Location, Precision, `MapLocationResolution`, interne `MapProjection`, Opportunity-/Company-/Availability-/External-Link-Semantik und alle fachlichen Actions.
-- Der Vocation-Application-Layer besitzt den provider-neutralen `Geocoder`-Port.
-- `OrientationGeocoder` konsumiert `GET /api/v1/places/search` und übersetzt genau das benötigte generische Resultat in den Vocation-Application-Wert `GeocodingResult`.
-- `OrientationMapFrame` adaptiert Vocation-owned Features, Informationen und Action References in eine Orientation Spatial Scene.
-- Der gepinnte Orientation Embed Host rendert die Szene über `orientation.host-bridge` 1.0.
-- Bridge-Aktionen werden an Vocation zurückgegeben; Vocation navigiert zu Details oder führt External-Link-Commands aus.
+Availability is a dedicated append-only evidence boundary.
 
-Damit entscheidet der Renderer weder Work Location/Precision noch Preferred Posting, Availability oder Tracking Status. Orientation liest keine Vocation-Datenbank und erhält keine Vocation-Domainklassen.
+The application derives current Posting/Opportunity Availability from the newest supported Availability Observations. Temporarily unreachable/not-found/indeterminate results remain uncertain rather than creating irreversible closure.
 
-Die geschlossene `Published Map Projection 1.0` bleibt ein separater, Vocation-owned, URL-freier Published Contract und wird durch die lokale Orientation-Komposition nicht verändert. Eine spätere reichhaltige Cross-Context-Map-Publication muss als versionierter Nachfolger eingeführt werden statt Contract 1.0 still zu erweitern.
+Current `Freshness` is age of Availability evidence, not a universal age score over all Research data.
 
-## 9. External Browser Navigation
+The planned research-strategy work (#49) may trigger targeted freshness re-checks but must reuse this boundary rather than add another truth source.
 
-Technischer Adapter:
+## 10. Map and Orientation architecture
+
+System-wide generic geospatial capability belongs to Orientation.
+
+Implemented split:
+
+- Vocation owns WorkLocation, Precision, MapLocationResolution, internal MapProjection, job information/actions;
+- Vocation Application owns provider-neutral `Geocoder` port;
+- `OrientationGeocoder` consumes Orientation Place Search and maps only required generic result into Vocation application values;
+- `OrientationMapFrame` converts Vocation-owned feature/information/action data into an Orientation Spatial Scene;
+- pinned Orientation Embed Host renders generic map UI through `orientation.host-bridge` 1.0;
+- action activation returns to Vocation, which owns detail navigation and ExternalLink commands.
+
+Orientation never becomes authority for Opportunity, Search Profile, WorkLocation, Precision, Availability or ExternalLink selection.
+
+Published Map Projection 1.0 is a separate frozen Vocation contract and is not the same thing as local Orientation scene composition.
+
+## 11. External browser navigation
 
 ```text
-ExternalLinkPolicy
-→ OperatingSystemBrowserLauncher
+Vocation link candidates
+  → PreferredPostingSelector / explicit user selection
+  → ExternalLinkPolicy
+  → OperatingSystemBrowserLauncher
 ```
 
-Sicherheitsregeln:
+Rules:
 
-- nur erlaubte Schemes,
-- explizite Nutzeraktion,
-- keine eingebettete Code-Ausführung,
-- Fehler sichtbar,
-- kein automatisches Öffnen während Import oder Kartenrendering.
+- only structurally accepted absolute HTTPS URLs reach launcher;
+- no automatic open on render/import/filter/map selection;
+- browser adapter does not decide preferred Posting;
+- Orientation only returns Vocation-owned action references, never chooses/opens external URLs itself.
 
-Orientation-Map-Actions sind nur Host-Events. Die eigentliche Auswahl und Ausführung externer Vocation-Links bleibt hinter `ExternalLinkPolicy` und dem Vocation Browser Adapter.
+## 12. ApplicationCase / document architecture
 
-## 10. Cross-device Publication
+Implemented chain:
 
-Vocation veröffentlicht versionierte, client-neutrale Published Vocation Capabilities.
+```text
+ApplicationCase / ApplicationMaterial Domain
+  → Application services
+  → SQLAlchemy repositories / SQLite
+  → internal FastAPI API
+  → typed React client
+```
 
-Die Feldstruktur von `Opportunity Overview` 1.0 ist jetzt durch `schemas/published-opportunity-overview-v1.schema.json` kanonisch eingefroren. Der implementierte lokale Veröffentlichungspfad ist `/published/v1/opportunity-overview`; er bleibt außerhalb der internen React OpenAPI, während das bestehende `/api/...` React API interne Presentation API bleibt. HTTP/OpenAPI ist nicht die Quelle der Cross-Context-Payload.
+Private content:
 
-`Published Map Projection` 1.0 ist als zweiter client-neutraler, transport-unabhängiger Published Contract durch `schemas/published-map-projection-v1.schema.json` eingefroren und unter `GET /published/v1/map-projection` implementiert. Ein dedizierter read-only Publication Repository/Service liest ausschließlich bereits vorhandene MapLocationResolutions. Publication geocodiert, mutiert oder resolved nichts; Features werden deterministisch nach Company Name, Opportunity Title, WorkLocation Label (jeweils case-insensitive) und `feature_ref` geordnet. Der Contract bleibt außerhalb der internen React OpenAPI, URL-frei und enthält weder persönliche, Research-, Availability-, Gruppen- noch Providerdaten. Published Opportunity Overview 1.0 bleibt unverändert.
+```text
+ApplicationDocument semantic metadata
+  → ApplicationDocumentService
+  → ApplicationDocumentStore port
+  → FilesystemApplicationDocumentStore
+```
 
-ApplicationCases und private ApplicationMaterial-Metadaten gehören zur Vocation-Domain. Sie werden niemals durch Research/Availability oder Groups/Waves erzeugt und nicht über öffentliche Publication Endpoints ausgegeben. Eine spätere WGT-/Conveyance-Anbindung darf nur über eine separate private Grenze und opaque protected payloads erfolgen; Conveyance besitzt keine Vocation-Semantik.
+Document attach is create-only for one exact immutable Material revision and verifies byte size/SHA-256 before accepting metadata. Reads revalidate integrity. Physical paths/storage refs are infrastructure detail and are not exposed through normal API/domain/publication.
 
-Die implementierte lokale ApplicationCase-Kette lautet: ApplicationCase-Domain → ApplicationCaseService → `SqlAlchemyApplicationCaseRepository` → SQLite/Alembic `0011` → internes FastAPI `/api/...` → typed React client → Opportunity-Detail-ApplicationCase-Panel. Persistiert werden `application_cases`, `application_case_lifecycle_events`, `application_materials` und `application_material_revisions`. Ein partieller Unique Index erzwingt höchstens einen nonterminalen Case je Opportunity. Lifecycle- und Material-Revision-Historie sind append-only; terminale Cases bleiben historisch. Opportunity Tracking Status bleibt unabhängig; es gibt keine automatische Import-, Group- oder Status-Kopplung.
+Current explicit private content endpoint/open action is not a Published contract, export/sync or cross-device access.
 
-Slice 16 trennt semantische Ownership von physischer Dokumentablage. Implementiert ist die Kette: ApplicationDocument-Domain → Alembic `0012` Metadata-Persistence in `application_documents` → `ApplicationDocumentStore`-Port → `FilesystemApplicationDocumentStore` → SQLAlchemy Repository → ApplicationDocumentService → private interne FastAPI-Endpunkte → typed Frontend Client → ApplicationCasePanel Upload-Workflow. Persistiert werden Metadata plus opaque `storage_ref`; Payload bytes liegen nicht in relationalen Tabellen. Der Composite FK `(material_id, material_revision)` verweist auf `application_material_revisions(material_id, revision)`; `UNIQUE(material_id, material_revision)` erzwingt ein Dokument pro Revision. Writes sind create-only und atomic, nutzen keinen rohen Storage Reference oder Original-Dateinamen als Pfad und besitzen keine Delete-Operation. Physische Details bleiben Infrastruktur und nicht Domainsemantik.
+## 13. Future Career/Profile document extraction boundary (#46)
 
-Document Reads validieren die Backing-Payload; fehlende oder korrupte Bytes sind explizite Integrity Errors. Slice 17 ist implementiert: Der ApplicationCasePanel bietet bei einem angehängten Dokument der exakt aktuellen Material-Revision die explizite `Öffnen`-Aktion über `GET /api/application-documents/{document_id}/content`; der Browser erhält den exakt geladenen `document.id` in einem neuen Kontext mit `noopener`/`noreferrer`. PDF, `text/plain` und `text/markdown` nutzen dieselbe private Grenze. ApplicationCase-Lifecycle bleibt unabhängig und löscht keine historischen Dokumente automatisch. Dokumente werden weder publiziert noch in Research/Availability/Prompt Contexts aufgenommen. Alle künftigen Cross-Context- oder privaten Integrationen folgen der autoritativen `wgt-system/architecture`; Vocation friert dafür keine zusätzliche Systempolitik ein.
+A CV/certificate PDF reader is **not automatically a microservice**.
 
-Publication umfasst einen Vocation-eigenen Adapter und eine optionale Publication Snapshot/Metadata-Schicht. Für dauerhafte opaque Cross-Device-Zustellung kann WGT die Vocation-owned Projection schützen und über Conveyance transportieren; der Published Contract bleibt unverändert, Conveyance bleibt domänenblind und Vocation baut keinen eigenen Relay-/Storage-Stack.
+Initial architecture when extraction is implemented:
 
-Publication Age ist nicht Vocation Freshness: ein alter Snapshot bedeutet weder stale noch unavailable Job Postings.
+```text
+Candidate/Profile Use Case
+   │
+DocumentExtractor port
+   │
+local replaceable extractor adapter
+   ├─ native PDF text/layout parser
+   └─ OCR path for scanned documents where needed
+   │
+DocumentExtractionProposal + provenance
+   │
+explicit user review/accept
+   │
+new Candidate Profile revision
+```
 
-Cross-device Reads müssen mit der letzten Published Projection funktionieren, wenn der Windows-PC ausgeschaltet ist. Local-only-Nutzung ohne konfigurierte Remote-Publikation bleibt vollständig unterstützt. Conveyance ist der separate akzeptierte generische Delivery-Bounded-Context; Vocation führt keinen eigenen Sync-Bounded-Context für Vocation-Semantik ein. Cross-device Writes bleiben unentschieden und benötigen ausdrücklich Vocation-owned Command-, Authority-, Merge-, Conflict- und Reconciliation-Semantik.
+Rules:
 
-WGT liest nie die Vocation-Datenbank, importiert keine Vocation-Domainklassen und führt keine Vocation-Fachlogik aus. Python/FastAPI läuft nicht im iPhone-WGT-Client.
+- Vocation owns the interpretation into Candidate/Profile/Application semantics;
+- extracted output is proposal/evidence, not truth;
+- no silent overwrite;
+- parser/OCR dependency details stay behind the port;
+- document content is disclosed externally only through an explicit reviewed workflow.
 
-## 11. Packaging
+A separate generic WGT Document-Understanding service/context is justified only if at least one of these becomes concrete:
 
-Desktop-Version soll mit einem einfachen Startvorgang ausgeliefert werden. Separate manuelle Starts von Vocation-Frontend und Vocation-Backend sind für den Nutzer nicht das Ziel.
+1. another bounded context needs the same generic extraction capability;
+2. extraction needs materially different runtime/dependencies (e.g. heavyweight OCR/ML lifecycle) whose isolation has operational value;
+3. a distinct security/deployment boundary is required.
 
-Für die Entwicklung existiert ein Windows-Startskript. Im Produktionsmodus wird das mit Vite gebaute Frontend durch FastAPI ausgeliefert. Die Browseröffnung beim Anwendungsstart betrifft ausschließlich die lokale Vocation-URL; Import oder Darstellung fachlicher Daten öffnen niemals externe Links.
+“PDF is a separate technical concern” alone is not enough.
 
-Der Orientation Embed Host ist als statisches, auf eine konkrete Orientation-Source-SHA gepinntes Artefakt im Vocation-Frontend enthalten. Geocoding ist dagegen eine explizite Runtime-Integration mit dem konfigurierten Orientation Backend (`VOCATION_ORIENTATION_BASE_URL`, Default `http://127.0.0.1:8080`). Ist diese Capability nicht verfügbar, schlägt die explizite Geocode-Aktion sichtbar fehl; Vocation-Fachdaten, manuelle Resolution und bereits persistierte MapLocationResolutions bleiben lokal nutzbar.
+## 14. Future structured search vocabularies (#47/#48)
 
-Eine spätere Distribution kann Orientation-Capabilities lokal hosten oder anders topologisch bereitstellen. Diese Packaging-Entscheidung ändert weder die Bounded-Context-Ownership noch berechtigt Vocation, generisches Geocoding/Rendering erneut selbst zu implementieren.
+Vocation may own stable reference catalogs for search-domain vocabulary (roles, technologies, industries, controlled employment/seniority values).
 
-## 12. Observability
+Catalogs are local Vocation reference data, not an external truth service. Custom entries remain possible. Prompt-assisted maintenance may propose additions, but accepted catalog mutations are explicit user/Vocation actions.
 
-- strukturierte Logs
-- Import Correlation ID
-- Prompt Run ID
-- Fehlercodes
-- keine unnötige Speicherung kompletter sensibler Clipboard-Inhalte in Logs
+Generic geographic place data is excluded and remains Orientation-owned.
 
-## 13. Contract Testing
+## 15. Future Research Strategy/Coverage architecture (#49)
 
-- JSON Schema Tests
-- Beispielbundle-Tests
-- Read Contract Snapshot Tests
-- MapProjection Contract Tests
-- Prompt Output Contract Tests
-- Published Opportunity Overview 1.0 Contract Tests
-- Orientation-Adapter-/Host-Bridge-Integrationstests an den Vocation-Grenzen
+Research Strategy describes how an external research run is performed; Search Profile continues to define what is desirable.
 
-## 14. Architekturgrenzen
+Potential persistent supporting state:
 
-Nicht erlaubt:
+- Research Run/Strategy metadata;
+- Company/career-page discovery coverage;
+- last checked/provenance/outcome;
+- under-covered scopes for future runs.
 
-- Shared Database,
-- direkte Cross-Context Imports von Domain Classes,
-- UI schreibt direkt in Datenbank,
-- Importparser enthält Merge-Entscheidungslogik,
-- Orientation/Map-Renderer entscheidet Vocation Work Location oder Precision,
-- Vocation implementiert konkurrierendes generisches Geocoding/Map Rendering, wenn Orientation die benötigte Capability bereitstellt,
-- Browseradapter oder Orientation wählt Preferred Posting.
+A discovery Company/coverage record must not bypass Research Bundle identity/evidence rules to become an imported Opportunity.
 
-## 15. Duplicate Case Resolution
+No crawler/paid LLM runtime is required. Explicit prompt/copy/paste remains a valid adapter boundary.
 
-Slice 18 ergänzt die bestehende DuplicateCase-Evidence um eine getrennte append-only `DuplicateDecision`-Historie. Alembic `0013` persistiert Entscheidungen mit einer eindeutigen monotonen Sequence pro Case und geschlossenem Outcome-Vokabular. Domain/Application leiten aktuelle Review-Sicht ausschließlich aus der letzten Decision ab; bestehende DuplicateCase-Evidence bleibt unverändert.
+## 16. Future Application Draft generation (#50)
 
-Die interne Kette lautet: `DuplicateCaseService` → `SqlAlchemyDuplicateCaseRepository` → `duplicate_case_decisions` → interne `/api/duplicate-cases`-Read-/Decision-Routen → typed React client → `Dubletten`-Ansicht. Subject-/Source-Summaries sind reine Read-Model-Daten. Es gibt keine Merge-Engine und keine Mutation der beteiligten Opportunity-/Posting-Identitäten oder ihrer Assessments, Decisions, Groups, ApplicationCases, Documents oder Published References.
+Application Draft prompting may combine exact snapshots of:
 
+- selected Opportunity evidence;
+- Candidate Profile revision;
+- explicitly selected private document/fact context;
+- user-selected tone/template constraints.
+
+The user sees what private context will be disclosed. External returned text remains a Draft until explicitly accepted into a new private material revision.
+
+No automatic submission, email sending or hidden lifecycle transition is introduced.
+
+## 17. Data Publication / cross-device
+
+Vocation owns versioned Published Read capabilities.
+
+Current frozen contracts:
+
+- `Published Opportunity Overview 1.0`;
+- `Published Map Projection 1.0`.
+
+They remain outside internal React OpenAPI and do not expose private Candidate/Search/Application state.
+
+WGT/other consumers never read Vocation DB/import Vocation domain classes. Optional Conveyance delivery is domain-blind opaque protected transport and does not transfer authority.
+
+Any future private cross-device command/write capability requires an explicit Vocation-owned authority/conflict/reconciliation design.
+
+## 18. Packaging/development runtime
+
+Production-style local start serves the built frontend through Vocation's local backend and may open the local Vocation URL explicitly at startup.
+
+Development uses a Windows launcher that starts backend + Vite. The first manual acceptance exposed that the current launcher hides backend failures and may make stale child-process/native-file-lock diagnosis difficult. #52 owns targeted readiness/cleanup/diagnostic changes; it must never indiscriminately kill unrelated Python processes.
+
+Orientation Embed Host is pinned as a static frontend artifact; explicit Place Search/geocoding uses configured Orientation backend. Orientation outage must fail the explicit geo action visibly while preserving existing/manual Vocation state.
+
+## 19. Observability
+
+- structured logs;
+- Import/Prompt correlation/provenance identifiers;
+- stable error codes;
+- no unnecessary full private Clipboard/prompt/document content in logs;
+- development startup should make backend readiness/failure visible (#52).
+
+## 20. Contract testing
+
+Repository gates cover as applicable:
+
+- JSON Schema contracts/examples;
+- Research/Update/Availability semantics;
+- Prompt output/provenance;
+- internal OpenAPI/TypeScript generation consistency;
+- Published Opportunity Overview/Map Projection contracts;
+- Orientation adapter/host bridge boundaries;
+- migrations/repositories/domain/application services;
+- frontend behavior;
+- Windows production smoke.
+
+Synthetic CI proves deterministic correctness but does not replace manual current-market/product acceptance.
+
+## 21. Duplicate Case decisions
+
+DuplicateDecision is append-only review history separate from DuplicateCase evidence. Current review state is derived from the latest decision.
+
+`confirmed_duplicate` does not invoke a merge engine. No involved Opportunity/Posting identity, Assessment, Decision, Group, ApplicationCase, Document or Published reference is rewritten automatically.
+
+## 22. Forbidden architecture shortcuts
+
+Not allowed without a separately accepted architecture decision:
+
+- shared database across contexts;
+- direct cross-context Domain Class imports as integration;
+- UI writes DB directly;
+- parser decides merges;
+- External Research mutates protected private state;
+- Orientation/renderer decides Vocation WorkLocation/SearchArea/Precision/Fit/Availability/ExternalLink semantics;
+- Vocation duplicates generic Place Search/geocoding/map rendering when Orientation satisfies the concrete use case;
+- browser adapter chooses business-preferred Posting;
+- Career/Profile document extraction silently mutates Candidate Profile;
+- new microservice solely to organize source code or isolate one library;
+- silent changes to frozen Research/Published contracts.
+
+## 23. Product-acceptance relationship
+
+The architecture above remains valid even though the first post-v0.4 manual product pass rejected major UI choices. #45–#50 should reshape presentation/workflows while preserving these ownership and provenance rules.
+
+`docs/17_MANUAL_PRODUCT_ACCEPTANCE.md` is authoritative for the current release gate and which product concepts are implemented vs planned.
