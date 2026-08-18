@@ -50,9 +50,12 @@ async function generate(
   }
   const promptContextRef = response.headers.get("X-Prompt-Context-Ref");
   if (!promptContextRef) {
-    throw new Error("Initial Research response is missing prompt context provenance.");
+    throw new Error(
+      "Initial Research response is missing prompt context provenance.",
+    );
   }
-  const body = (await response.json()) as components["schemas"]["GeneratedPromptResponse"];
+  const body =
+    (await response.json()) as components["schemas"]["GeneratedPromptResponse"];
   return { ...body, prompt_context_ref: promptContextRef };
 }
 
