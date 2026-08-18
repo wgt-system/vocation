@@ -1023,6 +1023,53 @@
         "title": "ComparisonWorkLocationResponse",
         "type": "object"
       },
+      "CreateSearchVocabularyRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group"
+          },
+          "kind": {
+            "enum": [
+              "role",
+              "technology",
+              "industry",
+              "seniority",
+              "employment_type"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "label"
+        ],
+        "title": "CreateSearchVocabularyRequest",
+        "type": "object"
+      },
       "CriterionContributionResponse": {
         "properties": {
           "criterion_id": {
@@ -3755,6 +3802,66 @@
         "title": "RestorePayload",
         "type": "object"
       },
+      "ReviewedSearchVocabularyBundleResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of_date": {
+            "format": "date",
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "contract": {
+            "const": "vocation.search-vocabulary-proposals",
+            "title": "Contract",
+            "type": "string"
+          },
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewedSearchVocabularyProposalResponse"
+            },
+            "title": "Proposals",
+            "type": "array"
+          },
+          "version": {
+            "const": "1.0",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contract",
+          "version",
+          "as_of_date",
+          "proposals"
+        ],
+        "title": "ReviewedSearchVocabularyBundleResponse",
+        "type": "object"
+      },
+      "ReviewedSearchVocabularyProposalResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "already_known_entry_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Already Known Entry Id"
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/SearchVocabularyProposalPayload"
+          }
+        },
+        "required": [
+          "proposal",
+          "already_known_entry_id"
+        ],
+        "title": "ReviewedSearchVocabularyProposalResponse",
+        "type": "object"
+      },
       "SearchProfilePayload": {
         "properties": {
           "acceptable_technologies": {
@@ -4102,6 +4209,229 @@
         "title": "SearchProfileResponse",
         "type": "object"
       },
+      "SearchVocabularyProposalBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of_date": {
+            "format": "date",
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "contract": {
+            "const": "vocation.search-vocabulary-proposals",
+            "title": "Contract",
+            "type": "string"
+          },
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/SearchVocabularyProposalPayload"
+            },
+            "title": "Proposals",
+            "type": "array"
+          },
+          "version": {
+            "const": "1.0",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contract",
+          "version",
+          "as_of_date",
+          "proposals"
+        ],
+        "title": "SearchVocabularyProposalBundle",
+        "type": "object"
+      },
+      "SearchVocabularyProposalPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group"
+          },
+          "kind": {
+            "enum": [
+              "role",
+              "technology",
+              "industry"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "source_urls": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Source Urls",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "label",
+          "reason",
+          "source_urls"
+        ],
+        "title": "SearchVocabularyProposalPayload",
+        "type": "object"
+      },
+      "SearchVocabularyRefreshPromptRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of_date": {
+            "format": "date",
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "kinds": {
+            "items": {
+              "enum": [
+                "role",
+                "technology",
+                "industry"
+              ],
+              "type": "string"
+            },
+            "title": "Kinds",
+            "type": "array"
+          }
+        },
+        "required": [
+          "as_of_date"
+        ],
+        "title": "SearchVocabularyRefreshPromptRequest",
+        "type": "object"
+      },
+      "SearchVocabularyRefreshPromptResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of_date": {
+            "format": "date",
+            "title": "As Of Date",
+            "type": "string"
+          },
+          "kinds": {
+            "items": {
+              "enum": [
+                "role",
+                "technology",
+                "industry"
+              ],
+              "type": "string"
+            },
+            "title": "Kinds",
+            "type": "array"
+          },
+          "prompt_text": {
+            "title": "Prompt Text",
+            "type": "string"
+          },
+          "prompt_version": {
+            "const": "1.0",
+            "title": "Prompt Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prompt_version",
+          "as_of_date",
+          "kinds",
+          "prompt_text"
+        ],
+        "title": "SearchVocabularyRefreshPromptResponse",
+        "type": "object"
+      },
+      "SearchVocabularyResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "is_custom": {
+            "title": "Is Custom",
+            "type": "boolean"
+          },
+          "kind": {
+            "enum": [
+              "role",
+              "technology",
+              "industry",
+              "seniority",
+              "employment_type"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "label",
+          "aliases",
+          "group",
+          "is_active",
+          "is_custom"
+        ],
+        "title": "SearchVocabularyResponse",
+        "type": "object"
+      },
       "SelectedResearchScope": {
         "properties": {
           "as_of_date": {
@@ -4357,6 +4687,63 @@
           "as_of_date"
         ],
         "title": "UpdatePromptPayload",
+        "type": "object"
+      },
+      "UpdateSearchVocabularyRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aliases"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "title": "UpdateSearchVocabularyRequest",
         "type": "object"
       },
       "ValidationError": {
@@ -7470,6 +7857,262 @@
         "summary": "Update Prompt Options",
         "tags": [
           "research prompts"
+        ]
+      }
+    },
+    "/api/search-vocabularies": {
+      "get": {
+        "operationId": "list_search_vocabularies_api_search_vocabularies_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "role",
+                    "technology",
+                    "industry",
+                    "seniority",
+                    "employment_type"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 160,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_inactive",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Inactive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SearchVocabularyResponse"
+                  },
+                  "title": "Response List Search Vocabularies Api Search Vocabularies Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Search Vocabularies",
+        "tags": [
+          "search-vocabularies"
+        ]
+      }
+    },
+    "/api/search-vocabularies/custom": {
+      "post": {
+        "operationId": "create_custom_search_vocabulary_api_search_vocabularies_custom_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSearchVocabularyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchVocabularyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Custom Search Vocabulary",
+        "tags": [
+          "search-vocabularies"
+        ]
+      }
+    },
+    "/api/search-vocabularies/proposals/review": {
+      "post": {
+        "operationId": "review_search_vocabulary_proposals_api_search_vocabularies_proposals_review_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchVocabularyProposalBundle"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewedSearchVocabularyBundleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Search Vocabulary Proposals",
+        "tags": [
+          "search-vocabularies"
+        ]
+      }
+    },
+    "/api/search-vocabularies/refresh-prompt": {
+      "post": {
+        "operationId": "generate_search_vocabulary_refresh_prompt_api_search_vocabularies_refresh_prompt_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchVocabularyRefreshPromptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchVocabularyRefreshPromptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate Search Vocabulary Refresh Prompt",
+        "tags": [
+          "search-vocabularies"
+        ]
+      }
+    },
+    "/api/search-vocabularies/{entry_id}": {
+      "patch": {
+        "operationId": "update_search_vocabulary_api_search_vocabularies__entry_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "entry_id",
+            "required": true,
+            "schema": {
+              "title": "Entry Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSearchVocabularyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchVocabularyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Search Vocabulary",
+        "tags": [
+          "search-vocabularies"
         ]
       }
     }

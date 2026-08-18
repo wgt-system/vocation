@@ -953,6 +953,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/search-vocabularies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Search Vocabularies */
+        get: operations["list_search_vocabularies_api_search_vocabularies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search-vocabularies/custom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Custom Search Vocabulary */
+        post: operations["create_custom_search_vocabulary_api_search_vocabularies_custom_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search-vocabularies/proposals/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Search Vocabulary Proposals */
+        post: operations["review_search_vocabulary_proposals_api_search_vocabularies_proposals_review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search-vocabularies/refresh-prompt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Search Vocabulary Refresh Prompt */
+        post: operations["generate_search_vocabulary_refresh_prompt_api_search_vocabularies_refresh_prompt_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search-vocabularies/{entry_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Search Vocabulary */
+        patch: operations["update_search_vocabulary_api_search_vocabularies__entry_id__patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1332,6 +1417,20 @@ export interface components {
             label: string;
             /** Precision */
             precision: string;
+        };
+        /** CreateSearchVocabularyRequest */
+        CreateSearchVocabularyRequest: {
+            /** Aliases */
+            aliases?: string[];
+            /** Group */
+            group?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "role" | "technology" | "industry" | "seniority" | "employment_type";
+            /** Label */
+            label: string;
         };
         /** CriterionContributionResponse */
         CriterionContributionResponse: {
@@ -2274,6 +2373,32 @@ export interface components {
             /** Target Status */
             target_status?: ("new" | "to_review" | "interesting" | "shortlisted" | "deferred" | "excluded" | "archived") | null;
         };
+        /** ReviewedSearchVocabularyBundleResponse */
+        ReviewedSearchVocabularyBundleResponse: {
+            /**
+             * As Of Date
+             * Format: date
+             */
+            as_of_date: string;
+            /**
+             * Contract
+             * @constant
+             */
+            contract: "vocation.search-vocabulary-proposals";
+            /** Proposals */
+            proposals: components["schemas"]["ReviewedSearchVocabularyProposalResponse"][];
+            /**
+             * Version
+             * @constant
+             */
+            version: "1.0";
+        };
+        /** ReviewedSearchVocabularyProposalResponse */
+        ReviewedSearchVocabularyProposalResponse: {
+            /** Already Known Entry Id */
+            already_known_entry_id: string | null;
+            proposal: components["schemas"]["SearchVocabularyProposalPayload"];
+        };
         /** SearchProfilePayload */
         SearchProfilePayload: {
             /** Acceptable Technologies */
@@ -2392,6 +2517,91 @@ export interface components {
             /** Work Models */
             work_models?: ("remote" | "hybrid" | "on_site")[];
         };
+        /** SearchVocabularyProposalBundle */
+        SearchVocabularyProposalBundle: {
+            /**
+             * As Of Date
+             * Format: date
+             */
+            as_of_date: string;
+            /**
+             * Contract
+             * @constant
+             */
+            contract: "vocation.search-vocabulary-proposals";
+            /** Proposals */
+            proposals: components["schemas"]["SearchVocabularyProposalPayload"][];
+            /**
+             * Version
+             * @constant
+             */
+            version: "1.0";
+        };
+        /** SearchVocabularyProposalPayload */
+        SearchVocabularyProposalPayload: {
+            /** Aliases */
+            aliases?: string[];
+            /** Group */
+            group?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "role" | "technology" | "industry";
+            /** Label */
+            label: string;
+            /** Reason */
+            reason: string;
+            /** Source Urls */
+            source_urls: string[];
+        };
+        /** SearchVocabularyRefreshPromptRequest */
+        SearchVocabularyRefreshPromptRequest: {
+            /**
+             * As Of Date
+             * Format: date
+             */
+            as_of_date: string;
+            /** Kinds */
+            kinds?: ("role" | "technology" | "industry")[];
+        };
+        /** SearchVocabularyRefreshPromptResponse */
+        SearchVocabularyRefreshPromptResponse: {
+            /**
+             * As Of Date
+             * Format: date
+             */
+            as_of_date: string;
+            /** Kinds */
+            kinds: ("role" | "technology" | "industry")[];
+            /** Prompt Text */
+            prompt_text: string;
+            /**
+             * Prompt Version
+             * @constant
+             */
+            prompt_version: "1.0";
+        };
+        /** SearchVocabularyResponse */
+        SearchVocabularyResponse: {
+            /** Aliases */
+            aliases: string[];
+            /** Group */
+            group: string | null;
+            /** Id */
+            id: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Is Custom */
+            is_custom: boolean;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "role" | "technology" | "industry" | "seniority" | "employment_type";
+            /** Label */
+            label: string;
+        };
         /** SelectedResearchScope */
         SelectedResearchScope: {
             /** As Of Date */
@@ -2475,6 +2685,17 @@ export interface components {
             mode: "full_update" | "company_update" | "opportunity_update" | "gap_filling";
             /** Selected Ids */
             selected_ids?: string[];
+        };
+        /** UpdateSearchVocabularyRequest */
+        UpdateSearchVocabularyRequest: {
+            /** Aliases */
+            aliases?: string[] | null;
+            /** Group */
+            group?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Label */
+            label?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -4658,6 +4879,173 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UpdatePromptOptionsResponse"];
+                };
+            };
+        };
+    };
+    list_search_vocabularies_api_search_vocabularies_get: {
+        parameters: {
+            query?: {
+                kind?: ("role" | "technology" | "industry" | "seniority" | "employment_type") | null;
+                q?: string;
+                include_inactive?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchVocabularyResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_custom_search_vocabulary_api_search_vocabularies_custom_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSearchVocabularyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchVocabularyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_search_vocabulary_proposals_api_search_vocabularies_proposals_review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchVocabularyProposalBundle"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewedSearchVocabularyBundleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_search_vocabulary_refresh_prompt_api_search_vocabularies_refresh_prompt_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchVocabularyRefreshPromptRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchVocabularyRefreshPromptResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_search_vocabulary_api_search_vocabularies__entry_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSearchVocabularyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchVocabularyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
