@@ -15,8 +15,8 @@ export function ToolsView({ onImported }: { onImported: () => void }) {
           <p className="eyebrow">Erweiterte Funktionen</p>
           <h1>Werkzeuge</h1>
           <p>
-            Manueller JSON-Import und direkte Kriterienverwaltung bleiben verfügbar,
-            gehören aber nicht zum normalen Recherche-Workflow.
+            Manueller JSON-Import und direkte Kriterienverwaltung bleiben
+            verfügbar, gehören aber nicht zum normalen Recherche-Workflow.
           </p>
         </div>
       </header>
@@ -40,7 +40,11 @@ export function ToolsView({ onImported }: { onImported: () => void }) {
           Assessment-Kriterien
         </button>
       </div>
-      {tab === "import" ? <ImportView onImported={onImported} /> : <CriteriaView />}
+      {tab === "import" ? (
+        <ImportView onImported={onImported} />
+      ) : (
+        <CriteriaView />
+      )}
     </section>
   );
 }
