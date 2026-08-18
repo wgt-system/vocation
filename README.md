@@ -2,9 +2,15 @@
 
 Vocation is a standalone, local-first application for a personal job market. It turns externally researched job information into a structured, traceable and durable personal working set without making external research or automated application submission part of the application itself.
 
-## Current status: v0.4.0 complete standalone baseline
+## Current status
 
-Vocation v0.4.0 closes the current standalone product scope. The implemented workflow covers the full path from research planning to application tracking:
+Stable `main` remains the released **v0.4.0 standalone baseline**. The `dev` branch has since completed the post-v0.4.0 qualitative first-user acceptance work governed by #31. That development state has passed automated acceptance, but it has not yet been assigned a new release version or promoted to `main`.
+
+The next release gate is a manual product/monkey acceptance run with current real job-market data using the documented first-user workflow. A new semantic version is chosen only after that real local workflow has been exercised and blocking findings have been resolved or explicitly deferred.
+
+### Stable v0.4.0 baseline
+
+Vocation v0.4.0 closes the released standalone baseline from research planning to application tracking:
 
 - Vocation-owned assessment criteria and versioned research prompts;
 - Research Bundle 1.0 initial imports and Research Update Bundle 2.0 scoped updates;
@@ -21,7 +27,21 @@ Vocation v0.4.0 closes the current standalone product scope. The implemented wor
 - immutable private ApplicationDocument content with integrity checking, upload and explicit read-only open access;
 - Published Opportunity Overview 1.0 and Published Map Projection 1.0 as frozen, client-neutral read contracts.
 
-The current scope deliberately does **not** include automatic research through a paid LLM API, crawling, automatic application submission, e-mail/calendar automation, automatic duplicate merging, document editing/generation, or cross-device write synchronization. Those are separate future decisions rather than unfinished v0.4.0 requirements.
+The v0.4.0 scope deliberately does **not** include automatic research through a paid LLM API, crawling, automatic application submission, e-mail/calendar automation, automatic duplicate merging, document editing/generation, or cross-device write synchronization. Those remain separate future decisions rather than unfinished v0.4.0 requirements.
+
+### Post-v0.4.0 acceptance capabilities on `dev`
+
+The completed acceptance wave adds the qualitative personal-search layer without changing the frozen Research Bundle or Published contracts:
+
+- a private, revisioned Candidate Profile separated from Vocation-owned search policy;
+- multiple persistent Search Profiles with a selectable default and explicit evaluation policy;
+- deterministic, explainable Opportunity Fit with weighted criterion contributions, evidence completeness and separate hard-constraint status;
+- profile-aware, quality-first Initial Research prompts with exact profile/candidate provenance snapshots and linked Research Bundle 1.0 imports;
+- an Opportunity workspace with text search, profile-aware filtering/sorting and private persistent notes that remain separate from imported evidence;
+- user-oriented navigation around **Stellenmarkt**, **Profil & Suche**, **Recherche** and **Organisation**, with manual implementation-oriented surfaces retained under **Werkzeuge**;
+- a deterministic realistic first-user acceptance flow covering initial research, linked import, fit, personal state, scoped update, provenance preservation and application restart.
+
+The automated acceptance procedure and the corresponding manual current-market product check are documented in `docs/16_FIRST_USER_ACCEPTANCE.md`.
 
 ## Ownership and system integration
 
