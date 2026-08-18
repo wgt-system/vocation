@@ -93,9 +93,7 @@ describe("product navigation", () => {
     expect(screen.getByText("Profil-Inhalt")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Stellenmarkt" }));
-    await user.click(
-      screen.getByRole("button", { name: "Recherche starten" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Recherche starten" }));
     expect(screen.getByText("Recherche-Inhalt")).toBeInTheDocument();
   });
 
