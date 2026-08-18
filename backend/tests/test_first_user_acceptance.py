@@ -136,6 +136,9 @@ def test_first_user_profile_research_analysis_personal_state_update_and_restart(
         assert candidate.json()["revision"] == 1
 
         profile_payload = search_payload(name="Hamburg Junior Software")
+        profile_payload["must_haves"] = []
+        profile_payload["must_not_haves"] = []
+        profile_payload["result_limit"] = 5
         profile_payload["criterion_policies"] = [
             {
                 "criterion_id": "junior_suitability",
