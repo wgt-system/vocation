@@ -17,3 +17,5 @@
 | 13_IMPLEMENTATION_PLAN | vertikale Umsetzungsslices |
 | 14_REVIEW_CHECKLIST | v0.4.0 Release-Review und Scope-Abschluss |
 | 15_PERSONAL_SEARCH_CONTEXT | privates Kandidatenprofil, Suchprofile und Ownership-Grenze |
+| 15_OPPORTUNITY_FIT | Search-Profile-Evaluationspolitik und erklärbarer Opportunity Fit |
+| 16_FIRST_USER_ACCEPTANCE | deterministischer First-User-Flow und manueller Current-Market-Acceptance-Check |
