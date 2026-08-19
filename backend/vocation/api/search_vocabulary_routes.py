@@ -9,7 +9,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from vocation.application.search_vocabulary import SearchVocabularyService
 from vocation.application.search_vocabulary_prompts import (
-    REFRESHABLE_KINDS,
     SearchVocabularyPromptService,
     SearchVocabularyProposal,
 )
