@@ -20,6 +20,10 @@ VocabularyKind = Literal["role", "technology", "industry", "seniority", "employm
 RefreshableVocabularyKind = Literal["role", "technology", "industry"]
 
 
+def _default_refreshable_kinds() -> list[RefreshableVocabularyKind]:
+    return ["role", "technology", "industry"]
+
+
 class SearchVocabularyResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -54,7 +58,7 @@ class SearchVocabularyRefreshPromptRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     as_of_date: date
-    kinds: list[RefreshableVocabularyKind] = Field(default_factory=lambda: list(REFRESHABLE_KINDS))
+    kinds: list[RefreshableVocabularyKind] = Field(default_factory=_default_refreshable_kinds)
 
 
 class SearchVocabularyRefreshPromptResponse(BaseModel):
