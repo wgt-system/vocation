@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -143,15 +143,16 @@ describe("SearchVocabularyManager", () => {
       await screen.findByDisplayValue("RESEARCH CURRENT VOCABULARY"),
     ).toBeInTheDocument();
 
-    await user.type(
-      screen.getByLabelText("Katalogvorschläge JSON"),
-      JSON.stringify({
-        contract: "vocation.search-vocabulary-proposals",
-        version: "1.0",
-        as_of_date: "2026-08-18",
-        proposals: [],
-      }),
-    );
+    fireEvent.change(screen.getByLabelText("Katalogvorschläge JSON"), {
+      target: {
+        value: JSON.stringify({
+          contract: "vocation.search-vocabulary-proposals",
+          version: "1.0",
+          as_of_date: "2026-08-18",
+          proposals: [],
+        }),
+      },
+    });
     await user.click(screen.getByRole("button", { name: "Vorschläge prüfen" }));
 
     expect(searchVocabularyApi.reviewProposals).toHaveBeenCalledTimes(1);
