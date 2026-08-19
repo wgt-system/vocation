@@ -1,0 +1,116 @@
+.vocabulary-manager {
+  width: min(100%, 1120px);
+}
+
+.vocabulary-toolbar,
+.vocabulary-custom-grid,
+.vocabulary-refresh-controls {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.6fr) minmax(260px, 1.4fr) minmax(
+      190px,
+      0.8fr
+    );
+  gap: 0.8rem;
+  align-items: end;
+}
+
+.vocabulary-inactive-toggle {
+  min-height: 42px;
+  align-self: end;
+}
+
+.vocabulary-list,
+.vocabulary-proposals {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.vocabulary-entry,
+.vocabulary-proposal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.vocabulary-entry.inactive {
+  background: #f2efe8;
+  opacity: 0.72;
+}
+
+.vocabulary-entry > div,
+.vocabulary-proposal > div {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.vocabulary-entry strong,
+.vocabulary-proposal strong {
+  font-size: 0.98rem;
+}
+
+.vocabulary-meta,
+.vocabulary-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+}
+
+.vocabulary-meta span {
+  padding: 0.18rem 0.42rem;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+
+.vocabulary-alias-field {
+  grid-column: 1 / -1;
+}
+
+.vocabulary-refresh-controls fieldset {
+  min-width: 0;
+}
+
+.vocabulary-refresh-controls > button {
+  min-height: 42px;
+}
+
+.vocabulary-proposal p {
+  margin: 0;
+  max-width: 720px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.vocabulary-sources a {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+@media (max-width: 900px) {
+  .vocabulary-toolbar,
+  .vocabulary-custom-grid,
+  .vocabulary-refresh-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .vocabulary-alias-field {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .vocabulary-entry,
+  .vocabulary-proposal {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

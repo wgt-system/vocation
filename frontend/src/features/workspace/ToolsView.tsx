@@ -3,8 +3,9 @@ import { useState } from "react";
 import { CriteriaView } from "../criteria/CriteriaView";
 import { DuplicateCasesView } from "../duplicates/DuplicateCasesView";
 import { ImportView } from "../imports/ImportView";
+import { SearchVocabularyManager } from "../profiles/SearchVocabularyManager";
 
-type ToolsTab = "import" | "criteria" | "duplicates";
+type ToolsTab = "import" | "criteria" | "vocabularies" | "duplicates";
 
 export function ToolsView({ onImported }: { onImported: () => void }) {
   const [tab, setTab] = useState<ToolsTab>("import");
@@ -16,9 +17,9 @@ export function ToolsView({ onImported }: { onImported: () => void }) {
           <p className="eyebrow">Erweiterte Funktionen</p>
           <h1>Werkzeuge</h1>
           <p className="page-description">
-            Manueller JSON-Import, Kriterienverwaltung und technische
-            Dublettenprüfung bleiben erreichbar, ohne den normalen Arbeitsablauf
-            zu überladen.
+            Manueller JSON-Import, Kriterien- und Suchkatalogpflege sowie
+            technische Dublettenprüfung bleiben erreichbar, ohne den normalen
+            Arbeitsablauf zu überladen.
           </p>
         </div>
       </header>
@@ -44,6 +45,15 @@ export function ToolsView({ onImported }: { onImported: () => void }) {
         <button
           type="button"
           role="tab"
+          aria-selected={tab === "vocabularies"}
+          className={tab === "vocabularies" ? "active" : ""}
+          onClick={() => setTab("vocabularies")}
+        >
+          Suchkataloge
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={tab === "duplicates"}
           className={tab === "duplicates" ? "active" : ""}
           onClick={() => setTab("duplicates")}
@@ -53,6 +63,7 @@ export function ToolsView({ onImported }: { onImported: () => void }) {
       </div>
       {tab === "import" && <ImportView onImported={onImported} />}
       {tab === "criteria" && <CriteriaView />}
+      {tab === "vocabularies" && <SearchVocabularyManager />}
       {tab === "duplicates" && <DuplicateCasesView />}
     </section>
   );

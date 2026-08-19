@@ -20,6 +20,7 @@
 | 16_OPPORTUNITY_FIT | Search-Profile-Evaluationspolitik und erklärbarer Opportunity Fit |
 | 17_MANUAL_PRODUCT_ACCEPTANCE | Ergebnis der ersten manuellen Produktabnahme, Blocker und akzeptierte Post-v0.4-Produkt-Richtung |
 | 18_FIRST_USER_ACCEPTANCE | deterministischer First-User-Flow und manueller Current-Market-Acceptance-Check |
+| 19_SEARCH_VOCABULARIES | lokale Rollen-/Technologie-/Branchenkataloge, Custom Terms und reviewbare Aktualisierungsvorschläge |
 
 ## Statushinweis
 
